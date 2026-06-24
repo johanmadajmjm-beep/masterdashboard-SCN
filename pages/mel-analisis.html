@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MEL — Analisis & Trend | MEL NLR Indonesia</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <style>
+    .analysis-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+    .analysis-grid.full { grid-template-columns:1fr; }
+    .chart-card { background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-md); overflow:hidden; }
+    .chart-head { padding:14px 18px; border-bottom:1px solid var(--gray-100); display:flex; align-items:center; justify-content:space-between; }
+    .chart-title { font-size:.85rem; font-weight:700; color:var(--gray-900); }
+    .chart-sub { font-size:.7rem; color:var(--gray-400); margin-top:2px; }
+    .chart-body { padding:18px; position:relative; }
+    .chart-body canvas { max-height:280px; }
+
+    /* Heatmap */
+    .heatmap-wrap { overflow-x:auto; padding:18px; }
+    .heatmap-table { border-collapse:separate; border-spacing:3px; font-size:.7rem; }
+    .heatmap-table th { padding:6px 10px; text-align:left; font-weight:700; color:var(--gray-500); white-space:nowrap; }
+    .heatmap-table td { width:80px; height:38px; border-radius:6px; text-align:center; vertical-align:middle; font-family:var(--font-mono); font-size:.75rem; font-weight:700; color:white; cursor:default; transition:transform .1s; }
+    .heatmap-table td:hover { transform:scale(1.08); }
+    .hm-label { background:none !important; color:var(--gray-700) !important; font-weight:700; font-size:.7rem; text-align:left !important; width:160px; white-space:nowrap; }
+
+    /* Ranking */
+    .rank-item { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--gray-100); }
+    .rank-item:last-child { border-bottom:none; }
+    .rank-num { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:800; flex-shrink:0; }
+    .rank-1 { background:#fef3c7; color:#92400e; }
+    .rank-2 { background:#f3f4f6; color:#374151; }
+    .rank-3 { background:#fef3c7; color:#78350f; }
+    .rank-other { background:#f9fafb; color:#9ca3af; }
+    .rank-info { flex:1; min-width:0; }
+    .rank-name { font-weight:700; font-size:.82rem; color:var(--gray-900); }
+    .rank-detail { font-size:.7rem; color:var(--gray-400); margin-top:1px; }
+    .rank-score { font-family:var(--font-mono); font-size:1rem; font-weight:700; }
+
+    /* Insight cards */
+    .insight-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:20px; }
+    .insight-card { background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-md); padding:16px; }
+    .insight-icon { font-size:1.4rem; margin-bottom:8px; }
+    .insight-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--gray-400); margin-bottom:4px; }
+    .insight-value { font-size:.95rem; font-weight:700; color:var(--gray-900); line-height:1.3; }
+    .insight-sub { font-size:.7rem; color:var(--gray-500); margin-top:3px; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-breadcrumb">MEL <span class="sep">›</span><span class="current">Analisis & Trend</span></div>
+      </div>
+      <div class="topbar-right">
+        <span class="scn-badge" id="scn-badge">—</span>
+        <span class="topbar-date" id="topbar-date">—</span>
+      </div>
+    </header>
+
+    <div class="page">
+      <div class="page-header">
+        <h1>Analisis & Trend</h1>
+        <p>Perbandingan performa antar SCN, pola capaian ITT, dan insight program nasional.</p>
+      </div>
+
+      <!-- INSIGHT OTOMATIS -->
+      <div class="insight-grid" id="insight-grid"></div>
+
+      <!-- BARIS 1: Radar + Ranking -->
+      <div class="analysis-grid">
+
+        <!-- Radar: Profil 8 SCN per Outcome -->
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Profil Capaian per Outcome</div>
+              <div class="chart-sub">Rata-rata % capaian Y1 — semua SCN</div>
+            </div>
+          </div>
+          <div class="chart-body"><canvas id="chart-radar"></canvas></div>
+        </div>
+
+        <!-- Ranking SCN -->
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Ranking SCN</div>
+              <div class="chart-sub">Berdasarkan rata-rata capaian semua indikator ITT</div>
+            </div>
+          </div>
+          <div class="chart-body" id="ranking-list" style="padding:14px 18px"></div>
+        </div>
+
+      </div>
+
+      <!-- BARIS 2: Bar perbandingan SCN per Outcome -->
+      <div class="analysis-grid full">
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Perbandingan Capaian per Outcome — Semua SCN</div>
+              <div class="chart-sub">% capaian terhadap target tahunan Y1</div>
+            </div>
+            <select id="sel-outcome" style="padding:5px 10px;border:1px solid var(--gray-300);border-radius:var(--radius-sm);font-size:.75rem;font-family:var(--font-body)"></select>
+          </div>
+          <div class="chart-body"><canvas id="chart-bar-scn" style="max-height:220px"></canvas></div>
+        </div>
+      </div>
+
+      <!-- BARIS 3: Heatmap ITT -->
+      <div class="analysis-grid full">
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Heatmap Capaian ITT</div>
+              <div class="chart-sub">SCN (baris) × Outcome (kolom) — warna = % capaian Y1</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:.65rem;color:var(--gray-500)">
+              <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#fee2e2"></span>&lt;25%
+              <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#fef3c7;margin-left:4px"></span>25–49%
+              <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#dbeafe;margin-left:4px"></span>50–79%
+              <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#dcfce7;margin-left:4px"></span>≥80%
+            </div>
+          </div>
+          <div class="heatmap-wrap"><table class="heatmap-table" id="heatmap-table"></table></div>
+        </div>
+      </div>
+
+      <!-- BARIS 4: Distribusi Ragam + Trend Kunjungan vs Terlambat -->
+      <div class="analysis-grid">
+
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Distribusi Ragam Disabilitas</div>
+              <div class="chart-sub">Proporsi ragam dari semua beneficiary</div>
+            </div>
+          </div>
+          <div class="chart-body"><canvas id="chart-ragam"></canvas></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Coverage Kunjungan vs Terlambat</div>
+              <div class="chart-sub">Per SCN — bulan ini</div>
+            </div>
+          </div>
+          <div class="chart-body"><canvas id="chart-kunjungan" style="max-height:280px"></canvas></div>
+        </div>
+
+      </div>
+
+      <!-- BARIS 5: Stakeholder engagement -->
+      <div class="analysis-grid full">
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Keterlibatan Stakeholder per SCN</div>
+              <div class="chart-sub">Total stakeholder yang terlibat dalam program</div>
+            </div>
+          </div>
+          <div class="chart-body"><canvas id="chart-stakeholder" style="max-height:200px"></canvas></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/data.js"></script>
+<script>
+const SCN_IDS    = ['manggarai','banyuwangi','jember','situbondo','kupang','tts','palu','sigi'];
+const SCN_LABELS = ['Manggarai','Banyuwangi','Jember','Situbondo','Kupang','TTS','Palu','Sigi'];
+const SCN_COLORS = ['#1a6fd4','#10b8a6','#d97706','#7c3aed','#16a34a','#dc2626','#0284c7','#db2777'];
+
+// Hitung avg capaian semua indikator untuk satu SCN
+function scnAvgPct(scnId) {
+  const itt = DATA[scnId].itt.Y1_Q2;
+  const ids  = Object.keys(itt).filter(id => itt[id].target_y1 > 0);
+  if (!ids.length) return 0;
+  return Math.round(ids.reduce((s, id) => s + getPct(itt[id].cap, itt[id].target_y1), 0) / ids.length);
+}
+
+// Hitung avg capaian per outcome untuk satu SCN
+function scnOutcomePct(scnId, outcome) {
+  const itt  = DATA[scnId].itt.Y1_Q2;
+  const ids  = outcome.indikator_ids.filter(id => itt[id] && itt[id].target_y1 > 0);
+  if (!ids.length) return 0;
+  return Math.round(ids.reduce((s, id) => s + getPct(itt[id].cap, itt[id].target_y1), 0) / ids.length);
+}
+
+function hmColor(pct) {
+  if (pct >= 80) return '#16a34a';
+  if (pct >= 50) return '#2563eb';
+  if (pct >= 25) return '#d97706';
+  return '#dc2626';
+}
+function hmBg(pct) {
+  if (pct >= 80) return '#dcfce7';
+  if (pct >= 50) return '#dbeafe';
+  if (pct >= 25) return '#fef3c7';
+  return '#fee2e2';
+}
+
+let barChart = null;
+
+function initPage(s, scnId) {
+  // Selalu tampilkan analisis nasional (semua SCN) di halaman ini
+  renderInsights();
+  renderRadar();
+  renderRanking();
+  renderBarScn(OUTCOMES[0]);
+  renderHeatmap();
+  renderRagam();
+  renderKunjungan();
+  renderStakeholder();
+  populateOutcomeSelect();
+}
+
+// ── INSIGHT OTOMATIS ──
+function renderInsights() {
+  const scores = SCN_IDS.map(id => ({ id, label: DATA[id].meta.scn, score: scnAvgPct(id) }));
+  scores.sort((a, b) => b.score - a.score);
+  const best   = scores[0];
+  const worst  = scores[scores.length - 1];
+
+  // Outcome terbaik & terlemah (rata-rata semua SCN)
+  const outcomeScores = OUTCOMES.map(o => ({
+    o,
+    avg: Math.round(SCN_IDS.reduce((s, id) => s + scnOutcomePct(id, o), 0) / SCN_IDS.length)
+  })).sort((a, b) => b.avg - a.avg);
+  const bestO  = outcomeScores[0];
+  const worstO = outcomeScores[outcomeScores.length - 1];
+
+  // Total beneficiary semua SCN
+  const totalBenef = SCN_IDS.reduce((s, id) => s + DATA[id].anak.length, 0);
+  const totalLate  = SCN_IDS.reduce((s, id) => s + DATA[id].workers.reduce((a, w) => a + w.late, 0), 0);
+  const totalWorker= SCN_IDS.reduce((s, id) => s + DATA[id].workers.length, 0);
+
+  document.getElementById('insight-grid').innerHTML = [
+    { icon:'🏆', label:'SCN Terbaik', value: best.label, sub: `Rata-rata capaian ${best.score}%` },
+    { icon:'⚠️',  label:'SCN Perlu Dukungan', value: worst.label, sub: `Rata-rata capaian ${worst.score}%` },
+    { icon:'📈', label:'Outcome Terkuat', value: bestO.o.pendek, sub: `Rata-rata ${bestO.avg}% lintas SCN` },
+    { icon:'📉', label:'Outcome Terlemah', value: worstO.o.pendek, sub: `Rata-rata ${worstO.avg}% lintas SCN` },
+    { icon:'👶', label:'Total Beneficiary', value: totalBenef + ' anak', sub: 'dari 8 SCN aktif' },
+    { icon:'🚨', label:'Perlu Kunjungan Segera', value: totalLate + ' anak', sub: '>30 hari belum dikunjungi' },
+    { icon:'👷', label:'Total CBR Worker', value: totalWorker + ' orang', sub: 'petugas lapangan aktif' },
+    { icon:'🌏', label:'Jangkauan Wilayah', value: '3 Provinsi', sub: 'NTT · Jawa Timur · Sulawesi Tengah' },
+  ].map(i => `
+    <div class="insight-card">
+      <div class="insight-icon">${i.icon}</div>
+      <div class="insight-label">${i.label}</div>
+      <div class="insight-value">${i.value}</div>
+      <div class="insight-sub">${i.sub}</div>
+    </div>`).join('');
+}
+
+// ── RADAR CHART ──
+function renderRadar() {
+  const ctx = document.getElementById('chart-radar').getContext('2d');
+  const labels = OUTCOMES.map(o => o.pendek);
+  // Rata-rata semua SCN per outcome
+  const data = OUTCOMES.map(o =>
+    Math.round(SCN_IDS.reduce((s, id) => s + scnOutcomePct(id, o), 0) / SCN_IDS.length)
+  );
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Rata-rata Nasional (%)',
+        data,
+        borderColor: '#1a6fd4',
+        backgroundColor: 'rgba(26,111,212,.15)',
+        pointBackgroundColor: '#1a6fd4',
+        pointRadius: 4,
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: { r: { min:0, max:100, ticks:{ stepSize:25, font:{size:10} }, pointLabels:{ font:{size:10} } } },
+      plugins: { legend:{ display:false } }
+    }
+  });
+}
+
+// ── RANKING ──
+function renderRanking() {
+  const scores = SCN_IDS.map((id, i) => ({
+    label: DATA[id].meta.scn,
+    score: scnAvgPct(id),
+    provinsi: DATA[id].meta.provinsi,
+    color: SCN_COLORS[i]
+  })).sort((a, b) => b.score - a.score);
+
+  document.getElementById('ranking-list').innerHTML = scores.map((s, i) => {
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+    const col   = getPctColor(s.score);
+    return `<div class="rank-item">
+      <div class="rank-num rank-${i<3?i+1:'other'}">${medal}</div>
+      <div class="rank-info">
+        <div class="rank-name">${s.label}</div>
+        <div class="rank-detail">${s.provinsi}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="rank-score" style="color:${col}">${s.score}%</div>
+        <div class="prog-wrap" style="width:80px;margin-top:4px">
+          <div class="prog-fill" style="width:${s.score}%;background:${col}"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── BAR SCN per Outcome ──
+function populateOutcomeSelect() {
+  const sel = document.getElementById('sel-outcome');
+  sel.innerHTML = OUTCOMES.map(o => `<option value="${o.id}">${o.label} — ${o.pendek}</option>`).join('');
+  sel.addEventListener('change', () => {
+    const o = OUTCOMES.find(x => x.id === sel.value);
+    renderBarScn(o);
+  });
+}
+
+function renderBarScn(outcome) {
+  const ctx = document.getElementById('chart-bar-scn').getContext('2d');
+  const data = SCN_IDS.map(id => scnOutcomePct(id, outcome));
+  const bgColors = data.map(v => getPctColor(v) + 'cc');
+
+  if (barChart) barChart.destroy();
+  barChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: SCN_LABELS,
+      datasets: [{
+        label: '% Capaian Y1',
+        data,
+        backgroundColor: bgColors,
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display:false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.raw}% capaian` } }
+      },
+      scales: {
+        y: { min:0, max:100, ticks:{ callback: v => v+'%' }, grid:{ color:'#f3f4f6' } },
+        x: { grid:{ display:false } }
+      }
+    }
+  });
+}
+
+// ── HEATMAP ──
+function renderHeatmap() {
+  const table = document.getElementById('heatmap-table');
+  // Header
+  let html = '<thead><tr><th class="hm-label">SCN</th>';
+  OUTCOMES.forEach(o => { html += `<th style="text-align:center;color:${o.warna}">${o.label}</th>`; });
+  html += '</tr></thead><tbody>';
+
+  SCN_IDS.forEach((id, i) => {
+    html += `<tr><td class="hm-label">${SCN_LABELS[i]}</td>`;
+    OUTCOMES.forEach(o => {
+      const pct = scnOutcomePct(id, o);
+      const bg  = hmBg(pct);
+      const col = hmColor(pct);
+      html += `<td style="background:${bg};color:${col}" title="${DATA[id].meta.scn} — ${o.label}: ${pct}%">${pct}%</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+// ── RAGAM DISABILITAS ──
+function renderRagam() {
+  const ctx = document.getElementById('chart-ragam').getContext('2d');
+  const ragamCount = {};
+  SCN_IDS.forEach(id => {
+    DATA[id].anak.forEach(a => { ragamCount[a.ragam] = (ragamCount[a.ragam]||0) + 1; });
+  });
+  const labels = Object.keys(ragamCount);
+  const data   = Object.values(ragamCount);
+  const colors = ['#1a6fd4','#10b8a6','#d97706','#7c3aed','#16a34a','#dc2626'];
+
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor:'#fff' }] },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position:'right', labels:{ font:{size:11}, padding:12 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} anak` } }
+      }
+    }
+  });
+}
+
+// ── KUNJUNGAN vs TERLAMBAT ──
+function renderKunjungan() {
+  const ctx = document.getElementById('chart-kunjungan').getContext('2d');
+  const coverage = SCN_IDS.map(id => {
+    const total  = DATA[id].workers.reduce((s,w) => s+w.anak, 0);
+    const kunj   = DATA[id].workers.reduce((s,w) => s+w.kunjungan_bulan, 0);
+    return total > 0 ? Math.round(kunj/total*100) : 0;
+  });
+  const late = SCN_IDS.map(id => DATA[id].workers.reduce((s,w) => s+w.late, 0));
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: SCN_LABELS,
+      datasets: [
+        { label: 'Coverage Kunjungan (%)', data: coverage, backgroundColor: '#1a6fd4cc', borderRadius:4, yAxisID:'y' },
+        { label: 'Anak Terlambat',         data: late,     backgroundColor: '#dc2626cc', borderRadius:4, yAxisID:'y2' },
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend:{ position:'top', labels:{ font:{size:11} } } },
+      scales: {
+        y:  { min:0, max:100, position:'left',  ticks:{ callback: v => v+'%' }, grid:{ color:'#f3f4f6' } },
+        y2: { min:0, position:'right', grid:{ display:false }, ticks:{ stepSize:1 } },
+        x:  { grid:{ display:false } }
+      }
+    }
+  });
+}
+
+// ── STAKEHOLDER PER SCN ──
+function renderStakeholder() {
+  const ctx = document.getElementById('chart-stakeholder').getContext('2d');
+  const cats = ['Guru','Nakes','Pemerintah','Pengasuh/Ortu','CBR Worker'];
+  const catColors = ['#1a6fd4','#10b8a6','#d97706','#7c3aed','#16a34a'];
+
+  const datasets = cats.map((cat, i) => ({
+    label: cat,
+    data: SCN_IDS.map(id => (DATA[id].stakeholder[cat] || {total:0}).total),
+    backgroundColor: catColors[i] + 'cc',
+    borderRadius: 4,
+  }));
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: { labels: SCN_LABELS, datasets },
+    options: {
+      responsive: true,
+      plugins: { legend:{ position:'top', labels:{ font:{size:11} } } },
+      scales: {
+        x: { stacked:true, grid:{ display:false } },
+        y: { stacked:true, grid:{ color:'#f3f4f6' } }
+      }
+    }
+  });
+}
+
+buildSidebar();
+const SESSION = AUTH.requireAuth('../index.html');
+if (SESSION) {
+  AUTH.applySession({
+    onScnSwitch: function(scnId) {
+      if (window.initPage) initPage(SESSION, scnId);
+    }
+  });
+  AUTH.initSidebar('mel', 'm-analisis');
+  if (window.initPage) initPage(SESSION, AUTH.getScnFilter());
+}
+</script>
+</body></html>

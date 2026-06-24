@@ -43,8 +43,8 @@
       <div class="card"><div class="card-head"><span class="card-title" id="worker-title">—</span></div>
       <div class="card-body no-pad"><div class="tbl-wrap"><table><thead><tr><th>Nama Anak</th><th>Ragam</th><th>Desa</th><th>IRP</th><th>Terakhir</th></tr></thead><tbody id="worker-anak"></tbody></table></div></div></div>
       <script>
-      function initPage(s){
-        const d = getScnData(s.scn_id||'manggarai');
+      function initPage(s, scnId){
+        const d = getScnData(scnId||s.scn_id||'manggarai');
         const sel = document.getElementById('sel-worker');
         sel.innerHTML = d.workers.map(w=>`<option value="${w.id}">${w.nama}</option>`).join('');
         function render(wid){
@@ -78,7 +78,16 @@
   buildSidebar();
   const SESSION = AUTH.requireAuth('../index.html');
   if (SESSION) {
-    AUTH.applySession({ onScnSwitch: (id) => { if(window.onScnSwitch) onScnSwitch(id); } });
+    AUTH.applySession({
+      onScnSwitch: (scnId) => {
+        // Re-render halaman dengan SCN baru
+        if (window.initPage) initPage(SESSION, scnId);
+      }
+    });
+    AUTH.initSidebar('coord','c-worker');
+    // Render awal dengan SCN dari session
+    if (window.initPage) initPage(SESSION, AUTH.getScnFilter());
+  });
     AUTH.initSidebar('coord','c-worker');
     if (window.initPage) initPage(SESSION);
   }

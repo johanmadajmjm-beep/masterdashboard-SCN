@@ -48,8 +48,8 @@
       <div class="card" style="margin-top:16px"><div class="card-head"><span class="card-title">Semua Beneficiary</span><span class="badge badge-blue" id="total-badge">—</span></div>
       <div class="card-body no-pad"><div class="tbl-wrap"><table><thead><tr><th>Nama</th><th>Gender</th><th>Usia</th><th>Ragam</th><th>Desa</th><th>CBR Worker</th><th>IRP</th></tr></thead><tbody id="tbl-all-benef"></tbody></table></div></div></div>
       <script>
-      function initPage(s){
-        const d = getScnData(s.scn_id||'manggarai');
+      function initPage(s, scnId){
+        const d = getScnData(scnId||s.scn_id||'manggarai');
         const ragamCount = {};
         d.anak.forEach(a=>{ragamCount[a.ragam]=(ragamCount[a.ragam]||0)+1;});
         const ragamColors = {Fisik:'#1a6fd4',Intelektual:'#10b8a6',Wicara:'#d97706',Rungu:'#7c3aed',Netra:'#16a34a',Ganda:'#dc2626'};
@@ -88,7 +88,16 @@
   buildSidebar();
   const SESSION = AUTH.requireAuth('../index.html');
   if (SESSION) {
-    AUTH.applySession({ onScnSwitch: (id) => { if(window.onScnSwitch) onScnSwitch(id); } });
+    AUTH.applySession({
+      onScnSwitch: (scnId) => {
+        // Re-render halaman dengan SCN baru
+        if (window.initPage) initPage(SESSION, scnId);
+      }
+    });
+    AUTH.initSidebar('coord','c-benef');
+    // Render awal dengan SCN dari session
+    if (window.initPage) initPage(SESSION, AUTH.getScnFilter());
+  });
     AUTH.initSidebar('coord','c-benef');
     if (window.initPage) initPage(SESSION);
   }

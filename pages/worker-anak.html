@@ -79,7 +79,16 @@
   buildSidebar();
   const SESSION = AUTH.requireAuth('../index.html');
   if (SESSION) {
-    AUTH.applySession({ onScnSwitch: (id) => { if(window.onScnSwitch) onScnSwitch(id); } });
+    AUTH.applySession({
+      onScnSwitch: (scnId) => {
+        // Re-render halaman dengan SCN baru
+        if (window.initPage) initPage(SESSION, scnId);
+      }
+    });
+    AUTH.initSidebar('worker','w-anak');
+    // Render awal dengan SCN dari session
+    if (window.initPage) initPage(SESSION, AUTH.getScnFilter());
+  });
     AUTH.initSidebar('worker','w-anak');
     if (window.initPage) initPage(SESSION);
   }

@@ -45,8 +45,8 @@
         <div class="card-body no-pad"><div class="tbl-wrap"><table><thead><tr><th>Anak</th><th>Tujuan</th><th>Tgl</th><th>Status</th></tr></thead><tbody id="tbl-ref-all"></tbody></table></div></div></div>
       </div>
       <script>
-      function initPage(s){
-        const d = getScnData(s.scn_id||'manggarai');
+      function initPage(s, scnId){
+        const d = getScnData(scnId||s.scn_id||'manggarai');
         const acts = d.aktivitas;
         document.getElementById('badge-total-kunjungan').textContent = acts.length + ' kegiatan';
         const OCOL = ['','#1a6fd4','#10b8a6','#d97706','#7c3aed','#16a34a','#dc2626','#0284c7'];
@@ -68,7 +68,16 @@
   buildSidebar();
   const SESSION = AUTH.requireAuth('../index.html');
   if (SESSION) {
-    AUTH.applySession({ onScnSwitch: (id) => { if(window.onScnSwitch) onScnSwitch(id); } });
+    AUTH.applySession({
+      onScnSwitch: (scnId) => {
+        // Re-render halaman dengan SCN baru
+        if (window.initPage) initPage(SESSION, scnId);
+      }
+    });
+    AUTH.initSidebar('worker','w-aktivitas');
+    // Render awal dengan SCN dari session
+    if (window.initPage) initPage(SESSION, AUTH.getScnFilter());
+  });
     AUTH.initSidebar('worker','w-aktivitas');
     if (window.initPage) initPage(SESSION);
   }

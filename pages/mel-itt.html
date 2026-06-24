@@ -40,8 +40,8 @@
       <div class="page-header"><h1>Indicator Tracking Table</h1><p>Capaian per indikator berdasarkan ITT NLR Indonesia — 7 Outcome · Year 1 2026.</p></div>
       <div id="itt-container"></div>
       <script>
-      function initPage(s){
-        const d = getScnData(s.scn_id||'manggarai');
+      function initPage(s, scnId){
+        const d = getScnData(scnId||s.scn_id||'manggarai');
         const itt = d.itt.Y1_Q2;
         document.getElementById('itt-container').innerHTML = OUTCOMES.map(o=>{
           const rows = o.indikator_ids.map(id=>{
@@ -91,7 +91,16 @@
   buildSidebar();
   const SESSION = AUTH.requireAuth('../index.html');
   if (SESSION) {
-    AUTH.applySession({ onScnSwitch: (id) => { if(window.onScnSwitch) onScnSwitch(id); } });
+    AUTH.applySession({
+      onScnSwitch: (scnId) => {
+        // Re-render halaman dengan SCN baru
+        if (window.initPage) initPage(SESSION, scnId);
+      }
+    });
+    AUTH.initSidebar('mel','m-itt');
+    // Render awal dengan SCN dari session
+    if (window.initPage) initPage(SESSION, AUTH.getScnFilter());
+  });
     AUTH.initSidebar('mel','m-itt');
     if (window.initPage) initPage(SESSION);
   }

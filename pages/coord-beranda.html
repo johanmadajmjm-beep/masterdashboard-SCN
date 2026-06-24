@@ -50,8 +50,8 @@
         <tbody id="tbl-workers"></tbody>
       </table></div></div></div>
       <script>
-      function initPage(s){
-        const d = getScnData(s.scn_id||'manggarai');
+      function initPage(s, scnId){
+        const d = getScnData(scnId||s.scn_id||'manggarai');
         const totalAnak = d.workers.reduce((a,w)=>a+w.anak,0);
         const totalKunj = d.workers.reduce((a,w)=>a+w.kunjungan_bulan,0);
         const totalLate = d.workers.reduce((a,w)=>a+w.late,0);
@@ -83,7 +83,16 @@
   buildSidebar();
   const SESSION = AUTH.requireAuth('../index.html');
   if (SESSION) {
-    AUTH.applySession({ onScnSwitch: (id) => { if(window.onScnSwitch) onScnSwitch(id); } });
+    AUTH.applySession({
+      onScnSwitch: (scnId) => {
+        // Re-render halaman dengan SCN baru
+        if (window.initPage) initPage(SESSION, scnId);
+      }
+    });
+    AUTH.initSidebar('coord','c-beranda');
+    // Render awal dengan SCN dari session
+    if (window.initPage) initPage(SESSION, AUTH.getScnFilter());
+  });
     AUTH.initSidebar('coord','c-beranda');
     if (window.initPage) initPage(SESSION);
   }

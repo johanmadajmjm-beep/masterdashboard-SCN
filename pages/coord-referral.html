@@ -54,7 +54,6 @@
       </div>
       <script>
       function renderPage(d, scnId){
-        const d = d;
         const proses  = d.referral.filter(r=>r.status==='Proses').length;
         const selesai = d.referral.filter(r=>r.status==='Selesai').length;
         const irpAktif = d.anak.filter(a=>a.irp==='Aktif').length;

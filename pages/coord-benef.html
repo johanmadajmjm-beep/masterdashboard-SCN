@@ -51,7 +51,6 @@
       <div class="card-body no-pad"><div class="tbl-wrap"><table><thead><tr><th>Nama</th><th>Gender</th><th>Usia</th><th>Ragam</th><th>Desa</th><th>CBR Worker</th><th>IRP</th></tr></thead><tbody id="tbl-all-benef"></tbody></table></div></div></div>
       <script>
       function renderPage(d, scnId){
-        const d = d;
         const ragamCount = {};
         d.anak.forEach(a=>{ragamCount[a.ragam]=(ragamCount[a.ragam]||0)+1;});
         const ragamColors = {Fisik:'#1a6fd4',Intelektual:'#10b8a6',Wicara:'#d97706',Rungu:'#7c3aed',Netra:'#16a34a',Ganda:'#dc2626'};

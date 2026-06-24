@@ -47,7 +47,6 @@
       </div>
       <script>
       function renderPage(d, scnId){
-        const d = d;
         const stake = d.stakeholder;
         const cats = Object.entries(stake).sort((a,b)=>b[1].total-a[1].total);
         const total = cats.reduce((s,[,v])=>s+v.total,0);

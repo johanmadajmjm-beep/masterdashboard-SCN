@@ -49,7 +49,6 @@
       <div id="cerita-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px"></div>
       <script>
       function renderPage(d, scnId){
-        const d = d;
         const c = d.cerita;
         document.getElementById('cerita-total').textContent = c.length;
         document.getElementById('cerita-ind').textContent   = c.filter(x=>x.tag==='Perkembangan Anak').length;

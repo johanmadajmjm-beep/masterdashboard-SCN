@@ -53,7 +53,6 @@
       </table></div></div></div>
       <script>
       function renderPage(d, scnId){
-        const d = d;
         const totalAnak = d.workers.reduce((a,w)=>a+w.anak,0);
         const totalKunj = d.workers.reduce((a,w)=>a+w.kunjungan_bulan,0);
         const totalLate = d.workers.reduce((a,w)=>a+w.late,0);

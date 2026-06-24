@@ -46,7 +46,6 @@
       <div class="card-body no-pad"><div class="tbl-wrap"><table><thead><tr><th>Nama Anak</th><th>Ragam</th><th>Desa</th><th>IRP</th><th>Terakhir</th></tr></thead><tbody id="worker-anak"></tbody></table></div></div></div>
       <script>
       function renderPage(d, scnId){
-        const d = d;
         const sel = document.getElementById('sel-worker');
         // Saat semua SCN: tampilkan nama SCN di depan nama worker
         sel.innerHTML = d.workers.map(w=>{

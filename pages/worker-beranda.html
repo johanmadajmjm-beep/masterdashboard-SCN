@@ -54,9 +54,8 @@
       </div>
       <script>
       function renderPage(d, scnId) {
-        const d = d;
         // Kalau semua SCN → tampilkan agregat, kalau spesifik → worker pertama
-        const isAll = !scnId && !(s.scn_id);
+        const isAll = !scnId && !scnId;
         const totalAnak  = d.workers.reduce((s,w)=>s+w.anak,0);
         const totalKunj  = d.workers.reduce((s,w)=>s+w.kunjungan_bulan,0);
         const totalIRP   = d.workers.reduce((s,w)=>s+w.irp_aktif,0);

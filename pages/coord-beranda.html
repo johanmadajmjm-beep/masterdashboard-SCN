@@ -59,6 +59,9 @@
         document.getElementById('s-kunjungan').textContent = totalKunj;
         document.getElementById('s-late').textContent      = totalLate;
         document.getElementById('s-worker').textContent    = d.workers.length;
+        // Kalau semua SCN, tampilkan info tambahan
+        const scnCount = document.getElementById('s-scn-count');
+        if (scnCount) scnCount.textContent = scnId ? '' : '('+Object.keys(DATA).length+' SCN)';
         document.getElementById('tbl-workers').innerHTML   = d.workers.map(w=>{
           const pct = getPct(w.kunjungan_bulan, w.anak);
           const col = getPctColor(pct);

@@ -40,7 +40,7 @@
       <div class="page-header"><h1>Aktivitas & Kunjungan</h1><p>Riwayat kunjungan, referral, dan jadwal bulan ini.</p></div>
       <div class="grid-2">
         <div class="card"><div class="card-head"><span class="card-title">Riwayat Kunjungan</span><span class="badge badge-teal" id="badge-total-kunjungan">—</span></div>
-        <div class="card-body no-pad"><div class="tbl-wrap"><table><thead><tr><th>Anak</th><th>Tanggal</th><th>Kegiatan</th><th>Outcome</th></tr></thead><tbody id="tbl-kunjungan"></tbody></table></div></div></div>
+        <div class="card-body no-pad"><div class="tbl-wrap"><table><thead><tr><th>Nama Kegiatan</th><th>Tanggal</th><th>Lokasi</th><th>Peserta</th><th>Outcome</th></tr></thead><tbody id="tbl-kunjungan"></tbody></table></div></div></div>
         <div class="card"><div class="card-head"><span class="card-title">Semua Referral</span></div>
         <div class="card-body no-pad"><div class="tbl-wrap"><table><thead><tr><th>Anak</th><th>Tujuan</th><th>Tgl</th><th>Status</th></tr></thead><tbody id="tbl-ref-all"></tbody></table></div></div></div>
       </div>
@@ -51,8 +51,13 @@
         document.getElementById('badge-total-kunjungan').textContent = acts.length + ' kegiatan';
         const OCOL = ['','#1a6fd4','#10b8a6','#d97706','#7c3aed','#16a34a','#dc2626','#0284c7'];
         document.getElementById('tbl-kunjungan').innerHTML = acts.map(a=>`
-          <tr><td><strong>${a.nama}</strong></td><td class="mono" style="font-size:.7rem">${a.tgl}</td><td style="font-size:.7rem;color:var(--gray-500)">${a.output}</td>
-          <td><span class="outcome-tag" style="background:${OCOL[a.outcome]||'#999'}">O${a.outcome}</span></td></tr>`).join('');
+          <tr>
+            <td><strong>${a.nama}</strong></td>
+            <td class="mono" style="font-size:.7rem">${a.tgl}</td>
+            <td style="font-size:.72rem;color:var(--ink-400)">${a.lokasi||'—'}</td>
+            <td class="mono" style="text-align:center">${a.peserta||'—'}</td>
+            <td><span class="outcome-tag" style="background:${OCOL[a.outcome]||'#999'}">O${a.outcome}</span></td>
+          </tr>`).join('');
         document.getElementById('tbl-ref-all').innerHTML = d.referral.map(r=>`
           <tr><td><strong>${r.nama}</strong></td><td style="font-size:.72rem;color:var(--gray-500)">${r.tujuan}</td><td class="mono" style="font-size:.7rem">${r.tgl}</td>
           <td><span class="badge ${r.status==='Proses'?'badge-amber':'badge-green'}">${r.status}</span></td></tr>`).join('');

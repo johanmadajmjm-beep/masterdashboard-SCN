@@ -3,23 +3,131 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login — Platform MEL SCN NTT</title>
+  <title>Login — Sistem Informasi MEL | NLR Indonesia</title>
   <link rel="stylesheet" href="css/login.css" />
+  <style>
+    .login-wrapper { max-width: 460px; }
+
+    /* NLR brand strip */
+    .nlr-brand {
+      display        : flex;
+      align-items    : center;
+      justify-content: center;
+      gap            : 12px;
+      margin-bottom  : 24px;
+    }
+    .nlr-logo-box {
+      width            : 48px;
+      height           : 48px;
+      background       : #D4500A;
+      border-radius    : 10px;
+      display          : flex;
+      align-items      : center;
+      justify-content  : center;
+      font-weight      : 900;
+      font-size        : 1.1rem;
+      color            : white;
+      letter-spacing   : .05em;
+      flex-shrink      : 0;
+    }
+    .nlr-name {
+      text-align : left;
+    }
+    .nlr-name .full  { font-size: .7rem; color: rgba(255,255,255,.4); line-height:1.2; }
+    .nlr-name .short { font-size: 1.1rem; font-weight: 700; color: white; line-height:1.2; }
+
+    /* App title */
+    .app-title {
+      font-size   : 1.4rem;
+      font-weight : 700;
+      color       : var(--white);
+      text-align  : center;
+      line-height : 1.2;
+    }
+    .app-subtitle {
+      font-size   : .8125rem;
+      color       : var(--primary-300);
+      text-align  : center;
+      margin-top  : 4px;
+      margin-bottom: 24px;
+    }
+
+    /* Info strip */
+    .info-strip {
+      background    : rgba(255,255,255,.05);
+      border        : 1px solid rgba(255,255,255,.1);
+      border-radius : 10px;
+      padding       : 14px 16px;
+      margin-bottom : 20px;
+      display       : grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap           : 8px;
+      text-align    : center;
+    }
+    .info-item .num {
+      font-family : var(--font-mono);
+      font-size   : 1.1rem;
+      font-weight : 700;
+      color       : #1ab8a6;
+    }
+    .info-item .lbl {
+      font-size : .7rem;
+      color     : rgba(255,255,255,.45);
+      margin-top: 2px;
+      line-height: 1.3;
+    }
+    .info-divider {
+      width      : 1px;
+      background : rgba(255,255,255,.1);
+      margin     : 4px 0;
+    }
+
+    /* About NLR */
+    .about-nlr {
+      font-size   : .75rem;
+      color       : rgba(255,255,255,.35);
+      text-align  : center;
+      line-height : 1.6;
+      margin-top  : 16px;
+      padding-top : 14px;
+      border-top  : 1px solid rgba(255,255,255,.08);
+    }
+    .about-nlr a { color: rgba(255,255,255,.5); text-decoration: underline; }
+  </style>
 </head>
 <body>
 
   <div class="login-wrapper">
 
-    <!-- HEADER -->
-    <div class="login-header">
-      <div class="login-logo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/>
-          <path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/>
-        </svg>
+    <!-- NLR BRAND -->
+    <div class="nlr-brand">
+      <div class="nlr-logo-box">NLR</div>
+      <div class="nlr-name">
+        <div class="full">Yayasan Netherlands Leprosy Relief</div>
+        <div class="short">NLR Indonesia</div>
       </div>
-      <h1 class="login-title">Platform MEL</h1>
-      <p class="login-subtitle">SCN NTT — Monitoring, Evaluasi & Pembelajaran</p>
+    </div>
+
+    <!-- APP TITLE -->
+    <div class="app-title">Sistem Informasi MEL</div>
+    <div class="app-subtitle">
+      Monitoring · Evaluasi · Pembelajaran &nbsp;|&nbsp; Program SCN Nasional
+    </div>
+
+    <!-- INFO STRIP -->
+    <div class="info-strip">
+      <div class="info-item">
+        <div class="num">8</div>
+        <div class="lbl">SCN Aktif di Indonesia</div>
+      </div>
+      <div class="info-item" style="border-left:1px solid rgba(255,255,255,.1);border-right:1px solid rgba(255,255,255,.1)">
+        <div class="num">3</div>
+        <div class="lbl">Dashboard Terintegrasi</div>
+      </div>
+      <div class="info-item">
+        <div class="num">Real<span style="font-size:.8rem">-time</span></div>
+        <div class="lbl">Data dari KoboToolbox</div>
+      </div>
     </div>
 
     <!-- CARD FORM -->
@@ -44,14 +152,8 @@
               <circle cx="12" cy="7" r="4"/>
             </svg>
           </span>
-          <input
-            type="text"
-            id="username"
-            class="form-input"
-            placeholder="Masukkan username"
-            autocomplete="username"
-            autocapitalize="none"
-          />
+          <input type="text" id="username" class="form-input" placeholder="Masukkan username"
+            autocomplete="username" autocapitalize="none" />
         </div>
       </div>
 
@@ -65,13 +167,8 @@
               <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
             </svg>
           </span>
-          <input
-            type="password"
-            id="password"
-            class="form-input"
-            placeholder="Masukkan password"
-            autocomplete="current-password"
-          />
+          <input type="password" id="password" class="form-input" placeholder="Masukkan password"
+            autocomplete="current-password" />
           <button class="toggle-password" id="toggle-pw" type="button" title="Tampilkan password">
             <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -92,22 +189,26 @@
         Masuk
       </button>
 
+      <!-- ABOUT NLR -->
+      <div class="about-nlr">
+        NLR Indonesia (No Leprosy Remains) bekerja untuk menghapus kusta dan konsekuensinya
+        melalui rehabilitasi berbasis komunitas, inklusi sosial, dan penguatan kapasitas
+        petugas kesehatan di 20+ provinsi di Indonesia sejak 1967.
+      </div>
+
     </div><!-- /login-card -->
 
-    <p class="login-footer">
-      Platform MEL SCN NTT &copy; 2025 &mdash; CBM Global &amp; Ayo Indonesia
+    <p class="login-footer" style="margin-top:20px">
+      Sistem Informasi MEL &copy; 2025 &mdash; NLR Indonesia
     </p>
 
-  </div><!-- /login-wrapper -->
+  </div>
 
   <script src="js/auth.js"></script>
   <script>
-    // Kalau sudah login → langsung ke dashboard
     (function () {
       const session = AUTH.getSession();
-      if (session) {
-        window.location.href = 'dashboard-worker.html';
-      }
+      if (session) window.location.href = 'dashboard-worker.html';
     })();
 
     const usernameEl = document.getElementById('username');
@@ -119,49 +220,31 @@
     const loginIcon  = document.getElementById('login-icon');
     const togglePw   = document.getElementById('toggle-pw');
 
-    // Toggle show/hide password
     togglePw.addEventListener('click', () => {
-      const isHidden = passwordEl.type === 'password';
+      const isHidden  = passwordEl.type === 'password';
       passwordEl.type = isHidden ? 'text' : 'password';
-      togglePw.title  = isHidden ? 'Sembunyikan password' : 'Tampilkan password';
     });
 
-    // Fungsi tampilkan error
-    function showError(msg) {
-      errorText.textContent = msg;
-      errorMsg.classList.add('show');
-    }
+    function showError(msg) { errorText.textContent = msg; errorMsg.classList.add('show'); }
+    function hideError()    { errorMsg.classList.remove('show'); }
 
-    function hideError() {
-      errorMsg.classList.remove('show');
-    }
-
-    // Proses login
     function doLogin() {
       hideError();
       const username = usernameEl.value.trim();
       const password = passwordEl.value;
+      if (!username || !password) { showError('Username dan password wajib diisi.'); return; }
 
-      if (!username || !password) {
-        showError('Username dan password wajib diisi.');
-        return;
-      }
-
-      // Loading state
       btnLogin.classList.add('loading');
-      spinner.style.display = 'block';
+      spinner.style.display  = 'block';
       loginIcon.style.display = 'none';
 
-      // Simulasi delay ringan (agar tidak terasa instant/bug)
       setTimeout(() => {
         const result = AUTH.login(username, password);
-
         btnLogin.classList.remove('loading');
-        spinner.style.display = 'none';
+        spinner.style.display  = 'none';
         loginIcon.style.display = 'block';
 
         if (result.ok) {
-          // Redirect ke dashboard CBR Worker sebagai default
           window.location.href = 'dashboard-worker.html';
         } else {
           showError(result.message);
@@ -172,17 +255,9 @@
     }
 
     btnLogin.addEventListener('click', doLogin);
-
-    // Enter key trigger login
     [usernameEl, passwordEl].forEach(el => {
-      el.addEventListener('keydown', e => {
-        if (e.key === 'Enter') doLogin();
-      });
-    });
-
-    // Hapus error saat user mulai mengetik
-    [usernameEl, passwordEl].forEach(el => {
-      el.addEventListener('input', hideError);
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+      el.addEventListener('input',   hideError);
     });
   </script>
 

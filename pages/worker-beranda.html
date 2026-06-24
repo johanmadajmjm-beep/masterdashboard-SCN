@@ -2,25 +2,26 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>CBR Worker — Beranda | MEL NLR Indonesia</title>
+  <title>CBR Worker — Beranda | MEL NLR</title>
   <link rel="stylesheet" href="../css/main.css"/>
   <style>
-    .kpi-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);font-size:.78rem;gap:12px;}
-    .kpi-row:last-child{border-bottom:none;}
-    .worker-bar{display:flex;align-items:center;gap:10px;}
-    .overview-7{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:22px;}
-    .ov-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:14px;cursor:pointer;transition:box-shadow .15s,transform .1s;}
-    .ov-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
-    .ov-num{font-family:var(--font-mono);font-size:1.5rem;font-weight:700;line-height:1;margin:6px 0;}
-    .ov-lbl{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;}
-    .ov-sub{font-size:.65rem;color:var(--gray-400);margin-top:4px;}
-    .story-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:20px;}
-    .story-tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.65rem;font-weight:700;background:var(--teal-50);color:var(--teal-700);margin-bottom:10px;}
-    .story-nama{font-size:.95rem;font-weight:800;color:var(--gray-900);margin-bottom:4px;}
-    .story-meta{font-size:.7rem;color:var(--gray-400);margin-bottom:10px;}
-    .story-narasi{font-size:.8rem;color:var(--gray-700);line-height:1.7;}
-    .stake-bar-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--gray-100);font-size:.78rem;}
-    .stake-bar-row:last-child{border-bottom:none;}
+    .kpi-8{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+    .kpi-box{background:var(--white);border:1px solid var(--ink-100);border-radius:var(--radius-md);padding:14px;border-top:3px solid var(--kc,var(--nlr-500));position:relative;overflow:hidden}
+    .kpi-box .kv{font-family:var(--font-mono);font-size:1.6rem;font-weight:700;color:var(--kc,var(--ink-900));line-height:1}
+    .kpi-box .kl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-400);margin:6px 0 3px}
+    .kpi-box .ks{font-size:.68rem;color:var(--ink-300)}
+    .worker-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:20px}
+    .worker-card{background:var(--white);border:1px solid var(--ink-100);border-radius:var(--radius-md);padding:14px;cursor:pointer;transition:box-shadow .15s}
+    .worker-card:hover{box-shadow:var(--shadow-md)}
+    .worker-card .wname{font-weight:700;font-size:.8rem;color:var(--ink-900);margin-bottom:6px}
+    .worker-card .wnum{font-family:var(--font-mono);font-size:1.3rem;font-weight:700;color:var(--nlr-600)}
+    .worker-card .wlbl{font-size:.65rem;color:var(--ink-400)}
+    .worker-card .wbar{margin-top:8px}
+    .cantrill-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--ink-100);font-size:.78rem}
+    .cantrill-row:last-child{border-bottom:none}
+    .cantrill-num{font-family:var(--font-mono);font-size:1.1rem;font-weight:700;min-width:32px}
+    .ragam-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--ink-100);font-size:.78rem}
+    .ragam-row:last-child{border-bottom:none}
   </style>
 </head>
 <body>
@@ -37,51 +38,210 @@
         <span class="topbar-date" id="topbar-date">—</span>
       </div>
     </header>
-    <div class="page" id="page-content">
+    <div class="page">
+      <div class="page-header"><h1>Beranda CBR Worker</h1><p>Ringkasan caseload, kondisi anak, dan aktivitas program.</p></div>
 
-      <div class="page-header"><h1>Beranda CBR Worker</h1><p>Ringkasan caseload dan aktivitas hari ini.</p></div>
-      <div class="stat-grid">
-        <div class="stat-card" style="--accent:#1a6fd4"><div class="s-label">Anak Dampingan</div><div class="s-value mono" id="s-total">—</div><div class="s-sub">dalam caseload saya</div></div>
-        <div class="stat-card" style="--accent:#10b8a6"><div class="s-label">Kunjungan Bulan Ini</div><div class="s-value mono" id="s-kunjungan">—</div><div class="s-sub">home visit tercatat</div><div class="s-trend up" id="s-trend">—</div></div>
-        <div class="stat-card" style="--accent:#d97706"><div class="s-label">IRP Aktif</div><div class="s-value mono" id="s-irp">—</div><div class="s-sub">rencana berjalan</div></div>
-        <div class="stat-card" style="--accent:#dc2626"><div class="s-label">Perlu Kunjungan</div><div class="s-value mono" id="s-urgent">—</div><div class="s-sub">&gt;30 hari belum dikunjungi</div></div>
-      </div>
+      <!-- 8 KPI Cards (adopt dari dashboard_ben) -->
+      <div class="kpi-8" id="kpi-anak"></div>
+
+      <!-- Alert -->
       <div class="section-divider">Perlu Perhatian Segera</div>
       <div id="alert-list"></div>
+
       <div class="grid-2" style="margin-top:20px">
-        <div class="card"><div class="card-head"><span class="card-title">Anak Terbaru Dikunjungi</span><a href="worker-aktivitas.html"><button class="btn btn-ghost">Lihat semua</button></a></div><div class="card-body no-pad"><div class="tbl-wrap"><table><thead><tr><th>Nama Anak</th><th>Ragam</th><th>Terakhir</th><th>IRP</th></tr></thead><tbody id="tbl-anak"></tbody></table></div></div></div>
-        <div class="card"><div class="card-head"><span class="card-title">Referral Aktif</span><span class="badge badge-amber" id="badge-ref">—</span></div><div class="card-body no-pad"><div class="tbl-wrap"><table><thead><tr><th>Anak</th><th>Tujuan</th><th>Status</th></tr></thead><tbody id="tbl-ref"></tbody></table></div></div></div>
+        <!-- Worker cards -->
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Kinerja Per CBR Worker</span>
+            <span class="badge badge-nlr" id="badge-worker">—</span>
+          </div>
+          <div class="card-body" id="worker-cards-wrap" style="padding:10px"></div>
+        </div>
+
+        <!-- Distribusi ragam -->
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-head"><span class="card-title">Distribusi Ragam Disabilitas</span></div>
+            <div class="card-body" id="ragam-list"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Referral Aktif</span><span class="badge badge-amber" id="badge-ref">—</span></div>
+            <div class="card-body no-pad"><div class="tbl-wrap"><table>
+              <thead><tr><th>Anak</th><th>Tujuan</th><th>Status</th></tr></thead>
+              <tbody id="tbl-ref"></tbody>
+            </table></div></div>
+          </div>
+        </div>
       </div>
-      <script>
-      function renderPage(d, scnId) {
-        // Kalau semua SCN → tampilkan agregat, kalau spesifik → worker pertama
-        const isAll = !scnId && !scnId;
-        const totalAnak  = d.workers.reduce((s,w)=>s+w.anak,0);
-        const totalKunj  = d.workers.reduce((s,w)=>s+w.kunjungan_bulan,0);
-        const totalIRP   = d.workers.reduce((s,w)=>s+w.irp_aktif,0);
-        const totalLate  = d.workers.reduce((s,w)=>s+w.late,0);
-        document.getElementById('s-total').textContent     = totalAnak;
-        document.getElementById('s-kunjungan').textContent = totalKunj;
-        document.getElementById('s-irp').textContent       = totalIRP;
-        document.getElementById('s-urgent').textContent    = totalLate;
-        const late = d.anak.filter(a=>a.hari>30);
-        document.getElementById('alert-list').innerHTML = late.length
-          ? late.map(a=>`<div class="alert-strip alert-red"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div><strong>${a.nama}</strong>Belum dikunjungi ${a.hari} hari — ${a.ragam} · ${a.desa}</div></div>`).join('')
-          : '<div class="alert-strip alert-green"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><div>Semua anak sudah dikunjungi dalam 30 hari terakhir.</div></div>';
-        const myAnak = d.anak.slice(0,5);
-        document.getElementById('tbl-anak').innerHTML = myAnak.map(a=>{
-          const irpBadge = a.irp==='Aktif'?'badge-green':a.irp==='Selesai'?'badge-gray':'badge-amber';
-          const hariColor = a.hari>30?'color:var(--red)':'color:var(--gray-500)';
-          return `<tr><td><strong>${a.nama}</strong></td><td>${a.ragam}</td><td class="mono" style="${hariColor}">${a.hari}h lalu</td><td><span class="badge ${irpBadge}">${a.irp}</span></td></tr>`;
-        }).join('');
-        const refs = d.referral;
-        document.getElementById('badge-ref').textContent = refs.filter(r=>r.status==='Proses').length + ' proses';
-        document.getElementById('tbl-ref').innerHTML = refs.map(r=>`<tr><td><strong>${r.nama}</strong></td><td style="font-size:.72rem;color:var(--gray-500)">${r.tujuan}</td><td><span class="badge ${r.status==='Proses'?'badge-amber':'badge-green'}">${r.status}</span></td></tr>`).join('');
-      }
-      </script>
+
+      <!-- Tabel anak lengkap (adopt dari dashboard_ben datatable) -->
+      <div class="section-divider">Daftar Anak Dampingan</div>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Semua Anak</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select id="flt-ragam" style="padding:5px 10px;border:1px solid var(--ink-100);border-radius:var(--radius-sm);font-size:.72rem;font-family:var(--font-body)">
+              <option value="">Semua Ragam</option>
+            </select>
+            <select id="flt-level" style="padding:5px 10px;border:1px solid var(--ink-100);border-radius:var(--radius-sm);font-size:.72rem;font-family:var(--font-body)">
+              <option value="">Semua Level</option>
+            </select>
+            <select id="flt-cbr" style="padding:5px 10px;border:1px solid var(--ink-100);border-radius:var(--radius-sm);font-size:.72rem;font-family:var(--font-body)">
+              <option value="">Semua CBR Worker</option>
+            </select>
+          </div>
+          <span class="badge badge-blue" id="badge-total-anak">—</span>
+        </div>
+        <div class="card-body no-pad">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr>
+                <th>Nama Anak</th><th>Pengasuh</th><th>Usia/JK</th>
+                <th>Ragam</th><th>Level</th><th>Desa</th><th>CBR Worker</th>
+                <th style="text-align:center">Skor Anak</th><th style="text-align:center">Epilepsi</th>
+                <th>Terakhir Obs</th>
+              </tr></thead>
+              <tbody id="tbl-anak-full"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
+<script>
+const RAGAM_COLOR = {
+  'Fisik':'#1a6fd4','Intelektual':'#10b8a6','Sensorik (penglihatan)':'#d97706',
+  'Sensorik (pendengaran dan bicara)':'#7c3aed','Ganda':'#dc2626','Lainnya':'#6b7280'
+};
+const LEVEL_COLOR = {
+  'Parah (dukungan penuh)':'#dc2626',
+  'Sedang (dukungan reguler)':'#d97706',
+  'Rendah (sedikit dukungan)':'#16a34a'
+};
+function sc(v){ return v<=3?'#dc2626':v<=6?'#d97706':'#16a34a'; }
+
+function renderPage(d, scnId) {
+  if (!d || !d.anak) return;
+  const anak = d.anak;
+  const total = anak.length;
+  const lk    = anak.filter(a=>a.gender==='L').length;
+  const pr    = anak.filter(a=>a.gender==='P').length;
+  const sp    = anak.map(a=>a.sp).filter(v=>v!=null);
+  const avSA  = sp.length ? (sp.reduce((s,v)=>s+v,0)/sp.length) : 0;
+  const parah = anak.filter(a=>(a.level||'').includes('Parah')).length;
+  const kritis= anak.filter(a=>a.sp!=null&&a.sp<=3).length;
+  const ep    = anak.filter(a=>a.ep).length;
+  const tr    = anak.filter(a=>a.tr).length;
+  const ob    = anak.filter(a=>a.ob).length;
+  const ganda = anak.filter(a=>(a.ragam||'').toLowerCase()==='ganda').length;
+
+  // 8 KPI cards
+  const kpis = [
+    {v:total,          l:'Total Anak',       s:lk+' L · '+pr+' P',                      c:'var(--nlr-600)'},
+    {v:avSA?avSA.toFixed(1):'—', l:'Avg Skor Anak', s:'Cantrill Ladder 1–10',           c:sc(avSA)},
+    {v:parah,          l:'Level Parah',      s:'Butuh dukungan penuh',                   c:'#dc2626'},
+    {v:kritis,         l:'Kondisi Kritis',   s:'Skor anak ≤ 3',                          c:'#dc2626'},
+    {v:ep,             l:'Punya Epilepsi',   s:total?Math.round(ep/total*100)+'% dari total':'—', c:'#d97706'},
+    {v:tr,             l:'Pernah Terapi',    s:'dari '+total+' anak',                    c:'#16a34a'},
+    {v:ob,             l:'Pengobatan Aktif', s:'dalam 1 tahun terakhir',                 c:'#0284c7'},
+    {v:ganda,          l:'Disabilitas Ganda',s:'beban pengasuhan berlipat',              c:'#7c3aed'},
+  ];
+  document.getElementById('kpi-anak').innerHTML = kpis.map(k=>
+    `<div class="kpi-box" style="--kc:${k.c}">
+      <div class="kv">${k.v}</div>
+      <div class="kl">${k.l}</div>
+      <div class="ks">${k.s}</div>
+    </div>`).join('');
+
+  // Alert
+  const late = anak.filter(a=>a.hari>30);
+  document.getElementById('alert-list').innerHTML = late.length
+    ? late.slice(0,5).map(a=>`<div class="alert-strip alert-red">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div><strong>${a.nama}</strong> — ${a.ragam||'—'} · ${a.desa||'—'} · Belum dikunjungi <strong>${a.hari === 999 ? 'belum pernah' : a.hari+' hari'}</strong></div>
+      </div>`).join('')
+    : '<div class="alert-strip alert-green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><div>Semua anak sudah dikunjungi dalam 30 hari terakhir.</div></div>';
+
+  // Worker cards
+  const workers = d.workers || [];
+  document.getElementById('badge-worker').textContent = workers.length + ' petugas';
+  document.getElementById('worker-cards-wrap').innerHTML = workers.map(w=>{
+    const pct = w.anak>0 ? Math.min(Math.round(w.kunjungan_bulan/w.anak*100),100) : 0;
+    const col = pct>=80?'#16a34a':pct>=50?'#1a6fd4':'#d97706';
+    return `<div class="worker-card">
+      <div class="wname">${w.nama}</div>
+      <div style="display:flex;gap:14px;align-items:flex-end">
+        <div><div class="wnum">${w.anak}</div><div class="wlbl">anak</div></div>
+        <div><div class="wnum" style="color:${col}">${w.kunjungan_bulan}</div><div class="wlbl">kunjungan</div></div>
+        <div><div class="wnum" style="color:${w.late>0?'#dc2626':'#16a34a'}">${w.late}</div><div class="wlbl">terlambat</div></div>
+      </div>
+      <div class="wbar"><div class="prog-wrap"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div style="font-size:.65rem;color:var(--ink-300);margin-top:3px">${pct}% coverage</div></div>
+    </div>`;
+  }).join('');
+
+  // Ragam distribusi
+  const ragamCnt = {};
+  anak.forEach(a=>{ ragamCnt[a.ragam||'—']=(ragamCnt[a.ragam||'—']||0)+1; });
+  const ragamMax = Math.max(...Object.values(ragamCnt),1);
+  document.getElementById('ragam-list').innerHTML = Object.entries(ragamCnt)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([r,n])=>`<div class="ragam-row">
+      <span style="min-width:180px;font-size:.78rem">${r}</span>
+      <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${Math.round(n/ragamMax*100)}%;background:${RAGAM_COLOR[r]||'#888'}"></div></div>
+      <span class="mono" style="font-size:.75rem;min-width:24px;text-align:right">${n}</span>
+    </div>`).join('');
+
+  // Referral
+  const refs = d.referral || [];
+  document.getElementById('badge-ref').textContent = refs.filter(r=>r.status==='Proses').length + ' proses';
+  document.getElementById('tbl-ref').innerHTML = refs.slice(0,5).map(r=>
+    `<tr><td><strong>${r.nama}</strong></td>
+     <td style="font-size:.72rem;color:var(--ink-400)">${r.tujuan}</td>
+     <td><span class="badge ${r.status==='Proses'?'badge-amber':'badge-green'}">${r.status}</span></td></tr>`
+  ).join('') || '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--ink-300)">Tidak ada referral aktif.</td></tr>';
+
+  // Tabel lengkap dengan filter
+  const ragams = [...new Set(anak.map(a=>a.ragam).filter(Boolean))].sort();
+  const levels = [...new Set(anak.map(a=>a.level).filter(Boolean))].sort();
+  const cbrs   = [...new Set(anak.map(a=>a.cbr).filter(Boolean))].sort();
+  const fRagam = document.getElementById('flt-ragam');
+  const fLevel = document.getElementById('flt-level');
+  const fCbr   = document.getElementById('flt-cbr');
+  ragams.forEach(r=>{ const o=document.createElement('option'); o.value=o.textContent=r; fRagam.appendChild(o); });
+  levels.forEach(l=>{ const o=document.createElement('option'); o.value=o.textContent=l; fLevel.appendChild(o); });
+  cbrs.forEach(c=>{ const o=document.createElement('option'); o.value=o.textContent=c; fCbr.appendChild(o); });
+
+  function renderTabel() {
+    const rg = fRagam.value, lv = fLevel.value, cb = fCbr.value;
+    const filtered = anak.filter(a=>
+      (!rg||a.ragam===rg) && (!lv||a.level===lv) && (!cb||a.cbr===cb));
+    document.getElementById('badge-total-anak').textContent = filtered.length + ' anak';
+    document.getElementById('tbl-anak-full').innerHTML = filtered.map(a=>{
+      const spColor = a.sp!=null ? sc(a.sp) : 'var(--ink-300)';
+      const hariStr = a.hari===999 ? '<span style="color:#dc2626">Belum pernah</span>'
+        : a.hari>30 ? `<span style="color:#dc2626;font-weight:700">${a.hari}h lalu</span>`
+        : `<span style="color:var(--ink-400)">${a.hari}h lalu</span>`;
+      return `<tr>
+        <td><strong>${a.nama||'—'}</strong></td>
+        <td style="font-size:.72rem;color:var(--ink-400)">${a.np||'—'}</td>
+        <td class="mono" style="font-size:.72rem">${a.usia||'?'} th · ${a.gender==='P'?'P':'L'}</td>
+        <td><span class="badge" style="background:${RAGAM_COLOR[a.ragam]||'#eee'}20;color:${RAGAM_COLOR[a.ragam]||'#888'};border:1px solid ${RAGAM_COLOR[a.ragam]||'#ddd'}40">${a.ragam||'—'}</span></td>
+        <td><span style="font-size:.7rem;color:${LEVEL_COLOR[a.level]||'var(--ink-400)'};font-weight:600">${a.level||'—'}</span></td>
+        <td style="font-size:.72rem">${a.desa||'—'}</td>
+        <td style="font-size:.72rem;color:var(--ink-400)">${a.cbr||'—'}</td>
+        <td style="text-align:center"><span class="mono" style="font-size:.85rem;font-weight:700;color:${spColor}">${a.sp!=null?a.sp:'—'}</span></td>
+        <td style="text-align:center">${a.ep?'<span class="badge badge-amber">Ya</span>':'<span style="color:var(--ink-200);font-size:.72rem">—</span>'}</td>
+        <td>${hariStr}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--ink-300)">Tidak ada data.</td></tr>';
+  }
+  renderTabel();
+  [fRagam, fLevel, fCbr].forEach(el=>el.addEventListener('change', renderTabel));
+}
+</script>
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/data.js"></script>
@@ -102,3 +262,4 @@
     });
   }
 </script>
+</body></html>

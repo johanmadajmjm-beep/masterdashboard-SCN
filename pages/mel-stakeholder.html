@@ -1,78 +1,62 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
+<html lang="id"><head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>MEL — Stakeholder | MEL NLR Indonesia</title>
+  <title>MEL — Stakeholder | MEL NLR</title>
   <link rel="stylesheet" href="../css/main.css"/>
-  <style>
-    .kpi-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);font-size:.78rem;gap:12px;}
-    .kpi-row:last-child{border-bottom:none;}
-    .worker-bar{display:flex;align-items:center;gap:10px;}
-    .overview-7{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:22px;}
-    .ov-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:14px;cursor:pointer;transition:box-shadow .15s,transform .1s;}
-    .ov-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
-    .ov-num{font-family:var(--font-mono);font-size:1.5rem;font-weight:700;line-height:1;margin:6px 0;}
-    .ov-lbl{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;}
-    .ov-sub{font-size:.65rem;color:var(--gray-400);margin-top:4px;}
-    .story-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:20px;}
-    .story-tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.65rem;font-weight:700;background:var(--teal-50);color:var(--teal-700);margin-bottom:10px;}
-    .story-nama{font-size:.95rem;font-weight:800;color:var(--gray-900);margin-bottom:4px;}
-    .story-meta{font-size:.7rem;color:var(--gray-400);margin-bottom:10px;}
-    .story-narasi{font-size:.8rem;color:var(--gray-700);line-height:1.7;}
-    .stake-bar-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--gray-100);font-size:.78rem;}
-    .stake-bar-row:last-child{border-bottom:none;}
-  </style>
 </head>
 <body>
-<div class="app">
-  <div class="main">
-    <header class="topbar">
-      <div class="topbar-left">
-        <div class="topbar-breadcrumb">MEL <span class="sep">›</span><span class="current">Stakeholder</span></div>
-      </div>
-      <div class="topbar-right">
-        <span class="scn-badge" id="scn-badge">—</span>
-        <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
-        <span id="sync-time" style="font-size:.65rem;color:var(--ink-300);display:none"></span>
-        <span class="topbar-date" id="topbar-date">—</span>
-      </div>
-    </header>
-    <div class="page" id="page-content">
-
-      <div class="page-header"><h1>Jaringan Stakeholder</h1><p>Keterlibatan stakeholder berdasarkan kategori dan aktivitas program.</p></div>
-      <div class="stat-grid" id="stake-stats"></div>
-      <div class="grid-2" style="margin-top:4px">
-        <div class="card"><div class="card-head"><span class="card-title">Distribusi per Kategori</span><span class="badge badge-teal" id="stake-total">—</span></div><div class="card-body" id="stake-bars"></div></div>
-        <div class="card"><div class="card-head"><span class="card-title">Distribusi Gender Stakeholder</span></div><div class="card-body" id="stake-gender"></div></div>
-      </div>
-      <script>
-      function renderPage(d, scnId){
-        const stake = d.stakeholder;
-        const cats = Object.entries(stake).sort((a,b)=>b[1].total-a[1].total);
-        const total = cats.reduce((s,[,v])=>s+v.total,0);
-        document.getElementById('stake-total').textContent = total + ' orang';
-        const topCols = ['#1a6fd4','#10b8a6','#d97706','#7c3aed'];
-        document.getElementById('stake-stats').innerHTML = cats.slice(0,4).map(([cat,v],i)=>
-          `<div class="stat-card" style="--accent:${topCols[i]}"><div class="s-label">${cat}</div><div class="s-value mono">${v.total}</div><div class="s-sub">${getPct(v.total,total)}% dari total</div></div>`).join('');
-        const maxVal = cats[0][1].total;
-        document.getElementById('stake-bars').innerHTML = cats.map(([cat,v],i)=>`
-          <div class="stake-bar-row"><span style="min-width:110px">${cat}</span>
-            <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${getPct(v.total,maxVal)}%;background:${topCols[i]||'#999'}"></div></div>
-            <span class="mono" style="font-size:.75rem;min-width:28px;text-align:right">${v.total}</span>
-          </div>`).join('');
-        const totalL = cats.reduce((s,[,v])=>s+v.L,0), totalP = cats.reduce((s,[,v])=>s+v.P,0);
-        document.getElementById('stake-gender').innerHTML = `
-          <div class="stake-bar-row"><span style="min-width:100px">Laki-laki</span>
-            <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${getPct(totalL,total)}%;background:#1a6fd4"></div></div>
-            <span class="mono" style="font-size:.75rem;min-width:60px;text-align:right">${totalL} (${getPct(totalL,total)}%)</span></div>
-          <div class="stake-bar-row"><span style="min-width:100px">Perempuan</span>
-            <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${getPct(totalP,total)}%;background:#e879a0"></div></div>
-            <span class="mono" style="font-size:.75rem;min-width:60px;text-align:right">${totalP} (${getPct(totalP,total)}%)</span></div>`;
-      }
-      </script>
+<div class="app"><div class="main">
+  <header class="topbar">
+    <div class="topbar-left"><div class="topbar-breadcrumb">MEL <span class="sep">›</span><span class="current">Stakeholder</span></div></div>
+    <div class="topbar-right">
+      <span class="scn-badge" id="scn-badge">—</span>
+      <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+      <span class="topbar-date" id="topbar-date">—</span>
+    </div>
+  </header>
+  <div class="page">
+    <div class="page-header"><h1>Jaringan Stakeholder</h1><p>Keterlibatan stakeholder per kategori dan disagregasi gender.</p></div>
+    <div class="stat-grid" id="stake-stats"></div>
+    <div class="grid-2" style="margin-top:4px">
+      <div class="card"><div class="card-head"><span class="card-title">Distribusi per Kategori</span><span class="badge badge-nlr" id="stake-total">—</span></div><div class="card-body" id="stake-bars"></div></div>
+      <div class="card"><div class="card-head"><span class="card-title">Distribusi Gender Stakeholder</span></div><div class="card-body" id="stake-gender"></div></div>
     </div>
   </div>
-</div>
+</div></div>
+<script>
+function renderPage(d, scnId) {
+  if (!d||!d.stakeholder) return;
+  const stake=d.stakeholder;
+  const cats=Object.entries(stake).sort((a,b)=>b[1].total-a[1].total);
+  const total=cats.reduce((s,[,v])=>s+v.total,0);
+  document.getElementById('stake-total').textContent=total+' orang';
+  const topCols=['#1a6fd4','#10b8a6','#d97706','#7c3aed','#dc2626','#16a34a'];
+  document.getElementById('stake-stats').innerHTML=cats.slice(0,4).map(([cat,v],i)=>
+    `<div class="stat-card" style="--accent:${topCols[i]}">
+      <div class="s-label">${cat}</div>
+      <div class="s-value mono">${v.total}</div>
+      <div class="s-sub">${total>0?Math.round(v.total/total*100):0}% dari total</div>
+    </div>`).join('');
+  const maxVal=cats[0]?.[1]?.total||1;
+  document.getElementById('stake-bars').innerHTML=cats.map(([cat,v],i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--ink-100);font-size:.78rem">
+      <span style="min-width:120px;font-weight:600;color:${topCols[i]||'#888'}">${cat}</span>
+      <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${Math.round(v.total/maxVal*100)}%;background:${topCols[i]||'#888'}"></div></div>
+      <span class="mono" style="font-size:.75rem;min-width:28px;text-align:right">${v.total}</span>
+    </div>`).join('');
+  const totalL=cats.reduce((s,[,v])=>s+v.L,0), totalP=cats.reduce((s,[,v])=>s+v.P,0);
+  document.getElementById('stake-gender').innerHTML=`
+    <div style="display:flex;gap:20px;margin-bottom:16px">
+      <div style="text-align:center"><div class="mono" style="font-size:1.5rem;font-weight:700;color:#1a6fd4">${totalL}</div><div style="font-size:.7rem;color:var(--ink-400)">Laki-laki</div></div>
+      <div style="text-align:center"><div class="mono" style="font-size:1.5rem;font-weight:700;color:#e879a0">${totalP}</div><div style="font-size:.7rem;color:var(--ink-400)">Perempuan</div></div>
+    </div>
+    ${cats.map(([cat,v],i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--ink-100);font-size:.77rem">
+      <span style="min-width:110px;color:${topCols[i]||'#888'}">${cat}</span>
+      <span class="badge badge-blue" style="min-width:36px;text-align:center">${v.L}L</span>
+      <span class="badge badge-purple" style="min-width:36px;text-align:center">${v.P}P</span>
+    </div>`).join('')}`;
+}
+</script>
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/data.js"></script>
@@ -93,3 +77,4 @@
     });
   }
 </script>
+</body></html>

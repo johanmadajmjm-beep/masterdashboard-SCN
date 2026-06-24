@@ -1,88 +1,161 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
+<html lang="id"><head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>CBR Coordinator — Beneficiary | MEL NLR Indonesia</title>
+  <title>CBR Coordinator — Beneficiary | MEL NLR</title>
   <link rel="stylesheet" href="../css/main.css"/>
   <style>
-    .kpi-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);font-size:.78rem;gap:12px;}
-    .kpi-row:last-child{border-bottom:none;}
-    .worker-bar{display:flex;align-items:center;gap:10px;}
-    .overview-7{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:22px;}
-    .ov-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:14px;cursor:pointer;transition:box-shadow .15s,transform .1s;}
-    .ov-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
-    .ov-num{font-family:var(--font-mono);font-size:1.5rem;font-weight:700;line-height:1;margin:6px 0;}
-    .ov-lbl{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;}
-    .ov-sub{font-size:.65rem;color:var(--gray-400);margin-top:4px;}
-    .story-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:20px;}
-    .story-tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.65rem;font-weight:700;background:var(--teal-50);color:var(--teal-700);margin-bottom:10px;}
-    .story-nama{font-size:.95rem;font-weight:800;color:var(--gray-900);margin-bottom:4px;}
-    .story-meta{font-size:.7rem;color:var(--gray-400);margin-bottom:10px;}
-    .story-narasi{font-size:.8rem;color:var(--gray-700);line-height:1.7;}
-    .stake-bar-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--gray-100);font-size:.78rem;}
-    .stake-bar-row:last-child{border-bottom:none;}
+    .kpi-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+    .kpi-box{background:var(--white);border:1px solid var(--ink-100);border-radius:var(--radius-md);padding:14px;border-top:3px solid var(--kc,var(--nlr-500))}
+    .kpi-box .kv{font-family:var(--font-mono);font-size:1.6rem;font-weight:700;color:var(--kc,var(--ink-900));line-height:1}
+    .kpi-box .kl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-400);margin:6px 0 2px}
+    .kpi-box .ks{font-size:.68rem;color:var(--ink-300)}
   </style>
 </head>
 <body>
-<div class="app">
-  <div class="main">
-    <header class="topbar">
-      <div class="topbar-left">
-        <div class="topbar-breadcrumb">CBR Coordinator <span class="sep">›</span><span class="current">Beneficiary</span></div>
-      </div>
-      <div class="topbar-right">
-        <span class="scn-badge" id="scn-badge">—</span>
-        <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
-        <span id="sync-time" style="font-size:.65rem;color:var(--ink-300);display:none"></span>
-        <span class="topbar-date" id="topbar-date">—</span>
-      </div>
-    </header>
-    <div class="page" id="page-content">
+<div class="app"><div class="main">
+  <header class="topbar">
+    <div class="topbar-left"><div class="topbar-breadcrumb">CBR Coordinator <span class="sep">›</span><span class="current">Beneficiary</span></div></div>
+    <div class="topbar-right">
+      <span class="scn-badge" id="scn-badge">—</span>
+      <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+      <span class="topbar-date" id="topbar-date">—</span>
+    </div>
+  </header>
+  <div class="page">
+    <div class="page-header"><h1>Data Beneficiary</h1><p>Profil lengkap seluruh anak dampingan beserta skor Cantrill dan status observasi.</p></div>
 
-      <div class="page-header"><h1>Data Beneficiary</h1><p>Distribusi anak per ragam disabilitas, gender, dan wilayah.</p></div>
-      <div class="stat-grid" id="ragam-stats"></div>
-      <div class="grid-2" style="margin-top:4px">
-        <div class="card"><div class="card-head"><span class="card-title">Distribusi Ragam Disabilitas</span></div>
-        <div class="card-body" id="ragam-bars"></div></div>
-        <div class="card"><div class="card-head"><span class="card-title">Distribusi Gender</span></div>
-        <div class="card-body" id="gender-bars"></div></div>
+    <div class="kpi-4" id="kpi-benef"></div>
+
+    <div class="grid-2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Distribusi Ragam</span></div>
+        <div class="card-body" id="ragam-bars"></div>
       </div>
-      <div class="card" style="margin-top:16px"><div class="card-head"><span class="card-title">Semua Beneficiary</span><span class="badge badge-blue" id="total-badge">—</span></div>
-      <div class="card-body no-pad"><div class="tbl-wrap"><table><thead><tr><th>Nama</th><th>Gender</th><th>Usia</th><th>Ragam</th><th>Desa</th><th>CBR Worker</th><th>IRP</th></tr></thead><tbody id="tbl-all-benef"></tbody></table></div></div></div>
-      <script>
-      function renderPage(d, scnId){
-        const ragamCount = {};
-        d.anak.forEach(a=>{ragamCount[a.ragam]=(ragamCount[a.ragam]||0)+1;});
-        const ragamColors = {Fisik:'#1a6fd4',Intelektual:'#10b8a6',Wicara:'#d97706',Rungu:'#7c3aed',Netra:'#16a34a',Ganda:'#dc2626'};
-        const ragamEntries = Object.entries(ragamCount).sort((a,b)=>b[1]-a[1]);
-        document.getElementById('ragam-stats').innerHTML = ragamEntries.slice(0,4).map(([r,n])=>
-          `<div class="stat-card" style="--accent:${ragamColors[r]||'#999'}"><div class="s-label">${r}</div><div class="s-value mono">${n}</div><div class="s-sub">anak</div></div>`).join('');
-        const max = Math.max(...Object.values(ragamCount));
-        document.getElementById('ragam-bars').innerHTML = ragamEntries.map(([r,n])=>`
-          <div class="kpi-row"><span>${r}</span><div class="worker-bar" style="flex:1;justify-content:flex-end">
-            <div class="prog-wrap" style="width:120px"><div class="prog-fill" style="width:${Math.round(n/max*100)}%;background:${ragamColors[r]||'#999'}"></div></div>
-            <span class="mono" style="font-size:.75rem;min-width:24px;text-align:right">${n}</span></div></div>`).join('');
-        const L = d.anak.filter(a=>a.gender==='L').length, P = d.anak.filter(a=>a.gender==='P').length, T = d.anak.length;
-        document.getElementById('gender-bars').innerHTML = `
-          <div class="kpi-row"><span>Laki-laki</span><div class="worker-bar" style="flex:1;justify-content:flex-end">
-            <div class="prog-wrap" style="width:120px"><div class="prog-fill" style="width:${getPct(L,T)}%;background:#1a6fd4"></div></div>
-            <span class="mono" style="font-size:.75rem;min-width:40px;text-align:right">${L} (${getPct(L,T)}%)</span></div></div>
-          <div class="kpi-row"><span>Perempuan</span><div class="worker-bar" style="flex:1;justify-content:flex-end">
-            <div class="prog-wrap" style="width:120px"><div class="prog-fill" style="width:${getPct(P,T)}%;background:#e879a0"></div></div>
-            <span class="mono" style="font-size:.75rem;min-width:40px;text-align:right">${P} (${getPct(P,T)}%)</span></div></div>`;
-        document.getElementById('total-badge').textContent = T + ' anak';
-        const workerMap = {};
-        d.workers.forEach(w=>workerMap[w.id]=w.nama);
-        document.getElementById('tbl-all-benef').innerHTML = d.anak.map(a=>{
-          const irpCls = a.irp==='Aktif'?'badge-green':a.irp==='Selesai'?'badge-gray':'badge-amber';
-          const scnCol = a.scn ? `<td style="font-size:.7rem;color:var(--gray-400)">${a.scn}</td>` : '';
-            return `<tr><td><strong>${a.nama}</strong></td>${scnCol}<td>${a.gender==='L'?'L':'P'}</td><td class="mono">${a.usia}</td><td><span class="badge badge-blue">${a.ragam}</span></td><td style="font-size:.72rem">${a.desa}</td><td style="font-size:.72rem">${workerMap[a.cbr]||a.cbr}</td><td><span class="badge ${irpCls}">${a.irp}</span></td></tr>`;
-        }).join('');
-      }
-      </script>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Distribusi Gender & Usia</span></div>
+        <div class="card-body" id="gender-bars"></div>
+      </div>
+    </div>
+
+    <!-- Tabel lengkap -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Semua Beneficiary</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select id="flt-ragam" style="padding:5px 10px;border:1px solid var(--ink-100);border-radius:var(--radius-sm);font-size:.72rem;font-family:var(--font-body)"><option value="">Semua Ragam</option></select>
+          <select id="flt-cbr"   style="padding:5px 10px;border:1px solid var(--ink-100);border-radius:var(--radius-sm);font-size:.72rem;font-family:var(--font-body)"><option value="">Semua CBR Worker</option></select>
+          <select id="flt-level" style="padding:5px 10px;border:1px solid var(--ink-100);border-radius:var(--radius-sm);font-size:.72rem;font-family:var(--font-body)"><option value="">Semua Level</option></select>
+        </div>
+        <span class="badge badge-blue" id="badge-total">—</span>
+      </div>
+      <div class="card-body no-pad"><div class="tbl-wrap"><table>
+        <thead><tr>
+          <th>Nama Anak</th><th>CBR Worker</th><th>Ragam</th><th>Level</th>
+          <th>Desa</th><th style="text-align:center">JK</th><th style="text-align:center">Usia</th>
+          <th style="text-align:center">Skor Anak</th><th style="text-align:center">Skor Pengasuh</th>
+          <th style="text-align:center">Epilepsi</th><th style="text-align:center">Terapi</th>
+          <th>SCN</th>
+        </tr></thead>
+        <tbody id="tbl-benef"></tbody>
+      </table></div></div>
     </div>
   </div>
-</div>
+</div></div>
+<script>
+const RAGAM_COLOR={Fisik:'#1a6fd4',Intelektual:'#10b8a6','Sensorik (penglihatan)':'#d97706','Sensorik (pendengaran dan bicara)':'#7c3aed',Ganda:'#dc2626',Lainnya:'#6b7280'};
+const LEVEL_COLOR={'Parah (dukungan penuh)':'#dc2626','Sedang (dukungan reguler)':'#d97706','Rendah (sedikit dukungan)':'#16a34a'};
+function sc(v){return v<=3?'#dc2626':v<=6?'#d97706':'#16a34a';}
+
+let ALL_ANAK=[];
+
+function renderPage(d, scnId) {
+  if (!d||!d.anak) return;
+  ALL_ANAK=d.anak;
+  const anak=ALL_ANAK;
+  const total=anak.length;
+  const lk=anak.filter(a=>a.gender==='L').length;
+  const pr=anak.filter(a=>a.gender==='P').length;
+  const parah=anak.filter(a=>(a.level||'').includes('Parah')).length;
+  const kritis=anak.filter(a=>a.sp!=null&&a.sp<=3).length;
+  const sp=anak.map(a=>a.sp).filter(v=>v!=null);
+  const avSA=sp.length?(sp.reduce((s,v)=>s+v,0)/sp.length).toFixed(1):'—';
+  const ep=anak.filter(a=>a.ep).length;
+
+  document.getElementById('kpi-benef').innerHTML=[
+    {v:total,   l:'Total Beneficiary',  s:lk+' L · '+pr+' P',        c:'var(--nlr-600)'},
+    {v:avSA,    l:'Avg Skor Anak',      s:'Cantrill Ladder 1–10',     c:avSA!=='—'?sc(parseFloat(avSA)):'var(--ink-300)'},
+    {v:kritis,  l:'Kondisi Kritis',     s:'Skor ≤ 3',                 c:'#dc2626'},
+    {v:parah,   l:'Level Parah',        s:'Dukungan penuh',           c:'#dc2626'},
+    {v:ep,      l:'Punya Epilepsi',     s:total?Math.round(ep/total*100)+'% dari total':'—', c:'#d97706'},
+  ].map(k=>`<div class="kpi-box" style="--kc:${k.c}"><div class="kv">${k.v}</div><div class="kl">${k.l}</div><div class="ks">${k.s}</div></div>`).join('');
+
+  // Ragam bars
+  const ragamCnt={};
+  anak.forEach(a=>{ragamCnt[a.ragam||'Lainnya']=(ragamCnt[a.ragam||'Lainnya']||0)+1;});
+  const rMax=Math.max(...Object.values(ragamCnt),1);
+  document.getElementById('ragam-bars').innerHTML=Object.entries(ragamCnt).sort((a,b)=>b[1]-a[1]).map(([r,n])=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--ink-100);font-size:.77rem">
+      <span style="min-width:180px;color:${RAGAM_COLOR[r]||'#888'};font-weight:600">${r}</span>
+      <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${Math.round(n/rMax*100)}%;background:${RAGAM_COLOR[r]||'#888'}"></div></div>
+      <span class="mono" style="font-size:.75rem;min-width:24px;text-align:right">${n}</span>
+    </div>`).join('');
+
+  // Gender & usia
+  const u1=anak.filter(a=>a.usia&&a.usia<=5).length;
+  const u2=anak.filter(a=>a.usia&&a.usia>=6&&a.usia<=12).length;
+  const u3=anak.filter(a=>a.usia&&a.usia>=13&&a.usia<=17).length;
+  const u4=anak.filter(a=>a.usia&&a.usia>=18&&a.usia<=24).length;
+  const u5=anak.filter(a=>a.usia&&a.usia>=25).length;
+  const uGroups=[['0–5 th',u1,'#1a6fd4'],['6–12 th',u2,'#10b8a6'],['13–17 th',u3,'#d97706'],['18–24 th',u4,'#7c3aed'],['25+ th',u5,'#dc2626']];
+  const uMax=Math.max(...uGroups.map(g=>g[1]),1);
+  document.getElementById('gender-bars').innerHTML=`
+    <div style="display:flex;gap:20px;margin-bottom:14px">
+      <div style="text-align:center"><div class="mono" style="font-size:1.4rem;font-weight:700;color:#1a6fd4">${lk}</div><div style="font-size:.7rem;color:var(--ink-400)">Laki-laki</div></div>
+      <div style="text-align:center"><div class="mono" style="font-size:1.4rem;font-weight:700;color:#e879a0">${pr}</div><div style="font-size:.7rem;color:var(--ink-400)">Perempuan</div></div>
+    </div>
+    <div style="font-size:.7rem;font-weight:700;color:var(--ink-400);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Kelompok Usia</div>
+    ${uGroups.map(([l,n,c])=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.77rem">
+      <span style="min-width:60px">${l}</span>
+      <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${Math.round(n/uMax*100)}%;background:${c}"></div></div>
+      <span class="mono" style="font-size:.72rem;min-width:20px;text-align:right">${n}</span>
+    </div>`).join('')}`;
+
+  // Filter & tabel
+  const ragams=[...new Set(anak.map(a=>a.ragam).filter(Boolean))].sort();
+  const cbrs=[...new Set(anak.map(a=>a.cbr).filter(Boolean))].sort();
+  const levels=[...new Set(anak.map(a=>a.level).filter(Boolean))].sort();
+  const fR=document.getElementById('flt-ragam'), fC=document.getElementById('flt-cbr'), fL=document.getElementById('flt-level');
+  ragams.forEach(r=>{const o=document.createElement('option');o.value=o.textContent=r;fR.appendChild(o);});
+  cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});
+  levels.forEach(l=>{const o=document.createElement('option');o.value=o.textContent=l;fL.appendChild(o);});
+
+  function renderTabel(){
+    const rg=fR.value,cb=fC.value,lv=fL.value;
+    const list=ALL_ANAK.filter(a=>(!rg||a.ragam===rg)&&(!cb||a.cbr===cb)&&(!lv||a.level===lv));
+    document.getElementById('badge-total').textContent=list.length+' anak';
+    document.getElementById('tbl-benef').innerHTML=list.map(a=>{
+      const spCol=a.sp!=null?sc(a.sp):'var(--ink-200)';
+      const saCol=a.sa!=null?sc(a.sa):'var(--ink-200)';
+      return `<tr>
+        <td><strong>${a.nama||'—'}</strong></td>
+        <td style="font-size:.72rem;color:var(--ink-400)">${a.cbr||'—'}</td>
+        <td><span style="font-size:.7rem;font-weight:700;color:${RAGAM_COLOR[a.ragam]||'#888'}">${a.ragam||'—'}</span></td>
+        <td><span style="font-size:.68rem;color:${LEVEL_COLOR[a.level]||'var(--ink-400)'}">${(a.level||'—').split('(')[0].trim()}</span></td>
+        <td style="font-size:.72rem">${a.desa||'—'}</td>
+        <td style="text-align:center;font-size:.72rem">${a.gender||'—'}</td>
+        <td class="mono" style="text-align:center;font-size:.72rem">${a.usia||'?'}</td>
+        <td style="text-align:center"><span class="mono" style="font-weight:700;color:${spCol}">${a.sp!=null?a.sp:'—'}</span></td>
+        <td style="text-align:center"><span class="mono" style="font-weight:700;color:${saCol}">${a.sa!=null?a.sa:'—'}</span></td>
+        <td style="text-align:center">${a.ep?'<span class="badge badge-amber">Ya</span>':'<span style="color:var(--ink-200);font-size:.7rem">—</span>'}</td>
+        <td style="text-align:center">${a.tr?'<span class="badge badge-green">Ya</span>':'<span style="color:var(--ink-200);font-size:.7rem">—</span>'}</td>
+        <td style="font-size:.68rem;color:var(--ink-300)">${a.scn||'—'}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="12" style="text-align:center;padding:24px;color:var(--ink-300)">Tidak ada data.</td></tr>';
+  }
+  renderTabel();
+  [fR,fC,fL].forEach(el=>el.addEventListener('change',renderTabel));
+}
+</script>
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/data.js"></script>
@@ -103,3 +176,4 @@
     });
   }
 </script>
+</body></html>

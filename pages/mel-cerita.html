@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MEL — Cerita Perubahan | MEL NLR Indonesia</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <style>
+    .kpi-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);font-size:.78rem;gap:12px;}
+    .kpi-row:last-child{border-bottom:none;}
+    .worker-bar{display:flex;align-items:center;gap:10px;}
+    .overview-7{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:22px;}
+    .ov-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:14px;cursor:pointer;transition:box-shadow .15s,transform .1s;}
+    .ov-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+    .ov-num{font-family:var(--font-mono);font-size:1.5rem;font-weight:700;line-height:1;margin:6px 0;}
+    .ov-lbl{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;}
+    .ov-sub{font-size:.65rem;color:var(--gray-400);margin-top:4px;}
+    .story-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:20px;}
+    .story-tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.65rem;font-weight:700;background:var(--teal-50);color:var(--teal-700);margin-bottom:10px;}
+    .story-nama{font-size:.95rem;font-weight:800;color:var(--gray-900);margin-bottom:4px;}
+    .story-meta{font-size:.7rem;color:var(--gray-400);margin-bottom:10px;}
+    .story-narasi{font-size:.8rem;color:var(--gray-700);line-height:1.7;}
+    .stake-bar-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--gray-100);font-size:.78rem;}
+    .stake-bar-row:last-child{border-bottom:none;}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-breadcrumb">MEL <span class="sep">›</span><span class="current">Cerita Perubahan</span></div>
+      </div>
+      <div class="topbar-right">
+        <span class="scn-badge" id="scn-badge">—</span>
+        <span class="topbar-date" id="topbar-date">—</span>
+      </div>
+    </header>
+    <div class="page" id="page-content">
+
+      <div class="page-header"><h1>Cerita Perubahan</h1><p>Narasi dampak program di tingkat individu, keluarga, dan komunitas.</p></div>
+      <div class="stat-grid">
+        <div class="stat-card" style="--accent:#10b8a6"><div class="s-label">Total Cerita</div><div class="s-value mono" id="cerita-total">—</div><div class="s-sub">terdokumentasi</div></div>
+        <div class="stat-card" style="--accent:#1a6fd4"><div class="s-label">Individu/Anak</div><div class="s-value mono" id="cerita-ind">—</div></div>
+        <div class="stat-card" style="--accent:#d97706"><div class="s-label">Keluarga</div><div class="s-value mono" id="cerita-kel">—</div></div>
+        <div class="stat-card" style="--accent:#16a34a"><div class="s-label">Komunitas/DPO</div><div class="s-value mono" id="cerita-kom">—</div></div>
+      </div>
+      <div id="cerita-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px"></div>
+      <script>
+      function initPage(s){
+        const d = getScnData(s.scn_id||'manggarai');
+        const c = d.cerita;
+        document.getElementById('cerita-total').textContent = c.length;
+        document.getElementById('cerita-ind').textContent   = c.filter(x=>x.tag==='Perkembangan Anak').length;
+        document.getElementById('cerita-kel').textContent   = c.filter(x=>x.tag==='Keluarga & Komunitas').length;
+        document.getElementById('cerita-kom').textContent   = c.filter(x=>x.tag==='DPO & Komunitas').length;
+        document.getElementById('cerita-grid').innerHTML = c.map(c=>`
+          <div class="story-card">
+            <div class="story-tag">${c.tag}</div>
+            <div class="story-nama">${c.nama}</div>
+            <div class="story-meta">📍 ${c.lokasi} &nbsp;·&nbsp; 👤 ${c.worker} &nbsp;·&nbsp; 🗓 ${c.tanggal}</div>
+            <div class="story-narasi">${c.narasi}</div>
+          </div>`).join('');
+      }
+      </script>
+    </div>
+  </div>
+</div>
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/data.js"></script>
+<script>
+  buildSidebar();
+  const SESSION = AUTH.requireAuth('../index.html');
+  if (SESSION) {
+    AUTH.applySession({ onScnSwitch: (id) => { if(window.onScnSwitch) onScnSwitch(id); } });
+    AUTH.initSidebar('mel','m-story');
+    if (window.initPage) initPage(SESSION);
+  }
+</script>
+</body></html>

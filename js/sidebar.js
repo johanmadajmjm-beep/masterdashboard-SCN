@@ -93,7 +93,8 @@ function buildSidebar() {
             <a class="nav-sub-item" data-page="m-beranda" href="${base}/pages/mel-beranda.html">${ICONS.home} Beranda</a>
             <a class="nav-sub-item" data-page="m-itt"     href="${base}/pages/mel-itt.html">${ICONS.itt} ITT Tracker</a>
             <a class="nav-sub-item" data-page="m-stake"   href="${base}/pages/mel-stakeholder.html">${ICONS.stake} Stakeholder</a>
-            <a class="nav-sub-item" data-page="m-story"   href="${base}/pages/mel-cerita.html">${ICONS.story} Cerita Perubahan</a>
+            <a class="nav-sub-item" data-page="m-story"     href="${base}/pages/mel-cerita.html">${ICONS.story} Cerita Perubahan</a>
+            <a class="nav-sub-item" data-page="m-analisis"  href="${base}/pages/mel-analisis.html">${ICONS.trend} Analisis & Trend</a>
           </div>
         </div>
 

@@ -76,21 +76,17 @@
 <script src="../js/sidebar.js"></script>
 <script src="../js/data.js"></script>
 <script>
+  // Init: build sidebar dulu, lalu cek auth, lalu render
   buildSidebar();
   const SESSION = AUTH.requireAuth('../index.html');
   if (SESSION) {
     AUTH.applySession({
-      onScnSwitch: (scnId) => {
-        // Re-render halaman dengan SCN baru
+      onScnSwitch: function(scnId) {
         if (window.initPage) initPage(SESSION, scnId);
       }
     });
-    AUTH.initSidebar('worker','w-anak');
-    // Render awal dengan SCN dari session
+    AUTH.initSidebar('worker', 'w-anak');
     if (window.initPage) initPage(SESSION, AUTH.getScnFilter());
-  });
-    AUTH.initSidebar('worker','w-anak');
-    if (window.initPage) initPage(SESSION);
   }
 </script>
 </body></html>

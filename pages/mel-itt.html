@@ -5,22 +5,88 @@
   <title>MEL — ITT Tracker | MEL NLR Indonesia</title>
   <link rel="stylesheet" href="../css/main.css"/>
   <style>
-    .kpi-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);font-size:.78rem;gap:12px;}
-    .kpi-row:last-child{border-bottom:none;}
-    .worker-bar{display:flex;align-items:center;gap:10px;}
-    .overview-7{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:22px;}
-    .ov-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:14px;cursor:pointer;transition:box-shadow .15s,transform .1s;}
-    .ov-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
-    .ov-num{font-family:var(--font-mono);font-size:1.5rem;font-weight:700;line-height:1;margin:6px 0;}
-    .ov-lbl{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;}
-    .ov-sub{font-size:.65rem;color:var(--gray-400);margin-top:4px;}
-    .story-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:20px;}
-    .story-tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.65rem;font-weight:700;background:var(--teal-50);color:var(--teal-700);margin-bottom:10px;}
-    .story-nama{font-size:.95rem;font-weight:800;color:var(--gray-900);margin-bottom:4px;}
-    .story-meta{font-size:.7rem;color:var(--gray-400);margin-bottom:10px;}
-    .story-narasi{font-size:.8rem;color:var(--gray-700);line-height:1.7;}
-    .stake-bar-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--gray-100);font-size:.78rem;}
-    .stake-bar-row:last-child{border-bottom:none;}
+    /* Accordion outcome */
+    .itt-block {
+      background    : var(--white);
+      border        : 1px solid var(--gray-200);
+      border-radius : var(--radius-md);
+      overflow      : hidden;
+      margin-bottom : 12px;
+    }
+    .itt-header {
+      display        : flex;
+      align-items    : center;
+      justify-content: space-between;
+      padding        : 14px 18px;
+      background     : var(--gray-50);
+      border-left    : 4px solid var(--o-color, #999);
+      cursor         : pointer;
+      user-select    : none;
+      transition     : background .15s;
+    }
+    .itt-header:hover { background: var(--gray-100); }
+    .itt-header-left { display: flex; align-items: center; gap: 14px; }
+    .itt-header-right { display: flex; align-items: center; gap: 10px; }
+
+    .itt-label {
+      font-size     : .65rem;
+      font-weight   : 800;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color         : var(--o-color, #999);
+    }
+    .itt-name {
+      font-size  : .9rem;
+      font-weight: 700;
+      color      : var(--gray-900);
+      margin-top : 2px;
+    }
+    .itt-avg {
+      font-family: var(--font-mono);
+      font-size  : 1.1rem;
+      font-weight: 700;
+      color      : var(--o-color, #999);
+    }
+
+    /* Tombol chevron */
+    .itt-toggle {
+      width           : 28px;
+      height          : 28px;
+      border-radius   : 50%;
+      background      : rgba(0,0,0,.06);
+      border          : none;
+      display         : flex;
+      align-items     : center;
+      justify-content : center;
+      cursor          : pointer;
+      transition      : background .15s, transform .2s;
+      flex-shrink     : 0;
+    }
+    .itt-toggle:hover { background: rgba(0,0,0,.12); }
+    .itt-toggle svg { width: 14px; height: 14px; color: var(--gray-600); transition: transform .2s; }
+    .itt-block.open .itt-toggle svg { transform: rotate(180deg); }
+
+    /* Body accordion */
+    .itt-body {
+      max-height : 0;
+      overflow   : hidden;
+      transition : max-height .3s ease;
+    }
+    .itt-block.open .itt-body { max-height: 2000px; }
+
+    /* Mini progress bar di header */
+    .itt-header-prog {
+      width      : 80px;
+      flex-shrink: 0;
+    }
+
+    /* Tombol expand all / collapse all */
+    .acc-controls {
+      display    : flex;
+      align-items: center;
+      gap        : 8px;
+      margin-bottom: 14px;
+    }
   </style>
 </head>
 <body>
@@ -35,60 +101,133 @@
         <span class="topbar-date" id="topbar-date">—</span>
       </div>
     </header>
-    <div class="page" id="page-content">
+    <div class="page">
+      <div class="page-header">
+        <h1>Indicator Tracking Table</h1>
+        <p>Capaian per indikator berdasarkan ITT NLR Indonesia — 7 Outcome · Year 1 2026.</p>
+      </div>
 
-      <div class="page-header"><h1>Indicator Tracking Table</h1><p>Capaian per indikator berdasarkan ITT NLR Indonesia — 7 Outcome · Year 1 2026.</p></div>
+      <!-- Kontrol expand/collapse -->
+      <div class="acc-controls">
+        <button class="btn btn-ghost" onclick="toggleAll(true)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          Buka Semua
+        </button>
+        <button class="btn btn-ghost" onclick="toggleAll(false)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+          Tutup Semua
+        </button>
+      </div>
+
       <div id="itt-container"></div>
-      <script>
-      function initPage(s, scnId){
-        const d = getScnData(scnId||s.scn_id||'manggarai');
-        const itt = d.itt.Y1_Q2;
-        document.getElementById('itt-container').innerHTML = OUTCOMES.map(o=>{
-          const rows = o.indikator_ids.map(id=>{
-            const item = itt[id]; if(!item) return '';
-            const cap = item.cap, tgt = item.target_y1, total = item.target_total;
-            const pct = getPct(cap,tgt), col = getPctColor(pct);
-            const sel = cap-tgt;
-            const selStr = tgt>0?(sel>=0?`<span style="color:var(--green)">+${sel}</span>`:`<span style="color:var(--red)">${sel}</span>`):'—';
-            return `<tr>
-              <td style="max-width:280px"><div style="font-size:.72rem;color:var(--gray-700);line-height:1.4">${ITT_LABELS[id]||id}</div></td>
-              <td class="mono" style="text-align:center">${total||'—'}</td>
-              <td class="mono" style="text-align:center">${tgt||'—'}</td>
-              <td class="mono" style="text-align:center;font-weight:700;color:${col}">${cap}</td>
-              <td style="min-width:130px"><div style="display:flex;align-items:center;gap:8px">
-                <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div>
-                <span class="mono" style="font-size:.7rem;color:${col};min-width:30px">${pct}%</span>
-              </div></td>
-              <td style="text-align:center" class="mono">${selStr}</td>
-              <td>${getStatusBadge(pct)}</td>
-            </tr>`;
-          }).join('');
-          const avgPct = Math.round(o.indikator_ids.filter(id=>itt[id]&&itt[id].target_y1>0).reduce((s,id)=>s+getPct(itt[id].cap,itt[id].target_y1),0)/Math.max(o.indikator_ids.filter(id=>itt[id]&&itt[id].target_y1>0).length,1));
-          return `<div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);overflow:hidden;margin-bottom:16px">
-            <div style="padding:14px 18px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);border-left:4px solid ${o.warna};display:flex;align-items:center;justify-content:space-between">
-              <div><span style="font-size:.65rem;font-weight:800;color:${o.warna};text-transform:uppercase;letter-spacing:.06em">${o.label}</span>
-              <div style="font-size:.9rem;font-weight:700;color:var(--gray-900);margin-top:2px">${o.pendek}</div></div>
-              <div style="display:flex;align-items:center;gap:10px">
-                <span class="mono" style="font-size:1.1rem;font-weight:700;color:${o.warna}">${avgPct}%</span>
-                ${getStatusBadge(avgPct)}
-              </div>
-            </div>
-            <div class="tbl-wrap"><table>
-              <thead><tr><th style="min-width:260px">Indikator</th><th style="text-align:center">Target<br>Total</th><th style="text-align:center">Target<br>Y1</th><th style="text-align:center">Capaian</th><th style="min-width:130px">Progress</th><th style="text-align:center">Selisih</th><th>Status</th></tr></thead>
-              <tbody>${rows}</tbody>
-            </table></div>
-          </div>`;
-        }).join('');
-      }
-      </script>
     </div>
   </div>
 </div>
+
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/data.js"></script>
 <script>
-  // Init: build sidebar dulu, lalu cek auth, lalu render
+  // Toggle satu block
+  function toggleBlock(id) {
+    const block = document.getElementById('itt-block-' + id);
+    if (block) block.classList.toggle('open');
+  }
+
+  // Buka/tutup semua
+  function toggleAll(open) {
+    document.querySelectorAll('.itt-block').forEach(b => {
+      open ? b.classList.add('open') : b.classList.remove('open');
+    });
+  }
+
+  function initPage(s, scnId) {
+    const d   = getScnData(scnId || s.scn_id || 'manggarai');
+    const itt = d.itt.Y1_Q2;
+
+    document.getElementById('itt-container').innerHTML = OUTCOMES.map((o, idx) => {
+      const validIds = o.indikator_ids.filter(id => itt[id] && itt[id].target_y1 > 0);
+      const avgPct   = validIds.length
+        ? Math.round(validIds.reduce((sum, id) => sum + getPct(itt[id].cap, itt[id].target_y1), 0) / validIds.length)
+        : 0;
+      const avgCol   = getPctColor(avgPct);
+
+      const rows = o.indikator_ids.map(id => {
+        const item = itt[id];
+        if (!item) return '';
+        const cap   = item.cap, tgt = item.target_y1, total = item.target_total;
+        const pct   = getPct(cap, tgt);
+        const col   = getPctColor(pct);
+        const sel   = cap - tgt;
+        const selStr = tgt > 0
+          ? (sel >= 0 ? `<span style="color:var(--green)">+${sel}</span>` : `<span style="color:var(--red)">${sel}</span>`)
+          : '—';
+
+        return `<tr>
+          <td style="max-width:280px"><div style="font-size:.72rem;color:var(--gray-700);line-height:1.4">${ITT_LABELS[id] || id}</div></td>
+          <td class="mono" style="text-align:center">${total || '—'}</td>
+          <td class="mono" style="text-align:center">${tgt || '—'}</td>
+          <td class="mono" style="text-align:center;font-weight:700;color:${col}">${cap}</td>
+          <td style="min-width:130px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div>
+              <span class="mono" style="font-size:.7rem;color:${col};min-width:30px">${pct}%</span>
+            </div>
+          </td>
+          <td style="text-align:center" class="mono">${selStr}</td>
+          <td>${getStatusBadge(pct)}</td>
+        </tr>`;
+      }).join('');
+
+      // Default: Outcome 1 terbuka, sisanya tertutup
+      const isOpen = idx === 0 ? 'open' : '';
+
+      return `
+        <div class="itt-block ${isOpen}" id="itt-block-${o.id}" style="--o-color:${o.warna}">
+          <div class="itt-header" onclick="toggleBlock('${o.id}')">
+            <div class="itt-header-left">
+              <div>
+                <div class="itt-label">${o.label}</div>
+                <div class="itt-name">${o.pendek}</div>
+              </div>
+              <div class="itt-header-prog">
+                <div class="prog-wrap">
+                  <div class="prog-fill" style="width:${avgPct}%;background:${o.warna}"></div>
+                </div>
+              </div>
+            </div>
+            <div class="itt-header-right">
+              <span class="itt-avg">${avgPct}%</span>
+              ${getStatusBadge(avgPct)}
+              <button class="itt-toggle" onclick="event.stopPropagation();toggleBlock('${o.id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="itt-body">
+            <div class="tbl-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="min-width:260px">Indikator</th>
+                    <th style="text-align:center">Target<br>Total</th>
+                    <th style="text-align:center">Target<br>Y1</th>
+                    <th style="text-align:center">Capaian</th>
+                    <th style="min-width:130px">Progress</th>
+                    <th style="text-align:center">Selisih</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
   buildSidebar();
   const SESSION = AUTH.requireAuth('../index.html');
   if (SESSION) {

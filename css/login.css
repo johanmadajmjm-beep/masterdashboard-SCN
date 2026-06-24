@@ -1,18 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 
 :root {
+  --nlr-700    : #c44200;
   --nlr-600    : #d4500a;
   --nlr-500    : #e05a1a;
   --nlr-400    : #f07030;
-  --nlr-200    : #fcc0a0;
   --nlr-100    : #fde8d8;
-  --nlr-50     : #fff5ef;
-  --ink-900    : #141820;
-  --ink-800    : #1c2330;
-  --ink-700    : #252d3d;
-  --ink-400    : #5a6e88;
+  --ink-950    : #0a0e14;
+  --ink-900    : #111520;
+  --ink-800    : #1a2030;
+  --ink-600    : #2e3a4e;
   --ink-300    : #8a9ab0;
-  --ink-200    : #b8c4d0;
   --white      : #ffffff;
   --font-body  : 'Plus Jakarta Sans', sans-serif;
   --font-mono  : 'JetBrains Mono', monospace;
@@ -22,206 +20,224 @@
 html { font-size: 15px; }
 
 body {
-  font-family : var(--font-body);
-  min-height  : 100vh;
-  display     : flex;
-  align-items : center;
-  justify-content: center;
-  position    : relative;
-  overflow    : hidden;
-  -webkit-font-smoothing: antialiased;
-
-  /* Background: charcoal gelap dengan subtle pattern */
-  background  : var(--ink-900);
-}
-
-/* Diagonal split background — signature NLR */
-body::before {
-  content    : '';
-  position   : absolute;
-  top        : 0; left: 0;
-  width      : 50%;
-  height     : 100%;
-  background : linear-gradient(160deg, var(--nlr-600) 0%, #9e3500 100%);
-  clip-path  : polygon(0 0, 100% 0, 75% 100%, 0 100%);
-  opacity    : .12;
-  pointer-events: none;
-}
-
-/* Grid dot pattern subtle */
-body::after {
-  content    : '';
-  position   : absolute;
-  inset      : 0;
-  background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
-  background-size: 28px 28px;
-  pointer-events: none;
-}
-
-/* ── WRAPPER ── */
-.login-wrapper {
-  position  : relative;
-  z-index   : 10;
-  width     : 100%;
-  max-width : 440px;
-  padding   : 20px;
-  animation : fadeUp .45s ease both;
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── NLR BRAND ── */
-.nlr-brand {
+  font-family     : var(--font-body);
+  min-height      : 100vh;
   display         : flex;
-  align-items     : center;
-  justify-content : center;
-  gap             : 12px;
-  margin-bottom   : 22px;
+  -webkit-font-smoothing: antialiased;
+  background      : var(--ink-950);
 }
 
-.nlr-badge {
-  width           : 46px; height: 46px;
-  background      : linear-gradient(135deg, var(--nlr-600), var(--nlr-400));
-  border-radius   : 12px;
+/* ── SPLIT LAYOUT: kiri oranye solid, kanan form ── */
+.login-left {
+  flex            : 0 0 40%;
+  background      : linear-gradient(160deg, var(--nlr-500) 0%, var(--nlr-700) 100%);
+  display         : flex;
+  flex-direction  : column;
+  justify-content : center;
+  padding         : 60px 48px;
+  position        : relative;
+  overflow        : hidden;
+}
+
+/* Lingkaran dekoratif di kiri */
+.login-left::before {
+  content       : '';
+  position      : absolute;
+  width         : 320px; height: 320px;
+  border-radius : 50%;
+  border        : 60px solid rgba(255,255,255,.08);
+  top           : -80px; right: -80px;
+}
+.login-left::after {
+  content       : '';
+  position      : absolute;
+  width         : 200px; height: 200px;
+  border-radius : 50%;
+  border        : 40px solid rgba(255,255,255,.06);
+  bottom        : -40px; left: -40px;
+}
+
+.left-logo {
+  display       : flex;
+  align-items   : center;
+  gap           : 12px;
+  margin-bottom : 48px;
+  position      : relative;
+  z-index       : 1;
+}
+.left-logo-badge {
+  width           : 44px; height: 44px;
+  background      : rgba(255,255,255,.2);
+  border          : 2px solid rgba(255,255,255,.4);
+  border-radius   : 10px;
   display         : flex;
   align-items     : center;
   justify-content : center;
   font-weight     : 900;
-  font-size       : 1rem;
+  font-size       : .85rem;
   color           : white;
-  flex-shrink     : 0;
-  box-shadow      : 0 6px 20px rgba(212,80,10,.4);
+  letter-spacing  : .04em;
 }
+.left-logo-text .t1 { font-size: .62rem; color: rgba(255,255,255,.65); }
+.left-logo-text .t2 { font-size: .88rem; font-weight: 700; color: white; }
 
-.nlr-text .t1 { font-size: .62rem; color: rgba(255,255,255,.4); line-height: 1.2; }
-.nlr-text .t2 { font-size: 1rem; font-weight: 700; color: rgba(255,255,255,.92); }
-
-.app-title {
-  font-size   : 1.4rem;
-  font-weight : 800;
-  color       : white;
-  text-align  : center;
-  line-height : 1.2;
-}
-.app-sub {
-  font-size    : .76rem;
-  color        : var(--ink-300);
-  text-align   : center;
-  margin-top   : 4px;
+.left-headline {
+  position    : relative;
+  z-index     : 1;
   margin-bottom: 20px;
 }
+.left-headline h1 {
+  font-size   : 2rem;
+  font-weight : 800;
+  color       : white;
+  line-height : 1.2;
+  margin-bottom: 10px;
+}
+.left-headline p {
+  font-size  : .82rem;
+  color      : rgba(255,255,255,.75);
+  line-height: 1.6;
+}
 
-/* Info strip */
-.info-strip {
-  display               : grid;
-  grid-template-columns : 1fr 1fr 1fr;
-  background            : rgba(255,255,255,.04);
-  border                : 1px solid rgba(255,255,255,.08);
-  border-radius         : 10px;
-  margin-bottom         : 20px;
-  overflow              : hidden;
+.left-stats {
+  display        : flex;
+  flex-direction : column;
+  gap            : 14px;
+  position       : relative;
+  z-index        : 1;
+  margin-top     : 32px;
 }
-.info-item {
-  padding    : 12px 10px;
-  text-align : center;
+.left-stat {
+  display     : flex;
+  align-items : center;
+  gap         : 12px;
 }
-.info-item + .info-item { border-left: 1px solid rgba(255,255,255,.08); }
-.info-item .num {
+.left-stat-num {
   font-family : var(--font-mono);
-  font-size   : 1.15rem;
+  font-size   : 1.4rem;
   font-weight : 700;
-  color       : var(--nlr-400);
+  color       : white;
+  min-width   : 48px;
 }
-.info-item .lbl { font-size: .62rem; color: rgba(255,255,255,.35); margin-top: 2px; line-height: 1.3; }
+.left-stat-label {
+  font-size  : .76rem;
+  color      : rgba(255,255,255,.75);
+  line-height: 1.3;
+}
+.left-stat-divider {
+  height     : 1px;
+  background : rgba(255,255,255,.15);
+  margin     : 4px 0;
+}
 
-/* ── CARD ── */
-.login-card {
-  background     : rgba(255,255,255,.06);
-  border         : 1px solid rgba(255,255,255,.1);
-  border-radius  : 16px;
-  padding        : 28px;
-  backdrop-filter: blur(20px);
-  box-shadow     : 0 24px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.05);
+/* ── KANAN: FORM ── */
+.login-right {
+  flex            : 1;
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  padding         : 40px 32px;
+  background      : var(--ink-900);
+}
+
+.login-form-wrap {
+  width     : 100%;
+  max-width : 360px;
+  animation : fadeUp .4s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.form-header {
+  margin-bottom: 32px;
+}
+.form-header h2 {
+  font-size   : 1.5rem;
+  font-weight : 800;
+  color       : white;
+  line-height : 1.2;
+  margin-bottom: 6px;
+}
+.form-header p {
+  font-size : .78rem;
+  color     : var(--ink-300);
 }
 
 /* Error */
 .error-msg {
   display       : none;
-  background    : rgba(220,38,38,.12);
-  border        : 1px solid rgba(220,38,38,.25);
-  border-radius : 7px;
-  padding       : 9px 13px;
+  background    : rgba(220,38,38,.15);
+  border        : 1px solid rgba(220,38,38,.3);
+  border-radius : 8px;
+  padding       : 10px 14px;
   font-size     : .76rem;
   color         : #fca5a5;
-  margin-bottom : 16px;
+  margin-bottom : 18px;
   align-items   : center;
   gap           : 8px;
 }
 .error-msg.show { display: flex; }
 .error-msg svg { width: 15px; height: 15px; flex-shrink: 0; }
 
-/* Form */
+/* Form elements */
 .form-group { margin-bottom: 18px; }
 .form-label {
   display      : block;
-  font-size    : .74rem;
+  font-size    : .76rem;
   font-weight  : 600;
-  color        : rgba(255,255,255,.7);
-  margin-bottom: 7px;
-  letter-spacing: .02em;
+  color        : rgba(255,255,255,.6);
+  margin-bottom: 8px;
 }
 .input-wrap { position: relative; }
 .input-icon {
-  position   : absolute;
-  left       : 13px; top: 50%;
-  transform  : translateY(-50%);
-  color      : var(--ink-300);
-  display    : flex;
+  position      : absolute;
+  left          : 14px; top: 50%;
+  transform     : translateY(-50%);
+  color         : var(--ink-300);
+  display       : flex;
   pointer-events: none;
 }
 .input-icon svg { width: 16px; height: 16px; }
 
 .form-input {
   width         : 100%;
-  background    : rgba(255,255,255,.07);
-  border        : 1px solid rgba(255,255,255,.12);
-  border-radius : 8px;
-  padding       : 11px 13px 11px 40px;
+  background    : var(--ink-800);
+  border        : 1.5px solid var(--ink-600);
+  border-radius : 9px;
+  padding       : 12px 14px 12px 42px;
   color         : white;
   font-size     : .9rem;
   font-family   : var(--font-body);
   transition    : border-color .2s, background .2s;
   outline       : none;
 }
-.form-input::placeholder { color: rgba(255,255,255,.25); }
+.form-input::placeholder { color: rgba(255,255,255,.2); }
 .form-input:focus {
   border-color : var(--nlr-500);
-  background   : rgba(255,255,255,.1);
+  background   : rgba(255,255,255,.05);
 }
 
-/* Toggle password */
 .toggle-password {
   position   : absolute;
-  right      : 13px; top: 50%;
+  right      : 14px; top: 50%;
   transform  : translateY(-50%);
   background : none;
   border     : none;
   color      : var(--ink-300);
   cursor     : pointer;
-  padding    : 0;
   display    : flex;
 }
 .toggle-password:hover { color: rgba(255,255,255,.6); }
 .toggle-password svg { width: 16px; height: 16px; }
 
-/* Tombol login — oranye NLR */
+/* Tombol masuk */
 .btn-login {
   width           : 100%;
-  padding         : 13px;
-  background      : linear-gradient(135deg, var(--nlr-600), var(--nlr-500));
+  padding         : 14px;
+  background      : var(--nlr-600);
   border          : none;
   border-radius   : 9px;
   color           : white;
@@ -229,25 +245,21 @@ body::after {
   font-weight     : 700;
   font-family     : var(--font-body);
   cursor          : pointer;
-  transition      : opacity .2s, transform .15s, box-shadow .2s;
-  box-shadow      : 0 4px 20px rgba(212,80,10,.4);
+  transition      : background .15s, transform .1s, box-shadow .15s;
+  box-shadow      : 0 4px 16px rgba(212,80,10,.4);
   display         : flex;
   align-items     : center;
   justify-content : center;
   gap             : 8px;
-  margin-top      : 6px;
+  margin-top      : 8px;
 }
-.btn-login:hover {
-  opacity    : .92;
-  box-shadow : 0 6px 24px rgba(212,80,10,.55);
-}
+.btn-login:hover  { background: var(--nlr-700); box-shadow: 0 6px 20px rgba(212,80,10,.5); }
 .btn-login:active { transform: scale(.98); }
-.btn-login.loading { opacity: .65; pointer-events: none; }
-.btn-login svg { width: 16px; height: 16px; }
+.btn-login.loading { opacity: .6; pointer-events: none; }
+.btn-login svg { width: 17px; height: 17px; }
 
-/* Spinner */
 .spinner {
-  width         : 16px; height: 16px;
+  width         : 17px; height: 17px;
   border        : 2px solid rgba(255,255,255,.3);
   border-top    : 2px solid white;
   border-radius : 50%;
@@ -256,26 +268,23 @@ body::after {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* About */
-.about {
-  font-size  : .68rem;
-  color      : rgba(255,255,255,.28);
-  text-align : center;
-  line-height: 1.6;
-  margin-top : 16px;
-  padding-top: 14px;
-  border-top : 1px solid rgba(255,255,255,.07);
-}
-
-/* Footer */
 .login-footer {
-  text-align : center;
-  margin-top : 20px;
+  margin-top : 28px;
   font-size  : .68rem;
-  color      : rgba(255,255,255,.22);
+  color      : rgba(255,255,255,.2);
+  text-align : center;
 }
 
-@media (max-width: 480px) {
-  .login-card { padding: 22px 18px; }
-  .login-wrapper { padding: 16px; }
+/* ── RESPONSIVE: mobile single column ── */
+@media (max-width: 768px) {
+  body { flex-direction: column; }
+  .login-left {
+    flex      : none;
+    padding   : 36px 28px;
+    min-height: auto;
+  }
+  .left-headline h1 { font-size: 1.5rem; }
+  .left-stats { flex-direction: row; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+  .left-stat-divider { display: none; }
+  .login-right { padding: 32px 24px; }
 }

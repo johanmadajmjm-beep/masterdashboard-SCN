@@ -32,6 +32,8 @@
       </div>
       <div class="topbar-right">
         <span class="scn-badge" id="scn-badge">—</span>
+        <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+        <span id="sync-time" style="font-size:.65rem;color:var(--ink-300);display:none"></span>
         <span class="topbar-date" id="topbar-date">—</span>
       </div>
     </header>
@@ -50,8 +52,8 @@
         <tbody id="tbl-workers"></tbody>
       </table></div></div></div>
       <script>
-      function initPage(s, scnId){
-        const d = getScnData(scnId||s.scn_id||'manggarai');
+      function renderPage(d, scnId){
+        const d = d;
         const totalAnak = d.workers.reduce((a,w)=>a+w.anak,0);
         const totalKunj = d.workers.reduce((a,w)=>a+w.kunjungan_bulan,0);
         const totalLate = d.workers.reduce((a,w)=>a+w.late,0);
@@ -82,18 +84,20 @@
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/data.js"></script>
+<script src="../js/api.js"></script>
 <script>
-  // Init: build sidebar dulu, lalu cek auth, lalu render
   buildSidebar();
   const SESSION = AUTH.requireAuth('../index.html');
   if (SESSION) {
     AUTH.applySession({
-      onScnSwitch: function(scnId) {
-        if (window.initPage) initPage(SESSION, scnId);
+      onScnSwitch: async function(scnId) {
+        const d = await API.get(scnId);
+        if (window.renderPage) renderPage(d, scnId);
       }
     });
     AUTH.initSidebar('coord', 'c-beranda');
-    if (window.initPage) initPage(SESSION, AUTH.getScnFilter());
+    API.get(AUTH.getScnFilter()).then(d => {
+      if (window.renderPage) renderPage(d, AUTH.getScnFilter());
+    });
   }
 </script>
-</body></html>

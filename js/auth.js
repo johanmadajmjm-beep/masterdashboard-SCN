@@ -1,174 +1,93 @@
-// ============================================================
-//  auth.js — Platform MEL SCN NTT
-//  Logika login, session management, dan filter SCN
-// ============================================================
-
+// auth.js — Platform MEL NLR Indonesia v2
 const AUTH = (() => {
-
-  // ----------------------------------------------------------
-  // USER DATABASE (sementara hardcoded, nanti pindah ke GSheet)
-  // Format: { username, passwordHash, role, scn_id, scn_label }
-  // role: 'superadmin' | 'scn'
-  // ----------------------------------------------------------
   const USERS = [
-    {
-      username   : 'admin',
-      password   : 'admin123',          // ganti setelah email org siap
-      role       : 'superadmin',
-      scn_id     : null,                // null = akses semua SCN
-      scn_label  : 'Semua SCN'
-    },
-    {
-      username   : 'manggarai',
-      password   : 'manggarai123',
-      role       : 'scn',
-      scn_id     : 'manggarai',
-      scn_label  : 'SCN Manggarai'
-    },
-    // Tambahkan SCN lain di sini ketika siap:
-    // { username: 'flores_timur', password: 'xxx', role: 'scn', scn_id: 'flores_timur', scn_label: 'SCN Flores Timur' },
+    { username:'admin',      password:'admin123',      role:'superadmin', scn_id:null,         scn_label:'Semua SCN' },
+    { username:'manggarai',  password:'manggarai123',  role:'scn',        scn_id:'manggarai',  scn_label:'SCN Manggarai' },
+    { username:'flotim',     password:'flotim123',     role:'scn',        scn_id:'flotim',     scn_label:'SCN Flores Timur' },
+    { username:'sikka',      password:'sikka123',      role:'scn',        scn_id:'sikka',      scn_label:'SCN Sikka' },
   ];
+  const SCN_LIST = [
+    { id:'manggarai', label:'SCN Manggarai' },
+    { id:'flotim',    label:'SCN Flores Timur' },
+    { id:'sikka',     label:'SCN Sikka' },
+  ];
+  const KEY = 'mel_v2_session';
 
-  const SESSION_KEY = 'mel_session';
-
-  // ----------------------------------------------------------
-  // LOGIN
-  // ----------------------------------------------------------
   function login(username, password) {
-    const user = USERS.find(
-      u => u.username === username.trim().toLowerCase()
-        && u.password  === password
-    );
-
-    if (!user) return { ok: false, message: 'Username atau password salah.' };
-
-    const session = {
-      username  : user.username,
-      role      : user.role,
-      scn_id    : user.scn_id,
-      scn_label : user.scn_label,
-      loggedAt  : Date.now()
-    };
-
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-    return { ok: true, session };
+    const u = USERS.find(u => u.username === username.trim().toLowerCase() && u.password === password);
+    if (!u) return { ok: false, message: 'Username atau password salah.' };
+    const s = { username: u.username, role: u.role, scn_id: u.scn_id, scn_label: u.scn_label, loggedAt: Date.now() };
+    localStorage.setItem(KEY, JSON.stringify(s));
+    return { ok: true, session: s };
   }
 
-  // ----------------------------------------------------------
-  // LOGOUT
-  // ----------------------------------------------------------
   function logout() {
-    localStorage.removeItem(SESSION_KEY);
-    window.location.href = 'index.html';
+    localStorage.removeItem(KEY);
+    window.location.href = '../index.html';
   }
 
-  // ----------------------------------------------------------
-  // GET SESSION — return null kalau belum login
-  // ----------------------------------------------------------
   function getSession() {
     try {
-      const raw = localStorage.getItem(SESSION_KEY);
-      if (!raw) return null;
-      const session = JSON.parse(raw);
-      // Session expired setelah 8 jam
-      if (Date.now() - session.loggedAt > 8 * 60 * 60 * 1000) {
-        logout();
-        return null;
-      }
-      return session;
-    } catch {
-      return null;
+      const s = JSON.parse(localStorage.getItem(KEY));
+      if (!s) return null;
+      if (Date.now() - s.loggedAt > 8 * 3600 * 1000) { logout(); return null; }
+      return s;
+    } catch { return null; }
+  }
+
+  function requireAuth(redirectTo = '../index.html') {
+    const s = getSession();
+    if (!s) { window.location.href = redirectTo; return null; }
+    return s;
+  }
+
+  function isSuperAdmin() { const s = getSession(); return s && s.role === 'superadmin'; }
+  function getScnFilter() { const s = getSession(); return s ? s.scn_id : null; }
+
+  function applySession(opts = {}) {
+    const s = getSession();
+    if (!s) return;
+    const q = (sel) => document.querySelector(sel);
+    if (q('#user-av'))    q('#user-av').textContent    = s.username.charAt(0).toUpperCase();
+    if (q('#user-name'))  q('#user-name').textContent  = s.username.toUpperCase();
+    if (q('#user-role'))  q('#user-role').textContent  = s.role === 'superadmin' ? 'Super Admin' : 'SCN Admin';
+    if (q('#scn-badge'))  q('#scn-badge').textContent  = s.scn_label;
+    if (q('#topbar-date')) q('#topbar-date').textContent = new Date().toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    // SCN switcher untuk superadmin
+    const wrap = q('#scn-switcher-wrap');
+    if (wrap && s.role === 'superadmin') {
+      const sel = document.createElement('select');
+      sel.className = 'scn-switcher';
+      sel.innerHTML = `<option value="">— Semua SCN —</option>` +
+        SCN_LIST.map(x => `<option value="${x.id}">${x.label}</option>`).join('');
+      sel.addEventListener('change', () => { if (opts.onScnSwitch) opts.onScnSwitch(sel.value || null); });
+      wrap.appendChild(sel);
     }
   }
 
-  // ----------------------------------------------------------
-  // REQUIRE AUTH — panggil di atas setiap dashboard
-  // Kalau belum login → redirect ke index.html
-  // ----------------------------------------------------------
-  function requireAuth() {
-    const session = getSession();
-    if (!session) {
-      window.location.href = 'index.html';
-      return null;
+  // Sidebar collapsible nav
+  function initSidebar(activeGroup, activePage) {
+    document.querySelectorAll('.nav-group-header').forEach(h => {
+      const groupId = h.dataset.group;
+      const sub     = document.getElementById('sub-' + groupId);
+      if (!sub) return;
+      // Auto-open grup aktif
+      if (groupId === activeGroup) { h.classList.add('open'); sub.classList.add('open'); }
+      h.addEventListener('click', () => {
+        const isOpen = h.classList.contains('open');
+        // Tutup semua
+        document.querySelectorAll('.nav-group-header').forEach(x => x.classList.remove('open'));
+        document.querySelectorAll('.nav-sub').forEach(x => x.classList.remove('open'));
+        if (!isOpen) { h.classList.add('open'); sub.classList.add('open'); }
+      });
+    });
+    // Set active item
+    if (activePage) {
+      document.querySelectorAll('.nav-sub-item').forEach(item => {
+        if (item.dataset.page === activePage) item.classList.add('active');
+      });
     }
-    return session;
   }
 
-  // ----------------------------------------------------------
-  // IS SUPER ADMIN
-  // ----------------------------------------------------------
-  function isSuperAdmin() {
-    const s = getSession();
-    return s && s.role === 'superadmin';
-  }
-
-  // ----------------------------------------------------------
-  // GET SCN FILTER
-  // Kembalikan scn_id untuk dipakai filter data.
-  // null = superadmin (lihat semua), string = filter ke SCN itu
-  // ----------------------------------------------------------
-  function getScnFilter() {
-    const s = getSession();
-    if (!s) return null;
-    return s.scn_id; // null untuk superadmin, 'manggarai' untuk SCN
-  }
-
-  // ----------------------------------------------------------
-  // APPLY SCN LABEL ke elemen UI (opsional)
-  // ----------------------------------------------------------
-  function applyScnLabel(selector = '#scn-label') {
-    const s = getSession();
-    const el = document.querySelector(selector);
-    if (el && s) el.textContent = s.scn_label;
-  }
-
-  // ----------------------------------------------------------
-  // RENDER SCN SWITCHER (hanya untuk superadmin)
-  // Inject dropdown ke elemen target
-  // ----------------------------------------------------------
-  const SCN_LIST = [
-    { id: 'manggarai',   label: 'SCN Manggarai' },
-    // tambahkan SCN lain di sini
-  ];
-
-  function renderScnSwitcher(targetSelector, onSwitch) {
-    if (!isSuperAdmin()) return;
-
-    const target = document.querySelector(targetSelector);
-    if (!target) return;
-
-    const select = document.createElement('select');
-    select.className = 'scn-switcher';
-    select.innerHTML = `<option value="">Semua SCN</option>`;
-
-    SCN_LIST.forEach(scn => {
-      const opt = document.createElement('option');
-      opt.value = scn.id;
-      opt.textContent = scn.label;
-      select.appendChild(opt);
-    });
-
-    select.addEventListener('change', () => {
-      const val = select.value || null;
-      if (typeof onSwitch === 'function') onSwitch(val);
-    });
-
-    target.appendChild(select);
-  }
-
-  // ----------------------------------------------------------
-  // PUBLIC API
-  // ----------------------------------------------------------
-  return {
-    login,
-    logout,
-    getSession,
-    requireAuth,
-    isSuperAdmin,
-    getScnFilter,
-    applyScnLabel,
-    renderScnSwitcher,
-    SCN_LIST
-  };
-
+  return { login, logout, getSession, requireAuth, isSuperAdmin, getScnFilter, applySession, initSidebar, SCN_LIST };
 })();

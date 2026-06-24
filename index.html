@@ -1,265 +1,92 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Login — Sistem Informasi MEL | NLR Indonesia</title>
-  <link rel="stylesheet" href="css/login.css" />
+  <link rel="stylesheet" href="css/login.css"/>
   <style>
-    .login-wrapper { max-width: 460px; }
-
-    /* NLR brand strip */
-    .nlr-brand {
-      display        : flex;
-      align-items    : center;
-      justify-content: center;
-      gap            : 12px;
-      margin-bottom  : 24px;
-    }
-    .nlr-logo-box {
-      width            : 48px;
-      height           : 48px;
-      background       : #D4500A;
-      border-radius    : 10px;
-      display          : flex;
-      align-items      : center;
-      justify-content  : center;
-      font-weight      : 900;
-      font-size        : 1.1rem;
-      color            : white;
-      letter-spacing   : .05em;
-      flex-shrink      : 0;
-    }
-    .nlr-name {
-      text-align : left;
-    }
-    .nlr-name .full  { font-size: .7rem; color: rgba(255,255,255,.4); line-height:1.2; }
-    .nlr-name .short { font-size: 1.1rem; font-weight: 700; color: white; line-height:1.2; }
-
-    /* App title */
-    .app-title {
-      font-size   : 1.4rem;
-      font-weight : 700;
-      color       : var(--white);
-      text-align  : center;
-      line-height : 1.2;
-    }
-    .app-subtitle {
-      font-size   : .8125rem;
-      color       : var(--primary-300);
-      text-align  : center;
-      margin-top  : 4px;
-      margin-bottom: 24px;
-    }
-
-    /* Info strip */
-    .info-strip {
-      background    : rgba(255,255,255,.05);
-      border        : 1px solid rgba(255,255,255,.1);
-      border-radius : 10px;
-      padding       : 14px 16px;
-      margin-bottom : 20px;
-      display       : grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap           : 8px;
-      text-align    : center;
-    }
-    .info-item .num {
-      font-family : var(--font-mono);
-      font-size   : 1.1rem;
-      font-weight : 700;
-      color       : #1ab8a6;
-    }
-    .info-item .lbl {
-      font-size : .7rem;
-      color     : rgba(255,255,255,.45);
-      margin-top: 2px;
-      line-height: 1.3;
-    }
-    .info-divider {
-      width      : 1px;
-      background : rgba(255,255,255,.1);
-      margin     : 4px 0;
-    }
-
-    /* About NLR */
-    .about-nlr {
-      font-size   : .75rem;
-      color       : rgba(255,255,255,.35);
-      text-align  : center;
-      line-height : 1.6;
-      margin-top  : 16px;
-      padding-top : 14px;
-      border-top  : 1px solid rgba(255,255,255,.08);
-    }
-    .about-nlr a { color: rgba(255,255,255,.5); text-decoration: underline; }
+    .login-wrapper{max-width:440px}
+    .nlr-brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:22px}
+    .nlr-badge{width:46px;height:46px;background:#D4500A;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1rem;color:white;flex-shrink:0}
+    .nlr-text .t1{font-size:.65rem;color:rgba(255,255,255,.4);line-height:1.2}
+    .nlr-text .t2{font-size:1rem;font-weight:700;color:white;line-height:1.2}
+    .app-title{font-size:1.35rem;font-weight:700;color:white;text-align:center;line-height:1.2}
+    .app-sub{font-size:.78rem;color:var(--primary-300);text-align:center;margin-top:4px;margin-bottom:22px}
+    .info-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 0;margin-bottom:20px;text-align:center}
+    .info-item{padding:0 12px}
+    .info-item+.info-item{border-left:1px solid rgba(255,255,255,.1)}
+    .info-item .num{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#1ab8a6}
+    .info-item .lbl{font-size:.65rem;color:rgba(255,255,255,.4);margin-top:2px;line-height:1.3}
+    .about{font-size:.7rem;color:rgba(255,255,255,.3);text-align:center;line-height:1.6;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}
   </style>
 </head>
 <body>
-
-  <div class="login-wrapper">
-
-    <!-- NLR BRAND -->
-    <div class="nlr-brand">
-      <div class="nlr-logo-box">NLR</div>
-      <div class="nlr-name">
-        <div class="full">Yayasan Netherlands Leprosy Relief</div>
-        <div class="short">NLR Indonesia</div>
-      </div>
-    </div>
-
-    <!-- APP TITLE -->
-    <div class="app-title">Sistem Informasi MEL</div>
-    <div class="app-subtitle">
-      Monitoring · Evaluasi · Pembelajaran &nbsp;|&nbsp; Program SCN Nasional
-    </div>
-
-    <!-- INFO STRIP -->
-    <div class="info-strip">
-      <div class="info-item">
-        <div class="num">8</div>
-        <div class="lbl">SCN Aktif di Indonesia</div>
-      </div>
-      <div class="info-item" style="border-left:1px solid rgba(255,255,255,.1);border-right:1px solid rgba(255,255,255,.1)">
-        <div class="num">3</div>
-        <div class="lbl">Dashboard Terintegrasi</div>
-      </div>
-      <div class="info-item">
-        <div class="num">Real<span style="font-size:.8rem">-time</span></div>
-        <div class="lbl">Data dari KoboToolbox</div>
-      </div>
-    </div>
-
-    <!-- CARD FORM -->
-    <div class="login-card">
-
-      <!-- ERROR -->
-      <div class="error-msg" id="error-msg">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
-          <line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <span id="error-text">Username atau password salah.</span>
-      </div>
-
-      <!-- USERNAME -->
-      <div class="form-group">
-        <label class="form-label" for="username">Username</label>
-        <div class="input-wrap">
-          <span class="input-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-          </span>
-          <input type="text" id="username" class="form-input" placeholder="Masukkan username"
-            autocomplete="username" autocapitalize="none" />
-        </div>
-      </div>
-
-      <!-- PASSWORD -->
-      <div class="form-group">
-        <label class="form-label" for="password">Password</label>
-        <div class="input-wrap">
-          <span class="input-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
-          </span>
-          <input type="password" id="password" class="form-input" placeholder="Masukkan password"
-            autocomplete="current-password" />
-          <button class="toggle-password" id="toggle-pw" type="button" title="Tampilkan password">
-            <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- TOMBOL LOGIN -->
-      <button class="btn-login" id="btn-login" type="button">
-        <div class="spinner" id="spinner"></div>
-        <svg id="login-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-          <polyline points="10 17 15 12 10 7"/>
-          <line x1="15" y1="12" x2="3" y2="12"/>
-        </svg>
-        Masuk
-      </button>
-
-      <!-- ABOUT NLR -->
-      <div class="about-nlr">
-        NLR Indonesia (No Leprosy Remains) bekerja untuk menghapus kusta dan konsekuensinya
-        melalui rehabilitasi berbasis komunitas, inklusi sosial, dan penguatan kapasitas
-        petugas kesehatan di 20+ provinsi di Indonesia sejak 1967.
-      </div>
-
-    </div><!-- /login-card -->
-
-    <p class="login-footer" style="margin-top:20px">
-      Sistem Informasi MEL &copy; 2025 &mdash; NLR Indonesia
-    </p>
-
+<div class="login-wrapper">
+  <div class="nlr-brand">
+    <div class="nlr-badge">NLR</div>
+    <div class="nlr-text"><div class="t1">Yayasan Netherlands Leprosy Relief</div><div class="t2">NLR Indonesia</div></div>
   </div>
-
-  <script src="js/auth.js"></script>
-  <script>
-    (function () {
-      const session = AUTH.getSession();
-      if (session) window.location.href = 'dashboard-worker.html';
-    })();
-
-    const usernameEl = document.getElementById('username');
-    const passwordEl = document.getElementById('password');
-    const btnLogin   = document.getElementById('btn-login');
-    const errorMsg   = document.getElementById('error-msg');
-    const errorText  = document.getElementById('error-text');
-    const spinner    = document.getElementById('spinner');
-    const loginIcon  = document.getElementById('login-icon');
-    const togglePw   = document.getElementById('toggle-pw');
-
-    togglePw.addEventListener('click', () => {
-      const isHidden  = passwordEl.type === 'password';
-      passwordEl.type = isHidden ? 'text' : 'password';
-    });
-
-    function showError(msg) { errorText.textContent = msg; errorMsg.classList.add('show'); }
-    function hideError()    { errorMsg.classList.remove('show'); }
-
-    function doLogin() {
-      hideError();
-      const username = usernameEl.value.trim();
-      const password = passwordEl.value;
-      if (!username || !password) { showError('Username dan password wajib diisi.'); return; }
-
-      btnLogin.classList.add('loading');
-      spinner.style.display  = 'block';
-      loginIcon.style.display = 'none';
-
-      setTimeout(() => {
-        const result = AUTH.login(username, password);
-        btnLogin.classList.remove('loading');
-        spinner.style.display  = 'none';
-        loginIcon.style.display = 'block';
-
-        if (result.ok) {
-          window.location.href = 'dashboard-worker.html';
-        } else {
-          showError(result.message);
-          passwordEl.value = '';
-          passwordEl.focus();
-        }
-      }, 400);
-    }
-
-    btnLogin.addEventListener('click', doLogin);
-    [usernameEl, passwordEl].forEach(el => {
-      el.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-      el.addEventListener('input',   hideError);
-    });
-  </script>
-
-</body>
-</html>
+  <div class="app-title">Sistem Informasi MEL</div>
+  <div class="app-sub">Monitoring · Evaluasi · Pembelajaran &nbsp;|&nbsp; Program SCN Nasional</div>
+  <div class="info-strip">
+    <div class="info-item"><div class="num">8</div><div class="lbl">SCN Aktif</div></div>
+    <div class="info-item"><div class="num">11</div><div class="lbl">Sub-Dashboard</div></div>
+    <div class="info-item"><div class="num">7</div><div class="lbl">Outcome ITT</div></div>
+  </div>
+  <div class="login-card">
+    <div class="error-msg" id="error-msg">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="error-text">Username atau password salah.</span>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="username">Username</label>
+      <div class="input-wrap">
+        <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+        <input type="text" id="username" class="form-input" placeholder="Masukkan username" autocomplete="username" autocapitalize="none"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="password">Password</label>
+      <div class="input-wrap">
+        <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <input type="password" id="password" class="form-input" placeholder="Masukkan password" autocomplete="current-password"/>
+        <button class="toggle-password" id="toggle-pw" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+    <button class="btn-login" id="btn-login" type="button">
+      <div class="spinner" id="spinner"></div>
+      <svg id="login-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      Masuk
+    </button>
+    <div class="about">NLR Indonesia bekerja menghapus kusta dan konsekuensinya melalui rehabilitasi berbasis komunitas, inklusi sosial, dan penguatan kapasitas di 20+ provinsi sejak 1967.</div>
+  </div>
+  <p class="login-footer" style="margin-top:18px">Sistem Informasi MEL &copy; 2025 — NLR Indonesia</p>
+</div>
+<script src="js/auth.js"></script>
+<script>
+  (function(){ const s=AUTH.getSession(); if(s) window.location.href='pages/worker-beranda.html'; })();
+  const uEl=document.getElementById('username'), pEl=document.getElementById('password');
+  const btn=document.getElementById('btn-login'), errMsg=document.getElementById('error-msg');
+  const errTxt=document.getElementById('error-text'), spinner=document.getElementById('spinner');
+  const loginIco=document.getElementById('login-icon');
+  document.getElementById('toggle-pw').addEventListener('click',()=>{ pEl.type=pEl.type==='password'?'text':'password'; });
+  function showErr(m){ errTxt.textContent=m; errMsg.classList.add('show'); }
+  function hideErr(){ errMsg.classList.remove('show'); }
+  function doLogin(){
+    hideErr();
+    const u=uEl.value.trim(), p=pEl.value;
+    if(!u||!p){ showErr('Username dan password wajib diisi.'); return; }
+    btn.classList.add('loading'); spinner.style.display='block'; loginIco.style.display='none';
+    setTimeout(()=>{
+      const r=AUTH.login(u,p);
+      btn.classList.remove('loading'); spinner.style.display='none'; loginIco.style.display='block';
+      if(r.ok){ window.location.href='pages/worker-beranda.html'; }
+      else{ showErr(r.message); pEl.value=''; pEl.focus(); }
+    },400);
+  }
+  btn.addEventListener('click',doLogin);
+  [uEl,pEl].forEach(el=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); }); el.addEventListener('input',hideErr); });
+</script>
+</body></html>

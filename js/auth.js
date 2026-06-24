@@ -11,26 +11,28 @@ const AUTH = (() => {
     { id:'flotim',    label:'SCN Flores Timur' },
     { id:'sikka',     label:'SCN Sikka'        },
   ];
-  const KEY = 'mel_v2_session';
+  const KEY        = 'mel_v2_session';
+  const SCN_KEY    = 'mel_v2_active_scn'; // persisten lintas halaman
 
-  // Simpan SCN aktif sementara (overrides session untuk superadmin)
-  let _activeScn = null;
-
+  // ── LOGIN ──
   function login(username, password) {
     const u = USERS.find(u => u.username === username.trim().toLowerCase() && u.password === password);
     if (!u) return { ok: false, message: 'Username atau password salah.' };
     const s = { username: u.username, role: u.role, scn_id: u.scn_id, scn_label: u.scn_label, loggedAt: Date.now() };
     localStorage.setItem(KEY, JSON.stringify(s));
-    _activeScn = null;
+    // Reset pilihan SCN saat login baru
+    localStorage.removeItem(SCN_KEY);
     return { ok: true, session: s };
   }
 
+  // ── LOGOUT ──
   function logout() {
     localStorage.removeItem(KEY);
-    _activeScn = null;
+    localStorage.removeItem(SCN_KEY);
     window.location.href = '../index.html';
   }
 
+  // ── GET SESSION ──
   function getSession() {
     try {
       const s = JSON.parse(localStorage.getItem(KEY));
@@ -40,6 +42,7 @@ const AUTH = (() => {
     } catch { return null; }
   }
 
+  // ── REQUIRE AUTH ──
   function requireAuth(redirectTo = '../index.html') {
     const s = getSession();
     if (!s) { window.location.href = redirectTo; return null; }
@@ -48,17 +51,27 @@ const AUTH = (() => {
 
   function isSuperAdmin() { const s = getSession(); return s && s.role === 'superadmin'; }
 
-  // Kembalikan SCN yang sedang aktif:
-  // - Untuk SCN user: selalu scn_id dari session
-  // - Untuk superadmin: _activeScn (bisa null = semua)
+  // ── GET SCN FILTER ──
+  // Untuk SCN user → selalu scn_id dari session
+  // Untuk superadmin → ambil dari localStorage (persisten lintas halaman)
   function getScnFilter() {
     const s = getSession();
     if (!s) return null;
     if (s.role !== 'superadmin') return s.scn_id;
-    return _activeScn;
+    const saved = localStorage.getItem(SCN_KEY);
+    return saved || null; // null = Semua SCN
   }
 
-  // Update badge SCN di topbar
+  // ── SIMPAN PILIHAN SCN (superadmin) ──
+  function setScnFilter(scnId) {
+    if (scnId) {
+      localStorage.setItem(SCN_KEY, scnId);
+    } else {
+      localStorage.removeItem(SCN_KEY);
+    }
+  }
+
+  // ── UPDATE BADGE TOPBAR ──
   function updateScnBadge(scnId) {
     const badge = document.getElementById('scn-badge');
     if (!badge) return;
@@ -70,19 +83,22 @@ const AUTH = (() => {
     }
   }
 
+  // ── APPLY SESSION KE UI ──
   function applySession(opts = {}) {
     const s = getSession();
     if (!s) return;
     const q = sel => document.querySelector(sel);
-    if (q('#user-av'))    q('#user-av').textContent   = s.username.charAt(0).toUpperCase();
-    if (q('#user-name'))  q('#user-name').textContent = s.username.toUpperCase();
-    if (q('#user-role'))  q('#user-role').textContent = s.role === 'superadmin' ? 'Super Admin' : 'SCN Admin';
+
+    if (q('#user-av'))     q('#user-av').textContent    = s.username.charAt(0).toUpperCase();
+    if (q('#user-name'))   q('#user-name').textContent  = s.username.toUpperCase();
+    if (q('#user-role'))   q('#user-role').textContent  = s.role === 'superadmin' ? 'Super Admin' : 'SCN Admin';
     if (q('#topbar-date')) q('#topbar-date').textContent = new Date().toLocaleDateString('id-ID', {
-      weekday:'long', day:'numeric', month:'long', year:'numeric'
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
     });
 
-    // Badge awal
-    updateScnBadge(s.scn_id);
+    // Badge awal — pakai nilai yang sudah tersimpan
+    const currentScn = getScnFilter();
+    updateScnBadge(currentScn);
 
     // SCN Switcher — hanya untuk superadmin
     const wrap = q('#scn-switcher-wrap');
@@ -92,17 +108,21 @@ const AUTH = (() => {
       sel.innerHTML = `<option value="">— Semua SCN —</option>` +
         SCN_LIST.map(x => `<option value="${x.id}">${x.label}</option>`).join('');
 
+      // Restore pilihan sebelumnya
+      sel.value = currentScn || '';
+
       sel.addEventListener('change', () => {
         const scnId = sel.value || null;
-        _activeScn  = scnId;            // simpan state aktif
-        updateScnBadge(scnId);          // update badge topbar
-        if (opts.onScnSwitch) opts.onScnSwitch(scnId); // panggil render ulang
+        setScnFilter(scnId);        // simpan ke localStorage
+        updateScnBadge(scnId);      // update badge topbar
+        if (opts.onScnSwitch) opts.onScnSwitch(scnId);
       });
 
       wrap.appendChild(sel);
     }
   }
 
+  // ── INIT SIDEBAR COLLAPSIBLE ──
   function initSidebar(activeGroup, activePage) {
     document.querySelectorAll('.nav-group-header').forEach(h => {
       const groupId = h.dataset.group;
@@ -123,5 +143,10 @@ const AUTH = (() => {
     }
   }
 
-  return { login, logout, getSession, requireAuth, isSuperAdmin, getScnFilter, applySession, initSidebar, updateScnBadge, SCN_LIST };
+  return {
+    login, logout, getSession, requireAuth,
+    isSuperAdmin, getScnFilter, setScnFilter,
+    applySession, updateScnBadge, initSidebar,
+    SCN_LIST
+  };
 })();

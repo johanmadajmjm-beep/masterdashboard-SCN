@@ -432,7 +432,75 @@ const DATA = {
 
 };
 
-// ── FUNGSI UTAMA ──
+// ── FUNGSI UTAMA → lihat getAllScnData() dan getScnData() di bawah ──
+
+// ── AGREGASI SEMUA SCN ──
+// Dipanggil saat superadmin pilih "Semua SCN" (scnId = null)
+function getAllScnData() {
+  const scnIds = Object.keys(DATA);
+
+  // Workers: gabung semua
+  const workers = scnIds.flatMap(id =>
+    DATA[id].workers.map(w => ({ ...w, scn: DATA[id].meta.scn, scn_id: id }))
+  );
+
+  // Anak: gabung semua
+  const anak = scnIds.flatMap(id =>
+    DATA[id].anak.map(a => ({ ...a, scn: DATA[id].meta.scn, scn_id: id }))
+  );
+
+  // Referral: gabung semua
+  const referral = scnIds.flatMap(id =>
+    DATA[id].referral.map(r => ({ ...r, scn: DATA[id].meta.scn, scn_id: id }))
+  );
+
+  // Aktivitas: gabung semua, sort terbaru dulu
+  const aktivitas = scnIds.flatMap(id =>
+    DATA[id].aktivitas.map(a => ({ ...a, scn: DATA[id].meta.scn, scn_id: id }))
+  ).sort((a, b) => b.tgl.localeCompare(a.tgl));
+
+  // Stakeholder: jumlahkan per kategori
+  const stakeholder = {};
+  scnIds.forEach(id => {
+    Object.entries(DATA[id].stakeholder).forEach(([cat, val]) => {
+      if (!stakeholder[cat]) stakeholder[cat] = { total: 0, L: 0, P: 0 };
+      stakeholder[cat].total += val.total;
+      stakeholder[cat].L    += val.L;
+      stakeholder[cat].P    += val.P;
+    });
+  });
+
+  // Cerita: gabung semua
+  const cerita = scnIds.flatMap(id =>
+    DATA[id].cerita.map(c => ({ ...c, scn: DATA[id].meta.scn }))
+  );
+
+  // ITT: jumlahkan capaian dan target dari semua SCN
+  const ittAgg = {};
+  scnIds.forEach(id => {
+    const itt = DATA[id].itt.Y1_Q2;
+    Object.entries(itt).forEach(([key, val]) => {
+      if (!ittAgg[key]) ittAgg[key] = { cap: 0, target_y1: 0, target_total: 0 };
+      ittAgg[key].cap          += val.cap;
+      ittAgg[key].target_y1   += val.target_y1;
+      ittAgg[key].target_total += val.target_total;
+    });
+  });
+
+  return {
+    meta: { scn: 'Semua SCN', project: 'BEN', provinsi: 'Nasional', tahun: 2026 },
+    workers,
+    anak,
+    referral,
+    aktivitas,
+    stakeholder,
+    cerita,
+    itt: { Y1_Q2: ittAgg },
+  };
+}
+
+// ── UPDATE getScnData agar handle null (Semua SCN) ──
 function getScnData(scnId) {
+  if (!scnId) return getAllScnData();
   return DATA[scnId] || DATA['manggarai'];
 }

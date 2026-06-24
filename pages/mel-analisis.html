@@ -466,13 +466,20 @@ function renderStakeholder() {
 buildSidebar();
 const SESSION = AUTH.requireAuth('../index.html');
 if (SESSION) {
-  AUTH.applySession({
-    onScnSwitch: function(scnId) {
-      if (window.initPage) initPage(SESSION, scnId);
-    }
-  });
-  AUTH.initSidebar('mel', 'm-analisis');
-  if (window.initPage) initPage(SESSION, AUTH.getScnFilter());
+  // Halaman ini hanya untuk superadmin
+  if (!AUTH.isSuperAdmin()) {
+    window.location.href = 'mel-beranda.html';
+  } else {
+    AUTH.applySession({
+      onScnSwitch: function() {
+        // Filter SCN tidak berlaku di halaman ini
+        // Analisis selalu tampilkan semua SCN (nasional)
+      }
+    });
+    AUTH.initSidebar('mel', 'm-analisis');
+    // Selalu render dengan semua SCN — abaikan filter
+    if (window.initPage) initPage(SESSION, null);
+  }
 }
 </script>
 </body></html>

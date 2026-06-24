@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Platform MEL SCN NTT</title>
+  <link rel="stylesheet" href="css/login.css" />
+</head>
+<body>
+
+  <div class="login-wrapper">
+
+    <!-- HEADER -->
+    <div class="login-header">
+      <div class="login-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/>
+          <path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/>
+        </svg>
+      </div>
+      <h1 class="login-title">Platform MEL</h1>
+      <p class="login-subtitle">SCN NTT — Monitoring, Evaluasi & Pembelajaran</p>
+    </div>
+
+    <!-- CARD FORM -->
+    <div class="login-card">
+
+      <!-- ERROR -->
+      <div class="error-msg" id="error-msg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="error-text">Username atau password salah.</span>
+      </div>
+
+      <!-- USERNAME -->
+      <div class="form-group">
+        <label class="form-label" for="username">Username</label>
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </span>
+          <input
+            type="text"
+            id="username"
+            class="form-input"
+            placeholder="Masukkan username"
+            autocomplete="username"
+            autocapitalize="none"
+          />
+        </div>
+      </div>
+
+      <!-- PASSWORD -->
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </span>
+          <input
+            type="password"
+            id="password"
+            class="form-input"
+            placeholder="Masukkan password"
+            autocomplete="current-password"
+          />
+          <button class="toggle-password" id="toggle-pw" type="button" title="Tampilkan password">
+            <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- TOMBOL LOGIN -->
+      <button class="btn-login" id="btn-login" type="button">
+        <div class="spinner" id="spinner"></div>
+        <svg id="login-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+          <polyline points="10 17 15 12 10 7"/>
+          <line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+        Masuk
+      </button>
+
+    </div><!-- /login-card -->
+
+    <p class="login-footer">
+      Platform MEL SCN NTT &copy; 2025 &mdash; CBM Global &amp; Ayo Indonesia
+    </p>
+
+  </div><!-- /login-wrapper -->
+
+  <script src="js/auth.js"></script>
+  <script>
+    // Kalau sudah login → langsung ke dashboard
+    (function () {
+      const session = AUTH.getSession();
+      if (session) {
+        window.location.href = 'dashboard-worker.html';
+      }
+    })();
+
+    const usernameEl = document.getElementById('username');
+    const passwordEl = document.getElementById('password');
+    const btnLogin   = document.getElementById('btn-login');
+    const errorMsg   = document.getElementById('error-msg');
+    const errorText  = document.getElementById('error-text');
+    const spinner    = document.getElementById('spinner');
+    const loginIcon  = document.getElementById('login-icon');
+    const togglePw   = document.getElementById('toggle-pw');
+
+    // Toggle show/hide password
+    togglePw.addEventListener('click', () => {
+      const isHidden = passwordEl.type === 'password';
+      passwordEl.type = isHidden ? 'text' : 'password';
+      togglePw.title  = isHidden ? 'Sembunyikan password' : 'Tampilkan password';
+    });
+
+    // Fungsi tampilkan error
+    function showError(msg) {
+      errorText.textContent = msg;
+      errorMsg.classList.add('show');
+    }
+
+    function hideError() {
+      errorMsg.classList.remove('show');
+    }
+
+    // Proses login
+    function doLogin() {
+      hideError();
+      const username = usernameEl.value.trim();
+      const password = passwordEl.value;
+
+      if (!username || !password) {
+        showError('Username dan password wajib diisi.');
+        return;
+      }
+
+      // Loading state
+      btnLogin.classList.add('loading');
+      spinner.style.display = 'block';
+      loginIcon.style.display = 'none';
+
+      // Simulasi delay ringan (agar tidak terasa instant/bug)
+      setTimeout(() => {
+        const result = AUTH.login(username, password);
+
+        btnLogin.classList.remove('loading');
+        spinner.style.display = 'none';
+        loginIcon.style.display = 'block';
+
+        if (result.ok) {
+          // Redirect ke dashboard CBR Worker sebagai default
+          window.location.href = 'dashboard-worker.html';
+        } else {
+          showError(result.message);
+          passwordEl.value = '';
+          passwordEl.focus();
+        }
+      }, 400);
+    }
+
+    btnLogin.addEventListener('click', doLogin);
+
+    // Enter key trigger login
+    [usernameEl, passwordEl].forEach(el => {
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter') doLogin();
+      });
+    });
+
+    // Hapus error saat user mulai mengetik
+    [usernameEl, passwordEl].forEach(el => {
+      el.addEventListener('input', hideError);
+    });
+  </script>
+
+</body>
+</html>

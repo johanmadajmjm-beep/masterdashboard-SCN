@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard CBR Coordinator — Platform MEL SCN NTT</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    .worker-row {
+      display         : flex;
+      align-items     : center;
+      justify-content : space-between;
+      padding         : 14px 0;
+      border-bottom   : 1px solid var(--gray-100);
+      gap             : 12px;
+    }
+    .worker-row:last-child { border-bottom: none; }
+    .worker-info { flex: 1; min-width: 0; }
+    .worker-name { font-weight: 600; font-size: var(--text-sm); }
+    .worker-stats { font-size: var(--text-xs); color: var(--gray-500); margin-top: 3px; }
+    .worker-progress { width: 120px; }
+    .progress-label {
+      display         : flex;
+      justify-content : space-between;
+      font-size       : var(--text-xs);
+      color           : var(--gray-500);
+      margin-bottom   : 4px;
+    }
+    .coord-grid {
+      display               : grid;
+      grid-template-columns : 1fr 1fr;
+      gap                   : 20px;
+      margin-top            : 20px;
+    }
+    .irp-row {
+      display         : flex;
+      align-items     : center;
+      justify-content : space-between;
+      padding         : 10px 0;
+      border-bottom   : 1px solid var(--gray-100);
+      font-size       : var(--text-sm);
+    }
+    .irp-row:last-child { border-bottom: none; }
+    @media (max-width: 900px) {
+      .coord-grid { grid-template-columns: 1fr; }
+      .worker-progress { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">Platform MEL</div>
+      <div class="brand-sub">SCN NTT</div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="user-avatar">?</div>
+      <div class="user-info">
+        <div class="user-name" id="user-name">—</div>
+        <div class="user-role" id="user-role">—</div>
+      </div>
+    </div>
+    <div id="scn-switcher-wrap"></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Dashboard</div>
+      <a class="nav-item" href="dashboard-worker.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        CBR Worker
+      </a>
+      <a class="nav-item active" href="dashboard-coordinator.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        CBR Coordinator
+      </a>
+      <a class="nav-item" href="dashboard-mel.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        MEL
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="AUTH.logout()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Keluar
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-title">Dashboard CBR Coordinator</div>
+      <div class="topbar-meta">
+        <span id="scn-label" class="scn-badge">—</span>
+        <span id="topbar-date">—</span>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- STAT CARDS -->
+      <div class="stat-grid">
+        <div class="stat-card primary">
+          <div class="stat-label">Total Beneficiary</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-sub">anak terdaftar</div>
+        </div>
+        <div class="stat-card accent">
+          <div class="stat-label">Kasus Aktif</div>
+          <div class="stat-value" id="stat-aktif">—</div>
+          <div class="stat-sub">sedang didampingi</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-label">Belum Dikunjungi >30 Hari</div>
+          <div class="stat-value" id="stat-terlambat">—</div>
+          <div class="stat-sub">perlu tindak lanjut segera</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">CBR Worker Aktif</div>
+          <div class="stat-value" id="stat-worker">—</div>
+          <div class="stat-sub">petugas lapangan</div>
+        </div>
+      </div>
+
+      <!-- GRID KONTEN -->
+      <div class="coord-grid">
+
+        <!-- Home Visit per CBR Worker -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Home Visit per CBR Worker</span>
+            <span class="badge badge-info">Bulan Ini</span>
+          </div>
+          <div class="card-body" id="list-worker-visit">
+            <p style="color:var(--gray-400);font-size:var(--text-sm)">Memuat data...</p>
+          </div>
+        </div>
+
+        <!-- Status IRP -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Status IRP</span>
+          </div>
+          <div class="card-body" id="list-irp">
+            <p style="color:var(--gray-400);font-size:var(--text-sm)">Memuat data...</p>
+          </div>
+        </div>
+
+        <!-- Kasus per Ragam Disabilitas -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Kasus per Ragam Disabilitas</span>
+          </div>
+          <div class="card-body" id="list-ragam">
+            <p style="color:var(--gray-400);font-size:var(--text-sm)">Memuat data...</p>
+          </div>
+        </div>
+
+        <!-- Anak Belum Dikunjungi -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Anak Belum Dikunjungi &gt;30 Hari</span>
+            <span class="badge badge-danger" id="badge-terlambat">—</span>
+          </div>
+          <div class="card-body" id="list-terlambat">
+            <p style="color:var(--gray-400);font-size:var(--text-sm)">Memuat data...</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/coordinator.js"></script>
+</body>
+</html>

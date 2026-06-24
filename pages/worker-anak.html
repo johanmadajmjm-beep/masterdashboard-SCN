@@ -57,7 +57,8 @@
           document.getElementById('tbl-anak-full').innerHTML = list.map(a=>{
             const irpCls = a.irp==='Aktif'?'badge-green':a.irp==='Selesai'?'badge-gray':'badge-amber';
             const hariStyle = a.hari>30?'color:var(--red);font-weight:700':'color:var(--gray-600)';
-            return `<tr><td><strong>${a.nama}</strong></td><td>${a.gender==='L'?'Laki-laki':'Perempuan'}</td><td class="mono">${a.usia} th</td><td><span class="badge badge-blue">${a.ragam}</span></td><td style="font-size:.72rem">${a.desa}</td><td><span class="badge ${irpCls}">IRP ${a.irp}</span></td><td class="mono" style="${hariStyle}">${a.hari} hari lalu</td></tr>`;
+            const scnCol = a.scn ? `<td style="font-size:.7rem;color:var(--gray-400)">${a.scn}</td>` : '';
+            return `<tr><td><strong>${a.nama}</strong></td>${scnCol}<td>${a.gender==='L'?'Laki-laki':'Perempuan'}</td><td class="mono">${a.usia} th</td><td><span class="badge badge-blue">${a.ragam}</span></td><td style="font-size:.72rem">${a.desa}</td><td><span class="badge ${irpCls}">IRP ${a.irp}</span></td><td class="mono" style="${hariStyle}">${a.hari} hari lalu</td></tr>`;
           }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:24px">Tidak ada data.</td></tr>';
         }
         render(anak);

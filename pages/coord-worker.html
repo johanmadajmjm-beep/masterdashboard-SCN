@@ -46,7 +46,11 @@
       function initPage(s, scnId){
         const d = getScnData(scnId||s.scn_id||'manggarai');
         const sel = document.getElementById('sel-worker');
-        sel.innerHTML = d.workers.map(w=>`<option value="${w.id}">${w.nama}</option>`).join('');
+        // Saat semua SCN: tampilkan nama SCN di depan nama worker
+        sel.innerHTML = d.workers.map(w=>{
+          const label = w.scn ? `[${w.scn}] ${w.nama}` : w.nama;
+          return `<option value="${w.id}">${label}</option>`;
+        }).join('');
         function render(wid){
           const w = d.workers.find(x=>x.id===wid)||d.workers[0];
           const pct = getPct(w.kunjungan_bulan, w.anak);
@@ -56,7 +60,8 @@
             <div class="stat-card" style="--accent:#16a34a"><div class="s-label">IRP Aktif</div><div class="s-value mono">${w.irp_aktif}</div></div>
             <div class="stat-card" style="--accent:#dc2626"><div class="s-label">Terlambat</div><div class="s-value mono">${w.late}</div></div>`;
           document.getElementById('worker-title').textContent = 'Daftar Anak — '+w.nama;
-          const anakList = d.anak.filter(a=>a.cbr===wid);
+          // filter anak: cocokkan cbr id, dan kalau ada scn_id pada worker, cocokkan juga
+          const anakList = d.anak.filter(a=>a.cbr===wid && (w.scn_id ? a.scn_id===w.scn_id : true));
           document.getElementById('worker-anak').innerHTML = anakList.length
             ? anakList.map(a=>{
                 const irpCls = a.irp==='Aktif'?'badge-green':a.irp==='Selesai'?'badge-gray':'badge-amber';

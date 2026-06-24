@@ -74,7 +74,8 @@
         d.workers.forEach(w=>workerMap[w.id]=w.nama);
         document.getElementById('tbl-all-benef').innerHTML = d.anak.map(a=>{
           const irpCls = a.irp==='Aktif'?'badge-green':a.irp==='Selesai'?'badge-gray':'badge-amber';
-          return `<tr><td><strong>${a.nama}</strong></td><td>${a.gender==='L'?'L':'P'}</td><td class="mono">${a.usia}</td><td><span class="badge badge-blue">${a.ragam}</span></td><td style="font-size:.72rem">${a.desa}</td><td style="font-size:.72rem">${workerMap[a.cbr]||a.cbr}</td><td><span class="badge ${irpCls}">${a.irp}</span></td></tr>`;
+          const scnCol = a.scn ? `<td style="font-size:.7rem;color:var(--gray-400)">${a.scn}</td>` : '';
+            return `<tr><td><strong>${a.nama}</strong></td>${scnCol}<td>${a.gender==='L'?'L':'P'}</td><td class="mono">${a.usia}</td><td><span class="badge badge-blue">${a.ragam}</span></td><td style="font-size:.72rem">${a.desa}</td><td style="font-size:.72rem">${workerMap[a.cbr]||a.cbr}</td><td><span class="badge ${irpCls}">${a.irp}</span></td></tr>`;
         }).join('');
       }
       </script>

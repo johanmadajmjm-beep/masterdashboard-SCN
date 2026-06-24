@@ -48,9 +48,10 @@
         <tbody id="tbl-anak-full"></tbody>
       </table></div></div></div>
       <script>
-      function initPage(s) {
-        const d = getScnData(s.scn_id || 'manggarai');
-        let anak = d.anak.filter(a=>a.cbr==='jack');
+      function initPage(s, scnId) {
+        const d = getScnData(scnId || s.scn_id || 'manggarai');
+        // Tampilkan semua anak dari SCN aktif (koordinator view)
+        let anak = d.anak;
         function render(list) {
           document.getElementById('filter-count').textContent = list.length + ' anak';
           document.getElementById('tbl-anak-full').innerHTML = list.map(a=>{

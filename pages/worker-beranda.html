@@ -53,24 +53,27 @@
       <script>
       function initPage(s, scnId) {
         const d = getScnData(scnId || s.scn_id || 'manggarai');
-        // Gunakan worker pertama dari SCN aktif sebagai representasi
-        const w = d.workers[0];
-        const wId = w.id;
-        document.getElementById('s-total').textContent     = w.anak;
-        document.getElementById('s-kunjungan').textContent = w.kunjungan_bulan;
-        document.getElementById('s-irp').textContent       = w.irp_aktif;
-        document.getElementById('s-urgent').textContent    = w.late;
-        const late = d.anak.filter(a=>a.cbr===wId&&a.hari>30);
+        // Kalau semua SCN → tampilkan agregat, kalau spesifik → worker pertama
+        const isAll = !scnId && !(s.scn_id);
+        const totalAnak  = d.workers.reduce((s,w)=>s+w.anak,0);
+        const totalKunj  = d.workers.reduce((s,w)=>s+w.kunjungan_bulan,0);
+        const totalIRP   = d.workers.reduce((s,w)=>s+w.irp_aktif,0);
+        const totalLate  = d.workers.reduce((s,w)=>s+w.late,0);
+        document.getElementById('s-total').textContent     = totalAnak;
+        document.getElementById('s-kunjungan').textContent = totalKunj;
+        document.getElementById('s-irp').textContent       = totalIRP;
+        document.getElementById('s-urgent').textContent    = totalLate;
+        const late = d.anak.filter(a=>a.hari>30);
         document.getElementById('alert-list').innerHTML = late.length
           ? late.map(a=>`<div class="alert-strip alert-red"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div><strong>${a.nama}</strong>Belum dikunjungi ${a.hari} hari — ${a.ragam} · ${a.desa}</div></div>`).join('')
           : '<div class="alert-strip alert-green"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><div>Semua anak sudah dikunjungi dalam 30 hari terakhir.</div></div>';
-        const myAnak = d.anak.filter(a=>a.cbr===wId).slice(0,5);
+        const myAnak = d.anak.slice(0,5);
         document.getElementById('tbl-anak').innerHTML = myAnak.map(a=>{
           const irpBadge = a.irp==='Aktif'?'badge-green':a.irp==='Selesai'?'badge-gray':'badge-amber';
           const hariColor = a.hari>30?'color:var(--red)':'color:var(--gray-500)';
           return `<tr><td><strong>${a.nama}</strong></td><td>${a.ragam}</td><td class="mono" style="${hariColor}">${a.hari}h lalu</td><td><span class="badge ${irpBadge}">${a.irp}</span></td></tr>`;
         }).join('');
-        const refs = d.referral.filter(r=>r.cbr===wId);
+        const refs = d.referral;
         document.getElementById('badge-ref').textContent = refs.filter(r=>r.status==='Proses').length + ' proses';
         document.getElementById('tbl-ref').innerHTML = refs.map(r=>`<tr><td><strong>${r.nama}</strong></td><td style="font-size:.72rem;color:var(--gray-500)">${r.tujuan}</td><td><span class="badge ${r.status==='Proses'?'badge-amber':'badge-green'}">${r.status}</span></td></tr>`).join('');
       }

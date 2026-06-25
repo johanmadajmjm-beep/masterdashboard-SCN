@@ -148,14 +148,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
           Pengasuh
         </button>
-        <button class="tab-btn" data-tab="worker" onclick="switchTab('worker',this)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c0-3.3 2.7-6 7-6 1.5 0 2.9.4 4 1"/><path d="M13 15c1-.6 2.5-1 4-1 4.3 0 7 2.7 7 6"/></svg>
-          CBR Worker
-        </button>
-        <button class="tab-btn" data-tab="data" onclick="switchTab('data',this)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
-          Data Lengkap
-        </button>
+
       </div>
 
       <!-- ══ TAB 1: RINGKASAN ANAK ══ -->
@@ -265,49 +258,7 @@
         <div class="grid-2" id="kutipan-pengasuh"></div>
       </div>
 
-      <!-- ══ TAB 4: CBR WORKER ══ -->
-      <div class="tab-pane" id="tab-worker">
-        <div class="section-divider">Profil & Beban per CBR Worker</div>
-        <div class="worker-grid" id="worker-cards"></div>
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-head"><span class="card-title">Jumlah Anak per CBR Worker</span></div>
-            <div class="card-body"><div class="ch h200"><canvas id="c-worker-bar"></canvas></div></div>
-          </div>
-          <div class="card">
-            <div class="card-head"><span class="card-title">Jumlah Anak per Desa (Top 15)</span></div>
-            <div class="card-body"><div class="ch h200"><canvas id="c-desa-bar"></canvas></div></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-head"><span class="card-title">Tabel Detail per CBR Worker</span></div>
-          <div class="card-body no-pad"><div class="tbl-wrap"><table id="worker-table"></table></div></div>
-        </div>
-      </div>
-
-      <!-- ══ TAB 5: DATA LENGKAP ══ -->
-      <div class="tab-pane" id="tab-data">
-        <div class="card">
-          <div class="card-head">
-            <span class="card-title">Data Lengkap Seluruh Beneficiary</span>
-            <div class="fbar" style="margin-left:auto">
-              <select id="flt-ragam"><option value="">Semua Ragam</option></select>
-              <select id="flt-level"><option value="">Semua Level</option></select>
-              <select id="flt-cbr"><option value="">Semua CBR</option></select>
-              <select id="flt-skor">
-                <option value="10">Semua Skor</option>
-                <option value="3">Kritis ≤3</option>
-                <option value="5">≤5</option>
-              </select>
-              <input id="flt-search" type="text" placeholder="Cari nama..."/>
-            </div>
-            <span class="badge badge-blue" id="badge-data">—</span>
-          </div>
-          <div class="card-body no-pad"><div class="tbl-wrap"><table id="data-table"></table></div></div>
-        </div>
-      </div>
-
-    </div>
+      
   </div>
 </div>
 
@@ -378,9 +329,6 @@ function renderPage(d, scnId) {
   renderAnak(d);
   renderSkor(d);
   renderPengasuh(d);
-  renderWorker(d);
-  populateFilters(d);
-  renderDataTable();
 }
 
 function renderAnak(d){

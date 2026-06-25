@@ -36,6 +36,21 @@
     <div class="section-divider">Anak Belum Dikunjungi &gt;30 Hari</div>
     <div id="alert-coord"></div>
 
+    <!-- Quick stats distribusi -->
+    <div class="grid-2" style="margin-top:16px">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Distribusi Skor Anak</span></div>
+        <div class="card-body" id="skor-dist-coord"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Anak Perlu Perhatian</span><span class="badge badge-red" id="badge-perhatian">—</span></div>
+        <div class="card-body no-pad"><div class="tbl-wrap"><table>
+          <thead><tr><th>Nama Anak</th><th>CBR Worker</th><th style="text-align:center">Skor</th><th>Level</th></tr></thead>
+          <tbody id="tbl-perhatian"></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
     <div class="grid-2" style="margin-top:20px">
 
       <!-- Worker performance table -->
@@ -166,6 +181,32 @@ function renderPage(d, scnId) {
       <div style="font-size:.68rem;color:var(--ink-400)">${vals.length} observasi · ${pos} positif · ${neg} perlu perhatian</div>
     </div>`;
   }).join('');
+
+  // Distribusi skor anak (untuk mengisi ruang kosong)
+  const skorGroups=[
+    ['Kritis (1–3)',  anak.filter(a=>a.sp!=null&&a.sp<=3).length,  '#dc2626'],
+    ['Rendah (4–5)',  anak.filter(a=>a.sp!=null&&a.sp>=4&&a.sp<=5).length, '#d97706'],
+    ['Sedang (6–7)',  anak.filter(a=>a.sp!=null&&a.sp>=6&&a.sp<=7).length, '#f59e0b'],
+    ['Baik (8–10)',   anak.filter(a=>a.sp!=null&&a.sp>=8).length,  '#16a34a'],
+    ['Belum diisi',   anak.filter(a=>a.sp==null).length,            '#9ca3af'],
+  ];
+  const maxSkor=Math.max(...skorGroups.map(g=>g[1]),1);
+  document.getElementById('skor-dist-coord').innerHTML=skorGroups.map(([l,n,c])=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:.77rem">
+      <span style="min-width:90px;color:${c};font-weight:600">${l}</span>
+      <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${Math.round(n/maxSkor*100)}%;background:${c}"></div></div>
+      <span class="mono" style="font-size:.72rem;min-width:50px;text-align:right">${n} (${total>0?Math.round(n/total*100):0}%)</span>
+    </div>`).join('');
+
+  // Tabel anak perlu perhatian (kritis + terlambat)
+  const perhatian=anak.filter(a=>(a.sp!=null&&a.sp<=4)||a.hari>30).sort((a,b)=>(a.sp||10)-(b.sp||10)).slice(0,10);
+  document.getElementById('badge-perhatian').textContent=perhatian.length+' anak';
+  document.getElementById('tbl-perhatian').innerHTML=perhatian.map(a=>`<tr>
+    <td><strong>${a.nama}</strong></td>
+    <td style="font-size:.72rem;color:#6b7280">${a.cbr||'—'}</td>
+    <td style="text-align:center"><span class="mono" style="font-weight:800;color:${a.sp!=null?sc(a.sp):'#9ca3af'}">${a.sp!=null?a.sp:'—'}</span></td>
+    <td style="font-size:.68rem;color:${LC[a.level]||'#9ca3af'}">${(a.level||'—').split('(')[0].trim()}</td>
+  </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;padding:16px;color:#9ca3af">Tidak ada anak perlu perhatian.</td></tr>';
 
   // Distribusi ragam
   const ragamCnt={};

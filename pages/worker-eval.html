@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CBR Worker — Evaluasi Akhir | MEL NLR</title>
+<link rel="stylesheet" href="../css/main.css"/>
+</head><body>
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="topbar-breadcrumb">CBR Worker <span class="sep">›</span><span class="current">Evaluasi Akhir</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
+<div class="page">
+  <div class="page-header"><h1>Evaluasi Akhir Program</h1><p>Penilaian akhir pencapaian tujuan IRP — apakah tujuan tercapai, sebagian, atau belum.</p></div>
+  <div class="stat-grid" id="kpi-eval"></div>
+  <div class="grid-2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="card-head"><span class="card-title">Status Pencapaian Tujuan</span></div>
+      <div class="card-body" id="eval-summary">
+        <div style="text-align:center;padding:20px;color:#9ca3af;font-size:.78rem">Data evaluasi akhir belum tersedia.<br>Form akan tersedia setelah siklus program berakhir.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">Evaluasi per CBR Worker</span></div>
+      <div class="card-body" id="eval-worker">
+        <div style="text-align:center;padding:20px;color:#9ca3af;font-size:.78rem">Menunggu data evaluasi akhir.</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Data Evaluasi Akhir</span>
+      <select id="flt-cbr" style="padding:5px 10px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.72rem"><option value="">Semua CBR Worker</option></select>
+      <span class="badge badge-blue" id="badge-eval">—</span>
+    </div>
+    <div class="card-body no-pad"><div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Nama Anak</th><th>CBR Worker</th><th>Tanggal Evaluasi</th><th>Tujuan 1 Tercapai?</th><th>Penjelasan</th><th>Alasan Tidak Tercapai</th></tr></thead>
+        <tbody id="tbl-eval"></tbody>
+      </table>
+    </div></div>
+  </div>
+</div></div></div>
+<script>
+function renderPage(d, scnId) {
+  const anak=d.anak||[], ev=d.evalAkhir||[];
+  const cbrs=[...new Set(anak.map(a=>a.cbr).filter(Boolean))].sort();
+  const fC=document.getElementById('flt-cbr');
+  cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});
+  const tercapai=ev.filter(e=>e.tercapai_tujuan_1==='Ya').length;
+  const belum=ev.filter(e=>e.tercapai_tujuan_1==='Tidak').length;
+  document.getElementById('kpi-eval').innerHTML=[
+    {v:anak.length, l:'Total Anak',      s:'dalam caseload',             c:'var(--nlr-500,#d4500a)'},
+    {v:ev.length,   l:'Sudah Evaluasi',  s:'dari '+anak.length+' anak',  c:'#2563eb'},
+    {v:tercapai,    l:'Tujuan Tercapai', s:'hasil positif',               c:'#16a34a'},
+    {v:belum,       l:'Belum Tercapai',  s:'perlu tindak lanjut',         c:'#dc2626'},
+  ].map(k=>`<div class="stat-card" style="--accent:${k.c}"><div class="s-label">${k.l}</div><div class="s-value">${k.v}</div><div class="s-sub">${k.s}</div></div>`).join('');
+  if(ev.length){
+    const pct=ev.length?Math.round(tercapai/ev.length*100):0;
+    document.getElementById('eval-summary').innerHTML=`
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <div style="text-align:center"><div style="font-size:2rem;font-weight:800;color:#16a34a">${pct}%</div><div style="font-size:.7rem;color:#9ca3af">Tercapai</div></div>
+        <div style="flex:1"><div class="prog-wrap" style="height:12px"><div class="prog-fill" style="width:${pct}%;background:#16a34a"></div></div></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="badge badge-green">Tercapai: ${tercapai}</span>
+        <span class="badge badge-red">Belum: ${belum}</span>
+        <span class="badge badge-amber">Sebagian: ${ev.length-tercapai-belum}</span>
+      </div>`;
+    document.getElementById('eval-worker').innerHTML=cbrs.map(c=>{
+      const myEv=ev.filter(e=>(e.cbr_worker||e.cb)===c);
+      const myT=myEv.filter(e=>e.tercapai_tujuan_1==='Ya').length;
+      const pctW=myEv.length?Math.round(myT/myEv.length*100):0;
+      return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:4px"><span style="font-weight:600">${c}</span><span style="color:#16a34a;font-weight:700">${pctW}%</span></div><div class="prog-wrap"><div class="prog-fill" style="width:${pctW}%;background:#16a34a"></div></div></div>`;
+    }).join('');
+  }
+  document.getElementById('badge-eval').textContent=(ev.length||anak.length)+' entri';
+  document.getElementById('tbl-eval').innerHTML=ev.length
+    ?ev.map((e,i)=>`<tr><td style="color:#9ca3af">${i+1}</td><td><strong>${e.nama_anak||e.na||'—'}</strong></td><td style="font-size:.72rem;color:#6b7280">${e.cbr_worker||e.cb||'—'}</td><td class="mono" style="font-size:.7rem">${e.tanggal_eval||'—'}</td><td><span class="badge ${e.tercapai_tujuan_1==='Ya'?'badge-green':'badge-red'}">${e.tercapai_tujuan_1||'—'}</span></td><td style="font-size:.72rem;max-width:200px">${(e.penjelasan_ya_1||'—').substring(0,100)}</td><td style="font-size:.72rem;max-width:200px">${(e.alasan_tidak_1||'—').substring(0,100)}</td></tr>`).join('')
+    :anak.map((a,i)=>`<tr><td style="color:#9ca3af">${i+1}</td><td><strong>${a.nama}</strong></td><td style="font-size:.72rem;color:#6b7280">${a.cbr||'—'}</td><td style="color:#9ca3af">Belum diisi</td><td><span class="badge badge-amber">Menunggu</span></td><td>—</td><td>—</td></tr>`).join('');
+}
+</script>
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/api.js"></script>
+<script>
+buildSidebar();
+const SESSION=AUTH.requireAuth('../index.html');
+if(SESSION){
+  AUTH.applySession({onScnSwitch:async function(scnId){const d=await API.get(scnId);if(window.renderPage)renderPage(d,scnId);}});
+  AUTH.initSidebar('worker','w-eval');
+  API.get(AUTH.getScnFilter()).then(d=>{if(window.renderPage)renderPage(d,AUTH.getScnFilter());});
+}
+</script></body></html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CBR Coordinator — RTL | MEL NLR</title>
+<link rel="stylesheet" href="../css/main.css"/>
+<style>
+.rtl-card{background:white;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:10px;border-left:3px solid var(--rtl-c,#d4500a)}
+.rtl-nama{font-weight:800;font-size:.85rem;color:#111827;margin-bottom:6px}
+.rtl-meta{font-size:.7rem;color:#9ca3af;margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap}
+.rtl-domain{margin-bottom:8px}
+.rtl-domain-hd{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.rtl-domain-hd .dot{width:7px;height:7px;border-radius:50%}
+.rtl-item{background:#f9fafb;border-radius:6px;padding:8px 10px;font-size:.75rem;color:#374151;line-height:1.55;margin-bottom:4px;display:flex;gap:8px}
+.rtl-item .aktor{font-weight:700;color:#2563eb;min-width:80px;font-size:.7rem}
+.rtl-item .aksi{flex:1}
+.rtl-skor{display:flex;align-items:center;gap:6px;font-size:.72rem;color:#6b7280;padding:6px 0;border-top:1px solid #f3f4f6;margin-top:6px}
+.skor-bar{flex:1;height:6px;background:#f3f4f6;border-radius:3px;overflow:hidden}
+.skor-fill{height:100%;border-radius:3px}
+.domain-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.df-btn{padding:5px 12px;border-radius:999px;font-size:.7rem;font-weight:700;cursor:pointer;border:1.5px solid #e5e7eb;background:white;color:#6b7280;font-family:inherit;transition:all .15s}
+.df-btn.active{background:rgba(37,99,235,.08);border-color:#2563eb;color:#2563eb}
+</style>
+</head><body>
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="topbar-breadcrumb">CBR Coordinator <span class="sep">›</span><span class="current">RTL</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
+<div class="page">
+  <div class="page-header">
+    <h1>RTL — Rencana Tindak Lanjut</h1>
+    <p>Rekomendasi aksi berdasarkan temuan observasi ICF — adopsi WHO CBR Matrix.</p>
+  </div>
+  <div class="stat-grid" id="kpi-rtl"></div>
+  <!-- Filter -->
+  <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
+    <select id="flt-cbr" style="padding:6px 10px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.72rem"><option value="">Semua CBR Worker</option></select>
+    <select id="flt-level" style="padding:6px 10px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.72rem"><option value="">Semua Level</option></select>
+    <input id="flt-search" type="text" placeholder="Cari nama anak..." style="padding:6px 10px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.72rem;flex:1"/>
+    <span class="badge badge-blue" id="badge-rtl">—</span>
+  </div>
+  <!-- Domain filter -->
+  <div class="domain-filter">
+    <button class="df-btn active" data-domain="all" onclick="filterDomain('all',this)">Semua Domain</button>
+    <button class="df-btn" data-domain="kesehatan" onclick="filterDomain('kesehatan',this)">Kesehatan</button>
+    <button class="df-btn" data-domain="pendidikan" onclick="filterDomain('pendidikan',this)">Pendidikan</button>
+    <button class="df-btn" data-domain="penghidupan" onclick="filterDomain('penghidupan',this)">Penghidupan</button>
+    <button class="df-btn" data-domain="sosial" onclick="filterDomain('sosial',this)">Sosial</button>
+    <button class="df-btn" data-domain="pemberdayaan" onclick="filterDomain('pemberdayaan',this)">Pemberdayaan</button>
+  </div>
+  <div id="rtl-list"></div>
+</div></div></div>
+<script>
+// WHO CBR Matrix rekomendasi
+const RTL_MATRIX = {
+  kesehatan: {
+    color:'#dc2626',
+    rules:[
+      {cond:a=>(a.level||'').includes('Parah'),    aktor:'Puskesmas / Dokter', aksi:'Rujuk untuk pemeriksaan menyeluruh dan penanganan medis'},
+      {cond:a=>a.ep,                               aktor:'Nakes / Dokter',     aksi:'Konsultasi penanganan epilepsi dan pemberian obat rutin'},
+      {cond:a=>!a.ob,                              aktor:'Puskesmas',          aksi:'Fasilitasi akses pengobatan dan pendampingan BPJS'},
+      {cond:a=>!a.tr,                              aktor:'Terapis / Klinik',   aksi:'Rujuk ke layanan fisioterapi atau terapi wicara'},
+      {cond:a=>a.sp!=null&&a.sp<=4,               aktor:'CBR Worker',         aksi:'Kunjungan intensif dan dukungan psikososial'},
+    ]
+  },
+  pendidikan: {
+    color:'#2563eb',
+    rules:[
+      {cond:a=>a.usia<=17,                         aktor:'Guru / Sekolah',    aksi:'Fasilitasi akses ke SLB atau sekolah inklusi terdekat'},
+      {cond:a=>(a.ragam||'').includes('Intelektual'), aktor:'Guru SLB',       aksi:'Program pembelajaran khusus sesuai kemampuan kognitif'},
+      {cond:a=>(a.ragam||'').includes('Sensorik'),   aktor:'Guru / Orang Tua',aksi:'Penyesuaian metode belajar dan alat bantu komunikasi'},
+    ]
+  },
+  penghidupan: {
+    color:'#16a34a',
+    rules:[
+      {cond:a=>a.usia>=18,                         aktor:'Dinas Sosial',      aksi:'Rujuk ke program pemberdayaan ekonomi dan pelatihan vokasi'},
+      {cond:a=>a.usia>=15&&a.usia<18,              aktor:'Orang Tua / CBR',   aksi:'Persiapan keterampilan hidup dan kemandirian ekonomi'},
+    ]
+  },
+  sosial: {
+    color:'#7c3aed',
+    rules:[
+      {cond:a=>a.sp!=null&&a.sp<=4,               aktor:'Keluarga / CBR',    aksi:'Program penguatan kapasitas pengasuh dan dukungan emosional'},
+      {cond:a=>a.sa!=null&&a.sa<=4,               aktor:'CBR Worker',        aksi:'Kunjungan rutin dan fasilitasi partisipasi sosial anak'},
+      {cond:a=>(a.ragam||'').includes('Ganda'),   aktor:'Semua Pihak',       aksi:'Koordinasi lintas sektor untuk penanganan komprehensif'},
+    ]
+  },
+  pemberdayaan: {
+    color:'#d97706',
+    rules:[
+      {cond:a=>true,                               aktor:'DPO / Komunitas',   aksi:'Libatkan anak dan keluarga dalam kelompok DPO dan advokasi hak'},
+      {cond:a=>a.usia>=12,                         aktor:'CBR / Komunitas',   aksi:'Fasilitasi keterlibatan dalam kegiatan komunitas dan sosial'},
+    ]
+  },
+};
+
+let ALL_RTL=[], ACTIVE_DOMAIN='all';
+
+function buildRTL(anak, obs){
+  const obsMap={};
+  obs.forEach(o=>{if(o.na)obsMap[o.na.toLowerCase()]=o;});
+  return anak.map(a=>{
+    const rekom={};
+    let totalAksi=0;
+    Object.entries(RTL_MATRIX).forEach(([domain,{color,rules}])=>{
+      const items=rules.filter(r=>r.cond(a)).map(r=>({aktor:r.aktor,aksi:r.aksi}));
+      if(items.length){rekom[domain]={color,items};totalAksi+=items.length;}
+    });
+    return {...a,rekom,totalAksi};
+  });
+}
+
+function renderPage(d,scnId){
+  const anak=d.anak||[], obs=d.obs||[];
+  ALL_RTL=buildRTL(anak,obs);
+  const cbrs=[...new Set(anak.map(a=>a.cbr).filter(Boolean))].sort();
+  const levels=[...new Set(anak.map(a=>a.level).filter(Boolean))].sort();
+  const fC=document.getElementById('flt-cbr'), fL=document.getElementById('flt-level');
+  cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});
+  levels.forEach(l=>{const o=document.createElement('option');o.value=l;o.textContent=l.split('(')[0].trim();fL.appendChild(o);});
+  const totalAksi=ALL_RTL.reduce((s,a)=>s+a.totalAksi,0);
+  const kritisCount=ALL_RTL.filter(a=>a.sp!=null&&a.sp<=3).length;
+  document.getElementById('kpi-rtl').innerHTML=[
+    {v:anak.length,  l:'Total Anak',        s:'memerlukan RTL',         c:'var(--nlr-500,#d4500a)'},
+    {v:totalAksi,    l:'Total Rekomendasi', s:'dari 5 domain CBR Matrix',c:'#2563eb'},
+    {v:kritisCount,  l:'Prioritas Tinggi',  s:'skor kritis ≤ 3',        c:'#dc2626'},
+  ].map(k=>`<div class="stat-card" style="--accent:${k.c}"><div class="s-label">${k.l}</div><div class="s-value">${k.v}</div><div class="s-sub">${k.s}</div></div>`).join('');
+  ['flt-cbr','flt-level'].forEach(id=>document.getElementById(id).addEventListener('change',renderList));
+  document.getElementById('flt-search').addEventListener('input',renderList);
+  renderList();
+}
+
+function filterDomain(d,btn){
+  ACTIVE_DOMAIN=d;
+  document.querySelectorAll('.df-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function renderList(){
+  const cb=document.getElementById('flt-cbr').value;
+  const lv=document.getElementById('flt-level').value;
+  const q=(document.getElementById('flt-search').value||'').toLowerCase();
+  const list=ALL_RTL.filter(a=>(!cb||a.cbr===cb)&&(!lv||a.level===lv)&&(!q||(a.nama||'').toLowerCase().includes(q)));
+  document.getElementById('badge-rtl').textContent=list.length+' anak';
+  const spColor=v=>v<=3?'#dc2626':v<=6?'#d97706':'#16a34a';
+  document.getElementById('rtl-list').innerHTML=list.map(a=>{
+    const domains=ACTIVE_DOMAIN==='all'?Object.entries(a.rekom):Object.entries(a.rekom).filter(([k])=>k===ACTIVE_DOMAIN);
+    if(!domains.length) return '';
+    const spVal=a.sp!=null?a.sp:0;
+    return `<div class="rtl-card" style="--rtl-c:${spVal<=3?'#dc2626':spVal<=6?'#d97706':'#16a34a'}">
+      <div class="rtl-nama">${a.nama||'—'}</div>
+      <div class="rtl-meta">
+        <span>👤 ${a.cbr||'—'}</span>
+        <span>🏷 ${a.ragam||'—'}</span>
+        <span>📍 ${a.desa||'—'}</span>
+        <span>🎂 ${a.usia||'?'} th · ${a.gender||'—'}</span>
+      </div>
+      ${domains.map(([domain,{color,items}])=>`
+        <div class="rtl-domain">
+          <div class="rtl-domain-hd"><span class="dot" style="background:${color}"></span><span style="color:${color}">${domain.charAt(0).toUpperCase()+domain.slice(1)}</span></div>
+          ${items.map(item=>`<div class="rtl-item"><span class="aktor">${item.aktor}</span><span class="aksi">${item.aksi}</span></div>`).join('')}
+        </div>`).join('')}
+      <div class="rtl-skor">
+        <span>Skor Anak: <strong style="color:${spColor(spVal)}">${a.sp!=null?a.sp:'—'}</strong></span>
+        <div class="skor-bar"><div class="skor-fill" style="width:${a.sp!=null?a.sp*10:0}%;background:${spColor(spVal)}"></div></div>
+        <span>Skor Pengasuh: <strong style="color:${spColor(a.sa||0)}">${a.sa!=null?a.sa:'—'}</strong></span>
+      </div>
+    </div>`;
+  }).filter(Boolean).join('') || '<div style="text-align:center;padding:30px;color:#9ca3af">Tidak ada rekomendasi untuk filter ini.</div>';
+}
+</script>
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/api.js"></script>
+<script>
+buildSidebar();
+const SESSION=AUTH.requireAuth('../index.html');
+if(SESSION){
+  AUTH.applySession({onScnSwitch:async function(scnId){const d=await API.get(scnId);if(window.renderPage)renderPage(d,scnId);}});
+  AUTH.initSidebar('coord','c-rtl');
+  API.get(AUTH.getScnFilter()).then(d=>{if(window.renderPage)renderPage(d,AUTH.getScnFilter());});
+}
+</script></body></html>

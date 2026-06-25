@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>CBR Worker — Observasi | MEL NLR</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <style>
+    .tab-nav{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid #e5e7eb;flex-wrap:wrap}
+    .tab-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-bottom:2px solid transparent;background:none;color:#6b7280;font-size:.75rem;font-weight:600;cursor:pointer;border-radius:6px 6px 0 0;transition:all .15s;font-family:inherit;white-space:nowrap}
+    .tab-btn:hover{color:#111827;background:#f9fafb}
+    .tab-btn.active{color:var(--tc,#d4500a);border-bottom-color:var(--tc,#d4500a);background:rgba(212,80,10,.05)}
+    .tab-btn svg{width:14px;height:14px}
+    .tab-pane{display:none}
+    .tab-pane.active{display:block}
+    .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+    .kpi-box{background:white;border:1px solid #e5e7eb;border-radius:10px;padding:14px;position:relative;overflow:hidden}
+    .kpi-box::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--kc,#d4500a)}
+    .kpi-v{font-size:1.7rem;font-weight:800;color:var(--kc,#d4500a);line-height:1}
+    .kpi-l{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;margin:5px 0 2px}
+    .kpi-s{font-size:.68rem;color:#9ca3af}
+    .ch{position:relative}
+    .ch.h200{height:200px}.ch.h240{height:240px}.ch.h260{height:260px}.ch.h280{height:280px}.ch.h300{height:300px}
+    .narr{background:linear-gradient(135deg,rgba(212,80,10,.05),rgba(124,58,237,.03));border:1px solid rgba(212,80,10,.12);border-radius:10px;padding:14px 18px;margin-bottom:14px;font-size:.8rem;line-height:1.75;color:#374151}
+    .narr strong{color:#d4500a}
+    .worker-progress{display:flex;flex-direction:column;gap:8px;padding:4px 0}
+    .wp-row{display:flex;align-items:center;gap:8px;font-size:.75rem}
+    .wp-name{min-width:140px;font-weight:600;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .wp-bar{flex:1;height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden}
+    .wp-fill{height:100%;border-radius:4px;transition:width .4s}
+    .wp-count{min-width:32px;text-align:right;color:#6b7280;font-family:monospace}
+    /* Detail table */
+    .tbl-detail{width:100%;border-collapse:collapse;font-size:.75rem}
+    .tbl-detail th{background:#f9fafb;color:#9ca3af;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:7px 10px;text-align:left;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+    .tbl-detail td{padding:7px 10px;border-bottom:1px solid #f3f4f6;vertical-align:top;color:#374151;line-height:1.5}
+    .tbl-detail tr:hover td{background:#fafafa}
+    .tbl-detail tr:last-child td{border-bottom:none}
+    .tag-pos{display:inline-block;padding:1px 6px;border-radius:4px;font-size:.65rem;font-weight:700;background:#dcfce7;color:#15803d}
+    .tag-neg{display:inline-block;padding:1px 6px;border-radius:4px;font-size:.65rem;font-weight:700;background:#fee2e2;color:#991b1b}
+    .tag-tema{display:inline-block;padding:1px 6px;border-radius:4px;font-size:.65rem;font-weight:700;background:#ede9fe;color:#6d28d9}
+    .search-row{display:flex;gap:8px;margin-bottom:10px;align-items:center}
+    .search-row input{flex:1;padding:6px 10px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.75rem;color:#374151}
+    .search-row input:focus{outline:none;border-color:#d4500a}
+    .lgd{display:flex;gap:16px;flex-wrap:wrap;padding:8px 0;font-size:.7rem;color:#6b7280}
+    .lgd-dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle}
+    .close-btn{float:right;background:none;border:none;color:#9ca3af;cursor:pointer;font-size:.72rem;display:flex;align-items:center;gap:4px}
+    .close-btn:hover{color:#374151}
+    .temuan-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px}
+    .temuan-card{background:white;border:1px solid #e5e7eb;border-radius:10px;padding:12px;border-left:3px solid var(--tc,#d4500a)}
+    .temuan-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:4px}
+    .temuan-val{font-size:1.2rem;font-weight:800;color:var(--tc,#d4500a);line-height:1}
+    .temuan-sub{font-size:.68rem;color:#9ca3af;margin-top:3px}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="openSidebar()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="topbar-breadcrumb">CBR Worker <span class="sep">›</span><span class="current">Observasi</span></div>
+      </div>
+      <div class="topbar-right">
+        <span class="scn-badge" id="scn-badge">—</span>
+        <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+        <span class="topbar-date" id="topbar-date">—</span>
+      </div>
+    </header>
+
+    <div class="page">
+      <div class="page-header">
+        <h1>Observasi ICF</h1>
+        <p>Hasil observasi langsung dan tidak langsung — 4 domain ICF: Struktur Tubuh, Kegiatan, Personal, dan Lingkungan.</p>
+      </div>
+
+      <!-- DOMAIN TABS -->
+      <div class="tab-nav">
+        <button class="tab-btn active" style="--tc:#2563eb" onclick="switchTab('ringkasan',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg>
+          Ringkasan
+        </button>
+        <button class="tab-btn" style="--tc:#0891b2" onclick="switchTab('struktur',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 8a3 3 0 1 0-3.83-4.6A3 3 0 1 0 4.6 8.6c-.97 1-.97 2.6 0 3.6l7.2 7.2c1 .97 2.6.97 3.6 0a3 3 0 1 0 4.6-.4 3 3 0 1 0-4.6-4.2L8 7.6z"/></svg>
+          Struktur Tubuh
+        </button>
+        <button class="tab-btn" style="--tc:#16a34a" onclick="switchTab('kegiatan',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13" cy="4" r="1.5" fill="currentColor"/><path d="M5 21l3-6 3 1 3-4 4 1M9 16l2-7-3-2 1-3 4 1 2 4h3"/></svg>
+          Kegiatan
+        </button>
+        <button class="tab-btn" style="--tc:#7c3aed" onclick="switchTab('personal',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H7a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-2l-3 3v-3z"/></svg>
+          Personal
+        </button>
+        <button class="tab-btn" style="--tc:#d97706" onclick="switchTab('lingkungan',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V10l9-7 9 7v11"/><path d="M9 21v-6h6v6"/></svg>
+          Lingkungan
+        </button>
+      </div>
+
+      <!-- ══ RINGKASAN ══ -->
+      <div class="tab-pane active" id="tab-ringkasan">
+        <div class="kpi-row" id="kpi-obs"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><span class="card-title">Kunjungan per CBR Worker</span></div>
+            <div class="card-body"><div class="ch h240"><canvas id="c-cbr"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Kunjungan per Tanggal</span></div>
+            <div class="card-body"><div class="ch h240"><canvas id="c-tgl"></canvas></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Ringkasan Temuan per Domain ICF</span></div>
+          <div class="card-body">
+            <div id="domain-summary"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Progress Kunjungan per CBR Worker</span></div>
+          <div class="card-body"><div class="worker-progress" id="worker-progress"></div></div>
+        </div>
+      </div>
+
+      <!-- ══ STRUKTUR TUBUH ══ -->
+      <div class="tab-pane" id="tab-struktur">
+        <div class="narr" id="narr-struktur">Memuat analisis...</div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-head">
+            <span class="card-title" style="color:#0891b2">Temuan per Sub-Kategori — Kondisi Baik vs Terganggu</span>
+            <small style="color:#9ca3af;font-size:.68rem">Klik bar untuk lihat detail anak</small>
+          </div>
+          <div class="card-body">
+            <div class="ch h280"><canvas id="c-struktur"></canvas></div>
+            <div class="lgd"><span><span class="lgd-dot" style="background:#16a34a"></span>Kondisi Baik</span><span><span class="lgd-dot" style="background:#dc2626"></span>Terganggu</span></div>
+          </div>
+        </div>
+        <div id="tabel-wrap-struktur" style="display:none">
+          <div class="card">
+            <div class="card-head">
+              <span class="card-title" id="tbl-title-struktur">Detail Anak</span>
+              <button class="close-btn" onclick="closeTabel('struktur')">✕ Tutup</button>
+            </div>
+            <div class="card-body">
+              <div class="search-row"><input id="search-struktur" type="text" placeholder="Cari nama anak..." oninput="filterTabel('struktur')"/></div>
+              <div class="tbl-wrap"><table class="tbl-detail" id="tabel-struktur"></table></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ KEGIATAN ══ -->
+      <div class="tab-pane" id="tab-kegiatan">
+        <div class="narr" id="narr-kegiatan">Memuat analisis...</div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-head">
+            <span class="card-title" style="color:#16a34a">Temuan per Sub-Kategori — Mampu vs Terbatas</span>
+            <small style="color:#9ca3af;font-size:.68rem">Klik bar untuk lihat detail anak</small>
+          </div>
+          <div class="card-body">
+            <div class="ch h280"><canvas id="c-kegiatan"></canvas></div>
+            <div class="lgd"><span><span class="lgd-dot" style="background:#16a34a"></span>Mampu</span><span><span class="lgd-dot" style="background:#dc2626"></span>Terbatas/Tidak Bisa</span></div>
+          </div>
+        </div>
+        <div id="tabel-wrap-kegiatan" style="display:none">
+          <div class="card">
+            <div class="card-head">
+              <span class="card-title" id="tbl-title-kegiatan">Detail Anak</span>
+              <button class="close-btn" onclick="closeTabel('kegiatan')">✕ Tutup</button>
+            </div>
+            <div class="card-body">
+              <div class="search-row"><input id="search-kegiatan" type="text" placeholder="Cari nama anak..." oninput="filterTabel('kegiatan')"/></div>
+              <div class="tbl-wrap"><table class="tbl-detail" id="tabel-kegiatan"></table></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PERSONAL ══ -->
+      <div class="tab-pane" id="tab-personal">
+        <div class="narr" id="narr-personal">Memuat analisis...</div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-head">
+            <span class="card-title" style="color:#7c3aed">Frekuensi Tema Personal</span>
+            <small style="color:#9ca3af;font-size:.68rem">Klik bar untuk lihat detail anak</small>
+          </div>
+          <div class="card-body">
+            <div class="ch h260"><canvas id="c-personal"></canvas></div>
+          </div>
+        </div>
+        <div id="tabel-wrap-personal" style="display:none">
+          <div class="card">
+            <div class="card-head">
+              <span class="card-title" id="tbl-title-personal">Detail Anak</span>
+              <button class="close-btn" onclick="closeTabel('personal')">✕ Tutup</button>
+            </div>
+            <div class="card-body">
+              <div class="search-row"><input id="search-personal" type="text" placeholder="Cari nama anak..." oninput="filterTabel('personal')"/></div>
+              <div class="tbl-wrap"><table class="tbl-detail" id="tabel-personal"></table></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ LINGKUNGAN ══ -->
+      <div class="tab-pane" id="tab-lingkungan">
+        <div class="narr" id="narr-lingkungan">Memuat analisis...</div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-head">
+            <span class="card-title" style="color:#d97706">Dukungan vs Hambatan per Sub-Kategori</span>
+            <small style="color:#9ca3af;font-size:.68rem">Klik bar untuk lihat detail anak</small>
+          </div>
+          <div class="card-body">
+            <div class="ch h280"><canvas id="c-lingkungan"></canvas></div>
+            <div class="lgd"><span><span class="lgd-dot" style="background:#16a34a"></span>Dukungan/Fasilitator</span><span><span class="lgd-dot" style="background:#d97706"></span>Hambatan</span></div>
+          </div>
+        </div>
+        <div id="tabel-wrap-lingkungan" style="display:none">
+          <div class="card">
+            <div class="card-head">
+              <span class="card-title" id="tbl-title-lingkungan">Detail Anak</span>
+              <button class="close-btn" onclick="closeTabel('lingkungan')">✕ Tutup</button>
+            </div>
+            <div class="card-body">
+              <div class="search-row"><input id="search-lingkungan" type="text" placeholder="Cari nama anak..." oninput="filterTabel('lingkungan')"/></div>
+              <div class="tbl-wrap"><table class="tbl-detail" id="tabel-lingkungan"></table></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/api.js"></script>
+<script>
+// ── THEMES ICF (adopsi dari dashboard_obs.html) ───────────
+const THEMES_ICF = {
+  struktur:[
+    {label:'Fungsi Mental & Saraf',keywords_pos:['mental baik','daya ingat baik','kognitif baik','tidur baik','paham instruksi','perkembangan baik'],keywords_neg:['gangguan mental','cerebral palsy','down syndrome','autisme','keterlambatan','hambatan intelektual','tidak paham','kognitif terganggu','hiperaktif','kesulitan belajar'],col3:'Kondisi'},
+    {label:'Fungsi Indra (Penglihatan)',keywords_pos:['penglihatan baik','melihat normal','mata baik','bisa melihat'],keywords_neg:['gangguan penglihatan','tidak bisa melihat','buta','tunanetra','low vision','juling','rabun'],col3:'Kondisi'},
+    {label:'Fungsi Indra (Pendengaran)',keywords_pos:['pendengaran baik','mendengar baik','telinga baik'],keywords_neg:['gangguan pendengaran','tidak bisa mendengar','tuli','tunarungu','kurang dengar'],col3:'Kondisi'},
+    {label:'Fungsi Suara & Komunikasi',keywords_pos:['bicara lancar','bicara jelas','komunikasi baik','bisa berbicara'],keywords_neg:['tidak bisa bicara','bicara tidak jelas','bisu','cadel','pelo','wicara'],col3:'Kondisi'},
+    {label:'Fungsi Gerak & Motorik',keywords_pos:['bisa berjalan','gerak baik','motorik baik','bisa bergerak','berjalan normal'],keywords_neg:['tidak bisa berjalan','lumpuh','kaku','kursi roda','paraplegia','pincang','deformitas'],col3:'Kondisi'},
+    {label:'Fungsi Jantung & Pernafasan',keywords_pos:['jantung baik','pernafasan baik','napas normal','tidak ada masalah'],keywords_neg:['gangguan jantung','epilepsi','kejang','sesak','asma','pernafasan terganggu'],col3:'Kondisi'},
+    {label:'Fungsi Pencernaan & Nutrisi',keywords_pos:['pencernaan baik','makan baik','gizi baik','nafsu makan baik'],keywords_neg:['gangguan pencernaan','stunting','gizi kurang','tidak bisa menelan','sulit makan'],col3:'Kondisi'},
+  ],
+  kegiatan:[
+    {label:'Pendidikan & Belajar',keywords_pos:['bersekolah','sekolah','belajar','sd','smp','slb','paud'],keywords_neg:['tidak sekolah','belum sekolah','putus sekolah','tidak bisa sekolah'],col3:'Status',label_pos:'Bersekolah',label_neg:'Tidak/Belum Sekolah'},
+    {label:'Mobilitas & Perpindahan',keywords_pos:['bisa berjalan','bergerak mandiri','mobilitas baik','bisa berdiri'],keywords_neg:['tidak bisa berjalan','kursi roda','merangkak','digendong','mobilitas terbatas'],col3:'Kemampuan',label_pos:'Mandiri',label_neg:'Perlu Bantuan'},
+    {label:'Perawatan Diri',keywords_pos:['mandiri mandi','bisa mandi','bisa berpakaian','bisa makan sendiri','mengurus diri'],keywords_neg:['semua dibantu','bantuan total','disuapi','dimandikan','dipakaikan'],col3:'Kemampuan',label_pos:'Mandiri',label_neg:'Dibantu'},
+    {label:'Komunikasi & Interaksi',keywords_pos:['komunikasi baik','mengerti perintah','bisa berkomunikasi','bersosialisasi'],keywords_neg:['komunikasi terbatas','tidak mengerti perintah','tidak bisa berkomunikasi','menarik diri'],col3:'Kemampuan',label_pos:'Mampu',label_neg:'Terbatas'},
+    {label:'Pekerjaan Rumah Tangga',keywords_pos:['membantu pekerjaan','menyapu','mencuci piring','membantu di rumah'],keywords_neg:['tidak bisa membantu','hanya berbaring','tidak bisa kerja rumah'],col3:'Kemampuan',label_pos:'Mampu',label_neg:'Tidak Mampu'},
+    {label:'Interaksi Sosial & Bermain',keywords_pos:['bermain bersama','punya teman','bersosialisasi','aktif bermain'],keywords_neg:['tidak punya teman','jarang bermain','isolasi sosial','tidak mau bermain'],col3:'Kemampuan',label_pos:'Aktif',label_neg:'Terbatas'},
+    {label:'Partisipasi Komunitas',keywords_pos:['ikut kegiatan','aktif di komunitas','kegiatan gereja','kegiatan desa','posyandu'],keywords_neg:['tidak ikut kegiatan','tidak berpartisipasi','tidak keluar rumah','lebih banyak di rumah'],col3:'Partisipasi',label_pos:'Aktif',label_neg:'Tidak Aktif'},
+  ],
+  personal:[
+    {label:'Mimpi & Cita-cita',keywords:['cita-cita','mimpi','ingin menjadi','ingin jadi','impian','bercita-cita']},
+    {label:'Karakter & Sikap',keywords:['ceria','periang','semangat','sopan','pemalu','aktif','baik','pendiam','ramah','percaya diri','rajin']},
+    {label:'Kepercayaan Diri',keywords:['percaya diri','tidak malu','bangga','berani tampil','tidak minder','yakin']},
+    {label:'Kedekatan Keluarga',keywords:['dekat dengan keluarga','disayang keluarga','keluarga perhatian','kasih sayang','disayangi']},
+    {label:'Agama & Spiritualitas',keywords:['agama','katolik','muslim','gereja','berdoa','komuni','ibadah','misa','sholat']},
+    {label:'Hambatan Emosional',keywords:['pemalu','minder','cepat marah','sering menangis','takut','cemas','tidak percaya diri','agresif','tantrum']},
+    {label:'Gaya Hidup & Kebiasaan',keywords:['hobi','kesukaan','kebiasaan','suka','menyanyi','musik','olahraga','menggambar']},
+  ],
+  lingkungan:[
+    {label:'Kondisi Ekonomi',keywords_pos:['ekonomi baik','penghasilan cukup','ekonomi stabil'],keywords_neg:['ekonomi pas-pasan','ekonomi kurang','keluarga miskin','tidak mampu','penghasilan rendah'],col3:'Peran',label_pos:'Dukungan',label_neg:'Hambatan'},
+    {label:'Kondisi Rumah',keywords_pos:['rumah permanen','rumah layak','aksesibel','rumah baik'],keywords_neg:['rumah tidak layak','tidak aksesibel','rumah papan','lantai tanah','rumah rusak'],col3:'Peran',label_pos:'Dukungan',label_neg:'Hambatan'},
+    {label:'Akses Layanan Kesehatan',keywords_pos:['bpjs aktif','puskesmas dekat','akses mudah','punya bpjs','mendapat layanan'],keywords_neg:['tidak punya bpjs','jauh dari puskesmas','akses sulit','tidak ada layanan'],col3:'Peran',label_pos:'Dukungan',label_neg:'Hambatan'},
+    {label:'Dukungan Keluarga',keywords_pos:['keluarga mendukung','keluarga sayang','orang tua mendukung','keluarga peduli'],keywords_neg:['keluarga tidak mendukung','diabaikan','kurang perhatian','tidak peduli'],col3:'Peran',label_pos:'Dukungan',label_neg:'Hambatan'},
+    {label:'Sikap Masyarakat',keywords_pos:['diterima masyarakat','tidak ada stigma','lingkungan mendukung'],keywords_neg:['stigma','dikucilkan','tidak diterima','diskriminasi','diejek'],col3:'Peran',label_pos:'Dukungan',label_neg:'Hambatan'},
+    {label:'Bantuan Pemerintah',keywords_pos:['pkh','kip','bpjs','mendapat bantuan','bantuan sosial'],keywords_neg:['tidak menerima bantuan','tidak ada bantuan','belum dapat bantuan'],col3:'Peran',label_pos:'Ada Bantuan',label_neg:'Tidak Ada'},
+    {label:'Alat Bantu',keywords_pos:['kursi roda','alat bantu','hearing aid','tongkat','kruk','punya alat bantu'],keywords_neg:['tidak punya alat bantu','tidak ada alat bantu','tidak ada fasilitas'],col3:'Peran',label_pos:'Ada',label_neg:'Tidak Ada'},
+  ],
+};
+
+// ── VARS ───────────────────────────────────────────────────
+let OBS_DATA   = [];
+let TABEL_DATA = {struktur:[],kegiatan:[],personal:[],lingkungan:[]};
+let CHARTS     = {};
+const PAL = ['#d4500a','#2563eb','#16a34a','#d97706','#7c3aed','#dc2626','#0891b2','#84cc16'];
+
+// ── ANALYZE ────────────────────────────────────────────────
+function analyzeThemes(obs){
+  const result={struktur:[],kegiatan:[],personal:[],lingkungan:[]};
+  const fieldMap={struktur:'st',kegiatan:'kg',personal:'pf',lingkungan:'lg'};
+  Object.keys(THEMES_ICF).forEach(domain=>{
+    THEMES_ICF[domain].forEach(theme=>{
+      const rows_pos=[],rows_neg=[],rows_tema=[];
+      obs.forEach(r=>{
+        const text=(r[fieldMap[domain]]||'').toLowerCase();
+        const full= r[fieldMap[domain]]||'';
+        if(theme.keywords){
+          if(theme.keywords.some(kw=>text.includes(kw.toLowerCase()))){
+            rows_tema.push({na:r.na,cb:r.cb,tgl:r.tgl,text:full,tema:theme.label});
+          }
+        } else {
+          const isPos=(theme.keywords_pos||[]).some(kw=>text.includes(kw.toLowerCase()));
+          const isNeg=(theme.keywords_neg||[]).some(kw=>text.includes(kw.toLowerCase()));
+          if(isPos) rows_pos.push({na:r.na,cb:r.cb,tgl:r.tgl,text:full,kondisi:theme.label_pos||'Baik'});
+          if(isNeg) rows_neg.push({na:r.na,cb:r.cb,tgl:r.tgl,text:full,kondisi:theme.label_neg||'Terganggu'});
+        }
+      });
+      result[domain].push({label:theme.label,pos:rows_pos,neg:rows_neg,tema:rows_tema,col3:theme.col3||'Kondisi',label_pos:theme.label_pos||'Baik',label_neg:theme.label_neg||'Terganggu'});
+    });
+  });
+  return result;
+}
+
+// ── CHARTS ─────────────────────────────────────────────────
+function mk(id,type,data,opts){
+  if(CHARTS[id]){CHARTS[id].destroy();delete CHARTS[id];}
+  const el=document.getElementById(id); if(!el)return;
+  CHARTS[id]=new Chart(el,{type,data,options:opts});
+}
+const BASE={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:10}}},y:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:10}},beginAtZero:true}}};
+
+// ── RENDER ──────────────────────────────────────────────────
+function renderPage(d, scnId){
+  if(!d||!d.obs) return;
+  OBS_DATA=d.obs;
+  renderRingkasan(d);
+  const themes=analyzeThemes(OBS_DATA);
+  renderDomain('struktur',themes.struktur,'#0891b2','Struktur Tubuh');
+  renderDomain('kegiatan',themes.kegiatan,'#16a34a','Kegiatan & Partisipasi');
+  renderPersonal(themes.personal);
+  renderDomain('lingkungan',themes.lingkungan,'#d97706','Lingkungan',true);
+}
+
+function renderRingkasan(d){
+  const obs=OBS_DATA;
+  const total=obs.length;
+  const unik=new Set(obs.map(o=>o.na)).size;
+  const workers=d.workers||[];
+  const totalAnak=(d.anak||[]).length;
+
+  document.getElementById('kpi-obs').innerHTML=[
+    {v:total,      l:'Total Kunjungan',   s:'Seluruh baris observasi', c:'#2563eb'},
+    {v:unik,       l:'Anak Terpantau',    s:'Beneficiary unik',        c:'#16a34a'},
+    {v:totalAnak-unik>0?totalAnak-unik:0, l:'Belum Diobservasi', s:'dari '+totalAnak+' anak total', c:'#dc2626'},
+    {v:workers.length, l:'CBR Worker Aktif', s:'mengisi observasi',    c:'#d4500a'},
+  ].map(k=>`<div class="kpi-box" style="--kc:${k.c}"><div class="kpi-v">${k.v}</div><div class="kpi-l">${k.l}</div><div class="kpi-s">${k.s}</div></div>`).join('');
+
+  // CBR bar
+  const cbrs=[...new Set(obs.map(o=>o.cb).filter(Boolean))].sort();
+  mk('c-cbr','bar',{labels:cbrs.map(c=>c.split(' ').pop()),datasets:[{data:cbrs.map(c=>obs.filter(o=>o.cb===c).length),backgroundColor:PAL,borderRadius:5,borderSkipped:false}]},{...BASE,layout:{padding:{top:18}}});
+
+  // Tanggal bar
+  const tglCnt={};
+  obs.forEach(o=>{if(o.tgl)tglCnt[o.tgl]=(tglCnt[o.tgl]||0)+1;});
+  const tglSorted=Object.entries(tglCnt).sort((a,b)=>a[0].localeCompare(b[0]));
+  mk('c-tgl','bar',{labels:tglSorted.map(([t])=>t.slice(5)),datasets:[{data:tglSorted.map(([,v])=>v),backgroundColor:'#2563eb',borderRadius:4,borderSkipped:false}]},{...BASE,layout:{padding:{top:18}}});
+
+  // Domain summary
+  const themes=analyzeThemes(obs);
+  const domainInfo=[
+    {key:'struktur',label:'Struktur Tubuh',color:'#0891b2'},
+    {key:'kegiatan',label:'Kegiatan',color:'#16a34a'},
+    {key:'personal',label:'Personal',color:'#7c3aed'},
+    {key:'lingkungan',label:'Lingkungan',color:'#d97706'},
+  ];
+  document.getElementById('domain-summary').innerHTML=`<div class="temuan-summary">${domainInfo.map(dom=>{
+    const data=themes[dom.key];
+    const totalPos=data.reduce((s,t)=>s+(t.pos?.length||t.tema?.length||0),0);
+    const totalNeg=data.reduce((s,t)=>s+t.neg?.length||0,0);
+    return `<div class="temuan-card" style="--tc:${dom.color}">
+      <div class="temuan-label">${dom.label}</div>
+      <div class="temuan-val">${totalPos}</div>
+      <div class="temuan-sub">${dom.key!=='personal'?'positif · '+totalNeg+' negatif':'tema ditemukan'}</div>
+    </div>`;
+  }).join('')}</div>`;
+
+  // Worker progress
+  const totalObs=obs.length||1;
+  const maxW=Math.max(...cbrs.map(c=>obs.filter(o=>o.cb===c).length),1);
+  document.getElementById('worker-progress').innerHTML=cbrs.map((c,i)=>{
+    const n=obs.filter(o=>o.cb===c).length;
+    return `<div class="wp-row">
+      <div class="wp-name">${c}</div>
+      <div class="wp-bar"><div class="wp-fill" style="width:${Math.round(n/maxW*100)}%;background:${PAL[i%PAL.length]}"></div></div>
+      <div class="wp-count">${n}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderDomain(domain, data, color, domLabel, isLingkungan=false){
+  const labels=data.map(t=>t.label);
+  const posData=data.map(t=>t.pos?.length||t.tema?.length||0);
+  const negData=data.map(t=>t.neg?.length||0);
+
+  // Narative
+  const totalPos=posData.reduce((s,v)=>s+v,0);
+  const totalNeg=negData.reduce((s,v)=>s+v,0);
+  document.getElementById('narr-'+domain).innerHTML=`
+    Domain <strong>${domLabel}</strong>: <strong style="color:#16a34a">${totalPos} temuan positif</strong> dan
+    <strong style="color:#dc2626">${totalNeg} temuan negatif</strong> dari ${OBS_DATA.length} observasi.
+    ${totalNeg>totalPos?'Lebih banyak temuan negatif — perlu perhatian dan intervensi lanjut.':
+    totalPos>0?'Sebagian besar dalam kondisi baik, namun perlu monitoring berkelanjutan.':'Data belum cukup untuk analisis mendalam.'}`;
+
+  // Chart
+  mk('c-'+domain,'bar',{
+    labels,
+    datasets:[
+      {label:isLingkungan?'Dukungan':'Kondisi Baik/Mampu',   data:posData,backgroundColor:isLingkungan?'#16a34a':'#16a34a',borderRadius:5,borderSkipped:false},
+      {label:isLingkungan?'Hambatan':'Terganggu/Terbatas',   data:negData,backgroundColor:isLingkungan?'#d97706':'#dc2626',borderRadius:5,borderSkipped:false},
+    ]
+  },{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',labels:{color:'#6b7280',boxWidth:10,font:{size:10}}},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},
+    scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}}},y:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:10}},beginAtZero:true}},
+    onClick:(e,elements)=>{
+      if(!elements.length)return;
+      const idx=elements[0].index;
+      const isNeg=elements[0].datasetIndex===1;
+      openTabel(domain, data[idx], isNeg, color);
+    }
+  });
+}
+
+function renderPersonal(data){
+  const labels=data.map(t=>t.label);
+  const counts=data.map(t=>t.tema?.length||0);
+
+  const total=counts.reduce((s,v)=>s+v,0);
+  document.getElementById('narr-personal').innerHTML=`
+    Domain <strong>Faktor Personal</strong>: <strong>${total} temuan tema personal</strong> dari ${OBS_DATA.length} observasi.
+    Tema yang paling banyak ditemukan mencerminkan karakteristik dan kondisi personal anak dalam konteks kehidupan sehari-hari.`;
+
+  mk('c-personal','bar',{
+    labels,
+    datasets:[{data:counts,backgroundColor:'#7c3aed',borderRadius:5,borderSkipped:false}]
+  },{...BASE,indexAxis:'y',layout:{padding:{right:28}},
+    scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}},beginAtZero:true},y:{grid:{display:false},ticks:{color:'#9ca3af',font:{size:10}}}},
+    onClick:(e,elements)=>{
+      if(!elements.length)return;
+      const idx=elements[0].index;
+      openTabel('personal',data[idx],false,'#7c3aed');
+    }
+  });
+}
+
+// ── TABEL DETAIL ───────────────────────────────────────────
+function openTabel(domain, themeData, isNeg, color){
+  const rows=isNeg?themeData.neg:themeData.pos.length?themeData.pos:themeData.tema;
+  TABEL_DATA[domain]=rows||[];
+  const label=isNeg?themeData.label_neg:themeData.label_pos;
+  document.getElementById('tbl-title-'+domain).textContent=themeData.label+(label?' — '+label:'');
+  document.getElementById('tabel-wrap-'+domain).style.display='block';
+  renderTabel(domain);
+  document.getElementById('tabel-wrap-'+domain).scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function renderTabel(domain){
+  const rows=TABEL_DATA[domain];
+  const q=(document.getElementById('search-'+domain)?.value||'').toLowerCase();
+  const filtered=q?rows.filter(r=>(r.na||'').toLowerCase().includes(q)):rows;
+  document.getElementById('tabel-'+domain).innerHTML=`
+    <thead><tr><th>#</th><th>Nama Anak</th><th>CBR Worker</th><th>Tanggal</th><th>Kondisi/Tema</th><th>Narasi Observasi</th></tr></thead>
+    <tbody>${filtered.map((r,i)=>`<tr>
+      <td style="color:#9ca3af">${i+1}</td>
+      <td><strong>${r.na||'—'}</strong></td>
+      <td style="font-size:.72rem;color:#6b7280">${r.cb||'—'}</td>
+      <td class="mono" style="font-size:.7rem">${r.tgl||'—'}</td>
+      <td>${r.kondisi?`<span class="tag-pos">${r.kondisi}</span>`:r.tema?`<span class="tag-tema">${r.tema}</span>`:''}</td>
+      <td style="font-size:.72rem;color:#374151;max-width:300px">${(r.text||'—').substring(0,200)}</td>
+    </tr>`).join('')}</tbody>`;
+}
+
+function filterTabel(domain){ renderTabel(domain); }
+function closeTabel(domain){ document.getElementById('tabel-wrap-'+domain).style.display='none'; }
+
+// ── TAB SWITCH ─────────────────────────────────────────────
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  setTimeout(()=>{Object.values(CHARTS).forEach(c=>{try{c.resize();}catch(e){}});},50);
+}
+
+// ── INIT ───────────────────────────────────────────────────
+buildSidebar();
+const SESSION=AUTH.requireAuth('../index.html');
+if(SESSION){
+  AUTH.applySession({
+    onScnSwitch:async function(scnId){
+      const d=await API.get(scnId);
+      if(window.renderPage) renderPage(d,scnId);
+    }
+  });
+  AUTH.initSidebar('worker','w-obs');
+  API.get(AUTH.getScnFilter()).then(d=>renderPage(d,AUTH.getScnFilter()));
+}
+</script>
+</body>
+</html>

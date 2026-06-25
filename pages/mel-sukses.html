@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MEL — Cerita Sukses | MEL NLR</title>
+<link rel="stylesheet" href="../css/main.css"/>
+<style>
+.sukses-card{background:white;border:1px solid #e5e7eb;border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.sukses-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#d4500a,#f59e0b)}
+.sukses-tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.65rem;font-weight:700;background:#fef3c7;color:#92400e;border:1px solid #fde68a;margin-bottom:10px}
+.sukses-nama{font-size:1rem;font-weight:800;color:#111827;margin-bottom:4px}
+.sukses-meta{font-size:.7rem;color:#9ca3af;margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap}
+.sukses-narasi{font-size:.8rem;color:#374151;line-height:1.75}
+.sukses-impact{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid #f3f4f6}
+.impact-tag{padding:3px 10px;border-radius:6px;font-size:.65rem;font-weight:700;background:#dcfce7;color:#15803d}
+.sukses-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+</style>
+</head><body>
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="topbar-breadcrumb">MEL <span class="sep">›</span><span class="current">Cerita Sukses</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
+<div class="page">
+  <div class="page-header"><h1>Cerita Sukses</h1><p>Kisah keberhasilan nyata dari program CBR — perubahan bermakna di tingkat individu dan komunitas.</p></div>
+  <div class="stat-grid">
+    <div class="stat-card" style="--accent:#d4500a"><div class="s-label">Total Cerita</div><div class="s-value mono" id="c-total">—</div><div class="s-sub">terdokumentasi</div></div>
+    <div class="stat-card" style="--accent:#16a34a"><div class="s-label">Dampak Individu</div><div class="s-value mono" id="c-ind">—</div></div>
+    <div class="stat-card" style="--accent:#2563eb"><div class="s-label">Dampak Keluarga</div><div class="s-value mono" id="c-kel">—</div></div>
+    <div class="stat-card" style="--accent:#7c3aed"><div class="s-label">Dampak Komunitas</div><div class="s-value mono" id="c-kom">—</div></div>
+  </div>
+  <div class="sukses-grid" id="sukses-grid">
+    <div style="grid-column:1/-1;text-align:center;padding:40px;color:#9ca3af">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;margin:0 auto 12px;display:block;opacity:.35"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <p style="font-size:.82rem;font-weight:600;color:#374151;margin-bottom:6px">Cerita Sukses Program</p>
+      <p style="font-size:.75rem">Dokumentasi cerita sukses akan muncul di sini setelah tim MEL menginputnya ke sistem.</p>
+    </div>
+  </div>
+</div></div></div>
+<script>
+const SUKSES_TEMPLATE=[
+  {tag:'Perkembangan Anak',nama:'Anak berhasil bersekolah inklusif',lokasi:'Desa Ranaka, Manggarai',worker:'Laurensius Herbianto',tanggal:'Mei 2026',narasi:'Setelah 6 bulan pendampingan intensif oleh CBR Worker dan koordinasi dengan pihak sekolah, anak dengan disabilitas intelektual berhasil diterima di SDN Inklusi dan aktif mengikuti pembelajaran adaptif.',impact:['Pendidikan Inklusi','Perkembangan Kognitif','Partisipasi Sekolah']},
+  {tag:'Keluarga & Komunitas',nama:'Pengasuh mendapat pelatihan kemandirian',lokasi:'Kelurahan Pau, Manggarai',worker:'Magdalena Sabe',tanggal:'April 2026',narasi:'Ibu dari anak dengan cerebral palsy berhasil mengikuti pelatihan keterampilan menjahit yang difasilitasi program, sehingga dapat menghasilkan pendapatan tambahan sambil merawat anak di rumah.',impact:['Pemberdayaan Ekonomi','Kemandirian Keluarga','Penghidupan']},
+];
+
+function renderPage(d,scnId){
+  const sukses=(d.cerita||[]).filter(c=>c.tipe==='sukses').concat(SUKSES_TEMPLATE);
+  document.getElementById('c-total').textContent=sukses.length;
+  document.getElementById('c-ind').textContent=sukses.filter(c=>c.tag?.includes('Anak')).length;
+  document.getElementById('c-kel').textContent=sukses.filter(c=>c.tag?.includes('Keluarga')).length;
+  document.getElementById('c-kom').textContent=sukses.filter(c=>c.tag?.includes('Komunitas')||c.tag?.includes('DPO')).length;
+  if(sukses.length){
+    document.getElementById('sukses-grid').innerHTML=sukses.map(s=>`
+      <div class="sukses-card">
+        <div class="sukses-tag">⭐ ${s.tag||'Cerita Sukses'}</div>
+        <div class="sukses-nama">${s.nama||'—'}</div>
+        <div class="sukses-meta">
+          <span>📍 ${s.lokasi||'—'}</span>
+          <span>👤 ${s.worker||'—'}</span>
+          <span>🗓 ${s.tanggal||'—'}</span>
+          ${s.scn?`<span>🏢 ${s.scn}</span>`:''}
+        </div>
+        <div class="sukses-narasi">${s.narasi||'—'}</div>
+        ${s.impact?.length?`<div class="sukses-impact">${s.impact.map(i=>`<span class="impact-tag">✓ ${i}</span>`).join('')}</div>`:''}
+      </div>`).join('');
+  }
+}
+</script>
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/api.js"></script>
+<script>
+buildSidebar();
+const SESSION=AUTH.requireAuth('../index.html');
+if(SESSION){
+  AUTH.applySession({onScnSwitch:async function(scnId){const d=await API.get(scnId);if(window.renderPage)renderPage(d,scnId);}});
+  AUTH.initSidebar('mel','m-sukses');
+  API.get(AUTH.getScnFilter()).then(d=>{if(window.renderPage)renderPage(d,AUTH.getScnFilter());});
+}
+</script></body></html>

@@ -207,12 +207,12 @@ function buildSidebar() {
   const sel = document.getElementById('scn-switcher-select');
   if (sel) {
     sel.addEventListener('change', function() {
-      const scn = this.value;
-      AUTH.setScnFilter(scn);
+      const scn = this.value || null;
+      if (AUTH.setScnFilter) AUTH.setScnFilter(scn);
       const badge = document.getElementById('scn-badge');
       if (badge) badge.textContent = scn ? ('SCN ' + scn.charAt(0).toUpperCase() + scn.slice(1)) : 'Semua SCN';
-      // Trigger onScnSwitch
-      if (window.__onScnSwitch) window.__onScnSwitch(scn || null);
+      // Trigger onScnSwitch dari halaman aktif
+      if (window.__onScnSwitch) window.__onScnSwitch(scn);
     });
   }
 }
@@ -220,11 +220,7 @@ function buildSidebar() {
 // ── TOGGLE GROUP ────────────────────────────────────────────
 function toggleGroup(header) {
   const group = header.parentElement;
-  const isOpen = group.classList.contains('open');
-  // Tutup semua
-  document.querySelectorAll('.nav-group.open').forEach(g => g.classList.remove('open'));
-  // Buka yang diklik (kalau belum terbuka)
-  if (!isOpen) group.classList.add('open');
+  group.classList.toggle('collapsed');
 }
 
 // ── SIDEBAR OPEN/CLOSE (mobile) ────────────────────────────
@@ -248,11 +244,7 @@ function initSidebar(group, pageId, scnLabel) {
     a.classList.toggle('active', a.dataset.page === pageId);
   });
 
-  // Buka group yang aktif
-  document.querySelectorAll('.nav-group').forEach(g => {
-    const hasActive = g.querySelector('.nav-sub-item.active');
-    if (hasActive) g.classList.add('open');
-  });
+  // Semua grup default terbuka — tidak perlu tambah class apapun
 
   // Set topbar
   const topbarDate = document.getElementById('topbar-date');
@@ -381,15 +373,18 @@ function injectSidebarStyles() {
     .switcher-label { font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--sb-text-dim); margin-bottom:6px; }
     .switcher-select {
       width         : 100%;
-      background    : rgba(255,255,255,.06);
-      border        : 1px solid var(--sb-border);
+      background    : #1e2d47;
+      border        : 1px solid #2e3d57;
       border-radius : 6px;
-      color         : var(--sb-text);
+      color         : rgba(255,255,255,.85);
       font-size     : .72rem;
       padding       : 5px 8px;
       font-family   : inherit;
       cursor        : pointer;
+      -webkit-appearance: none;
+      appearance    : none;
     }
+    .switcher-select option { background:#1e2d47; color:rgba(255,255,255,.85); }
     .switcher-select:focus { outline:none; border-color:var(--nlr-500); }
 
     /* Nav */
@@ -419,9 +414,11 @@ function injectSidebarStyles() {
     .nav-group-chevron svg { width:12px; height:12px; transition:transform .2s; flex-shrink:0; }
     .nav-group.open .nav-group-chevron svg { transform:rotate(180deg); }
 
-    /* Nav items */
-    .nav-group-items { display:none; }
-    .nav-group.open .nav-group-items { display:block; }
+    /* Nav items — default terbuka semua, bisa di-toggle */
+    .nav-group-items { display:block; }
+    .nav-group.collapsed .nav-group-items { display:none; }
+    .nav-group-chevron svg { transform:rotate(180deg); }
+    .nav-group.collapsed .nav-group-chevron svg { transform:rotate(0deg); }
 
     .nav-sub-item {
       display        : flex;
@@ -628,15 +625,14 @@ function injectSidebarStyles() {
 }
 
 // ── AUTH INTEGRATION ──────────────────────────────────────
-// applySession — dipanggil dari setiap halaman
-// Wraps onScnSwitch agar bisa dipanggil dari switcher
-const _origApplySession = window.AUTH && AUTH.applySession;
-if (window.AUTH) {
-  const origApply = AUTH.applySession.bind(AUTH);
+// Wrap AUTH.applySession agar onScnSwitch tersimpan ke window
+// sehingga SCN switcher di sidebar bisa memanggilnya
+if (window.AUTH && AUTH.applySession) {
+  const _origApply = AUTH.applySession.bind(AUTH);
   AUTH.applySession = function(opts) {
-    if (opts && opts.onScnSwitch) {
+    if (opts && typeof opts.onScnSwitch === 'function') {
       window.__onScnSwitch = opts.onScnSwitch;
     }
-    origApply(opts);
+    if (_origApply) _origApply(opts);
   };
 }

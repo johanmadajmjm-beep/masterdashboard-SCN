@@ -353,6 +353,17 @@ const API = (() => {
     };
   }
 
+  // ── CLEAR CACHE (dipanggil saat SCN switch) ──────────────
+  function clearCache(scnId) {
+    if (scnId) {
+      // Hapus cache untuk SCN spesifik
+      Object.keys(CACHE).forEach(k => { if (k.startsWith(scnId + '_')) delete CACHE[k]; });
+    } else {
+      // Hapus semua cache
+      Object.keys(CACHE).forEach(k => delete CACHE[k]);
+    }
+  }
+
   // ── PUBLIC: get(scnId) ────────────────────────────────────
   async function get(scnId) {
     if (!scnId) return await loadAll();
@@ -372,6 +383,6 @@ const API = (() => {
     };
   }
 
-  return { get, setBadge, ENDPOINTS };
+  return { get, setBadge, clearCache, ENDPOINTS };
 
 })();

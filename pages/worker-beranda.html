@@ -8,59 +8,118 @@
   <link rel="stylesheet" href="../css/main.css"/>
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
-    /* ── TAB NAV (adopsi dari dashboard_ben) ── */
+    /* ══════════════════════════════════════════════
+       SPRINT 1 — COMPACT LAYOUT
+       Scoped overrides: hanya berlaku di halaman ini
+       Tidak mengubah komponen global
+    ══════════════════════════════════════════════ */
+
+    /* ── COMPACT PAGE HEADER ── */
+    .page-header--compact {
+      display        : flex;
+      align-items    : center;
+      justify-content: space-between;
+      margin-bottom  : 10px;
+      padding-left   : 12px;
+      border-left    : 3px solid var(--orange, #F97316);
+    }
+    .page-header--compact h1 {
+      font-size  : .95rem;
+      font-weight: 700;
+      line-height: 1;
+      color      : var(--text-primary, #1F2937);
+      margin     : 0;
+    }
+    .header-freshness {
+      font-size  : .6rem;
+      color      : #9ca3af;
+      font-weight: 500;
+      white-space: nowrap;
+      letter-spacing: .02em;
+    }
+
+    /* ── COMPACT KPI ── */
+    .kpi-8 {
+      display              : grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap                  : 7px;
+      margin-bottom        : 14px;
+    }
+    .kpi-box {
+      background   : white;
+      border       : 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding      : 10px 12px;
+      position     : relative;
+      overflow     : hidden;
+    }
+    .kpi-box::before {
+      content : '';
+      position: absolute;
+      top: 0; left: 0;
+      width   : 3px;
+      height  : 100%;
+      background: var(--kc, #d4500a);
+    }
+    .kpi-v {
+      font-size  : 1.45rem;
+      font-weight: 800;
+      color      : var(--kc, #d4500a);
+      line-height: 1;
+    }
+    .kpi-l {
+      font-size     : .57rem;
+      font-weight   : 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color         : #9ca3af;
+      margin        : 4px 0 2px;
+    }
+    .kpi-s { font-size: .61rem; color: #9ca3af; }
+
+    /* ── COMPACT CARD SPACING ── */
+    .page .card       { margin-bottom: 14px; }
+    .page .grid-2     { gap: 14px; margin-bottom: 14px; }
+    .page .grid-3     { gap: 12px; margin-bottom: 12px; }
+
+    /* ── TAB NAV ── */
     .tab-nav {
-      display     : flex;
-      gap         : 4px;
-      margin-bottom: 18px;
+      display      : flex;
+      gap          : 4px;
+      margin-bottom: 14px;
       border-bottom: 1px solid #e5e7eb;
-      flex-wrap   : wrap;
+      flex-wrap    : wrap;
     }
     .tab-btn {
-      display     : flex;
-      align-items : center;
-      gap         : 6px;
-      padding     : 8px 16px;
-      border      : none;
+      display      : flex;
+      align-items  : center;
+      gap          : 6px;
+      padding      : 7px 14px;
+      border       : none;
       border-bottom: 2px solid transparent;
-      background  : none;
-      color       : #6b7280;
-      font-size   : .78rem;
-      font-weight : 600;
-      cursor      : pointer;
-      border-radius:6px 6px 0 0;
-      transition  : all .15s;
-      font-family : inherit;
+      background   : none;
+      color        : #6b7280;
+      font-size    : .77rem;
+      font-weight  : 600;
+      cursor       : pointer;
+      border-radius: 6px 6px 0 0;
+      transition   : all .15s;
+      font-family  : inherit;
     }
     .tab-btn:hover  { color:#111827; background:#f9fafb; }
     .tab-btn.active { color:var(--nlr-600,#d4500a); border-bottom-color:var(--nlr-600,#d4500a); background:rgba(212,80,10,.05); }
-    .tab-btn svg    { width:14px; height:14px; }
+    .tab-btn svg    { width:13px; height:13px; }
     .tab-pane       { display:none; }
     .tab-pane.active{ display:block; }
-
-    /* ── KPI 8 ── */
-    .kpi-8 { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:18px; }
-    .kpi-box {
-      background  : white;
-      border      : 1px solid #e5e7eb;
-      border-radius:10px;
-      padding     : 14px;
-      position    : relative;
-      overflow    : hidden;
-    }
-    .kpi-box::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:var(--kc,#d4500a); }
-    .kpi-v { font-size:1.8rem; font-weight:800; color:var(--kc,#d4500a); line-height:1; }
-    .kpi-l { font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#9ca3af; margin:5px 0 2px; }
-    .kpi-s { font-size:.68rem; color:#9ca3af; }
 
     /* ── WORKER CARDS ── */
     .worker-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-bottom:14px; }
     .worker-card {
-      background:white; border:1px solid #e5e7eb; border-radius:10px; padding:14px;
+      background:white; border:1px solid #e5e7eb; border-radius:8px; padding:12px;
       border-left:3px solid var(--wc,#d4500a);
     }
-    .wc-name { font-weight:700; font-size:.82rem; color:#111827; margin-bottom:8px; }
-    .wc-stat { display:flex; justify-content:space-between; font-size:.72rem; color:#6b7280; margin-bottom:3px; }
+    .wc-name { font-weight:700; font-size:.8rem; color:#111827; margin-bottom:7px; }
+    .wc-stat { display:flex; justify-content:space-between; font-size:.7rem; color:#6b7280; margin-bottom:3px; }
     .wc-stat span:last-child { color:#111827; font-weight:700; }
 
     /* ── SKOR LADDER ── */
@@ -70,21 +129,27 @@
     .ladder-lbl  { position:absolute; bottom:-18px; left:50%; transform:translateX(-50%); font-size:.62rem; color:#9ca3af; }
 
     /* ── CHART WRAP ── */
-    .ch { position:relative; }
-    .ch.h160 { height:160px; }
-    .ch.h200 { height:200px; }
-    .ch.h220 { height:220px; }
-    .ch.h240 { height:240px; }
-    .ch.h280 { height:280px; }
+    .ch          { position:relative; }
+    .ch.h120     { height:120px; }
+    .ch.h160     { height:160px; }
+    .ch.h180     { height:180px; }
+    .ch.h200     { height:200px; }
+    .ch.h220     { height:220px; }
+    .ch.h240     { height:240px; }
+    .ch.h280     { height:280px; }
 
-    /* ── NARRATIVE ── */
+    /* ── NARRATIVE BOX ── */
     .narr-box {
-      background   : linear-gradient(135deg,rgba(212,80,10,.05),rgba(124,58,237,.03));
-      border       : 1px solid rgba(212,80,10,.15);
-      border-radius: 10px;
-      padding      : 14px 18px;
+      background   : #fff9f5;
+      border-left  : 4px solid #d4500a;
+      border-top   : 1px solid rgba(212,80,10,.12);
+      border-right : 1px solid rgba(212,80,10,.12);
+      border-bottom: 1px solid rgba(212,80,10,.12);
+      border-radius: 8px;
+      padding      : 12px 16px;
       margin-bottom: 14px;
       font-size    : .8rem;
+      font-weight  : 500;
       line-height  : 1.75;
       color        : #374151;
     }
@@ -96,19 +161,22 @@
     /* ── QUOTE GRID ── */
     .quote-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
     @media(max-width:700px){.quote-grid{grid-template-columns:1fr}}
-    .quote-col { background:white; border:1px solid #e5e7eb; border-radius:10px; padding:14px; }
-    .quote-col-hd { font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; display:flex; align-items:center; gap:6px; margin-bottom:10px; }
-    .quote-item { border-left:3px solid #e5e7eb; padding:6px 10px; margin-bottom:8px; font-size:.75rem; color:#374151; line-height:1.6; font-style:italic; }
+    .quote-col { background:white; border:1px solid #e5e7eb; border-radius:8px; padding:12px; }
+    .quote-col-hd { font-size:.68rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; display:flex; align-items:center; gap:6px; margin-bottom:9px; }
+    .quote-item { border-left:3px solid #e5e7eb; padding:6px 10px; margin-bottom:7px; font-size:.74rem; color:#374151; line-height:1.6; font-style:italic; }
     .quote-item.up { border-color:#16a34a; }
     .quote-item.dn { border-color:#dc2626; }
 
     /* ── DATA TABLE FILTER ── */
     .fbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
     .fbar select, .fbar input {
-      padding:6px 10px; border:1px solid #e5e7eb; border-radius:6px;
-      font-family:inherit; font-size:.72rem; background:white; color:#374151;
+      padding:5px 10px; border:1px solid #e5e7eb; border-radius:6px;
+      font-family:inherit; font-size:.71rem; background:white; color:#374151;
     }
     .fbar select:focus, .fbar input:focus { outline:none; border-color:#d4500a; }
+
+    /* ── SECTION DIVIDER COMPACT ── */
+    .page .section-divider { margin: 22px 0 12px; }
   </style>
 </head>
 <body>
@@ -130,12 +198,14 @@
     </header>
 
     <div class="page">
-      <div class="page-header">
+
+      <!-- PAGE HEADER COMPACT -->
+      <div class="page-header--compact">
         <h1>Beranda CBR Worker</h1>
-        <p>Ringkasan anak dampingan, skor Cantrill, dan profil CBR Worker.</p>
+        <span class="header-freshness" id="header-freshness">—</span>
       </div>
 
-      <!-- TAB NAV (adopsi dari dashboard_ben) -->
+      <!-- TAB NAV -->
       <div class="tab-nav">
         <button class="tab-btn active" data-tab="anak" onclick="switchTab('anak',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>
@@ -149,7 +219,6 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
           Pengasuh
         </button>
-
       </div>
 
       <!-- ══ TAB 1: RINGKASAN ANAK ══ -->
@@ -221,7 +290,7 @@
             <div class="card-body" id="quote-anak-turun"></div>
           </div>
         </div>
-</div>
+      </div>
 
       <!-- TAB PENGASUH -->
       <div class="tab-pane" id="tab-pengasuh">
@@ -253,6 +322,7 @@
         </div>
       </div>
 
+    </div>
   </div>
 </div>
 
@@ -310,7 +380,6 @@ function switchTab(id, btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
   btn.classList.add('active');
-  // Resize charts di tab yang baru aktif
   setTimeout(()=>{
     Object.values(CHARTS).forEach(c=>{ try{c.resize();}catch(e){} });
   },50);
@@ -471,13 +540,11 @@ function renderWorker(d){
     </div>`;
   }).join('');
 
-  // Bar jumlah anak
   mk('c-worker-bar','bar',{
     labels:workers.map(w=>w.split(' ').pop()),
     datasets:[{data:workers.map(w=>anak.filter(a=>a.cbr===w).length),backgroundColor:PAL,borderRadius:5,borderSkipped:false}]
   },{...BASE_OPTS,layout:{padding:{top:18}}});
 
-  // Bar desa top 15
   const desaCnt={};
   anak.forEach(a=>{if(a.desa&&a.desa!=='—')desaCnt[a.desa]=(desaCnt[a.desa]||0)+1;});
   const top15=Object.entries(desaCnt).sort((a,b)=>b[1]-a[1]).slice(0,15);
@@ -490,7 +557,6 @@ function renderWorker(d){
     animation:{onComplete:function(){drawLabels(this);}}
   });
 
-  // Tabel
   document.getElementById('worker-table').innerHTML=`
     <thead><tr><th>CBR Worker</th><th>Total</th><th>Skor Anak</th><th>Skor Pengasuh</th><th>Parah</th><th>Sedang</th><th>Rendah</th><th>Kritis ≤3</th><th>Epilepsi</th><th>Terapi</th></tr></thead>
     <tbody>${workers.map((w,i)=>{
@@ -561,6 +627,16 @@ function renderDataTable(){
     </tr>`).join('')}</tbody>`;
 }
 
+// ── FRESHNESS LABEL ────────────────────────────────────────
+function applyFreshness(){
+  const st = document.getElementById('sync-time');
+  const hf = document.getElementById('header-freshness');
+  if (st && hf) {
+    const txt = st.textContent.trim();
+    if (txt) hf.textContent = '● ' + txt;
+  }
+}
+
 // ── INIT ───────────────────────────────────────────────────
 buildSidebar();
 const SESSION = AUTH.requireAuth('../index.html');
@@ -569,10 +645,14 @@ if (SESSION) {
     onScnSwitch: async function(scnId) {
       const d = await API.get(scnId);
       if (window.renderPage) renderPage(d, scnId);
+      applyFreshness();
     }
   });
   AUTH.initSidebar('worker', 'w-beranda');
-  API.get(AUTH.getScnFilter()).then(d => renderPage(d, AUTH.getScnFilter()));
+  API.get(AUTH.getScnFilter()).then(d => {
+    renderPage(d, AUTH.getScnFilter());
+    applyFreshness();
+  });
 }
 </script>
 </body>

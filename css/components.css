@@ -441,13 +441,13 @@ input, select, textarea { font-family: var(--font); }
    PAGE CONTENT
    ============================================================ */
 .page {
-  padding    : 14px 18px;
+  padding    : 12px 16px;
   flex       : 1;
   background : var(--bg-page);
   height     : calc(100vh - 60px);
   overflow-y : auto;
   overflow-x : hidden;
-  zoom       : 0.8;
+  zoom       : 0.82;
 }
 .page::-webkit-scrollbar { width:5px; }
 .page::-webkit-scrollbar-thumb { background:#E5E7EB; border-radius:3px; }

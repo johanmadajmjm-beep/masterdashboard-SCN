@@ -60,7 +60,7 @@
   --font-mono  : 'JetBrains Mono', monospace;
 
   /* ── LAYOUT ── */
-  --sidebar-w  : 256px;
+  --sidebar-w  : 240px;
   --header-h   : 58px;
 
   /* ── RADIUS ── */
@@ -79,7 +79,7 @@
    RESET
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 15px; scroll-behavior: smooth; }
+html { font-size: 13px; scroll-behavior: smooth; }
 body {
   font-family             : var(--font-body);
   background              : var(--surface);
@@ -342,8 +342,24 @@ input, select, textarea { font-family: var(--font-body); }
 }
 .topbar-date { font-size: .71rem; color: var(--ink-300); }
 
+/* Hamburger menu — hanya tampil di mobile */
+.topbar-menu-btn {
+  display         : none;
+  align-items     : center;
+  justify-content : center;
+  width           : 32px;
+  height          : 32px;
+  border          : none;
+  background      : transparent;
+  color           : var(--ink-500);
+  border-radius   : var(--radius-sm);
+  cursor          : pointer;
+}
+.topbar-menu-btn:hover { background: var(--surface); }
+.topbar-menu-btn svg   { width: 18px; height: 18px; }
+
 /* Page content */
-.page { padding: 24px; flex: 1; }
+.page { padding: 20px 24px; flex: 1; }
 
 /* Page header — garis oranye kiri */
 .page-header {
@@ -592,4 +608,5 @@ tbody tr:hover { background: var(--nlr-50); }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
   .page { padding: 16px; }
+  .topbar-menu-btn { display: flex; }
 }

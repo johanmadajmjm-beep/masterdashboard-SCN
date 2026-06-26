@@ -175,6 +175,7 @@
 
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>
+<script src="../js/data.js"></script>
 <script>
 const SCN_IDS    = ['manggarai','banyuwangi','jember','situbondo','kupang','tts','palu','sigi'];
 const SCN_LABELS = ['Manggarai','Banyuwangi','Jember','Situbondo','Kupang','TTS','Palu','Sigi'];
@@ -466,22 +467,26 @@ function renderStakeholder() {
   });
 }
 
+// renderPage dipanggil oleh API.get() — di halaman analisis selalu render dari DATA lokal
+function renderPage(d, scnId) {
+  // Halaman ini selalu pakai DATA dari data.js (semua 8 SCN)
+  // d dari API hanya dipakai untuk update badge live/offline
+  initPage(null, null);
+}
+
 buildSidebar();
 const SESSION = AUTH.requireAuth('../index.html');
 if (SESSION) {
-  // Halaman ini hanya untuk superadmin
   if (!AUTH.isSuperAdmin()) {
     window.location.href = 'mel-beranda.html';
   } else {
     AUTH.applySession({
       onScnSwitch: function() {
-        // Filter SCN tidak berlaku di halaman ini
-        // Analisis selalu tampilkan semua SCN (nasional)
+        // Filter SCN tidak berlaku di halaman ini — analisis selalu nasional
       }
     });
     AUTH.initSidebar('mel', 'm-analisis');
-    // Selalu render dengan semua SCN — abaikan filter
-    if (window.initPage) initPage(SESSION, null);
+    initPage(SESSION, null);
   }
 }
 </script>

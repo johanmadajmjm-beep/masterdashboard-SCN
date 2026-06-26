@@ -132,6 +132,203 @@
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
 <script>
+// ── ITT META ────────────────────────────────────────────────
+const OUTCOMES = [
+  { id:'O1', label:'Outcome 1', pendek:'CYWD Berdaya',          warna:'#2563eb', indikator_ids:['O1-i1','O1-i2','O1-i3','O1-i4','O1-i5','O1-i6'] },
+  { id:'O2', label:'Outcome 2', pendek:'Keluarga & Komunitas',  warna:'#0891b2', indikator_ids:['O2-i1','O2-i2','O2-i3','O2-i4'] },
+  { id:'O3', label:'Outcome 3', pendek:'DPO & CBR',             warna:'#d97706', indikator_ids:['O3-i1','O3-i2','O3-i3','O3-i4','O3-i5'] },
+  { id:'O4', label:'Outcome 4', pendek:'Layanan Kesehatan',     warna:'#7c3aed', indikator_ids:['O4-i1','O4-i2','O4-i3','O4-i4','O4-i5'] },
+  { id:'O5', label:'Outcome 5', pendek:'Pendidikan Inklusif',   warna:'#059669', indikator_ids:['O5-i1','O5-i2','O5-i3','O5-i4','O5-i5'] },
+  { id:'O6', label:'Outcome 6', pendek:'Pemberdayaan Ekonomi',  warna:'#dc2626', indikator_ids:['O6-i1','O6-i2','O6-i3','O6-i4'] },
+  { id:'O7', label:'Outcome 7', pendek:'Kebijakan & Advokasi',  warna:'#0284c7', indikator_ids:['O7-i1','O7-i2','O7-i3','O7-i4','O7-i5'] },
+];
+
+const ITT_LABELS = {
+  'O1-i1':'CYWD dengan peningkatan rasa kendali & pengambilan keputusan',
+  'O1-i2':'CYWD dengan peran aktif di komunitas',
+  'O1-i3':'CYWD menerima layanan rehabilitasi sesuai IRP',
+  'O1-i4':'CYWD memiliki keterampilan menyampaikan keinginan secara efektif',
+  'O1-i5':'CYWD mengetahui hak mereka (termasuk HKSR)',
+  'O1-i6':'CYWD berpartisipasi dalam kehidupan keluarga & komunitas',
+  'O2-i1':'Orang tua/pengasuh dengan peningkatan kapasitas mendukung CYWD',
+  'O2-i2':'Keluarga mengakses layanan rehabilitasi tanpa stigma',
+  'O2-i3':'CYWD dengan dokumen kependudukan lengkap & aktif di perlindungan sosial',
+  'O2-i4':'Kelompok keluarga/orang tua aktif di tingkat desa/kecamatan',
+  'O3-i1':'DPO/CSO yang mempekerjakan penyandang disabilitas dalam peran kepemimpinan',
+  'O3-i2':'Rujukan efektif oleh jejaring komunitas',
+  'O3-i3':'Pekerja CBR/CBID memberikan dukungan langsung kepada CYWD',
+  'O3-i4':'Pekerja CBR percaya diri dalam memberikan perawatan memadai',
+  'O3-i5':'DPO aktif berkolaborasi dalam sistem rujukan',
+  'O4-i1':'Penyedia layanan kesehatan yang meningkatkan fasilitas aksesibel',
+  'O4-i2':'Penyedia layanan yang meningkatkan layanan inklusif',
+  'O4-i3':'Tenaga kesehatan dilatih layanan KSR inklusif',
+  'O4-i4':'Kasus kusta yang diidentifikasi & diobati di komunitas',
+  'O4-i5':'CYWD yang memanfaatkan layanan KSR secara efektif',
+  'O5-i1':'CYWD terdaftar di program pendidikan inklusif',
+  'O5-i2':'CYWD menunjukkan kemajuan sesuai potensi (ILP)',
+  'O5-i3':'Sekolah dengan peningkatan kualitas pengajaran & lingkungan',
+  'O5-i4':'Sekolah mengajukan proposal aksesibilitas ke pemerintah',
+  'O5-i5':'Guru PAUD dengan peningkatan pengetahuan identifikasi dini',
+  'O6-i1':'YwD berpartisipasi dalam pasar tenaga kerja',
+  'O6-i2':'Orang tua/pengasuh dengan peningkatan pendapatan',
+  'O6-i3':'Pusat pelatihan vokasional menerapkan model inklusif',
+  'O6-i4':'Bisnis/tempat kerja dengan prosedur lingkungan kerja inklusif',
+  'O7-i1':'Kebijakan inklusif yang diadopsi & dimonitor bersama DPO/CYWD',
+  'O7-i2':'Aksi lobi & advokasi oleh DPO/NGO yang memengaruhi kebijakan',
+  'O7-i3':'Kebijakan/hukum yang diharmonisasi dengan kerangka inklusif',
+  'O7-i4':'Proses konsultasi kebijakan yang melibatkan CYWD',
+  'O7-i5':'Kasus insiden perlindungan anak yang dilaporkan & ditanggapi',
+};
+
+function getPct(cap, target) { if (!target) return 0; return Math.min(Math.round(cap / target * 100), 100); }
+function getPctColor(pct) {
+  if (pct >= 80) return '#059669';
+  if (pct >= 50) return '#2563eb';
+  if (pct >= 25) return '#d97706';
+  return '#dc2626';
+}
+function getStatusBadge(pct) {
+  if (pct >= 80) return '<span class="badge badge-green">On Track</span>';
+  if (pct >= 50) return '<span class="badge badge-blue">Progres</span>';
+  if (pct >= 25) return '<span class="badge badge-amber">Perhatian</span>';
+  return '<span class="badge badge-red">Perlu Aksi</span>';
+}
+
+// ── RENDER ITT ───────────────────────────────────────────────
+function renderPage(d, scnId) {
+  if (!d) return;
+  const itt = (d.itt && d.itt.Y1_Q2) ? d.itt.Y1_Q2 : {};
+  const container = document.getElementById('itt-container');
+
+  // KPI summary bar
+  const allInds = Object.values(itt);
+  const totalCap = allInds.reduce((s, v) => s + (v.cap || 0), 0);
+  const totalTgt = allInds.reduce((s, v) => s + (v.target_y1 || 0), 0);
+  const avgPct   = getPct(totalCap, totalTgt);
+  const onTrack  = allInds.filter(v => getPct(v.cap, v.target_y1) >= 80).length;
+  const perlu    = allInds.filter(v => getPct(v.cap, v.target_y1) < 25).length;
+
+  const summaryHtml = `
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px">
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:14px;border-top:3px solid var(--nlr-600)">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:var(--nlr-600);line-height:1">${avgPct}%</div>
+      <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0;margin:6px 0 2px">Rata-rata Capaian</div>
+      <div style="font-size:.68rem;color:#8a9ab0">terhadap target Y1</div>
+    </div>
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:14px;border-top:3px solid #059669">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:#059669;line-height:1">${onTrack}</div>
+      <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0;margin:6px 0 2px">On Track ≥80%</div>
+      <div style="font-size:.68rem;color:#8a9ab0">dari ${allInds.length} indikator</div>
+    </div>
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:14px;border-top:3px solid #dc2626">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:#dc2626;line-height:1">${perlu}</div>
+      <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0;margin:6px 0 2px">Perlu Aksi &lt;25%</div>
+      <div style="font-size:.68rem;color:#8a9ab0">prioritas intervensi</div>
+    </div>
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:14px;border-top:3px solid #2563eb">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:#2563eb;line-height:1">${allInds.length}</div>
+      <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0;margin:6px 0 2px">Total Indikator</div>
+      <div style="font-size:.68rem;color:#8a9ab0">7 Outcome ITT</div>
+    </div>
+  </div>`;
+
+  // Accordion per Outcome
+  const accordionHtml = OUTCOMES.map(o => {
+    const inds = o.indikator_ids.map(id => {
+      const v   = itt[id] || { cap: 0, target_y1: 0, target_total: 0 };
+      const pct = getPct(v.cap, v.target_y1);
+      const col = getPctColor(pct);
+      return { id, label: ITT_LABELS[id] || id, ...v, pct, col };
+    });
+
+    const avgO  = inds.length ? Math.round(inds.reduce((s, i) => s + i.pct, 0) / inds.length) : 0;
+    const colO  = getPctColor(avgO);
+
+    const rowsHtml = inds.map((ind, idx) => `
+      <tr style="border-bottom:1px solid #f1f5f9">
+        <td style="padding:10px 18px;font-size:.72rem;font-weight:700;color:${o.warna};white-space:nowrap">${ind.id}</td>
+        <td style="padding:10px 12px;font-size:.78rem;color:#1c2330;line-height:1.45;max-width:340px">${ind.label}</td>
+        <td style="padding:10px 12px;text-align:center">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:700;color:#141820">${ind.cap}</span>
+        </td>
+        <td style="padding:10px 12px;text-align:center">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#8a9ab0">${ind.target_y1}</span>
+        </td>
+        <td style="padding:10px 12px;text-align:center">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#b8c4d0">${ind.target_total}</span>
+        </td>
+        <td style="padding:10px 18px;min-width:160px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="flex:1;height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden">
+              <div style="height:100%;width:${ind.pct}%;background:${ind.col};border-radius:99px;transition:width .4s ease"></div>
+            </div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;color:${ind.col};min-width:32px;text-align:right">${ind.pct}%</span>
+          </div>
+        </td>
+        <td style="padding:10px 18px">${getStatusBadge(ind.pct)}</td>
+      </tr>`).join('');
+
+    return `
+    <div class="itt-block" id="block-${o.id}" style="--o-color:${o.warna}">
+      <div class="itt-header" onclick="toggleBlock('${o.id}')">
+        <div class="itt-header-left">
+          <div>
+            <div class="itt-label">${o.label}</div>
+            <div class="itt-name">${o.pendek}</div>
+          </div>
+        </div>
+        <div class="itt-header-right">
+          <div class="itt-header-prog">
+            <div style="height:5px;background:rgba(0,0,0,.08);border-radius:99px;overflow:hidden;margin-bottom:4px">
+              <div style="height:100%;width:${avgO}%;background:${o.warna};border-radius:99px"></div>
+            </div>
+            <div style="font-size:.65rem;color:#8a9ab0;text-align:right">${inds.length} indikator</div>
+          </div>
+          <div class="itt-avg" style="color:${colO}">${avgO}%</div>
+          ${getStatusBadge(avgO)}
+          <button class="itt-toggle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="itt-body">
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse">
+            <thead>
+              <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0">
+                <th style="padding:9px 18px;text-align:left;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0;white-space:nowrap">ID</th>
+                <th style="padding:9px 12px;text-align:left;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0">Indikator</th>
+                <th style="padding:9px 12px;text-align:center;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0">Capaian</th>
+                <th style="padding:9px 12px;text-align:center;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0">Target Y1</th>
+                <th style="padding:9px 12px;text-align:center;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0">Target Total</th>
+                <th style="padding:9px 18px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0">Progress</th>
+                <th style="padding:9px 18px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0">Status</th>
+              </tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  container.innerHTML = summaryHtml + accordionHtml;
+
+  // Buka accordion pertama by default
+  document.getElementById('block-O1')?.classList.add('open');
+}
+
+// ── TOGGLE ───────────────────────────────────────────────────
+function toggleBlock(id) {
+  document.getElementById('block-' + id)?.classList.toggle('open');
+}
+function toggleAll(open) {
+  document.querySelectorAll('.itt-block').forEach(el => {
+    open ? el.classList.add('open') : el.classList.remove('open');
+  });
+}
+</script>
+<script>
   buildSidebar();
   const SESSION = AUTH.requireAuth('../index.html');
   if (SESSION) {
@@ -146,4 +343,4 @@
       if (window.renderPage) renderPage(d, AUTH.getScnFilter());
     });
   }
-</script>
+</script></body></html>

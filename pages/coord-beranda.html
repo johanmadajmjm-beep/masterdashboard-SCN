@@ -359,8 +359,8 @@
       <!-- KPI ROW -->
       <div class="kpi-8" id="kpi-coord"></div>
 
-      <!-- ROW 1: Distribusi Skor + Anak Perlu Perhatian -->
-      <div class="coord-row col-2">
+      <!-- ROW 1: 3 Distribusi Sejajar -->
+      <div class="coord-row col-3">
 
         <!-- Distribusi Skor Anak -->
         <div class="panel">
@@ -369,77 +369,6 @@
           </div>
           <div class="panel-body" id="skor-dist-coord"></div>
         </div>
-
-        <!-- Anak Perlu Perhatian -->
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-title">Anak Perlu Perhatian</span>
-            <span class="badge-sm badge-red" id="badge-perhatian">—</span>
-          </div>
-          <div class="panel-body no-pad">
-            <div style="overflow-x:auto">
-              <table class="tbl-perhatian">
-                <thead>
-                  <tr>
-                    <th>Nama Anak</th>
-                    <th>CBR Worker</th>
-                    <th class="right">Skor</th>
-                    <th>Level</th>
-                    <th>Alasan</th>
-                  </tr>
-                </thead>
-                <tbody id="tbl-perhatian"></tbody>
-              </table>
-            </div>
-            <a href="coord-benef.html" style="display:block;text-align:center;font-size:.68rem;font-weight:700;color:#d4500a;padding:10px;border-top:1px solid #f3f4f6;text-decoration:none">Lihat semua →</a>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- ROW 2: Kinerja Worker + ICF -->
-      <div class="coord-row col-2">
-
-        <!-- Kinerja Per CBR Worker -->
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-title">Kinerja Per CBR Worker</span>
-            <span class="badge-sm badge-orange" id="badge-worker-count">—</span>
-          </div>
-          <div class="panel-body no-pad">
-            <div style="overflow-x:auto">
-              <table class="tbl-worker">
-                <thead>
-                  <tr>
-                    <th>CBR Worker</th>
-                    <th class="right">Anak</th>
-                    <th class="right">Kunjungan</th>
-                    <th class="right">Avg Skor</th>
-                    <th class="right">Kritis</th>
-                    <th class="right">Terlambat</th>
-                  </tr>
-                </thead>
-                <tbody id="tbl-workers"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- ICF Ringkasan Domain -->
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-title">Temuan ICF — Ringkasan Domain</span>
-            <span class="badge-sm badge-blue" id="badge-obs-count">— obs</span>
-          </div>
-          <div class="panel-body">
-            <div class="icf-grid" id="icf-domain-grid"></div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- ROW 3: Ragam + Level + Intisari -->
-      <div class="coord-row col-3">
 
         <!-- Distribusi Ragam -->
         <div class="panel">
@@ -476,6 +405,77 @@
               </div>
               <ul class="dist-legend" id="level-legend"></ul>
             </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ROW 2: Anak Perlu Perhatian + Kinerja Worker -->
+      <div class="coord-row col-2">
+
+        <!-- Anak Perlu Perhatian -->
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">Anak Perlu Perhatian</span>
+            <span class="badge-sm badge-red" id="badge-perhatian">—</span>
+          </div>
+          <div class="panel-body no-pad">
+            <div style="overflow-x:auto">
+              <table class="tbl-perhatian">
+                <thead>
+                  <tr>
+                    <th>Nama Anak</th>
+                    <th>CBR Worker</th>
+                    <th class="right">Skor</th>
+                    <th>Level</th>
+                    <th>Alasan</th>
+                  </tr>
+                </thead>
+                <tbody id="tbl-perhatian"></tbody>
+              </table>
+            </div>
+            <a href="coord-benef.html" style="display:block;text-align:center;font-size:.68rem;font-weight:700;color:#d4500a;padding:10px;border-top:1px solid #f3f4f6;text-decoration:none">Lihat semua →</a>
+          </div>
+        </div>
+
+        <!-- Kinerja Per CBR Worker -->
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">Kinerja Per CBR Worker</span>
+            <span class="badge-sm badge-orange" id="badge-worker-count">—</span>
+          </div>
+          <div class="panel-body no-pad">
+            <div style="overflow-x:auto">
+              <table class="tbl-worker">
+                <thead>
+                  <tr>
+                    <th>CBR Worker</th>
+                    <th class="right">Anak</th>
+                    <th class="right">Kunjungan</th>
+                    <th class="right">Avg Skor</th>
+                    <th class="right">Kritis</th>
+                    <th class="right">Terlambat</th>
+                  </tr>
+                </thead>
+                <tbody id="tbl-workers"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ROW 3: ICF + Intisari -->
+      <div class="coord-row col-2">
+
+        <!-- ICF Ringkasan Domain -->
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">Temuan ICF — Ringkasan Domain</span>
+            <span class="badge-sm badge-blue" id="badge-obs-count">— obs</span>
+          </div>
+          <div class="panel-body">
+            <div class="icf-grid" id="icf-domain-grid"></div>
           </div>
         </div>
 

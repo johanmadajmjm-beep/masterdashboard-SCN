@@ -281,9 +281,9 @@ function injectSidebarStyles() {
     }
 
     /* Reset body layout */
-    body { display:flex; min-height:100vh; background:#f0f2f5; }
+    body { display:flex; flex-direction:row; min-height:100vh; background:#f0f2f5; }
     .app { display:flex; flex-direction:row; flex:1; min-width:0; }
-    .main { display:flex; flex-direction:column; flex:1; min-width:0; overflow:hidden; }
+    .main { display:flex; flex-direction:column; flex:1; min-width:0; margin-left:0 !important; }
 
     /* ── SIDEBAR ── */
     .sidebar {

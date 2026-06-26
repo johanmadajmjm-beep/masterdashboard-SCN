@@ -447,7 +447,6 @@ input, select, textarea { font-family: var(--font); }
   height     : calc(100vh - 60px);
   overflow-y : auto;
   overflow-x : hidden;
-  zoom       : 0.82;
 }
 .page::-webkit-scrollbar { width:5px; }
 .page::-webkit-scrollbar-thumb { background:#E5E7EB; border-radius:3px; }

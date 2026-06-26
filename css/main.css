@@ -85,7 +85,6 @@
 html { font-size: 13px; scroll-behavior: smooth; }
 body {
   font-family             : var(--font-body);
-  background              : var(--surface);
   color                   : var(--ink-900);
   line-height             : 1.6;
   -webkit-font-smoothing  : antialiased;

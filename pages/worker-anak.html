@@ -7,8 +7,18 @@
 <link rel="stylesheet" href="../css/main.css"/>
 <link rel="stylesheet" href="../css/components.css"/>
 <style>
+/* ── LAYOUT ─────────────────────────────────── */
 .ld-wrap{display:flex;gap:0;height:calc(100vh - 60px);overflow:hidden}
-.ld-list{width:300px;min-width:300px;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden}
+
+/* LIST PANEL — full width when no detail, narrow when detail open */
+.ld-list{
+  width:100%;min-width:0;flex-shrink:0;
+  background:#fff;border-right:1px solid #E5E7EB;
+  display:flex;flex-direction:column;overflow:hidden;
+  transition:width .25s ease;
+}
+.ld-wrap.detail-open .ld-list{width:300px;min-width:300px;}
+
 .ld-list-header{padding:12px 14px;border-bottom:1px solid #E5E7EB;flex-shrink:0}
 .ld-search{width:100%;padding:7px 10px;border:1px solid #E5E7EB;border-radius:8px;font-size:.75rem;font-family:inherit;background:#F9FAFB;outline:none;transition:.15s}
 .ld-search:focus{border-color:#F97316;background:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.1)}
@@ -27,37 +37,70 @@
 .ld-item{padding:10px 14px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .1s;position:relative}
 .ld-item:hover{background:#FFF7ED}
 .ld-item.active{background:#FFF7ED;border-left:3px solid #F97316;padding-left:11px}
-.ld-item-name{font-size:.8rem;font-weight:600;color:#1F2937;margin-bottom:2px;padding-right:36px}
+.ld-item-name{font-size:.8rem;font-weight:600;color:#1F2937;margin-bottom:2px;padding-right:44px}
 .ld-item-sub{font-size:.67rem;color:#9CA3AF}
 .ld-item-score{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:.9rem;font-weight:800;font-family:'JetBrains Mono',monospace}
 .ld-item-tag{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;vertical-align:middle}
 
-.ld-detail{flex:1;overflow-y:auto;background:#F8FAFC}
+/* DETAIL PANEL — hidden until detail-open */
+.ld-detail{
+  flex:1;overflow-y:auto;background:#F8FAFC;
+  display:none;
+}
+.ld-wrap.detail-open .ld-detail{display:block;}
 .ld-detail::-webkit-scrollbar{width:5px}
 .ld-detail::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
-.ld-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px}
-.ld-empty svg{width:48px;height:48px;opacity:.3}
-.ld-empty p{font-size:.82rem;text-align:center}
-.det-wrap{padding:24px}
+
+/* ── DETAIL CONTENT ─────────────────────────── */
+.det-wrap{padding:20px 24px}
 .det-back{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#6B7280;font-size:.75rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:14px}
 .det-back:hover{background:#F9FAFB;color:#1F2937}
 .det-back svg{width:14px;height:14px}
 .det-name{font-size:1.15rem;font-weight:800;color:#1F2937;margin-bottom:6px}
 .det-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
 .det-chip{padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:600;background:#F3F4F6;color:#4B5563}
-.det-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.det-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .det-kpi-card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:12px;text-align:center}
 .det-kpi-val{font-size:1.5rem;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1}
 .det-kpi-lbl{font-size:.6rem;color:#9CA3AF;margin-top:3px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
-.det-section{background:#fff;border:1px solid #E5E7EB;border-radius:10px;margin-bottom:10px}
-.det-section-head{padding:10px 14px;border-bottom:1px solid #F3F4F6;font-size:.75rem;font-weight:700;color:#1F2937}
+
+/* Section card */
+.det-section{background:#fff;border:1px solid #E5E7EB;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.det-section-head{
+  padding:9px 14px;border-bottom:1px solid #F3F4F6;
+  font-size:.72rem;font-weight:700;color:#1F2937;
+  display:flex;align-items:center;gap:6px;
+}
+.det-section-head .sh-icon{
+  width:20px;height:20px;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.det-section-head .sh-icon svg{width:11px;height:11px;}
 .det-section-body{padding:12px 14px}
-.det-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #F9FAFB;font-size:.77rem}
+
+/* Rows: label left, value right — value wraps fully */
+.det-row{
+  display:grid;grid-template-columns:130px 1fr;
+  gap:8px;align-items:baseline;
+  padding:6px 0;border-bottom:1px solid #F9FAFB;font-size:.77rem;
+}
 .det-row:last-child{border-bottom:none}
-.det-row-label{color:#6B7280}
-.det-row-val{font-weight:600;color:#1F2937}
-.prog-mini{width:80px;height:4px;border-radius:999px;background:#F3F4F6;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:6px}
-.prog-mini-fill{height:100%;border-radius:999px}
+.det-row-label{color:#6B7280;font-size:.72rem;flex-shrink:0}
+.det-row-val{font-weight:600;color:#1F2937;word-break:break-word;line-height:1.55}
+
+/* ICF block — full-width narrative text */
+.icf-block{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #F3F4F6}
+.icf-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.icf-label{
+  font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+  margin-bottom:5px;display:flex;align-items:center;gap:5px;
+}
+.icf-label .icf-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.icf-text{
+  font-size:.76rem;color:#374151;line-height:1.7;
+  white-space:pre-wrap;word-break:break-word;
+}
+.icf-empty{font-size:.74rem;color:#9CA3AF;font-style:italic}
 
 /* View modes */
 .view-modes{display:flex;gap:3px}
@@ -119,11 +162,7 @@
   </div>
 
   <div class="ld-detail" id="ld-detail">
-    <div class="ld-empty" id="ld-empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-      <p>Pilih nama anak untuk<br>melihat detail profil</p>
-    </div>
-    <div class="det-wrap" id="det-wrap" style="display:none"></div>
+    <div class="det-wrap" id="det-wrap"></div>
   </div>
 </div>
 </div></div>
@@ -212,24 +251,65 @@ function renderList(){
 }
 
 let _lastEl=null;
+
 function showDetail(el,a){
   if(_lastEl) _lastEl.classList.remove('active');
   el.classList.add('active'); _lastEl=el;
-  document.getElementById('ld-empty').style.display='none';
-  document.getElementById('det-wrap').style.display='block';
+
+  // Show detail panel
+  document.querySelector('.ld-wrap').classList.add('detail-open');
+
   const obs=OBS_MAP[a.nama?.toLowerCase()];
   const spVal=a.sp, saVal=a.sa;
+
+  // ICF field helper — full text, no truncation
+  function icfBlock(label, color, iconSvg, val){
+    const empty = !val || val.trim()==='' || val==='-' || val==='—';
+    return `
+      <div class="icf-block">
+        <div class="icf-label" style="color:${color}">
+          <span class="icf-dot" style="background:${color}"></span>
+          ${label}
+        </div>
+        ${empty
+          ? '<div class="icf-empty">Belum ada data</div>'
+          : `<div class="icf-text">${val.trim()}</div>`
+        }
+      </div>`;
+  }
+
+  function row(label, val){
+    const v = (val==null||val===''||val==='-')?'—':val;
+    return `<div class="det-row"><span class="det-row-label">${label}</span><span class="det-row-val">${v}</span></div>`;
+  }
+
+  function shead(iconSvg, iconBg, iconColor, label){
+    return `<div class="det-section-head">
+      <div class="sh-icon" style="background:${iconBg};color:${iconColor}">${iconSvg}</div>
+      ${label}
+    </div>`;
+  }
+
+  const icoUser   = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>`;
+  const icoObs    = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  const icoICF    = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>`;
+  const icoFaktor = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+
   document.getElementById('det-wrap').innerHTML=`
     <button class="det-back" onclick="clearDetail()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Kembali
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Kembali ke daftar
     </button>
+
     <div class="det-name">${a.nama||'—'}</div>
     <div class="det-meta">
       <span class="det-chip" style="background:${RC[a.ragam]||'#E5E7EB'}18;color:${RC[a.ragam]||'#6B7280'}">${a.ragam||'—'}</span>
       <span class="det-chip" style="color:${LC[a.level]||'#6B7280'}">${(a.level||'—').split('(')[0].trim()}</span>
-      ${a.ep?'<span class="det-chip" style="background:#FEF3C7;color:#92400E">⚡ Epilepsi</span>':''}
-      ${a.tr?'<span class="det-chip" style="background:#DCFCE7;color:#15803D">✓ Terapi</span>':''}
+      ${a.ep==='Ya'?'<span class="det-chip" style="background:#FEF3C7;color:#92400E">⚡ Epilepsi</span>':''}
+      ${a.tr==='Ya'?'<span class="det-chip" style="background:#DCFCE7;color:#15803D">✓ Pernah Terapi</span>':''}
+      ${a.ob==='Ya'?'<span class="det-chip" style="background:#EFF6FF;color:#1D4ED8">💊 Pengobatan Aktif</span>':''}
     </div>
+
     <div class="det-kpi">
       <div class="det-kpi-card">
         <div class="det-kpi-val" style="color:${spVal!=null?sc(spVal):'#9CA3AF'}">${spVal!=null?spVal:'—'}</div>
@@ -244,29 +324,74 @@ function showDetail(el,a){
         <div class="det-kpi-lbl">Hari sejak Obs</div>
       </div>
     </div>
+
+    <!-- PROFIL ANAK -->
     <div class="det-section">
-      <div class="det-section-head">Profil</div>
+      ${shead(icoUser,'rgba(249,115,22,.1)','#F97316','Profil Anak')}
       <div class="det-section-body">
-        <div class="det-row"><span class="det-row-label">Nama Pengasuh</span><span class="det-row-val">${a.np||'—'}</span></div>
-        <div class="det-row"><span class="det-row-label">Usia</span><span class="det-row-val">${a.usia||'?'} tahun</span></div>
-        <div class="det-row"><span class="det-row-label">Jenis Kelamin</span><span class="det-row-val">${a.gender==='L'?'Laki-laki':'Perempuan'}</span></div>
-        <div class="det-row"><span class="det-row-label">Desa</span><span class="det-row-val">${a.desa||'—'}</span></div>
-        <div class="det-row"><span class="det-row-label">CBR Worker</span><span class="det-row-val">${a.cbr||'—'}</span></div>
+        ${row('Jenis Kelamin', a.gender==='L'?'Laki-laki':a.gender==='P'?'Perempuan':a.j==='Laki-Laki'?'Laki-laki':a.j||a.gender||'—')}
+        ${row('Kelompok Usia', a.gu||'—')}
+        ${row('Kampung/Dusun', a.k||a.kampung||'—')}
+        ${row('Desa', a.desa||a.d||'—')}
+        ${row('Ragam Disabilitas', a.ragam||a.rg||'—')}
+        ${row('Level Disabilitas', a.level||a.lv||'—')}
+        ${row('Epilepsi', a.ep||'—')}
+        ${row('Pengobatan 1 Tahun Terakhir', a.ob||'—')}
+        ${row('Pernah Mendapat Terapi', a.tr||'—')}
       </div>
     </div>
-    ${obs?`<div class="det-section">
-      <div class="det-section-head">Observasi Terakhir</div>
+
+    <!-- PROFIL PENGASUH -->
+    <div class="det-section">
+      ${shead(icoUser,'rgba(99,102,241,.1)','#6366F1','Profil Pengasuh')}
       <div class="det-section-body">
-        <div class="det-row"><span class="det-row-label">Tanggal</span><span class="det-row-val">${obs.tgl||'—'}</span></div>
-        <div class="det-row"><span class="det-row-label">Struktur Tubuh</span><span class="det-row-val" style="max-width:180px;text-align:right;font-size:.7rem">${(obs.st||'—').substring(0,60)}</span></div>
-        <div class="det-row"><span class="det-row-label">Kegiatan</span><span class="det-row-val" style="max-width:180px;text-align:right;font-size:.7rem">${(obs.kg||'—').substring(0,60)}</span></div>
+        ${row('Nama Pengasuh', a.np||a.nama_pengasuh||'—')}
+        ${row('CBR Worker', a.cbr||a.cb||'—')}
+        ${row('Faktor Membantu Pengasuh', a.nkp||'—')}
+        ${row('Faktor Menyulitkan Pengasuh', a.tkp||'—')}
       </div>
-    </div>`:'<div class="det-section"><div class="det-section-body" style="text-align:center;color:#9CA3AF;padding:16px;font-size:.78rem">Belum ada data observasi</div></div>'}
+    </div>
+
+    <!-- FAKTOR ANAK -->
+    <div class="det-section">
+      ${shead(icoFaktor,'rgba(16,185,129,.1)','#10B981','Faktor Kesejahteraan Anak')}
+      <div class="det-section-body">
+        ${row('Faktor Membantu Anak', a.nka||'—')}
+        ${row('Faktor Menyulitkan Anak', a.tka||'—')}
+      </div>
+    </div>
+
+    <!-- ICF -->
+    ${obs ? `
+    <div class="det-section">
+      ${shead(icoObs,'rgba(249,115,22,.1)','#F97316','Observasi Terakhir — '+( obs.tgl||'—'))}
+      <div class="det-section-body">
+        ${row('Tanggal Kunjungan', obs.tgl||'—')}
+        ${row('CBR Worker', obs.cb||'—')}
+      </div>
+    </div>
+    <div class="det-section">
+      ${shead(icoICF,'rgba(30,41,59,.08)','#1E293B','4 Komponen ICF')}
+      <div class="det-section-body">
+        ${icfBlock('Fungsi & Struktur Tubuh','#1D4ED8','',obs.st||'')}
+        ${icfBlock('Aktivitas & Partisipasi (Kegiatan)','#059669','',obs.kg||'')}
+        ${icfBlock('Faktor Personal','#7C3AED','',obs.pf||'')}
+        ${icfBlock('Faktor Lingkungan','#D97706','',obs.lg||'')}
+      </div>
+    </div>`
+    : `<div class="det-section">
+        ${shead(icoObs,'#F3F4F6','#9CA3AF','Observasi')}
+        <div class="det-section-body" style="text-align:center;color:#9CA3AF;padding:20px 14px;font-size:.78rem">
+          Belum ada data observasi untuk anak ini
+        </div>
+      </div>`
+    }
   `;
 }
+
 function clearDetail(){
-  document.getElementById('ld-empty').style.display='flex';
-  document.getElementById('det-wrap').style.display='none';
+  document.querySelector('.ld-wrap').classList.remove('detail-open');
+  document.getElementById('det-wrap').innerHTML='';
   if(_lastEl){_lastEl.classList.remove('active');_lastEl=null;}
 }
 </script>

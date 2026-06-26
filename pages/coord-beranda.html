@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="id"><head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
   <title>CBR Coordinator — Beranda | MEL NLR</title>
   <link rel="stylesheet" href="../css/main.css"/>
   <link rel="stylesheet" href="../css/components.css"/>
@@ -35,9 +33,6 @@
     <!-- 8 KPI -->
     <div class="kpi-8" id="kpi-coord"></div>
 
-    <!-- Alert terlambat -->
-    <div class="section-divider">Anak Belum Dikunjungi &gt;30 Hari</div>
-    <div id="alert-coord"></div>
 
     <!-- Quick stats distribusi -->
     <div class="grid-2" style="margin-top:16px">
@@ -127,14 +122,6 @@ function renderPage(d, scnId) {
     {v:workers.length,l:'CBR Worker Aktif',s:totalKunj+' kunjungan bulan ini',c:'#0284c7'},
   ].map(k=>`<div class="kpi-box" style="--kc:${k.c}"><div class="kv">${k.v}</div><div class="kl">${k.l}</div><div class="ks">${k.s}</div></div>`).join('');
 
-  // Alert
-  const late=anak.filter(a=>a.hari>30);
-  document.getElementById('alert-coord').innerHTML=late.length
-    ?late.slice(0,5).map(a=>`<div class="alert-strip alert-red">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
-        <div><strong>${a.nama}</strong> · ${a.cbr||'—'} · ${a.ragam||'—'} · <strong style="color:#dc2626">${a.hari===999?'Belum pernah':a.hari+' hari'}</strong></div>
-      </div>`).join('')
-    :'<div class="alert-strip alert-green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><div>Semua anak sudah dikunjungi dalam 30 hari terakhir.</div></div>';
 
   // Worker table
   document.getElementById('badge-worker-count').textContent=workers.length+' petugas';

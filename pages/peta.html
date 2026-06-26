@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="id"><head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
 <title>Peta — Sebaran Beneficiary | MEL NLR</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link rel="stylesheet" href="../css/main.css"/>
   <link rel="stylesheet" href="../css/components.css"/>
 <style>
-#leaflet-map{width:100%;height:calc(100vh - 200px);min-height:400px;border-radius:10px;z-index:1;position:relative}
+#leaflet-map{width:100%;height:calc(100vh - 220px);border-radius:10px;z-index:1;position:relative}
 .leaflet-popup-content-wrapper{background:#1f2937!important;border:1px solid #374151!important;border-radius:10px!important;box-shadow:0 8px 32px rgba(0,0,0,.4)!important;color:#f9fafb!important}
 .leaflet-popup-tip{background:#1f2937!important}
 .leaflet-control-zoom a{background:#1f2937!important;color:#f9fafb!important;border-color:#374151!important}
@@ -45,9 +43,9 @@
     <span class="topbar-date" id="topbar-date">—</span>
   </div>
 </header>
-<div class="page">
-  <div class="page-header"><h1>Peta Sebaran Beneficiary</h1><p>Lokasi GPS beneficiary — adopsi dari Dashboard BEN Kobo.</p></div>
-  <div class="map-filters">
+<div class="page" style="overflow:hidden;display:flex;flex-direction:column;padding:16px 20px;gap:10px">
+  <div class="page-header" style="margin-bottom:8px"><h1 style="font-size:1rem">Peta Sebaran Beneficiary</h1><p>Lokasi GPS beneficiary — klik marker untuk detail.</p></div>
+  <div class="map-filters" style="margin-bottom:0">
     <select id="mp-ragam" onchange="updateMap()"><option value="">Semua Ragam</option><option>Fisik</option><option>Intelektual</option><option value="Sensorik (penglihatan)">S. Penglihatan</option><option value="Sensorik (pendengaran dan bicara)">S. Pendengaran</option><option>Ganda</option></select>
     <select id="mp-level" onchange="updateMap()"><option value="">Semua Level</option><option value="Parah (dukungan penuh)">Parah</option><option value="Sedang (dukungan reguler)">Sedang</option><option value="Rendah (sedikit dukungan)">Rendah</option></select>
     <select id="mp-cbr" onchange="updateMap()"><option value="">Semua CBR Worker</option></select>

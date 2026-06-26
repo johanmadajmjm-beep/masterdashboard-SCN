@@ -207,14 +207,7 @@
           </div>
         </div>
         <div class="section-divider">Faktor yang Mempengaruhi Skor Anak</div>
-        <div class="quote-grid">
-          <div class="quote-col">
-            <div class="quote-col-hd" style="color:#16a34a">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-              Faktor Naik Tangga (Anak)
-            </div>
-            <div id="quote-anak-naik"></div>
-          </div>
+        
           <div class="quote-col">
             <div class="quote-col-hd" style="color:#dc2626">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
@@ -239,14 +232,7 @@
           </div>
         </div>
         <div class="section-divider">Faktor yang Mempengaruhi Skor Pengasuh</div>
-        <div class="quote-grid">
-          <div class="quote-col">
-            <div class="quote-col-hd" style="color:#16a34a">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-              Faktor Membantu Pengasuh
-            </div>
-            <div id="quote-peng-naik"></div>
-          </div>
+        
           <div class="quote-col">
             <div class="quote-col-hd" style="color:#dc2626">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
@@ -255,8 +241,7 @@
             <div id="quote-peng-turun"></div>
           </div>
         </div>
-        <div class="section-divider">Kutipan Pengasuh — Suara dari Lapangan</div>
-        <div class="grid-2" id="kutipan-pengasuh"></div>
+        
       </div>
 
       
@@ -270,16 +255,16 @@
 // ── CONSTANTS ─────────────────────────────────────────────
 const RO  = ['Fisik','Intelektual','Sensorik (penglihatan)','Sensorik (pendengaran dan bicara)','Ganda','Lainnya'];
 const RS  = {'Fisik':'Fisik','Intelektual':'Intelektual','Sensorik (penglihatan)':'S.Penglihatan','Sensorik (pendengaran dan bicara)':'S.Pendengaran','Ganda':'Ganda','Lainnya':'Lainnya'};
-const RC  = {'Fisik':'#F97316','Intelektual':'#FB923C','Sensorik (penglihatan)':'#FDBA74','Sensorik (pendengaran dan bicara)':'#FED7AA','Ganda':'#1E293B','Lainnya':'#94A3B8'};
+const RC  = {'Fisik':'#dc2626','Intelektual':'#2563eb','Sensorik (penglihatan)':'#16a34a','Sensorik (pendengaran dan bicara)':'#d97706','Ganda':'#7c3aed','Lainnya':'#6b7280'};
 const LO  = ['Parah (dukungan penuh)','Sedang (dukungan reguler)','Rendah (sedikit dukungan)'];
-const LC  = {'Parah (dukungan penuh)':'#1E293B','Sedang (dukungan reguler)':'#F97316','Rendah (sedikit dukungan)':'#FDBA74'};
+const LC  = {'Parah (dukungan penuh)':'#dc2626','Sedang (dukungan reguler)':'#d97706','Rendah (sedikit dukungan)':'#16a34a'};
 const AGO = ['0-5 th','6-12 th','13-17 th','18-24 th','25+ th'];
-const PAL = ['#F97316','#FB923C','#FDBA74','#FED7AA','#1E293B','#475569','#94A3B8','#CBD5E1'];
+const PAL = ['#d4500a','#2563eb','#16a34a','#d97706','#7c3aed','#dc2626','#0891b2','#84cc16'];
 
 let CHARTS = {};
 let ALL_ANAK = [];
 
-function sc(v){ return v<=3?'#1E293B':v<=6?'#FB923C':'#F97316'; }
+function sc(v){ return v<=3?'#dc2626':v<=6?'#d97706':'#16a34a'; }
 function avg(arr){ const v=arr.filter(x=>x!=null&&!isNaN(x)); return v.length?v.reduce((a,b)=>a+b,0)/v.length:0; }
 function cnt(arr,f){ const m={}; arr.forEach(r=>{const v=r[f];if(v&&v!=='—')m[v]=(m[v]||0)+1;}); return m; }
 
@@ -346,14 +331,14 @@ function renderAnak(d){
   const avSP=sp.length?avg(sp):0;
 
   document.getElementById('kpi-anak').innerHTML=[
-    {v:total,        l:'Total Anak',        s:lk+' L · '+pr+' P',                      c:'#F97316'},
+    {v:total,        l:'Total Anak',        s:lk+' L · '+pr+' P',                      c:'#d4500a'},
     {v:avSP.toFixed(1),l:'Avg Skor Anak',   s:'Cantrill Ladder 1–10',                   c:sc(avSP)},
-    {v:parah,        l:'Level Parah',        s:'Butuh dukungan penuh',                   c:'#1E293B'},
-    {v:kritis,       l:'Kondisi Kritis',     s:'Skor ≤ 3',                               c:'#1E293B'},
-    {v:ep,           l:'Punya Epilepsi',     s:total?Math.round(ep/total*100)+'% total':'—', c:'#FB923C'},
-    {v:tr,           l:'Pernah Terapi',      s:'dari '+total+' anak',                    c:'#FDBA74'},
-    {v:ob,           l:'Pengobatan Aktif',   s:'dalam 1 tahun terakhir',                 c:'#475569'},
-    {v:ganda,        l:'Disabilitas Ganda',  s:'beban pengasuhan berlipat',              c:'#FED7AA'},
+    {v:parah,        l:'Level Parah',        s:'Butuh dukungan penuh',                   c:'#dc2626'},
+    {v:kritis,       l:'Kondisi Kritis',     s:'Skor ≤ 3',                               c:'#dc2626'},
+    {v:ep,           l:'Punya Epilepsi',     s:total?Math.round(ep/total*100)+'% total':'—', c:'#d97706'},
+    {v:tr,           l:'Pernah Terapi',      s:'dari '+total+' anak',                    c:'#16a34a'},
+    {v:ob,           l:'Pengobatan Aktif',   s:'dalam 1 tahun terakhir',                 c:'#0891b2'},
+    {v:ganda,        l:'Disabilitas Ganda',  s:'beban pengasuhan berlipat',              c:'#7c3aed'},
   ].map(k=>`<div class="kpi-box" style="--kc:${k.c}"><div class="kpi-v">${k.v}</div><div class="kpi-l">${k.l}</div><div class="kpi-s">${k.s}</div></div>`).join('');
 
   // Ragam bar
@@ -364,19 +349,19 @@ function renderAnak(d){
   const lc=cnt(anak,'level');
   mk('c-level','doughnut',{
     labels:LO.map(l=>l.split(' ')[0]),
-    datasets:[{data:LO.map(l=>lc[l]||0),backgroundColor:LO.map(l=>LC[l]),borderColor:'#F8FAFC',borderWidth:2,hoverOffset:6}]
+    datasets:[{data:LO.map(l=>lc[l]||0),backgroundColor:LO.map(l=>LC[l]),borderColor:'white',borderWidth:2,hoverOffset:6}]
   },{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:true,position:'bottom',labels:{color:'#6b7280',boxWidth:9,font:{size:10}}},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}}});
 
   // JK bar
   const jkCnt={L:lk,P:pr};
-  mk('c-jk','bar',{labels:['Laki-laki','Perempuan'],datasets:[{data:[lk,pr],backgroundColor:['#F97316','#1E293B'],borderRadius:8,borderSkipped:false}]},{...BASE_OPTS,layout:{padding:{top:18}}});
+  mk('c-jk','bar',{labels:['Laki-laki','Perempuan'],datasets:[{data:[lk,pr],backgroundColor:['#2563eb','#ec4899'],borderRadius:8,borderSkipped:false}]},{...BASE_OPTS,layout:{padding:{top:18}}});
 
   // Usia bar
   const au=cnt(anak,'gu');
   mk('c-usia','bar',{labels:AGO,datasets:[{data:AGO.map(a=>au[a]||0),backgroundColor:PAL,borderRadius:5,borderSkipped:false}]},{...BASE_OPTS,layout:{padding:{top:18}}});
 
   // Layanan
-  mk('c-layanan','bar',{labels:['Epilepsi','Pengobatan','Pernah Terapi'],datasets:[{data:[ep,ob,tr],backgroundColor:['#1E293B','#F97316','#FDBA74'],borderRadius:6,borderSkipped:false}]},{...BASE_OPTS,layout:{padding:{top:18}}});
+  mk('c-layanan','bar',{labels:['Epilepsi','Pengobatan','Pernah Terapi'],datasets:[{data:[ep,ob,tr],backgroundColor:['#dc2626','#d97706','#16a34a'],borderRadius:6,borderSkipped:false}]},{...BASE_OPTS,layout:{padding:{top:18}}});
 }
 
 function renderSkor(d){

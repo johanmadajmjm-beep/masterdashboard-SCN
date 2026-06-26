@@ -211,6 +211,8 @@ function buildSidebar() {
       if (AUTH.setScnFilter) AUTH.setScnFilter(scn);
       const badge = document.getElementById('scn-badge');
       if (badge) badge.textContent = scn ? ('SCN ' + scn.charAt(0).toUpperCase() + scn.slice(1)) : 'Semua SCN';
+      // Clear cache agar data fresh saat SCN diganti
+      if (window.API && API.clearCache) API.clearCache(scn);
       // Trigger onScnSwitch dari halaman aktif
       if (window.__onScnSwitch) window.__onScnSwitch(scn);
     });

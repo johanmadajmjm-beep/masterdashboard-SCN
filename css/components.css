@@ -7,13 +7,13 @@
 /* ── DESIGN TOKENS SIDEBAR ── */
 :root {
   --sb-w        : 240px;
-  --sb-bg       : #111520;
-  --sb-border   : #1e2d47;
-  --sb-text     : rgba(255,255,255,.75);
-  --sb-text-dim : rgba(255,255,255,.35);
-  --sb-hover    : rgba(255,255,255,.06);
-  --sb-active-bg: rgba(212,80,10,.15);
-  --sb-active-c : #e05a1a;
+  --sb-bg       : #111111;
+  --sb-border   : #1e1e1e;
+  --sb-text     : rgba(255,255,255,.7);
+  --sb-text-dim : rgba(255,255,255,.3);
+  --sb-hover    : rgba(255,255,255,.05);
+  --sb-active-bg: #d4500a;
+  --sb-active-c : #ffffff;
   --nlr-500     : #e05a1a;
   --nlr-600     : #d4500a;
 }
@@ -25,7 +25,7 @@ body {
   display        : flex;
   flex-direction : row;
   min-height     : 100vh;
-  background     : #1a2540 !important;
+  background     : #f4f5f7;
 }
 .app  { display:flex; flex-direction:row; flex:1; min-width:0; }
 .main {
@@ -34,7 +34,7 @@ body {
   flex           : 1;
   min-width      : 0;
   margin-left    : 0 !important;
-  background     : linear-gradient(160deg, #1e2d47 0%, #1a2540 50%, #1c2840 100%) !important;
+  background     : linear-gradient(160deg, #eef0f8 0%, #e8eaf3 50%, #eceef6 100%) !important;
   min-height     : 100vh;
 }
 
@@ -204,10 +204,12 @@ body {
 }
 .nav-sub-item:hover { background:var(--sb-hover); color:white; }
 .nav-sub-item.active {
-  background   : var(--sb-active-bg);
-  color        : var(--sb-active-c);
-  font-weight  : 700;
-  border-right : 2px solid var(--sb-active-c);
+  background    : #d4500a;
+  color         : #ffffff;
+  font-weight   : 700;
+  border-right  : none;
+  border-radius : 0 6px 6px 0;
+  margin-right  : 10px;
 }
 .nav-sub-item svg { width:14px; height:14px; flex-shrink:0; }
 
@@ -248,20 +250,18 @@ body {
    TOPBAR
    ============================================================ */
 .topbar {
-  display              : flex;
-  align-items          : center;
-  justify-content      : space-between;
-  padding              : 0 20px;
-  height               : 52px;
-  background           : rgba(15,21,32,.85);
-  backdrop-filter      : blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom        : 1px solid rgba(255,255,255,.06);
-  position             : sticky;
-  top                  : 0;
-  z-index              : 50;
-  flex-shrink          : 0;
-  box-shadow           : 0 1px 0 rgba(255,255,255,.04);
+  display         : flex;
+  align-items     : center;
+  justify-content : space-between;
+  padding         : 0 24px;
+  height          : 56px;
+  background      : #d4500a;
+  border-bottom   : none;
+  position        : sticky;
+  top             : 0;
+  z-index         : 50;
+  flex-shrink     : 0;
+  box-shadow      : 0 2px 12px rgba(212,80,10,.3);
 }
 .topbar-left { display:flex; align-items:center; gap:10px; }
 .topbar-menu-btn {
@@ -273,19 +273,19 @@ body {
   color       : #374151;
 }
 .topbar-menu-btn svg { width:20px; height:20px; }
-.topbar-breadcrumb { font-size:.78rem; color:rgba(255,255,255,.45); font-weight:600; }
-.topbar-breadcrumb .sep     { margin:0 6px; }
-.topbar-breadcrumb .current { color:rgba(255,255,255,.9); }
+.topbar-breadcrumb { font-size:.78rem; color:rgba(255,255,255,.7); font-weight:600; }
+.topbar-breadcrumb .sep     { margin:0 6px; color:rgba(255,255,255,.5); }
+.topbar-breadcrumb .current { color:#ffffff; font-weight:800; }
 .topbar-right { display:flex; align-items:center; gap:10px; }
-.topbar-date  { font-size:.72rem; color:rgba(255,255,255,.4); }
+.topbar-date  { font-size:.72rem; color:rgba(255,255,255,.75); }
 .scn-badge {
   font-size     : .68rem;
   font-weight   : 700;
-  padding       : 3px 10px;
+  padding       : 4px 12px;
   border-radius : 999px;
-  background    : rgba(99,102,241,.2);
-  color         : #a5b4fc;
-  border        : 1px solid rgba(99,102,241,.3);
+  background    : rgba(255,255,255,.2);
+  color         : #ffffff;
+  border        : 1px solid rgba(255,255,255,.35);
 }
 
 /* ============================================================
@@ -294,26 +294,26 @@ body {
 .page {
   padding    : 20px;
   flex       : 1;
-  background : linear-gradient(160deg, #1e2d47 0%, #1a2540 50%, #1c2840 100%) !important;
-  min-height : calc(100vh - 52px);
+  background : #f4f5f7;
+  min-height : calc(100vh - 56px);
 }
 .page-header { margin-bottom:20px; }
 .page-header h1 {
   font-size   : 1.2rem;
   font-weight : 800;
-  color       : rgba(255,255,255,.95);
+  color       : #111827;
   margin-bottom: 4px;
   padding-left : 12px;
   border-left  : 3px solid var(--nlr-500);
 }
-.page-header p  { font-size:.78rem; color:rgba(255,255,255,.45); padding-left:15px; }
+.page-header p  { font-size:.78rem; color:#6b7280; padding-left:15px; }
 
 .section-divider {
   font-size      : .68rem;
   font-weight    : 800;
   text-transform : uppercase;
   letter-spacing : .08em;
-  color          : rgba(255,255,255,.35);
+  color          : #9ca3af;
   border-left    : 3px solid var(--nlr-500);
   padding-left   : 10px;
   margin         : 20px 0 12px;
@@ -323,23 +323,23 @@ body {
    CARD
    ============================================================ */
 .card {
-  background    : rgba(255,255,255,.07);
-  border        : 1px solid rgba(255,255,255,.1);
+  background    : #ffffff;
+  border        : 1px solid #f0f0f0;
   border-radius : 12px;
   margin-bottom : 14px;
-  box-shadow    : 0 4px 24px rgba(0,0,0,.2);
+  box-shadow    : 0 2px 8px rgba(15,23,42,.07), 0 0 0 1px rgba(15,23,42,.04);
 }
 .card-head {
   display       : flex;
   align-items   : center;
   gap           : 8px;
   padding       : 11px 16px;
-  border-bottom : 1px solid rgba(255,255,255,.07);
+  border-bottom : 1px solid rgba(15,23,42,.05);
   flex-wrap     : wrap;
-  background    : rgba(255,255,255,.04);
+  background    : linear-gradient(to right, rgba(15,23,42,.015), transparent);
   border-radius : 12px 12px 0 0;
 }
-.card-title  { font-size:.8rem; font-weight:700; color:rgba(255,255,255,.9); flex:1; letter-spacing:.01em; }
+.card-title  { font-size:.8rem; font-weight:700; color:#1c2330; flex:1; letter-spacing:.01em; }
 .card-body   { padding:14px 16px; }
 .card-body.no-pad { padding:0; }
 
@@ -353,16 +353,16 @@ body {
   margin-bottom         : 16px;
 }
 .stat-card {
-  background    : rgba(255,255,255,.08);
-  border        : 1px solid rgba(255,255,255,.12);
+  background    : #ffffff;
+  border        : 1px solid #f0f0f0;
   border-radius : 12px;
   padding       : 14px 16px;
   position      : relative;
   overflow      : hidden;
-  box-shadow    : 0 4px 20px rgba(0,0,0,.15);
+  box-shadow    : 0 2px 8px rgba(15,23,42,.07), 0 0 0 1px rgba(15,23,42,.04);
   transition    : box-shadow .2s, transform .2s;
 }
-.stat-card:hover { box-shadow:0 8px 32px rgba(0,0,0,.3); transform:translateY(-2px); }
+.stat-card:hover { box-shadow:0 6px 20px rgba(15,23,42,.10); transform:translateY(-1px); }
 .stat-card::before {
   content       : '';
   position      : absolute;
@@ -375,17 +375,17 @@ body {
   font-weight    : 700;
   text-transform : uppercase;
   letter-spacing : .08em;
-  color          : rgba(255,255,255,.45);
+  color          : #8a9ab0;
   margin-bottom  : 6px;
 }
 .s-value {
-  font-size   : 1.5rem;
+  font-size   : 1.6rem;
   font-weight : 800;
-  color       : var(--accent, #e05a1a);
+  color       : var(--accent, #d4500a);
   line-height : 1;
   font-family : 'JetBrains Mono', monospace;
 }
-.s-sub   { font-size:.65rem; color:rgba(255,255,255,.4); margin-top:4px; }
+.s-sub   { font-size:.65rem; color:#8a9ab0; margin-top:4px; }
 .s-trend { font-size:.65rem; font-weight:700; margin-top:4px; }
 .s-trend.up   { color:#059669; }
 .s-trend.down { color:#dc2626; }
@@ -394,8 +394,8 @@ body {
 /* ============================================================
    GRID
    ============================================================ */
-.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-bottom:18px; }
 
 /* ============================================================
    TABLE
@@ -403,25 +403,25 @@ body {
 .tbl-wrap { overflow-x:auto; }
 table { width:100%; border-collapse:collapse; font-size:.78rem; }
 th {
-  background     : rgba(255,255,255,.05);
-  color          : rgba(255,255,255,.5);
+  background     : #f9fafb;
+  color          : #6b7280;
   font-size      : .6rem;
   font-weight    : 700;
   text-transform : uppercase;
   letter-spacing : .08em;
-  padding        : 9px 12px;
+  padding        : 10px 14px;
   text-align     : left;
-  border-bottom  : 1px solid rgba(255,255,255,.08);
+  border-bottom  : 1px solid #e5e7eb;
   white-space    : nowrap;
 }
 td {
-  padding        : 9px 12px;
-  border-bottom  : 1px solid rgba(255,255,255,.05);
+  padding        : 10px 14px;
+  border-bottom  : 1px solid #f3f4f6;
   vertical-align : middle;
-  color          : rgba(255,255,255,.8);
+  color          : #374151;
 }
 tr:last-child td { border-bottom:none; }
-tr:hover td      { background:rgba(255,255,255,.04); }
+tr:hover td      { background:#fdf7f4; }
 .mono { font-family:'JetBrains Mono','Fira Mono',monospace; }
 
 /* ============================================================
@@ -448,7 +448,7 @@ tr:hover td      { background:rgba(255,255,255,.04); }
    ============================================================ */
 .prog-wrap {
   height        : 6px;
-  background    : rgba(255,255,255,.1);
+  background    : #e2e8f0;
   border-radius : 3px;
   overflow      : hidden;
 }

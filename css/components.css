@@ -374,7 +374,7 @@ input, select, textarea { font-family: var(--font); }
   display         : flex;
   align-items     : center;
   justify-content : space-between;
-  padding         : 0 24px;
+  padding         : 0 18px;
   height          : var(--topbar-h);
   background      : var(--bg-card);
   border-bottom   : 1px solid var(--border);
@@ -441,7 +441,7 @@ input, select, textarea { font-family: var(--font); }
    PAGE CONTENT
    ============================================================ */
 .page {
-  padding    : 20px 24px;
+  padding    : 14px 18px;
   flex       : 1;
   background : var(--bg-page);
   height     : calc(100vh - 60px);
@@ -504,7 +504,7 @@ input, select, textarea { font-family: var(--font); }
   background    : var(--bg-card);
   border        : 1px solid var(--border);
   border-radius : var(--radius-lg);
-  margin-bottom : 20px;
+  margin-bottom : 12px;
   box-shadow    : var(--shadow-sm);
   overflow      : hidden;
   transition    : box-shadow .2s;
@@ -515,18 +515,18 @@ input, select, textarea { font-family: var(--font); }
   align-items     : center;
   justify-content : space-between;
   gap             : 10px;
-  padding         : 14px 20px;
+  padding         : 10px 14px;
   border-bottom   : 1px solid var(--border-light);
   background      : var(--bg-card);
   flex-wrap       : wrap;
 }
 .card-title {
-  font-size    : .85rem;
+  font-size    : .78rem;
   font-weight  : 600;
   color        : var(--text-primary);
   flex         : 1;
 }
-.card-body     { padding:16px 20px; }
+.card-body     { padding:12px 14px; }
 .card-body.no-pad { padding:0; }
 
 /* ============================================================
@@ -607,8 +607,8 @@ input, select, textarea { font-family: var(--font); }
 /* ============================================================
    GRID LAYOUT
    ============================================================ */
-.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
-.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:14px; }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:10px; }
 @media(max-width:900px){ .grid-3 { grid-template-columns:1fr 1fr; } }
 @media(max-width:600px){ .grid-3 { grid-template-columns:1fr; } }
 

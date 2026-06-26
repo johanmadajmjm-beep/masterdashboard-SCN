@@ -264,14 +264,10 @@ function initSidebar(group, pageId, scnLabel) {
 }
 
 // ── INJECT CSS ──────────────────────────────────────────────
+// components.css sudah dimuat via <link> di setiap halaman.
+// Fungsi ini dipertahankan untuk kompatibilitas pemanggilan.
 function injectSidebarStyles() {
-  if (document.getElementById('sidebar-components-css')) return;
-  const base = window.location.pathname.includes('/pages/') ? '..' : '.';
-  const link = document.createElement('link');
-  link.id   = 'sidebar-components-css';
-  link.rel  = 'stylesheet';
-  link.href = base + '/css/components.css';
-  document.head.appendChild(link);
+  // no-op: CSS dimuat langsung dari <link rel="stylesheet"> di <head>
 }
 
 // ── AUTH INTEGRATION ──────────────────────────────────────

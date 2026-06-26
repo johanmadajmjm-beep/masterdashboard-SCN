@@ -1,17 +1,56 @@
 <!DOCTYPE html>
 <html lang="id"><head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
 <title>CBR Worker — Buku Harian | MEL NLR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
 <link rel="stylesheet" href="../css/main.css"/>
-  <link rel="stylesheet" href="../css/components.css"/>
+<link rel="stylesheet" href="../css/components.css"/>
 <style>
-.diary-card{background:white;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:10px;border-left:3px solid #2563eb}
-.diary-nama{font-weight:700;font-size:.82rem;color:#111827;margin-bottom:4px}
-.diary-meta{font-size:.7rem;color:#9ca3af;margin-bottom:8px}
-.diary-entry{background:#f9fafb;border-radius:6px;padding:10px 12px;font-size:.78rem;color:#374151;line-height:1.65;margin-bottom:6px;border-left:2px solid #e5e7eb}
-.diary-tgl{font-size:.68rem;font-weight:700;color:#2563eb;margin-bottom:4px}
+.ld-wrap{display:flex;gap:0;height:calc(100vh - 60px);overflow:hidden}
+.ld-list{width:300px;min-width:300px;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden}
+.ld-list-header{padding:12px 14px;border-bottom:1px solid #E5E7EB;flex-shrink:0}
+.ld-search{width:100%;padding:7px 10px;border:1px solid #E5E7EB;border-radius:8px;font-size:.75rem;font-family:inherit;background:#F9FAFB;outline:none;transition:.15s}
+.ld-search:focus{border-color:#F97316;background:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.1)}
+.ld-select{flex:1;padding:5px 8px;border:1px solid #E5E7EB;border-radius:6px;font-size:.7rem;font-family:inherit;background:#F9FAFB;outline:none}
+.ld-items{flex:1;overflow-y:auto}
+.ld-items::-webkit-scrollbar{width:4px}
+.ld-items::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:2px}
+.ld-item{padding:10px 14px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .1s}
+.ld-item:hover{background:#FFF7ED}
+.ld-item.active{background:#FFF7ED;border-left:3px solid #F97316;padding-left:11px}
+.ld-item-name{font-size:.8rem;font-weight:600;color:#1F2937;margin-bottom:2px}
+.ld-item-sub{font-size:.67rem;color:#9CA3AF}
+.ld-item-count{display:inline-block;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:999px;background:#FFF7ED;color:#EA6C0A;margin-top:3px}
+.ld-detail{flex:1;overflow-y:auto;background:#F8FAFC}
+.ld-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px}
+.ld-empty svg{width:48px;height:48px;opacity:.3}
+.ld-empty p{font-size:.82rem;text-align:center}
+.det-wrap{padding:24px}
+.det-back{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#6B7280;font-size:.75rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:14px}
+.det-back:hover{background:#F9FAFB;color:#1F2937}
+.det-back svg{width:14px;height:14px}
+.det-name{font-size:1.1rem;font-weight:800;color:#1F2937;margin-bottom:6px}
+.det-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.det-chip{padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:600;background:#F3F4F6;color:#4B5563}
+.diary-entry{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:14px;margin-bottom:10px}
+.diary-tgl{font-size:.68rem;font-weight:700;color:#F97316;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.diary-tgl::before{content:'';width:6px;height:6px;border-radius:50%;background:#F97316;flex-shrink:0}
+.diary-text{font-size:.8rem;color:#374151;line-height:1.65}
+.diary-empty{background:#F9FAFB;border:1px dashed #E5E7EB;border-radius:10px;padding:20px;text-align:center;color:#9CA3AF;font-size:.78rem}
+
+/* View modes */
+.view-modes{display:flex;gap:3px}
+.vmode{width:26px;height:26px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9CA3AF;transition:.12s}
+.vmode:hover{background:#F9FAFB;color:#6B7280}
+.vmode.active{background:#FFF7ED;border-color:#F97316;color:#F97316}
+.vmode svg{width:11px;height:11px}
+.mode-sm .ld-item{padding:6px 14px}
+.mode-sm .ld-item-name{font-size:.74rem}
+.mode-sm .ld-item-sub{display:none}
+.mode-sm .ld-item-count{display:none}
+.mode-card{display:grid;grid-template-columns:1fr 1fr}
+.mode-card .ld-item{border-right:1px solid #F9FAFB}
 </style>
 </head><body>
 <div class="app"><div class="main">
@@ -26,57 +65,133 @@
     <span class="topbar-date" id="topbar-date">—</span>
   </div>
 </header>
-<div class="page">
-  <div class="page-header"><h1>Buku Harian CBR</h1><p>Catatan perkembangan harian beneficiary oleh CBR Worker.</p></div>
-  <div class="stat-grid" id="kpi-diary"></div>
-  <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
-    <select id="flt-cbr" style="padding:6px 12px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.75rem"><option value="">Semua CBR Worker</option></select>
-    <input id="flt-search" type="text" placeholder="Cari nama anak..." style="padding:6px 12px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.75rem;flex:1"/>
-    <span class="badge badge-blue" id="badge-diary" style="align-self:center">—</span>
-  </div>
-  <div id="diary-list">
-    <div style="text-align:center;padding:40px;color:#9ca3af">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;margin:0 auto 12px;display:block;opacity:.4"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      <p style="font-size:.82rem;font-weight:600;color:#6b7280;margin-bottom:6px">Data Buku Harian</p>
-      <p style="font-size:.75rem">Data diambil dari form <strong>Buku Harian CBR</strong> di KoboToolbox setelah CBR Worker mengisi form tersebut.</p>
+
+<div class="ld-wrap">
+  <div class="ld-list">
+    <div class="ld-list-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:.8rem;font-weight:700;color:#1F2937">Buku Harian</span>
+        <div class="view-modes">
+          <button class="vmode active" id="vm-xl" onclick="setView('xl')" title="Normal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="vmode" id="vm-md" onclick="setView('md')" title="Sedang">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <button class="vmode" id="vm-sm" onclick="setView('sm')" title="Kompak">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="4"/><rect x="10" y="3" width="4" height="4"/><rect x="17" y="3" width="4" height="4"/><rect x="3" y="10" width="4" height="4"/><rect x="10" y="10" width="4" height="4"/><rect x="17" y="10" width="4" height="4"/></svg>
+          </button>
+          <button class="vmode" id="vm-cd" onclick="setView('cd')" title="Kartu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </button>
+        </div>
+      </div>
+      <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama anak..."/>
+      <div style="display:flex;gap:5px;margin-top:7px">
+        <select class="ld-select" id="flt-cbr"><option value="">Semua CBR Worker</option></select>
+      </div>
+      <div style="font-size:.68rem;color:#9CA3AF;margin-top:6px" id="ld-count">—</div>
     </div>
+    <div class="ld-items" id="ld-items"></div>
   </div>
-</div></div></div>
+
+  <div class="ld-detail" id="ld-detail">
+    <div class="ld-empty" id="ld-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <p>Pilih nama anak untuk<br>melihat catatan buku harian</p>
+    </div>
+    <div class="det-wrap" id="det-wrap" style="display:none"></div>
+  </div>
+</div>
+</div></div>
+
 <script>
-let ALL_DIARY=[], ALL_ANAK_D=[];
-function renderPage(d, scnId) {
-  ALL_ANAK_D = d.anak||[];
-  ALL_DIARY  = d.diary||[];
-  const cbrs=[...new Set(ALL_ANAK_D.map(a=>a.cbr).filter(Boolean))].sort();
+let ALL_ANAK=[], ALL_DIARY=[], DIARY_MAP={}, ACTIVE_VIEW='xl';
+
+function setView(v){
+  ACTIVE_VIEW=v;
+  ['xl','md','sm','cd'].forEach(x=>document.getElementById('vm-'+x).classList.toggle('active',x===v));
+  const el=document.getElementById('ld-items');
+  el.className='ld-items';
+  if(v==='sm') el.classList.add('mode-sm');
+  else if(v==='cd') el.classList.add('mode-card');
+  renderList();
+}
+
+function renderPage(d,scnId){
+  ALL_ANAK=d.anak||[];
+  ALL_DIARY=d.diary||[];
+  DIARY_MAP={};
+  ALL_DIARY.forEach(e=>{
+    const key=(e.nama_anak||e.na||'').toLowerCase();
+    if(!DIARY_MAP[key]) DIARY_MAP[key]=[];
+    DIARY_MAP[key].push(e);
+  });
+  const cbrs=[...new Set(ALL_ANAK.map(a=>a.cbr).filter(Boolean))].sort();
   const fC=document.getElementById('flt-cbr');
   cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});
-  document.getElementById('kpi-diary').innerHTML=[
-    {v:ALL_ANAK_D.length, l:'Total Anak',     s:'dalam caseload',   c:'var(--nlr-500,#d4500a)'},
-    {v:ALL_DIARY.length,  l:'Entri Diary',    s:'catatan masuk',    c:'#2563eb'},
-    {v:[...new Set(ALL_DIARY.map(e=>e.nama_anak||e.na))].length, l:'Anak Terdokumentasi', s:'punya catatan', c:'#16a34a'},
-  ].map(k=>`<div class="stat-card" style="--accent:${k.c}"><div class="s-label">${k.l}</div><div class="s-value">${k.v}</div><div class="s-sub">${k.s}</div></div>`).join('');
+  fC.addEventListener('change',renderList);
+  document.getElementById('flt-search').addEventListener('input',renderList);
   renderList();
-  [document.getElementById('flt-cbr'),document.getElementById('flt-search')].forEach(el=>el.addEventListener(el.tagName==='SELECT'?'change':'input',renderList));
 }
+
 function renderList(){
   const cb=document.getElementById('flt-cbr').value;
   const q=(document.getElementById('flt-search').value||'').toLowerCase();
-  const list=ALL_DIARY.length?ALL_DIARY.filter(e=>(!cb||(e.cbr_worker||e.cb)===cb)&&(!q||(e.nama_anak||e.na||'').toLowerCase().includes(q))):ALL_ANAK_D.filter(a=>(!cb||a.cbr===cb)&&(!q||a.nama.toLowerCase().includes(q)));
-  document.getElementById('badge-diary').textContent=list.length+' entri';
-  if(!ALL_DIARY.length){
-    document.getElementById('diary-list').innerHTML=list.map(a=>`<div class="diary-card">
-      <div class="diary-nama">${a.nama}</div>
-      <div class="diary-meta">${a.cbr||'—'} · ${a.ragam||'—'} · ${a.desa||'—'}</div>
-      <div class="diary-entry"><div class="diary-tgl">Belum ada catatan</div><p style="color:#9ca3af;font-size:.75rem">CBR Worker belum mengisi Buku Harian untuk anak ini.</p></div>
-    </div>`).join('');
+  const list=ALL_ANAK.filter(a=>(!cb||a.cbr===cb)&&(!q||(a.nama||'').toLowerCase().includes(q)));
+  document.getElementById('ld-count').textContent=list.length+' anak';
+  document.getElementById('ld-items').innerHTML=list.map(a=>{
+    const entries=DIARY_MAP[a.nama?.toLowerCase()]||[];
+    return `<div class="ld-item">
+      <div class="ld-item-name">${a.nama||'—'}</div>
+      <div class="ld-item-sub">${a.cbr||'—'} · ${a.desa||'—'}</div>
+      ${entries.length?`<span class="ld-item-count">${entries.length} catatan</span>`:'<span class="ld-item-count" style="background:#F3F4F6;color:#9CA3AF">Belum ada</span>'}
+    </div>`;
+  }).join('') || '<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem">Tidak ada data</div>';
+  document.querySelectorAll('.ld-item').forEach((el,i)=>{
+    el.onclick=()=>showDetail(el,list[i]);
+  });
+}
+
+let _lastEl=null;
+function showDetail(el,a){
+  if(_lastEl) _lastEl.classList.remove('active');
+  el.classList.add('active'); _lastEl=el;
+  document.getElementById('ld-empty').style.display='none';
+  document.getElementById('det-wrap').style.display='block';
+  const entries=DIARY_MAP[a.nama?.toLowerCase()]||[];
+  let entryHTML='';
+  if(entries.length===0){
+    entryHTML=`<div class="diary-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;margin:0 auto 8px;display:block;opacity:.3"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <p>CBR Worker belum mengisi Buku Harian untuk anak ini.</p>
+    </div>`;
   } else {
-    document.getElementById('diary-list').innerHTML=list.map(e=>`<div class="diary-card">
-      <div class="diary-nama">${e.nama_anak||e.na||'—'}</div>
-      <div class="diary-meta">${e.cbr_worker||e.cb||'—'} · ${e.tanggal_submit||'—'}</div>
-      ${e.tgl_diary_1?`<div class="diary-entry"><div class="diary-tgl">${e.tgl_diary_1}</div><p>${e.isi_diary_1||'—'}</p></div>`:''}
-      ${e.tgl_diary_2?`<div class="diary-entry"><div class="diary-tgl">${e.tgl_diary_2}</div><p>${e.isi_diary_2||'—'}</p></div>`:''}
-    </div>`).join('');
+    entryHTML=entries.map(e=>`
+      <div class="diary-entry">
+        <div class="diary-tgl">${e.tanggal_submit||e.tgl_diary_1||'—'} · ${e.cbr_worker||e.cb||a.cbr||'—'}</div>
+        ${e.tgl_diary_1?`<div style="margin-bottom:8px"><div style="font-size:.65rem;font-weight:600;color:#9CA3AF;margin-bottom:3px">${e.tgl_diary_1}</div><div class="diary-text">${e.isi_diary_1||'—'}</div></div>`:''}
+        ${e.tgl_diary_2?`<div><div style="font-size:.65rem;font-weight:600;color:#9CA3AF;margin-bottom:3px">${e.tgl_diary_2}</div><div class="diary-text">${e.isi_diary_2||'—'}</div></div>`:''}
+      </div>`).join('');
   }
+  document.getElementById('det-wrap').innerHTML=`
+    <button class="det-back" onclick="clearDetail()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Kembali
+    </button>
+    <div class="det-name">${a.nama||'—'}</div>
+    <div class="det-meta">
+      <span class="det-chip">👤 ${a.cbr||'—'}</span>
+      <span class="det-chip">📍 ${a.desa||'—'}</span>
+      <span class="det-chip">🏷 ${a.ragam||'—'}</span>
+      <span class="det-chip">${entries.length} catatan</span>
+    </div>
+    ${entryHTML}
+  `;
+}
+function clearDetail(){
+  document.getElementById('ld-empty').style.display='flex';
+  document.getElementById('det-wrap').style.display='none';
+  if(_lastEl){_lastEl.classList.remove('active');_lastEl=null;}
 }
 </script>
 <script src="../js/auth.js"></script>

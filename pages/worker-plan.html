@@ -1,11 +1,60 @@
 <!DOCTYPE html>
 <html lang="id"><head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
 <title>CBR Worker — Perencanaan | MEL NLR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
 <link rel="stylesheet" href="../css/main.css"/>
-  <link rel="stylesheet" href="../css/components.css"/>
+<link rel="stylesheet" href="../css/components.css"/>
+<style>
+.ld-wrap{display:flex;gap:0;height:calc(100vh - 60px);overflow:hidden}
+.ld-list{width:300px;min-width:300px;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden}
+.ld-list-header{padding:12px 14px;border-bottom:1px solid #E5E7EB;flex-shrink:0}
+.ld-search{width:100%;padding:7px 10px;border:1px solid #E5E7EB;border-radius:8px;font-size:.75rem;font-family:inherit;background:#F9FAFB;outline:none;transition:.15s}
+.ld-search:focus{border-color:#F97316;background:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.1)}
+.ld-select{flex:1;padding:5px 8px;border:1px solid #E5E7EB;border-radius:6px;font-size:.7rem;font-family:inherit;background:#F9FAFB;outline:none}
+.ld-items{flex:1;overflow-y:auto}
+.ld-items::-webkit-scrollbar{width:4px}
+.ld-items::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:2px}
+.ld-item{padding:10px 14px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .1s;position:relative}
+.ld-item:hover{background:#FFF7ED}
+.ld-item.active{background:#FFF7ED;border-left:3px solid #F97316;padding-left:11px}
+.ld-item-name{font-size:.8rem;font-weight:600;color:#1F2937;margin-bottom:2px}
+.ld-item-sub{font-size:.67rem;color:#9CA3AF}
+.ld-detail{flex:1;overflow-y:auto;background:#F8FAFC}
+.ld-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px}
+.ld-empty svg{width:48px;height:48px;opacity:.3}
+.ld-empty p{font-size:.82rem;text-align:center}
+.det-wrap{padding:24px}
+.det-back{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#6B7280;font-size:.75rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:14px}
+.det-back:hover{background:#F9FAFB;color:#1F2937}
+.det-back svg{width:14px;height:14px}
+.det-name{font-size:1.1rem;font-weight:800;color:#1F2937;margin-bottom:6px}
+.det-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.det-chip{padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:600;background:#F3F4F6;color:#4B5563}
+.det-section{background:#fff;border:1px solid #E5E7EB;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.det-section-head{padding:10px 14px;border-bottom:1px solid #F3F4F6;font-size:.75rem;font-weight:700;color:#1F2937;display:flex;align-items:center;gap:6px}
+.det-section-body{padding:14px}
+.det-row{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid #F9FAFB;font-size:.78rem;gap:12px}
+.det-row:last-child{border-bottom:none}
+.det-row-label{color:#6B7280;font-weight:500;flex-shrink:0;min-width:120px}
+.det-row-val{font-weight:500;color:#1F2937;text-align:right;line-height:1.5}
+.plan-field{background:#F9FAFB;border-radius:8px;padding:10px 12px;font-size:.78rem;color:#374151;line-height:1.65;margin-bottom:6px}
+.plan-field-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9CA3AF;margin-bottom:4px}
+.no-plan{background:#FFF7ED;border:1px dashed #FED7AA;border-radius:10px;padding:20px;text-align:center;color:#92400E;font-size:.78rem}
+
+/* View modes */
+.view-modes{display:flex;gap:3px}
+.vmode{width:26px;height:26px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9CA3AF;transition:.12s}
+.vmode:hover{background:#F9FAFB;color:#6B7280}
+.vmode.active{background:#FFF7ED;border-color:#F97316;color:#F97316}
+.vmode svg{width:11px;height:11px}
+.mode-sm .ld-item{padding:6px 14px}
+.mode-sm .ld-item-name{font-size:.74rem}
+.mode-sm .ld-item-sub{display:none}
+.mode-card{display:grid;grid-template-columns:1fr 1fr}
+.mode-card .ld-item{border-right:1px solid #F9FAFB}
+</style>
 </head><body>
 <div class="app"><div class="main">
 <header class="topbar">
@@ -19,50 +68,161 @@
     <span class="topbar-date" id="topbar-date">—</span>
   </div>
 </header>
-<div class="page">
-  <div class="page-header"><h1>Perencanaan (IRP)</h1><p>Rencana Intervensi dan Rehabilitasi — disusun bersama keluarga dan CBR Worker.</p></div>
-  <div class="stat-grid" id="kpi-plan"></div>
-  <div class="card">
-    <div class="card-head">
-      <span class="card-title">Data Perencanaan</span>
-      <div style="display:flex;gap:8px">
-        <select id="flt-cbr" style="padding:5px 10px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.72rem"><option value="">Semua CBR Worker</option></select>
-        <input id="flt-search" type="text" placeholder="Cari nama anak..." style="padding:5px 10px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.72rem"/>
+
+<div class="ld-wrap">
+  <div class="ld-list">
+    <div class="ld-list-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:.8rem;font-weight:700;color:#1F2937">Perencanaan (IRP)</span>
+        <div class="view-modes">
+          <button class="vmode active" id="vm-xl" onclick="setView('xl')" title="Normal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="vmode" id="vm-md" onclick="setView('md')" title="Sedang">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <button class="vmode" id="vm-sm" onclick="setView('sm')" title="Kompak">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="4"/><rect x="10" y="3" width="4" height="4"/><rect x="17" y="3" width="4" height="4"/><rect x="3" y="10" width="4" height="4"/><rect x="10" y="10" width="4" height="4"/><rect x="17" y="10" width="4" height="4"/></svg>
+          </button>
+          <button class="vmode" id="vm-cd" onclick="setView('cd')" title="Kartu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </button>
+        </div>
       </div>
-      <span class="badge badge-blue" id="badge-plan">—</span>
+      <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama anak..."/>
+      <div style="display:flex;gap:5px;margin-top:7px">
+        <select class="ld-select" id="flt-cbr"><option value="">Semua CBR Worker</option></select>
+        <select class="ld-select" id="flt-status"><option value="">Semua Status</option><option value="sudah">Sudah Rencana</option><option value="belum">Belum Rencana</option></select>
+      </div>
+      <div style="font-size:.68rem;color:#9CA3AF;margin-top:6px" id="ld-count">—</div>
     </div>
-    <div class="card-body no-pad"><div class="tbl-wrap">
-      <table>
-        <thead><tr><th>#</th><th>Nama Anak</th><th>CBR Worker</th><th>Tanggal Rencana</th><th>Kesulitan Pengasuh</th><th>Kesulitan Pekerja</th><th>Kesepakatan</th><th>Status</th></tr></thead>
-        <tbody id="tbl-plan"></tbody>
-      </table>
-    </div></div>
+    <div class="ld-items" id="ld-items"></div>
   </div>
-  <div class="card" style="border:2px dashed #e5e7eb;background:#fafafa">
-    <div class="card-body" style="text-align:center;padding:40px;color:#9ca3af">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;margin:0 auto 12px;display:block;opacity:.4"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg>
-      <p style="font-size:.82rem;font-weight:600;color:#6b7280;margin-bottom:6px">Data perencanaan akan muncul di sini</p>
-      <p style="font-size:.75rem">Data diambil dari form <strong>Perencanaan</strong> di KoboToolbox setelah CBR Worker mengisi form tersebut.</p>
+
+  <div class="ld-detail" id="ld-detail">
+    <div class="ld-empty" id="ld-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <p>Pilih nama anak untuk<br>melihat rencana intervensi</p>
     </div>
+    <div class="det-wrap" id="det-wrap" style="display:none"></div>
   </div>
-</div></div></div>
+</div>
+</div></div>
+
 <script>
-function renderPage(d, scnId) {
-  const anak = d.anak || [];
-  const plan = d.perencanaan || [];
-  const cbrs = [...new Set(anak.map(a=>a.cbr).filter(Boolean))].sort();
-  const fC = document.getElementById('flt-cbr');
+let ALL_ANAK=[], ALL_PLAN=[], PLAN_MAP={}, ACTIVE_VIEW='xl';
+
+function setView(v){
+  ACTIVE_VIEW=v;
+  ['xl','md','sm','cd'].forEach(x=>document.getElementById('vm-'+x).classList.toggle('active',x===v));
+  const el=document.getElementById('ld-items');
+  el.className='ld-items';
+  if(v==='sm') el.classList.add('mode-sm');
+  else if(v==='cd') el.classList.add('mode-card');
+  renderList();
+}
+
+function renderPage(d,scnId){
+  ALL_ANAK=d.anak||[];
+  ALL_PLAN=d.perencanaan||[];
+  PLAN_MAP={};
+  ALL_PLAN.forEach(p=>{
+    const key=(p.nama_anak||p.na||'').toLowerCase();
+    PLAN_MAP[key]=p;
+  });
+  const cbrs=[...new Set(ALL_ANAK.map(a=>a.cbr).filter(Boolean))].sort();
+  const fC=document.getElementById('flt-cbr');
   cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});
-  document.getElementById('kpi-plan').innerHTML=[
-    {v:anak.length, l:'Total Anak',     s:'dalam caseload',    c:'var(--nlr-500,#d4500a)'},
-    {v:plan.length, l:'Sudah Rencana',  s:'dari '+anak.length, c:'#16a34a'},
-    {v:anak.length-plan.length, l:'Belum Rencana', s:'perlu ditindaklanjuti', c:'#dc2626'},
-  ].map(k=>`<div class="stat-card" style="--accent:${k.c}"><div class="s-label">${k.l}</div><div class="s-value">${k.v}</div><div class="s-sub">${k.s}</div></div>`).join('');
-  const total = plan.length || anak.length;
-  document.getElementById('badge-plan').textContent = total + ' entri';
-  document.getElementById('tbl-plan').innerHTML = plan.length
-    ? plan.map((p,i)=>`<tr><td style="color:#9ca3af">${i+1}</td><td><strong>${p.nama_anak||p.na||'—'}</strong></td><td style="font-size:.72rem;color:#6b7280">${p.cbr_worker||p.cb||'—'}</td><td class="mono" style="font-size:.7rem">${p.tanggal_rencana||'—'}</td><td style="font-size:.72rem;max-width:180px">${(p.kesulitan_pengasuh||'—').substring(0,80)}</td><td style="font-size:.72rem;max-width:180px">${(p.kesulitan_pekerja||'—').substring(0,80)}</td><td style="font-size:.72rem;max-width:180px">${(p.kesulitan_kesepakatan||'—').substring(0,80)}</td><td><span class="badge badge-blue">Aktif</span></td></tr>`).join('')
-    : anak.map((a,i)=>`<tr><td style="color:#9ca3af">${i+1}</td><td><strong>${a.nama}</strong></td><td style="font-size:.72rem;color:#6b7280">${a.cbr||'—'}</td><td style="color:#9ca3af;font-size:.72rem">Belum diisi</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-amber">Belum</span></td></tr>`).join('');
+  [fC,document.getElementById('flt-status')].forEach(el=>el.addEventListener('change',renderList));
+  document.getElementById('flt-search').addEventListener('input',renderList);
+  renderList();
+}
+
+function renderList(){
+  const cb=document.getElementById('flt-cbr').value;
+  const st=document.getElementById('flt-status').value;
+  const q=(document.getElementById('flt-search').value||'').toLowerCase();
+  const list=ALL_ANAK.filter(a=>{
+    if(cb&&a.cbr!==cb) return false;
+    if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
+    const hasPlan=!!PLAN_MAP[a.nama?.toLowerCase()];
+    if(st==='sudah') return hasPlan;
+    if(st==='belum') return !hasPlan;
+    return true;
+  });
+  document.getElementById('ld-count').textContent=list.length+' anak';
+  document.getElementById('ld-items').innerHTML=list.map(a=>{
+    const hasPlan=!!PLAN_MAP[a.nama?.toLowerCase()];
+    const p=PLAN_MAP[a.nama?.toLowerCase()];
+    return `<div class="ld-item">
+      <div class="ld-item-name">${a.nama||'—'}</div>
+      <div class="ld-item-sub">${a.cbr||'—'} · ${hasPlan?(p?.tanggal_rencana||'Sudah diisi'):'Belum ada rencana'}</div>
+      <div style="margin-top:3px">${hasPlan?'<span style="font-size:.62rem;font-weight:700;padding:1px 7px;border-radius:999px;background:#DCFCE7;color:#15803D">✓ Sudah</span>':'<span style="font-size:.62rem;font-weight:700;padding:1px 7px;border-radius:999px;background:#FFF7ED;color:#EA6C0A">Belum</span>'}</div>
+    </div>`;
+  }).join('') || '<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem">Tidak ada data</div>';
+  document.querySelectorAll('.ld-item').forEach((el,i)=>{
+    el.onclick=()=>showDetail(el,list[i]);
+  });
+}
+
+let _lastEl=null;
+function showDetail(el,a){
+  if(_lastEl) _lastEl.classList.remove('active');
+  el.classList.add('active'); _lastEl=el;
+  document.getElementById('ld-empty').style.display='none';
+  document.getElementById('det-wrap').style.display='block';
+  const p=PLAN_MAP[a.nama?.toLowerCase()];
+  let content='';
+  if(p){
+    content=`
+      <div class="det-section">
+        <div class="det-section-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Info Rencana
+        </div>
+        <div class="det-section-body">
+          <div class="det-row"><span class="det-row-label">Tanggal Rencana</span><span class="det-row-val">${p.tanggal_rencana||'—'}</span></div>
+          <div class="det-row"><span class="det-row-label">CBR Worker</span><span class="det-row-val">${p.cbr_worker||p.cb||a.cbr||'—'}</span></div>
+          <div class="det-row"><span class="det-row-label">Status</span><span><span class="badge badge-green">Sudah Direncanakan</span></span></div>
+        </div>
+      </div>
+      <div class="det-section">
+        <div class="det-section-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Isi Perencanaan
+        </div>
+        <div class="det-section-body">
+          ${p.kesulitan_pengasuh?`<div class="plan-field"><div class="plan-field-label">Kesulitan Pengasuh</div>${p.kesulitan_pengasuh}</div>`:''}
+          ${p.kesulitan_pekerja?`<div class="plan-field"><div class="plan-field-label">Kesulitan Pekerja</div>${p.kesulitan_pekerja}</div>`:''}
+          ${p.kesulitan_kesepakatan?`<div class="plan-field"><div class="plan-field-label">Kesepakatan</div>${p.kesulitan_kesepakatan}</div>`:''}
+          ${!p.kesulitan_pengasuh&&!p.kesulitan_pekerja&&!p.kesulitan_kesepakatan?'<div style="color:#9CA3AF;font-size:.78rem;text-align:center;padding:10px">Detail perencanaan tidak tersedia</div>':''}
+        </div>
+      </div>`;
+  } else {
+    content=`<div class="no-plan">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:32px;height:32px;margin:0 auto 8px;display:block;opacity:.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <p style="font-weight:700;margin-bottom:4px">Belum Ada Rencana</p>
+      <p>CBR Worker belum mengisi form Perencanaan (IRP) untuk anak ini melalui KoboToolbox.</p>
+    </div>`;
+  }
+  document.getElementById('det-wrap').innerHTML=`
+    <button class="det-back" onclick="clearDetail()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Kembali
+    </button>
+    <div class="det-name">${a.nama||'—'}</div>
+    <div class="det-meta">
+      <span class="det-chip">👤 ${a.cbr||'—'}</span>
+      <span class="det-chip">📍 ${a.desa||'—'}</span>
+      <span class="det-chip">🏷 ${a.ragam||'—'}</span>
+      <span class="det-chip">${a.usia||'?'} th · ${a.gender==='L'?'L':'P'}</span>
+    </div>
+    ${content}
+  `;
+}
+function clearDetail(){
+  document.getElementById('ld-empty').style.display='flex';
+  document.getElementById('det-wrap').style.display='none';
+  if(_lastEl){_lastEl.classList.remove('active');_lastEl=null;}
 }
 </script>
 <script src="../js/auth.js"></script>

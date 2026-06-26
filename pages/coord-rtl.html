@@ -1,27 +1,150 @@
 <!DOCTYPE html>
 <html lang="id"><head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
 <title>CBR Coordinator — RTL | MEL NLR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
 <link rel="stylesheet" href="../css/main.css"/>
-  <link rel="stylesheet" href="../css/components.css"/>
+<link rel="stylesheet" href="../css/components.css"/>
 <style>
-.rtl-card{background:white;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:10px;border-left:3px solid var(--rtl-c,#d4500a)}
-.rtl-nama{font-weight:800;font-size:.85rem;color:#111827;margin-bottom:6px}
-.rtl-meta{font-size:.7rem;color:#9ca3af;margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap}
-.rtl-domain{margin-bottom:8px}
-.rtl-domain-hd{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;display:flex;align-items:center;gap:6px}
-.rtl-domain-hd .dot{width:7px;height:7px;border-radius:50%}
-.rtl-item{background:#f9fafb;border-radius:6px;padding:8px 10px;font-size:.75rem;color:#374151;line-height:1.55;margin-bottom:4px;display:flex;gap:8px}
-.rtl-item .aktor{font-weight:700;color:#2563eb;min-width:80px;font-size:.7rem}
-.rtl-item .aksi{flex:1}
-.rtl-skor{display:flex;align-items:center;gap:6px;font-size:.72rem;color:#6b7280;padding:6px 0;border-top:1px solid #f3f4f6;margin-top:6px}
-.skor-bar{flex:1;height:6px;background:#f3f4f6;border-radius:3px;overflow:hidden}
-.skor-fill{height:100%;border-radius:3px}
-.domain-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.df-btn{padding:5px 12px;border-radius:999px;font-size:.7rem;font-weight:700;cursor:pointer;border:1.5px solid #e5e7eb;background:white;color:#6b7280;font-family:inherit;transition:all .15s}
-.df-btn.active{background:rgba(37,99,235,.08);border-color:#2563eb;color:#2563eb}
+/* ── LAYOUT LIST-DETAIL ── */
+.ld-wrap { display:flex; gap:0; height:calc(100vh - 60px); overflow:hidden; }
+
+/* Panel kiri — list */
+.ld-list {
+  width:340px; min-width:340px; flex-shrink:0;
+  background:#fff; border-right:1px solid #E5E7EB;
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.ld-list-header {
+  padding:14px 16px; border-bottom:1px solid #E5E7EB;
+  background:#fff; flex-shrink:0;
+}
+.ld-list-title { font-size:.82rem; font-weight:700; color:#1F2937; margin-bottom:8px; }
+.ld-search {
+  width:100%; padding:7px 10px; border:1px solid #E5E7EB;
+  border-radius:8px; font-size:.75rem; font-family:inherit;
+  color:#1F2937; background:#F9FAFB; outline:none; transition:.15s;
+}
+.ld-search:focus { border-color:#F97316; background:#fff; box-shadow:0 0 0 3px rgba(249,115,22,.1); }
+.ld-filters { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+.ld-select {
+  flex:1; min-width:100px; padding:5px 8px; border:1px solid #E5E7EB;
+  border-radius:6px; font-size:.72rem; font-family:inherit; color:#1F2937;
+  background:#F9FAFB; outline:none; cursor:pointer;
+}
+.ld-select:focus { border-color:#F97316; }
+.ld-count { font-size:.68rem; color:#9CA3AF; margin-top:6px; }
+
+/* Domain pills */
+.domain-pills { display:flex; gap:4px; flex-wrap:wrap; padding:10px 16px; border-bottom:1px solid #F3F4F6; flex-shrink:0; }
+.dpill {
+  padding:3px 10px; border-radius:999px; font-size:.65rem; font-weight:600;
+  cursor:pointer; border:1px solid #E5E7EB; background:#fff; color:#6B7280;
+  font-family:inherit; transition:.12s;
+}
+.dpill:hover { background:#F9FAFB; }
+.dpill.active { border-color:#F97316; background:#FFF7ED; color:#EA6C0A; }
+
+/* List items */
+.ld-items { flex:1; overflow-y:auto; }
+.ld-items::-webkit-scrollbar { width:4px; }
+.ld-items::-webkit-scrollbar-thumb { background:#E5E7EB; border-radius:2px; }
+.ld-item {
+  padding:12px 16px; border-bottom:1px solid #F9FAFB;
+  cursor:pointer; transition:background .1s; position:relative;
+}
+.ld-item:hover { background:#FFF7ED; }
+.ld-item.active { background:#FFF7ED; border-left:3px solid #F97316; padding-left:13px; }
+.ld-item-name { font-size:.82rem; font-weight:600; color:#1F2937; margin-bottom:3px; }
+.ld-item-sub { font-size:.7rem; color:#9CA3AF; display:flex; gap:8px; flex-wrap:wrap; }
+.ld-item-badge { display:flex; gap:4px; margin-top:5px; }
+.ld-item-count { font-size:.65rem; font-weight:700; padding:2px 7px; border-radius:999px; }
+.ld-item-score {
+  position:absolute; right:14px; top:50%; transform:translateY(-50%);
+  font-size:1rem; font-weight:800; font-family:'JetBrains Mono',monospace;
+}
+
+/* Panel kanan — detail */
+.ld-detail {
+  flex:1; overflow-y:auto; background:#F8FAFC; display:flex; flex-direction:column;
+}
+.ld-detail::-webkit-scrollbar { width:5px; }
+.ld-detail::-webkit-scrollbar-thumb { background:#E5E7EB; border-radius:3px; }
+
+/* Detail empty state */
+.ld-empty {
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  color:#9CA3AF; gap:10px; padding:40px;
+}
+.ld-empty svg { width:48px; height:48px; opacity:.3; }
+.ld-empty p { font-size:.82rem; text-align:center; }
+
+/* Detail content */
+.ld-detail-inner { padding:24px; }
+.det-back {
+  display:inline-flex; align-items:center; gap:6px; padding:6px 12px;
+  border:1px solid #E5E7EB; border-radius:8px; background:#fff; color:#6B7280;
+  font-size:.75rem; font-weight:500; cursor:pointer; font-family:inherit;
+  transition:.15s; margin-bottom:16px;
+}
+.det-back:hover { background:#F9FAFB; color:#1F2937; border-color:#D1D5DB; }
+.det-back svg { width:14px; height:14px; }
+
+.det-header { margin-bottom:20px; }
+.det-name { font-size:1.2rem; font-weight:800; color:#1F2937; margin-bottom:6px; }
+.det-meta { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+.det-chip {
+  display:inline-flex; align-items:center; gap:4px; padding:3px 10px;
+  border-radius:999px; font-size:.68rem; font-weight:600;
+  background:#F3F4F6; color:#4B5563;
+}
+.det-scores { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+.det-score-card {
+  background:#fff; border:1px solid #E5E7EB; border-radius:10px;
+  padding:12px 16px; text-align:center;
+}
+.det-score-val { font-size:2rem; font-weight:800; font-family:'JetBrains Mono',monospace; line-height:1; }
+.det-score-lbl { font-size:.65rem; color:#9CA3AF; margin-top:4px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+.det-score-bar { height:4px; border-radius:999px; background:#F3F4F6; margin-top:8px; overflow:hidden; }
+.det-score-fill { height:100%; border-radius:999px; transition:width .4s; }
+
+/* Domain cards */
+.det-domain { background:#fff; border:1px solid #E5E7EB; border-radius:12px; margin-bottom:12px; overflow:hidden; }
+.det-domain-head {
+  display:flex; align-items:center; gap:8px; padding:12px 16px;
+  border-bottom:1px solid #F3F4F6;
+}
+.det-domain-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.det-domain-label { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
+.det-domain-count { margin-left:auto; font-size:.65rem; color:#9CA3AF; }
+.det-rekom { padding:10px 16px; }
+.det-rekom-item { display:flex; gap:10px; padding:8px 0; border-bottom:1px solid #F9FAFB; }
+.det-rekom-item:last-child { border-bottom:none; }
+.det-aktor { font-size:.7rem; font-weight:700; color:#F97316; min-width:110px; flex-shrink:0; }
+.det-aksi { font-size:.75rem; color:#374151; line-height:1.5; }
+
+/* 4 View mode buttons */
+.view-modes { display:flex; gap:4px; }
+.vmode {
+  width:30px; height:30px; border:1px solid #E5E7EB; border-radius:6px;
+  background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  color:#9CA3AF; transition:.12s;
+}
+.vmode:hover { background:#F9FAFB; color:#6B7280; }
+.vmode.active { background:#FFF7ED; border-color:#F97316; color:#F97316; }
+.vmode svg { width:13px; height:13px; }
+
+/* Grid views */
+.list-view-xl .ld-item { padding:14px 16px; }
+.list-view-xl .ld-item-name { font-size:.88rem; }
+.list-view-sm .ld-item { padding:8px 16px; }
+.list-view-sm .ld-item-name { font-size:.76rem; }
+.list-view-sm .ld-item-sub { display:none; }
+.list-view-sm .ld-item-badge { display:none; }
+.list-view-card { display:grid; grid-template-columns:1fr 1fr; gap:0; }
+.list-view-card .ld-item { border:none; border-bottom:1px solid #F9FAFB; border-right:1px solid #F9FAFB; }
+.list-view-card .ld-item-score { position:static; transform:none; font-size:.85rem; margin-top:4px; }
 </style>
 </head><body>
 <div class="app"><div class="main">
@@ -31,120 +154,161 @@
     <div class="topbar-breadcrumb">CBR Coordinator <span class="sep">›</span><span class="current">RTL</span></div>
   </div>
   <div class="topbar-right">
+    <div class="stat-grid" id="kpi-rtl" style="display:flex;gap:10px;margin:0"></div>
     <span class="scn-badge" id="scn-badge">—</span>
     <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
     <span class="topbar-date" id="topbar-date">—</span>
   </div>
 </header>
-<div class="page">
-  <div class="page-header">
-    <h1>RTL — Rencana Tindak Lanjut</h1>
-    <p>Rekomendasi aksi berdasarkan temuan observasi ICF — adopsi WHO CBR Matrix.</p>
+
+<div class="ld-wrap">
+  <!-- PANEL KIRI: LIST -->
+  <div class="ld-list">
+    <div class="ld-list-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span class="ld-list-title">Daftar Anak</span>
+        <div class="view-modes">
+          <button class="vmode active" id="vm-xl" onclick="setView('xl')" title="Normal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="vmode" id="vm-md" onclick="setView('md')" title="Sedang">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <button class="vmode" id="vm-sm" onclick="setView('sm')" title="Kompak">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="4"/><rect x="10" y="3" width="4" height="4"/><rect x="17" y="3" width="4" height="4"/><rect x="3" y="10" width="4" height="4"/><rect x="10" y="10" width="4" height="4"/><rect x="17" y="10" width="4" height="4"/></svg>
+          </button>
+          <button class="vmode" id="vm-cd" onclick="setView('cd')" title="Kartu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </button>
+        </div>
+      </div>
+      <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama anak..."/>
+      <div class="ld-filters">
+        <select class="ld-select" id="flt-cbr"><option value="">Semua CBR Worker</option></select>
+        <select class="ld-select" id="flt-level"><option value="">Semua Level</option></select>
+      </div>
+      <div class="ld-count" id="ld-count">—</div>
+    </div>
+    <div class="domain-pills">
+      <button class="dpill active" data-domain="all" onclick="filterDomain('all',this)">Semua</button>
+      <button class="dpill" data-domain="kesehatan" onclick="filterDomain('kesehatan',this)">Kesehatan</button>
+      <button class="dpill" data-domain="pendidikan" onclick="filterDomain('pendidikan',this)">Pendidikan</button>
+      <button class="dpill" data-domain="penghidupan" onclick="filterDomain('penghidupan',this)">Penghidupan</button>
+      <button class="dpill" data-domain="sosial" onclick="filterDomain('sosial',this)">Sosial</button>
+      <button class="dpill" data-domain="pemberdayaan" onclick="filterDomain('pemberdayaan',this)">Pemberdayaan</button>
+    </div>
+    <div class="ld-items" id="ld-items"></div>
   </div>
-  <div class="stat-grid" id="kpi-rtl"></div>
-  <!-- Filter -->
-  <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
-    <select id="flt-cbr" style="padding:6px 10px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.72rem"><option value="">Semua CBR Worker</option></select>
-    <select id="flt-level" style="padding:6px 10px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.72rem"><option value="">Semua Level</option></select>
-    <input id="flt-search" type="text" placeholder="Cari nama anak..." style="padding:6px 10px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.72rem;flex:1"/>
-    <span class="badge badge-blue" id="badge-rtl">—</span>
+
+  <!-- PANEL KANAN: DETAIL -->
+  <div class="ld-detail" id="ld-detail">
+    <div class="ld-empty" id="ld-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+      <p>Pilih nama anak di sebelah kiri<br>untuk melihat rekomendasi RTL</p>
+    </div>
+    <div class="ld-detail-inner" id="ld-detail-inner" style="display:none"></div>
   </div>
-  <!-- Domain filter -->
-  <div class="domain-filter">
-    <button class="df-btn active" data-domain="all" onclick="filterDomain('all',this)">Semua Domain</button>
-    <button class="df-btn" data-domain="kesehatan" onclick="filterDomain('kesehatan',this)">Kesehatan</button>
-    <button class="df-btn" data-domain="pendidikan" onclick="filterDomain('pendidikan',this)">Pendidikan</button>
-    <button class="df-btn" data-domain="penghidupan" onclick="filterDomain('penghidupan',this)">Penghidupan</button>
-    <button class="df-btn" data-domain="sosial" onclick="filterDomain('sosial',this)">Sosial</button>
-    <button class="df-btn" data-domain="pemberdayaan" onclick="filterDomain('pemberdayaan',this)">Pemberdayaan</button>
-  </div>
-  <div id="rtl-list"></div>
-</div></div></div>
+</div>
+</div></div>
+
 <script>
-// WHO CBR Matrix rekomendasi
 const RTL_MATRIX = {
   kesehatan: {
-    color:'#dc2626',
+    color:'#F97316', label:'Kesehatan',
     rules:[
-      {cond:a=>(a.level||'').includes('Parah'),    aktor:'Puskesmas / Dokter', aksi:'Rujuk untuk pemeriksaan menyeluruh dan penanganan medis'},
-      {cond:a=>a.ep,                               aktor:'Nakes / Dokter',     aksi:'Konsultasi penanganan epilepsi dan pemberian obat rutin'},
-      {cond:a=>!a.ob,                              aktor:'Puskesmas',          aksi:'Fasilitasi akses pengobatan dan pendampingan BPJS'},
-      {cond:a=>!a.tr,                              aktor:'Terapis / Klinik',   aksi:'Rujuk ke layanan fisioterapi atau terapi wicara'},
-      {cond:a=>a.sp!=null&&a.sp<=4,               aktor:'CBR Worker',         aksi:'Kunjungan intensif dan dukungan psikososial'},
+      {cond:a=>(a.level||'').includes('Parah'),  aktor:'Puskesmas / Dokter', aksi:'Rujuk untuk pemeriksaan menyeluruh dan penanganan medis'},
+      {cond:a=>a.ep,                             aktor:'Nakes / Dokter',     aksi:'Konsultasi penanganan epilepsi dan pemberian obat rutin'},
+      {cond:a=>!a.ob,                            aktor:'Puskesmas',          aksi:'Fasilitasi akses pengobatan dan pendampingan BPJS'},
+      {cond:a=>!a.tr,                            aktor:'Terapis / Klinik',   aksi:'Rujuk ke layanan fisioterapi atau terapi wicara'},
+      {cond:a=>a.sp!=null&&a.sp<=4,             aktor:'CBR Worker',         aksi:'Kunjungan intensif dan dukungan psikososial'},
     ]
   },
   pendidikan: {
-    color:'#2563eb',
+    color:'#1D4ED8', label:'Pendidikan',
     rules:[
-      {cond:a=>a.usia<=17,                         aktor:'Guru / Sekolah',    aksi:'Fasilitasi akses ke SLB atau sekolah inklusi terdekat'},
-      {cond:a=>(a.ragam||'').includes('Intelektual'), aktor:'Guru SLB',       aksi:'Program pembelajaran khusus sesuai kemampuan kognitif'},
-      {cond:a=>(a.ragam||'').includes('Sensorik'),   aktor:'Guru / Orang Tua',aksi:'Penyesuaian metode belajar dan alat bantu komunikasi'},
+      {cond:a=>a.usia<=17,                                 aktor:'Guru / Sekolah',  aksi:'Fasilitasi akses ke SLB atau sekolah inklusi terdekat'},
+      {cond:a=>(a.ragam||'').includes('Intelektual'),       aktor:'Guru SLB',        aksi:'Program pembelajaran khusus sesuai kemampuan kognitif'},
+      {cond:a=>(a.ragam||'').includes('Sensorik'),          aktor:'Guru / Orang Tua',aksi:'Penyesuaian metode belajar dan alat bantu komunikasi'},
     ]
   },
   penghidupan: {
-    color:'#16a34a',
+    color:'#059669', label:'Penghidupan',
     rules:[
-      {cond:a=>a.usia>=18,                         aktor:'Dinas Sosial',      aksi:'Rujuk ke program pemberdayaan ekonomi dan pelatihan vokasi'},
-      {cond:a=>a.usia>=15&&a.usia<18,              aktor:'Orang Tua / CBR',   aksi:'Persiapan keterampilan hidup dan kemandirian ekonomi'},
+      {cond:a=>a.usia>=18,      aktor:'Dinas Sosial',    aksi:'Rujuk ke program pemberdayaan ekonomi dan pelatihan vokasi'},
+      {cond:a=>a.usia>=15&&a.usia<18, aktor:'Orang Tua / CBR', aksi:'Persiapan keterampilan hidup dan kemandirian ekonomi'},
     ]
   },
   sosial: {
-    color:'#7c3aed',
+    color:'#7C3AED', label:'Sosial',
     rules:[
-      {cond:a=>a.sp!=null&&a.sp<=4,               aktor:'Keluarga / CBR',    aksi:'Program penguatan kapasitas pengasuh dan dukungan emosional'},
-      {cond:a=>a.sa!=null&&a.sa<=4,               aktor:'CBR Worker',        aksi:'Kunjungan rutin dan fasilitasi partisipasi sosial anak'},
-      {cond:a=>(a.ragam||'').includes('Ganda'),   aktor:'Semua Pihak',       aksi:'Koordinasi lintas sektor untuk penanganan komprehensif'},
+      {cond:a=>a.sp!=null&&a.sp<=4,           aktor:'Keluarga / CBR', aksi:'Program penguatan kapasitas pengasuh dan dukungan emosional'},
+      {cond:a=>a.sa!=null&&a.sa<=4,           aktor:'CBR Worker',     aksi:'Kunjungan rutin dan fasilitasi partisipasi sosial anak'},
+      {cond:a=>(a.ragam||'').includes('Ganda'),aktor:'Semua Pihak',   aksi:'Koordinasi lintas sektor untuk penanganan komprehensif'},
     ]
   },
   pemberdayaan: {
-    color:'#d97706',
+    color:'#DC2626', label:'Pemberdayaan',
     rules:[
-      {cond:a=>true,                               aktor:'DPO / Komunitas',   aksi:'Libatkan anak dan keluarga dalam kelompok DPO dan advokasi hak'},
-      {cond:a=>a.usia>=12,                         aktor:'CBR / Komunitas',   aksi:'Fasilitasi keterlibatan dalam kegiatan komunitas dan sosial'},
+      {cond:a=>true,       aktor:'DPO / Komunitas', aksi:'Libatkan anak dan keluarga dalam kelompok DPO dan advokasi hak'},
+      {cond:a=>a.usia>=12, aktor:'CBR / Komunitas', aksi:'Fasilitasi keterlibatan dalam kegiatan komunitas dan sosial'},
     ]
   },
 };
 
-let ALL_RTL=[], ACTIVE_DOMAIN='all';
+let ALL_RTL=[], ACTIVE_DOMAIN='all', ACTIVE_VIEW='xl', SELECTED_IDX=-1;
 
-function buildRTL(anak, obs){
-  const obsMap={};
-  obs.forEach(o=>{if(o.na)obsMap[o.na.toLowerCase()]=o;});
+function sc(v){ return v<=3?'#1E293B':v<=6?'#FB923C':'#F97316'; }
+
+function buildRTL(anak){
   return anak.map(a=>{
     const rekom={};
     let totalAksi=0;
-    Object.entries(RTL_MATRIX).forEach(([domain,{color,rules}])=>{
+    Object.entries(RTL_MATRIX).forEach(([domain,{color,label,rules}])=>{
       const items=rules.filter(r=>r.cond(a)).map(r=>({aktor:r.aktor,aksi:r.aksi}));
-      if(items.length){rekom[domain]={color,items};totalAksi+=items.length;}
+      if(items.length){rekom[domain]={color,label,items};totalAksi+=items.length;}
     });
     return {...a,rekom,totalAksi};
   });
 }
 
+function setView(v){
+  ACTIVE_VIEW=v;
+  ['xl','md','sm','cd'].forEach(x=>document.getElementById('vm-'+x).classList.toggle('active',x===v));
+  const el=document.getElementById('ld-items');
+  el.className='ld-items';
+  if(v==='xl') el.classList.add('list-view-xl');
+  else if(v==='md') el.classList.add('');
+  else if(v==='sm') el.classList.add('list-view-sm');
+  else if(v==='cd') el.classList.add('list-view-card');
+  renderList();
+}
+
+function filterDomain(d,btn){
+  ACTIVE_DOMAIN=d;
+  document.querySelectorAll('.dpill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  SELECTED_IDX=-1;
+  showEmpty();
+  renderList();
+}
+
 function renderPage(d,scnId){
   const anak=d.anak||[], obs=d.obs||[];
-  ALL_RTL=buildRTL(anak,obs);
+  ALL_RTL=buildRTL(anak);
   const cbrs=[...new Set(anak.map(a=>a.cbr).filter(Boolean))].sort();
   const levels=[...new Set(anak.map(a=>a.level).filter(Boolean))].sort();
   const fC=document.getElementById('flt-cbr'), fL=document.getElementById('flt-level');
   cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});
   levels.forEach(l=>{const o=document.createElement('option');o.value=l;o.textContent=l.split('(')[0].trim();fL.appendChild(o);});
   const totalAksi=ALL_RTL.reduce((s,a)=>s+a.totalAksi,0);
-  const kritisCount=ALL_RTL.filter(a=>a.sp!=null&&a.sp<=3).length;
+  const kritis=ALL_RTL.filter(a=>a.sp!=null&&a.sp<=3).length;
   document.getElementById('kpi-rtl').innerHTML=[
-    {v:anak.length,  l:'Total Anak',        s:'memerlukan RTL',         c:'var(--nlr-500,#d4500a)'},
-    {v:totalAksi,    l:'Total Rekomendasi', s:'dari 5 domain CBR Matrix',c:'#2563eb'},
-    {v:kritisCount,  l:'Prioritas Tinggi',  s:'skor kritis ≤ 3',        c:'#dc2626'},
-  ].map(k=>`<div class="stat-card" style="--accent:${k.c}"><div class="s-label">${k.l}</div><div class="s-value">${k.v}</div><div class="s-sub">${k.s}</div></div>`).join('');
+    {v:anak.length,l:'Anak',c:'#F97316'},
+    {v:totalAksi,l:'Rekomendasi',c:'#1D4ED8'},
+    {v:kritis,l:'Prioritas',c:'#DC2626'},
+  ].map(k=>`<div style="background:white;border:1px solid #E5E7EB;border-radius:8px;padding:6px 12px;text-align:center;min-width:60px"><div style="font-size:1rem;font-weight:800;color:${k.c};font-family:'JetBrains Mono',monospace">${k.v}</div><div style="font-size:.58rem;color:#9CA3AF;font-weight:600;text-transform:uppercase;letter-spacing:.05em">${k.l}</div></div>`).join('');
   ['flt-cbr','flt-level'].forEach(id=>document.getElementById(id).addEventListener('change',renderList));
   document.getElementById('flt-search').addEventListener('input',renderList);
-  renderList();
-}
-
-function filterDomain(d,btn){
-  ACTIVE_DOMAIN=d;
-  document.querySelectorAll('.df-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
   renderList();
 }
 
@@ -152,34 +316,104 @@ function renderList(){
   const cb=document.getElementById('flt-cbr').value;
   const lv=document.getElementById('flt-level').value;
   const q=(document.getElementById('flt-search').value||'').toLowerCase();
-  const list=ALL_RTL.filter(a=>(!cb||a.cbr===cb)&&(!lv||a.level===lv)&&(!q||(a.nama||'').toLowerCase().includes(q)));
-  document.getElementById('badge-rtl').textContent=list.length+' anak';
-  const spColor=v=>v<=3?'#dc2626':v<=6?'#d97706':'#16a34a';
-  document.getElementById('rtl-list').innerHTML=list.map(a=>{
-    const domains=ACTIVE_DOMAIN==='all'?Object.entries(a.rekom):Object.entries(a.rekom).filter(([k])=>k===ACTIVE_DOMAIN);
-    if(!domains.length) return '';
-    const spVal=a.sp!=null?a.sp:0;
-    return `<div class="rtl-card" style="--rtl-c:${spVal<=3?'#dc2626':spVal<=6?'#d97706':'#16a34a'}">
-      <div class="rtl-nama">${a.nama||'—'}</div>
-      <div class="rtl-meta">
-        <span>👤 ${a.cbr||'—'}</span>
-        <span>🏷 ${a.ragam||'—'}</span>
-        <span>📍 ${a.desa||'—'}</span>
-        <span>🎂 ${a.usia||'?'} th · ${a.gender||'—'}</span>
-      </div>
-      ${domains.map(([domain,{color,items}])=>`
-        <div class="rtl-domain">
-          <div class="rtl-domain-hd"><span class="dot" style="background:${color}"></span><span style="color:${color}">${domain.charAt(0).toUpperCase()+domain.slice(1)}</span></div>
-          ${items.map(item=>`<div class="rtl-item"><span class="aktor">${item.aktor}</span><span class="aksi">${item.aksi}</span></div>`).join('')}
-        </div>`).join('')}
-      <div class="rtl-skor">
-        <span>Skor Anak: <strong style="color:${spColor(spVal)}">${a.sp!=null?a.sp:'—'}</strong></span>
-        <div class="skor-bar"><div class="skor-fill" style="width:${a.sp!=null?a.sp*10:0}%;background:${spColor(spVal)}"></div></div>
-        <span>Skor Pengasuh: <strong style="color:${spColor(a.sa||0)}">${a.sa!=null?a.sa:'—'}</strong></span>
-      </div>
-    </div>`;
-  }).filter(Boolean).join('') || '<div style="text-align:center;padding:30px;color:#9ca3af">Tidak ada rekomendasi untuk filter ini.</div>';
+  const list=ALL_RTL.filter(a=>{
+    if(cb&&a.cbr!==cb) return false;
+    if(lv&&a.level!==lv) return false;
+    if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
+    if(ACTIVE_DOMAIN!=='all'&&!a.rekom[ACTIVE_DOMAIN]) return false;
+    return true;
+  });
+  document.getElementById('ld-count').textContent=list.length+' anak ditemukan';
+  document.getElementById('ld-items').innerHTML=list.length
+    ? list.map((a,i)=>{
+        const spVal=a.sp!=null?a.sp:null;
+        const domains=ACTIVE_DOMAIN==='all'?Object.keys(a.rekom):Object.keys(a.rekom).filter(k=>k===ACTIVE_DOMAIN);
+        const totalD=domains.reduce((s,k)=>s+(a.rekom[k]?.items?.length||0),0);
+        return `<div class="ld-item${SELECTED_IDX===i?' active':''}" onclick="selectItem(${i},this)">
+          <div class="ld-item-name">${a.nama||'—'}</div>
+          <div class="ld-item-sub">
+            <span>${a.cbr||'—'}</span>
+            <span>${(a.level||'—').split('(')[0].trim()}</span>
+            <span>${a.usia||'?'} th · ${a.gender||'—'}</span>
+          </div>
+          <div class="ld-item-badge">
+            ${domains.slice(0,3).map(k=>`<span class="ld-item-count" style="background:${RTL_MATRIX[k].color}18;color:${RTL_MATRIX[k].color}">${RTL_MATRIX[k].label}</span>`).join('')}
+            ${totalD>0?`<span class="ld-item-count" style="background:#F3F4F6;color:#6B7280">${totalD} aksi</span>`:''}
+          </div>
+          ${spVal!=null?`<div class="ld-item-score" style="color:${sc(spVal)}">${spVal}</div>`:''}
+        </div>`;
+      }).join('')
+    : '<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem">Tidak ada anak ditemukan</div>';
+  // Re-assign onclick with correct index from filtered list
+  document.querySelectorAll('.ld-item').forEach((el,i)=>{
+    el._rtlData=list[i];
+    el.onclick=()=>showDetail(list[i],el);
+  });
 }
+
+let _lastEl=null;
+function showDetail(a,el){
+  if(_lastEl) _lastEl.classList.remove('active');
+  el.classList.add('active');
+  _lastEl=el;
+  document.getElementById('ld-empty').style.display='none';
+  document.getElementById('ld-detail-inner').style.display='block';
+  const spVal=a.sp!=null?a.sp:0;
+  const saVal=a.sa!=null?a.sa:0;
+  const domains=ACTIVE_DOMAIN==='all'?Object.entries(a.rekom):Object.entries(a.rekom).filter(([k])=>k===ACTIVE_DOMAIN);
+  document.getElementById('ld-detail-inner').innerHTML=`
+    <button class="det-back" onclick="clearDetail()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Kembali ke daftar
+    </button>
+    <div class="det-header">
+      <div class="det-name">${a.nama||'—'}</div>
+      <div class="det-meta">
+        <span class="det-chip">👤 ${a.cbr||'—'}</span>
+        <span class="det-chip">🏷 ${a.ragam||'—'}</span>
+        <span class="det-chip">📍 ${a.desa||'—'}</span>
+        <span class="det-chip">🎂 ${a.usia||'?'} th · ${a.gender||'—'}</span>
+        ${a.ep?'<span class="det-chip" style="background:#FEF3C7;color:#92400E">⚡ Epilepsi</span>':''}
+        ${a.tr?'<span class="det-chip" style="background:#DCFCE7;color:#15803D">✓ Pernah Terapi</span>':''}
+      </div>
+      <div class="det-scores">
+        <div class="det-score-card">
+          <div class="det-score-val" style="color:${sc(spVal)}">${a.sp!=null?a.sp:'—'}</div>
+          <div class="det-score-lbl">Skor Anak (Cantrill)</div>
+          <div class="det-score-bar"><div class="det-score-fill" style="width:${a.sp!=null?a.sp*10:0}%;background:${sc(spVal)}"></div></div>
+        </div>
+        <div class="det-score-card">
+          <div class="det-score-val" style="color:${sc(saVal)}">${a.sa!=null?a.sa:'—'}</div>
+          <div class="det-score-lbl">Skor Pengasuh</div>
+          <div class="det-score-bar"><div class="det-score-fill" style="width:${a.sa!=null?a.sa*10:0}%;background:${sc(saVal)}"></div></div>
+        </div>
+      </div>
+    </div>
+    ${domains.length?domains.map(([domain,{color,label,items}])=>`
+      <div class="det-domain">
+        <div class="det-domain-head">
+          <div class="det-domain-dot" style="background:${color}"></div>
+          <span class="det-domain-label" style="color:${color}">${label}</span>
+          <span class="det-domain-count">${items.length} rekomendasi</span>
+        </div>
+        <div class="det-rekom">
+          ${items.map(item=>`<div class="det-rekom-item">
+            <span class="det-aktor">${item.aktor}</span>
+            <span class="det-aksi">${item.aksi}</span>
+          </div>`).join('')}
+        </div>
+      </div>`).join('')
+    :'<div style="text-align:center;padding:24px;color:#9CA3AF;font-size:.78rem">Tidak ada rekomendasi untuk domain ini.</div>'}
+  `;
+}
+
+function showEmpty(){
+  document.getElementById('ld-empty').style.display='flex';
+  document.getElementById('ld-detail-inner').style.display='none';
+  if(_lastEl){ _lastEl.classList.remove('active'); _lastEl=null; }
+}
+
+function clearDetail(){ showEmpty(); }
 </script>
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>

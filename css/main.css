@@ -1,4 +1,4 @@
-
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap');
 
 /* ============================================================
    DESIGN TOKENS — NLR Indonesia Brand System
@@ -58,7 +58,7 @@
   --o7-color   : #0284c7;
 
   /* ── TYPOGRAPHY ── */
-  --font-body  : 'Plus Jakarta Sans', sans-serif;
+  --font-body  : 'Inter', sans-serif;
   --font-mono  : 'JetBrains Mono', monospace;
 
   /* ── LAYOUT ── */
@@ -83,7 +83,12 @@
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 13px; scroll-behavior: smooth; }
-
+body {
+  font-family             : var(--font-body);
+  color                   : var(--ink-900);
+  line-height             : 1.6;
+  -webkit-font-smoothing  : antialiased;
+}
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; font-family: var(--font-body); }
 input, select, textarea { font-family: var(--font-body); }
@@ -91,7 +96,7 @@ input, select, textarea { font-family: var(--font-body); }
 /* ============================================================
    APP SHELL
    ============================================================ */
-
+.app { display: flex; min-height: 100vh; }
 
 /* ── SIDEBAR ── */
 .sidebar {
@@ -291,19 +296,216 @@ input, select, textarea { font-family: var(--font-body); }
 .btn-logout svg { width: 13px; height: 13px; }
 
 /* ── MAIN ── */
+.main {
+  margin-left    : var(--sidebar-w);
+  flex           : 1;
+  display        : flex;
+  flex-direction : column;
+  min-height     : 100vh;
+}
+
+/* Topbar */
+.topbar {
+  height          : var(--header-h);
+  background      : rgba(255,255,255,.92);
+  backdrop-filter : blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom   : 1px solid rgba(15,23,42,.07);
+  display         : flex;
+  align-items     : center;
+  justify-content : space-between;
+  padding         : 0 24px;
+  position        : sticky;
+  top             : 0;
+  z-index         : 100;
+  box-shadow      : 0 1px 8px rgba(15,23,42,.06);
+}
+.topbar-left { display: flex; align-items: center; gap: 10px; }
+.topbar-breadcrumb {
+  display     : flex;
+  align-items : center;
+  gap         : 6px;
+  font-size   : .74rem;
+  color       : var(--ink-300);
+}
+.topbar-breadcrumb .sep { color: var(--ink-200); }
+.topbar-breadcrumb .current { color: var(--ink-800); font-weight: 700; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+
+/* SCN Badge — oranye NLR */
+.scn-badge {
+  background    : var(--nlr-50);
+  color         : var(--nlr-700);
+  border        : 1px solid var(--nlr-200);
+  font-size     : .66rem;
+  font-weight   : 700;
+  padding       : 3px 10px;
+  border-radius : 999px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.topbar-date { font-size: .71rem; color: var(--ink-300); }
 
 /* Hamburger menu — hanya tampil di mobile */
-
+.topbar-menu-btn {
+  display         : none;
+  align-items     : center;
+  justify-content : center;
+  width           : 32px;
+  height          : 32px;
+  border          : none;
+  background      : transparent;
+  color           : var(--ink-500);
+  border-radius   : var(--radius-sm);
+  cursor          : pointer;
+}
 .topbar-menu-btn:hover { background: var(--surface); }
 .topbar-menu-btn svg   { width: 18px; height: 18px; }
+
+/* Page content */
+.page {
+  padding    : 20px 24px;
+  flex       : 1;
+  background : linear-gradient(160deg, #eef0f8 0%, #e8eaf3 40%, #eceef6 100%);
+  min-height : calc(100vh - var(--header-h));
+}
+
+/* Page header */
+.page-header {
+  margin-bottom : 20px;
+  padding-left  : 14px;
+  border-left   : 3px solid var(--nlr-500);
+}
+.page-header h1 {
+  font-size   : 1.15rem;
+  font-weight : 800;
+  color       : var(--ink-900);
+  line-height : 1.2;
+}
+.page-header p {
+  font-size  : .74rem;
+  color      : var(--ink-400);
+  margin-top : 3px;
+}
 
 /* ============================================================
    KOMPONEN
    ============================================================ */
 
+/* Stat grid */
+.stat-grid {
+  display               : grid;
+  grid-template-columns : repeat(auto-fit, minmax(180px, 1fr));
+  gap                   : 14px;
+  margin-bottom         : 22px;
+}
+
+.stat-card {
+  background    : var(--white);
+  border        : none;
+  border-radius : var(--radius-md);
+  padding       : 16px 18px;
+  position      : relative;
+  overflow      : hidden;
+  box-shadow    : var(--shadow-card);
+  transition    : box-shadow .2s, transform .2s;
+}
+.stat-card:hover {
+  box-shadow : var(--shadow-md);
+  transform  : translateY(-1px);
+}
+/* Accent bar kiri — lebih subtle */
+.stat-card::before {
+  content       : '';
+  position      : absolute;
+  top: 0; left: 0; bottom: 0;
+  width         : 3px;
+  background    : var(--accent, var(--nlr-500));
+  border-radius : 0 0 0 0;
+}
+/* Glow tint di sudut kanan atas */
+.stat-card::after {
+  content    : '';
+  position   : absolute;
+  top: -20px; right: -20px;
+  width      : 80px;
+  height     : 80px;
+  background : radial-gradient(circle, rgba(var(--accent-rgb, 224,90,26),.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.stat-card .s-label {
+  font-size      : .6rem;
+  font-weight    : 700;
+  text-transform : uppercase;
+  letter-spacing : .08em;
+  color          : var(--ink-300);
+  margin-bottom  : 6px;
+}
+.stat-card .s-value {
+  font-family : var(--font-mono);
+  font-size   : 1.7rem;
+  font-weight : 700;
+  color       : var(--accent, var(--ink-900));
+  line-height : 1;
+}
+.stat-card .s-sub {
+  font-size  : .65rem;
+  color      : var(--ink-300);
+  margin-top : 5px;
+}
+.stat-card .s-trend { font-size: .65rem; font-weight: 700; margin-top: 4px; }
+.s-trend.up   { color: var(--green); }
+.s-trend.down { color: var(--red);   }
+.s-trend.flat { color: var(--ink-300); }
+
+/* Card */
+.card {
+  background    : var(--white);
+  border        : none;
+  border-radius : var(--radius-md);
+  overflow      : hidden;
+  box-shadow    : var(--shadow-card);
+}
+.card-head {
+  padding         : 12px 18px;
+  border-bottom   : 1px solid rgba(15,23,42,.05);
+  display         : flex;
+  align-items     : center;
+  justify-content : space-between;
+  gap             : 10px;
+  background      : linear-gradient(to right, rgba(15,23,42,.015), transparent);
+}
+.card-title { font-size: .8rem; font-weight: 700; color: var(--ink-800); letter-spacing: .01em; }
+.card-body  { padding: 16px 18px; }
+.card-body.no-pad { padding: 0; }
+
 /* Grid */
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* Tabel */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+thead th {
+  background     : linear-gradient(to bottom, var(--surface), rgba(238,240,246,.5));
+  padding        : 9px 14px;
+  text-align     : left;
+  font-size      : .6rem;
+  font-weight    : 700;
+  text-transform : uppercase;
+  letter-spacing : .08em;
+  color          : var(--ink-400);
+  border-bottom  : 1px solid rgba(15,23,42,.06);
+  white-space    : nowrap;
+}
+tbody td {
+  padding        : 10px 14px;
+  border-bottom  : 1px solid rgba(15,23,42,.04);
+  color          : var(--ink-700);
+  vertical-align : middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: rgba(212,80,10,.03); }
 
 /* Badge */
 .badge {
@@ -326,6 +528,66 @@ input, select, textarea { font-family: var(--font-body); }
 .badge-nlr    { background: var(--nlr-100);   color: var(--nlr-800); }
 .badge-teal   { background: #cffafe;          color: #0e7490; }
 
+/* Progress bar */
+.prog-wrap {
+  background    : var(--ink-100);
+  border-radius : 999px;
+  height        : 5px;
+  overflow      : hidden;
+}
+.prog-fill {
+  height        : 100%;
+  border-radius : 999px;
+  transition    : width .4s ease;
+}
+
+/* Tombol */
+.btn {
+  display       : inline-flex;
+  align-items   : center;
+  gap           : 6px;
+  padding       : 7px 16px;
+  border-radius : var(--radius-sm);
+  font-size     : .74rem;
+  font-weight   : 600;
+  border        : none;
+  transition    : opacity .15s, transform .1s, box-shadow .15s;
+  cursor        : pointer;
+}
+.btn:active { transform: scale(.97); }
+
+.btn-primary {
+  background : var(--nlr-600);
+  color      : white;
+  box-shadow : 0 2px 8px rgba(212,80,10,.3);
+}
+.btn-primary:hover { background: var(--nlr-700); }
+
+.btn-ghost {
+  background : transparent;
+  border     : 1px solid var(--ink-100);
+  color      : var(--ink-600);
+}
+.btn-ghost:hover { background: var(--surface); border-color: var(--ink-200); }
+
+.btn svg { width: 13px; height: 13px; }
+
+/* Alert strip */
+.alert-strip {
+  display       : flex;
+  align-items   : flex-start;
+  gap           : 10px;
+  padding       : 11px 14px;
+  border-radius : var(--radius-sm);
+  margin-bottom : 8px;
+  font-size     : .77rem;
+}
+.alert-strip svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px; }
+.alert-strip strong { display: block; font-weight: 700; margin-bottom: 1px; }
+.alert-amber { background: var(--amber-bg); border-left: 3px solid var(--amber); color: #78350f; }
+.alert-red   { background: var(--red-bg);   border-left: 3px solid var(--red);   color: #7f1d1d; }
+.alert-green { background: var(--green-bg); border-left: 3px solid var(--green); color: #14532d; }
+
 /* Outcome tag */
 .outcome-tag {
   display        : inline-block;
@@ -338,6 +600,25 @@ input, select, textarea { font-family: var(--font-body); }
   color          : white;
 }
 
+/* Section divider */
+.section-divider {
+  display        : flex;
+  align-items    : center;
+  gap            : 10px;
+  margin         : 22px 0 14px;
+  font-size      : .65rem;
+  font-weight    : 700;
+  text-transform : uppercase;
+  letter-spacing : .08em;
+  color          : var(--nlr-500);
+}
+.section-divider::after {
+  content    : '';
+  flex       : 1;
+  height     : 1px;
+  background : var(--ink-100);
+}
+
 /* Mono */
 .mono { font-family: var(--font-mono); }
 
@@ -347,9 +628,9 @@ input, select, textarea { font-family: var(--font-body); }
 @media (max-width: 900px) {
   .sidebar { transform: translateX(-100%); transition: transform .3s; }
   .sidebar.open { transform: translateX(0); }
-  
+  .main { margin-left: 0; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
   .page { padding: 16px; }
-  
+  .topbar-menu-btn { display: flex; }
 }

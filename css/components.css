@@ -118,7 +118,8 @@ body {
 .sidebar-user-avatar {
   width           : 32px;
   height          : 32px;
-  background      : linear-gradient(135deg, var(--nlr-500), #7c3aed);
+  background      : #1E293B;
+  border          : 2px solid rgba(249,115,22,.4);
   border-radius   : 50%;
   display         : flex;
   align-items     : center;
@@ -167,75 +168,51 @@ body {
 .sidebar-nav::-webkit-scrollbar-thumb { background:var(--sb-border); border-radius:2px; }
 
 /* Nav group */
-.nav-group {
-  margin-bottom : 0;
-  margin-top    : 4px;
-}
-/* Garis pemisah tipis di atas setiap group kecuali yang pertama */
-.nav-group + .nav-group {
-  border-top : 1px solid rgba(255,255,255,.04);
-  padding-top: 4px;
-}
+.nav-group { margin-bottom:2px; }
 .nav-group-header {
   display        : flex;
   align-items    : center;
   gap            : 8px;
-  padding        : 10px 14px 6px;
+  padding        : 8px 14px;
   cursor         : pointer;
-  color          : rgba(255,255,255,.28);
-  font-size      : .6rem;
-  font-weight    : 800;
+  color          : var(--sb-text-dim);
+  font-size      : .72rem;
+  font-weight    : 700;
   text-transform : uppercase;
-  letter-spacing : .1em;
-  transition     : color .15s;
+  letter-spacing : .06em;
+  transition     : color .15s, background .15s;
   user-select    : none;
 }
-.nav-group-header:hover { color:rgba(255,255,255,.5); }
-
-/* Icon group header — lebih besar dari sub-item */
-.nav-group-icon svg { width:13px; height:13px; flex-shrink:0; opacity:.5; }
-.nav-group-label    { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.nav-group-chevron svg {
-  width      : 10px;
-  height     : 10px;
-  transition : transform .2s;
-  flex-shrink: 0;
-  transform  : rotate(180deg);
-  opacity    : .35;
-}
+.nav-group-header:hover { color:var(--sb-text); background:var(--sb-hover); }
+.nav-group-icon    svg { width:14px; height:14px; flex-shrink:0; }
+.nav-group-label       { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.nav-group-chevron svg { width:12px; height:12px; transition:transform .2s; flex-shrink:0; transform:rotate(180deg); }
 .nav-group.collapsed .nav-group-chevron svg { transform:rotate(0deg); }
-.nav-group-items    { display:block; padding-bottom:4px; }
+.nav-group-items       { display:block; }
 .nav-group.collapsed .nav-group-items { display:none; }
 
-/* Sub-item — indent lebih dalam, font lebih kecil, opacity lebih rendah */
 .nav-sub-item {
   display         : flex;
   align-items     : center;
-  gap             : 9px;
-  padding         : 7px 12px 7px 32px;
-  color           : rgba(255,255,255,.55);
+  gap             : 8px;
+  padding         : 7px 14px 7px 28px;
+  color           : var(--sb-text);
   text-decoration : none;
-  font-size       : .74rem;
-  font-weight     : 400;
+  font-size       : .75rem;
+  font-weight     : 500;
   transition      : background .12s, color .12s;
   white-space     : nowrap;
-  border-radius   : 0 6px 6px 0;
-  margin-right    : 8px;
 }
-.nav-sub-item:hover {
-  background : rgba(255,255,255,.06);
-  color      : rgba(255,255,255,.85);
-}
+.nav-sub-item:hover { background:var(--sb-hover); color:white; }
 .nav-sub-item.active {
-  background  : var(--orange);
-  color       : #ffffff;
-  font-weight : 600;
-  box-shadow  : 0 2px 8px rgba(249,115,22,.25);
+  background    : #d4500a;
+  color         : #ffffff;
+  font-weight   : 700;
+  border-right  : none;
+  border-radius : 0 6px 6px 0;
+  margin-right  : 10px;
 }
-/* Icon sub-item — lebih kecil dari group icon */
-.nav-sub-item svg { width:13px; height:13px; flex-shrink:0; opacity:.6; }
-.nav-sub-item.active svg { opacity:1; }
-.nav-sub-item.active:hover { background:var(--orange); }
+.nav-sub-item svg { width:14px; height:14px; flex-shrink:0; }
 
 /* Footer */
 .sidebar-footer {
@@ -542,6 +519,30 @@ tr:hover td      { background:#fdf7f4; }
   font-weight   : 800;
   color         : white;
 }
+
+
+/* ── STATUS CHIPS ── */
+.status-chips { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+.chip {
+  padding       : 5px 14px;
+  border-radius : 999px;
+  font-size     : .72rem;
+  font-weight   : 600;
+  cursor        : pointer;
+  border        : 1.5px solid transparent;
+  transition    : all .15s;
+  font-family   : inherit;
+  background    : #F3F4F6;
+  color         : #6B7280;
+}
+.chip:hover { background:#FFF7ED; color:#EA6C0A; border-color:#FED7AA; }
+.chip.active {
+  border-color : var(--orange, #F97316);
+  background   : var(--orange-light, #FFF7ED);
+  color        : var(--orange-dark, #EA6C0A);
+  font-weight  : 700;
+}
+.chip.inactive { background:#F3F4F6; color:#9CA3AF; }
 
 /* ============================================================
    RESPONSIVE

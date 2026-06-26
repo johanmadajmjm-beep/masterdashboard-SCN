@@ -283,9 +283,9 @@ function injectSidebarStyles() {
     }
 
     /* Reset body layout */
-    body { display:flex; flex-direction:row; min-height:100vh; background:#f0f2f5; }
+    body { display:flex; flex-direction:row; min-height:100vh; background:#e8eaf3; }
     .app { display:flex; flex-direction:row; flex:1; min-width:0; }
-    .main { display:flex; flex-direction:column; flex:1; min-width:0; margin-left:0 !important; }
+    .main { display:flex; flex-direction:column; flex:1; min-width:0; margin-left:0 !important; background:linear-gradient(160deg,#eef0f8 0%,#e8eaf3 50%,#eceef6 100%); }
 
     /* ── SIDEBAR ── */
     .sidebar {
@@ -524,20 +524,23 @@ function injectSidebarStyles() {
 
     /* Cards */
     .card {
-      background    : white;
-      border        : 1px solid #e5e7eb;
-      border-radius : 10px;
+      background    : #ffffff;
+      border        : none;
+      border-radius : 12px;
       margin-bottom : 14px;
+      box-shadow    : 0 2px 8px rgba(15,23,42,.07), 0 0 0 1px rgba(15,23,42,.04);
     }
     .card-head {
       display      : flex;
       align-items  : center;
       gap          : 8px;
-      padding      : 12px 16px;
-      border-bottom: 1px solid #f3f4f6;
+      padding      : 11px 16px;
+      border-bottom: 1px solid rgba(15,23,42,.05);
       flex-wrap    : wrap;
+      background   : linear-gradient(to right, rgba(15,23,42,.015), transparent);
+      border-radius: 12px 12px 0 0;
     }
-    .card-title { font-size:.8rem; font-weight:700; color:#111827; flex:1; }
+    .card-title { font-size:.8rem; font-weight:700; color:#1c2330; flex:1; letter-spacing:.01em; }
     .card-body  { padding:14px 16px; }
     .card-body.no-pad { padding:0; }
 
@@ -548,23 +551,28 @@ function injectSidebarStyles() {
     /* Stat cards */
     .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:16px; }
     .stat-card {
-      background  : white;
-      border      : 1px solid #e5e7eb;
-      border-radius:10px;
-      padding     : 14px;
-      border-top  : 3px solid var(--accent, var(--nlr-500));
+      background    : #ffffff;
+      border        : none;
+      border-radius : 12px;
+      padding       : 14px 16px;
+      position      : relative;
+      overflow      : hidden;
+      box-shadow    : 0 2px 8px rgba(15,23,42,.07), 0 0 0 1px rgba(15,23,42,.04);
+      transition    : box-shadow .2s, transform .2s;
     }
-    .s-label { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#9ca3af; margin-bottom:6px; }
-    .s-value { font-size:1.5rem; font-weight:800; color:var(--accent, var(--nlr-500)); line-height:1; }
-    .s-sub   { font-size:.68rem; color:#9ca3af; margin-top:4px; }
+    .stat-card:hover { box-shadow:0 6px 20px rgba(15,23,42,.10); transform:translateY(-1px); }
+    .stat-card::before { content:''; position:absolute; top:0; left:0; bottom:0; width:3px; background:var(--accent,#e05a1a); border-radius:0; }
+    .s-label { font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#8a9ab0; margin-bottom:6px; }
+    .s-value { font-size:1.5rem; font-weight:800; color:var(--accent,#e05a1a); line-height:1; font-family:'JetBrains Mono',monospace; }
+    .s-sub   { font-size:.65rem; color:#8a9ab0; margin-top:4px; }
 
     /* Table */
     .tbl-wrap { overflow-x:auto; }
     table { width:100%; border-collapse:collapse; font-size:.78rem; }
-    th { background:#f9fafb; color:#6b7280; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:9px 12px; text-align:left; border-bottom:1px solid #e5e7eb; white-space:nowrap; }
-    td { padding:9px 12px; border-bottom:1px solid #f3f4f6; vertical-align:middle; color:#374151; }
+    th { background:linear-gradient(to bottom,#eef0f8,rgba(238,240,248,.5)); color:#5a6e88; font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; padding:9px 12px; text-align:left; border-bottom:1px solid rgba(15,23,42,.06); white-space:nowrap; }
+    td { padding:9px 12px; border-bottom:1px solid rgba(15,23,42,.04); vertical-align:middle; color:#252d3d; }
     tr:last-child td { border-bottom:none; }
-    tr:hover td { background:#fafafa; }
+    tr:hover td { background:rgba(212,80,10,.03); }
     .mono { font-family:'JetBrains Mono','Fira Mono',monospace; }
 
     /* Badge */

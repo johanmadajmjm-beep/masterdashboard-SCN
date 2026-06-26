@@ -27,7 +27,7 @@ body {
   min-height     : 100vh;
   background     : #e8eaf3 !important;
 }
-.app  { display:flex; flex-direction:row; flex:1; min-width:0; }
+.app  { display:flex; flex-direction:row; flex:1; min-width:0; background:transparent; }
 .main {
   display        : flex;
   flex-direction : column;

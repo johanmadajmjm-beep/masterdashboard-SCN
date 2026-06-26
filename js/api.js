@@ -45,34 +45,44 @@ const API = (() => {
     }
   }
 
-  // ── NORMALIZE DATA AWAL ───────────────────────────────────
   function normalizeDataAwal(rows) {
     if (!rows || !rows.length) return [];
-    return rows.map(r => ({
-      nama   : r.na  || '—',
-      np     : r.np  || '—',
-      cbr    : r.cb  || '—',
-      ragam  : r.rg  || '—',
-      level  : r.lv  || '—',
-      desa   : r.d   || '—',
-      gender : (r.j  || '').toLowerCase().includes('perempuan') ? 'P' : 'L',
-      usia   : r.u   ? parseInt(r.u) : 0,
-      sp     : r.sp  != null ? parseFloat(r.sp) : null,
-      sa     : r.sa  != null ? parseFloat(r.sa) : null,
-      ep     : (r.ep || '').toLowerCase() === 'ya',
-      ob     : (r.ob || '').toLowerCase() === 'ya',
-      tr     : (r.tr || '').toLowerCase() === 'ya',
-      nka    : r.nka || '',
-      tka    : r.tka || '',
-      nkp    : r.nkp || '',
-      tkp    : r.tkp || '',
-      lat    : r.lat ? parseFloat(r.lat) : null,
-      lon    : r.lon ? parseFloat(r.lon) : null,
-      provinsi: r.provinsi || '',
-      scn_id : r.scn || '',
-      irp    : 'Aktif',
-      hari   : 999,
-    })).filter(a => a.nama && a.nama !== '—');
+    return rows.map(r => {
+      const usia = r.u ? parseInt(r.u) : 0;
+      const gu = r.gu || (
+        usia <= 0  ? '' :
+        usia <= 5  ? '0-5 th' :
+        usia <= 12 ? '6-12 th' :
+        usia <= 17 ? '13-17 th' :
+        usia <= 24 ? '18-24 th' : '25+ th'
+      );
+      return {
+        nama   : r.na  || '—',
+        np     : r.np  || '—',
+        cbr    : r.cb  || '—',
+        ragam  : r.rg  || '—',
+        level  : r.lv  || '—',
+        desa   : r.d   || '—',
+        gender : (r.j  || '').toLowerCase().includes('perempuan') ? 'P' : 'L',
+        usia,
+        gu,
+        sp     : r.sp  != null ? parseFloat(r.sp) : null,
+        sa     : r.sa  != null ? parseFloat(r.sa) : null,
+        ep     : (r.ep || '').toLowerCase() === 'ya',
+        ob     : (r.ob || '').toLowerCase() === 'ya',
+        tr     : (r.tr || '').toLowerCase() === 'ya',
+        nka    : r.nka || '',
+        tka    : r.tka || '',
+        nkp    : r.nkp || '',
+        tkp    : r.tkp || '',
+        lat    : r.lat ? parseFloat(r.lat) : null,
+        lon    : r.lon ? parseFloat(r.lon) : null,
+        provinsi: r.provinsi || '',
+        scn_id : r.scn || '',
+        irp    : 'Aktif',
+        hari   : 999,
+      };
+    }).filter(a => a.nama && a.nama !== '—');
   }
 
   // ── NORMALIZE OBSERVASI ───────────────────────────────────

@@ -146,6 +146,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       margin-bottom: 10px;
+      align-items: stretch;
     }
     .jk-col { padding: 12px 14px; border-right: 1px solid #f3f4f6; }
     .jk-col:last-child { border-right: none; }
@@ -166,7 +167,7 @@
     .insight-b { font-size:.68rem; color:#374151; line-height:1.6; }
 
     /* RIGHT COL */
-    .right-col { display:flex; flex-direction:column; gap:7px; }
+    .right-col { display:flex; flex-direction:column; gap:7px; min-width:0; }
 
     /* ALERT CARD */
     .alert-card { background:white; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; }
@@ -215,6 +216,31 @@
 
     .page .grid-2 { gap:8px; margin-bottom:8px; }
     .page .card   { margin-bottom:8px; }
+
+    /* HORIZONTAL BAR CHART CONTAINER */
+    .hchart-wrap { padding: 4px 0; }
+    .hchart-item { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+    .hchart-label { font-size:.65rem; color:#374151; font-weight:500; width:90px; flex-shrink:0; text-align:right; }
+    .hchart-track { flex:1; height:22px; background:#f3f4f6; border-radius:5px; overflow:hidden; position:relative; }
+    .hchart-fill  { height:100%; border-radius:5px; display:flex; align-items:center; justify-content:flex-end; padding-right:6px; transition:width .5s ease; min-width:30px; }
+    .hchart-val   { font-size:.65rem; font-weight:700; color:white; }
+
+    /* DOUGHNUT SKOR LEVEL */
+    .skor-level-wrap { display:flex; align-items:center; gap:16px; padding:4px 0; }
+    .skor-level-donut { position:relative; width:130px; height:130px; flex-shrink:0; }
+    .skor-level-center {
+      position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      text-align:center; pointer-events:none;
+    }
+    .skor-level-avg { font-size:1.3rem; font-weight:800; color:#111827; line-height:1; }
+    .skor-level-sub { font-size:.52rem; color:#9ca3af; font-weight:600; text-transform:uppercase; }
+    .skor-level-legend { flex:1; display:flex; flex-direction:column; gap:8px; }
+    .sll-item { display:flex; align-items:center; gap:6px; }
+    .sll-dot  { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+    .sll-info { flex:1; }
+    .sll-name { font-size:.65rem; color:#374151; font-weight:600; }
+    .sll-score { font-size:.72rem; font-weight:800; color:#111827; }
   </style>
 </head>
 <body>
@@ -374,13 +400,24 @@
           </div>
           <div class="card">
             <div class="card-head"><span class="card-title">Skor per Ragam Disabilitas</span></div>
-            <div class="card-body"><div class="ch h170"><canvas id="c-skor-ragam"></canvas></div></div>
+            <div class="card-body"><div id="c-skor-ragam-hbar" class="hchart-wrap"></div></div>
           </div>
         </div>
         <div class="grid-2">
           <div class="card">
             <div class="card-head"><span class="card-title">Skor per Level Disabilitas</span></div>
-            <div class="card-body"><div class="ch h170"><canvas id="c-skor-level"></canvas></div></div>
+            <div class="card-body">
+              <div class="skor-level-wrap">
+                <div class="skor-level-donut">
+                  <canvas id="c-skor-level"></canvas>
+                  <div class="skor-level-center">
+                    <div class="skor-level-avg" id="skor-level-avg">—</div>
+                    <div class="skor-level-sub">Avg</div>
+                  </div>
+                </div>
+                <div class="skor-level-legend" id="skor-level-legend"></div>
+              </div>
+            </div>
           </div>
           <div class="card">
             <div class="card-head"><span class="card-title">Skor per Kelompok Usia</span></div>
@@ -410,7 +447,7 @@
           </div>
           <div class="card">
             <div class="card-head"><span class="card-title">Skor Pengasuh per CBR Worker</span></div>
-            <div class="card-body"><div class="ch h170"><canvas id="c-sp-worker"></canvas></div></div>
+            <div class="card-body"><div id="c-sp-worker-hbar" class="hchart-wrap"></div></div>
           </div>
         </div>
         <div class="sdiv">Faktor yang Mempengaruhi Skor Pengasuh</div>
@@ -580,7 +617,7 @@ function renderAnak(){
     </div>`).join('');
 
   // JK + USIA
-  mk('c-jk','bar',{labels:['Laki-laki','Perempuan'],datasets:[{data:[lk,pr],backgroundColor:['#F97316','#1E293B'],borderRadius:6,borderSkipped:false}]},{...BO,layout:{padding:{top:16}}});
+  mk('c-jk','bar',{labels:['Laki-laki','Perempuan'],datasets:[{data:[lk,pr],backgroundColor:['#F97316','#1E293B'],borderRadius:6,borderSkipped:false,maxBarThickness:48}]},{...BO,layout:{padding:{top:16}}});
   const au=cnt(a,'gu');
   mk('c-usia','bar',{labels:AGO,datasets:[{data:AGO.map(x=>au[x]||0),backgroundColor:PAL,borderRadius:4,borderSkipped:false}]},{...BO,layout:{padding:{top:16}}});
 
@@ -615,9 +652,37 @@ function renderSkor(){
   a.forEach(x=>{if(x.sp!=null){const i=Math.min(Math.max(Math.round(x.sp)-1,0),9);dist[i]++;}});
   mk('c-skor-dist','bar',{labels:['1','2','3','4','5','6','7','8','9','10'],datasets:[{data:dist,backgroundColor:dist.map((_,i)=>sc(i+1)),borderRadius:4,borderSkipped:false}]},{...BO,layout:{padding:{top:16}}});
   const raAvg=RO.map(r=>+avg(a.filter(x=>x.ragam===r).map(x=>x.sp).filter(v=>v!=null)).toFixed(1));
-  mk('c-skor-ragam','bar',{labels:RO.map(r=>RS[r]),datasets:[{data:raAvg,backgroundColor:RO.map(r=>RC[r]),borderRadius:4,borderSkipped:false}]},{...BO,scales:{...BO.scales,y:{...BO.scales.y,suggestedMax:10}},layout:{padding:{top:16}}});
+  // Horizontal bar: Skor per Ragam
+  (function(){
+    const mx=10, el=document.getElementById('c-skor-ragam-hbar');
+    if(!el)return;
+    el.innerHTML=RO.map((r,i)=>`
+      <div class="hchart-item">
+        <div class="hchart-label">${RS[r]}</div>
+        <div class="hchart-track">
+          <div class="hchart-fill" style="width:${raAvg[i]?Math.round(raAvg[i]/mx*100):0}%;background:${RC[r]}">
+            <span class="hchart-val">${raAvg[i]||'—'}</span>
+          </div>
+        </div>
+      </div>`).join('');
+  })();
+
+  // Doughnut: Skor per Level
   const lvAvg=LO.map(l=>+avg(a.filter(x=>x.level===l).map(x=>x.sp).filter(v=>v!=null)).toFixed(1));
-  mk('c-skor-level','bar',{labels:LO.map(l=>l.split(' ')[0]),datasets:[{data:lvAvg,backgroundColor:LO.map(l=>LC[l]),borderRadius:4,borderSkipped:false}]},{...BO,scales:{...BO.scales,y:{...BO.scales.y,suggestedMax:10}},layout:{padding:{top:16}}});
+  const globalAvg=+avg(a.map(x=>x.sp).filter(v=>v!=null)).toFixed(1);
+  document.getElementById('skor-level-avg').textContent=globalAvg||'—';
+  mk('c-skor-level','doughnut',{
+    labels:LO.map(l=>l.split(' ')[0]),
+    datasets:[{data:lvAvg,backgroundColor:LO.map(l=>LC[l]),borderColor:'#F8FAFC',borderWidth:2,hoverOffset:4}]
+  },{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af',callbacks:{label:function(ctx){return ' Skor: '+ctx.raw;}}}},animation:{}});
+  document.getElementById('skor-level-legend').innerHTML=LO.map((l,i)=>`
+    <div class="sll-item">
+      <div class="sll-dot" style="background:${LC[l]}"></div>
+      <div class="sll-info">
+        <div class="sll-name">${l.split(' ')[0]}</div>
+      </div>
+      <div class="sll-score">${lvAvg[i]||'—'}</div>
+    </div>`).join('');
   const auAvg=AGO.map(x=>+avg(a.filter(y=>y.gu===x).map(y=>y.sp).filter(v=>v!=null)).toFixed(1));
   mk('c-skor-usia','bar',{labels:AGO,datasets:[{data:auAvg,backgroundColor:PAL,borderRadius:4,borderSkipped:false}]},{...BO,scales:{...BO.scales,y:{...BO.scales.y,suggestedMax:10}},layout:{padding:{top:16}}});
   const naik=a.filter(x=>x.nka&&x.nka.length>20).slice(0,4);
@@ -635,7 +700,20 @@ function renderPengasuh(){
   mk('c-sp-dist','bar',{labels:['1','2','3','4','5','6','7','8','9','10'],datasets:[{data:dist,backgroundColor:dist.map((_,i)=>sc(i+1)),borderRadius:4,borderSkipped:false}]},{...BO,layout:{padding:{top:16}}});
   const ws=[...new Set(a.map(x=>x.cbr).filter(Boolean))];
   const wA=ws.map(w=>+avg(a.filter(x=>x.cbr===w).map(x=>x.sa).filter(v=>v!=null)).toFixed(1));
-  mk('c-sp-worker','bar',{labels:ws.map(w=>w.split(' ').pop()),datasets:[{data:wA,backgroundColor:PAL,borderRadius:4,borderSkipped:false}]},{...BO,scales:{...BO.scales,y:{...BO.scales.y,suggestedMax:10}},layout:{padding:{top:16}}});
+  // Horizontal bar: Skor Pengasuh per CBR Worker
+  (function(){
+    const mx=10, el=document.getElementById('c-sp-worker-hbar');
+    if(!el)return;
+    el.innerHTML=ws.map((w,i)=>`
+      <div class="hchart-item">
+        <div class="hchart-label">${w.split(' ').pop()}</div>
+        <div class="hchart-track">
+          <div class="hchart-fill" style="width:${wA[i]?Math.round(wA[i]/mx*100):0}%;background:${PAL[i%PAL.length]}">
+            <span class="hchart-val">${wA[i]||'—'}</span>
+          </div>
+        </div>
+      </div>`).join('');
+  })();
   const naikP=a.filter(x=>x.nkp&&x.nkp.length>20).slice(0,4);
   const turunP=a.filter(x=>x.tkp&&x.tkp.length>20).slice(0,4);
   document.getElementById('quote-peng-naik').innerHTML=naikP.length?naikP.map(x=>`<div class="quote-item up">"${x.nkp.substring(0,120)}"<br><span style="font-size:.62rem;color:#9ca3af;font-style:normal">— ${x.np||'—'} (${x.cbr||'—'})</span></div>`).join(''):'<div style="color:#9ca3af;font-size:.7rem">Belum ada data.</div>';

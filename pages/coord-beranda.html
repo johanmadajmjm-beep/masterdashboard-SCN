@@ -1,244 +1,801 @@
 <!DOCTYPE html>
-<html lang="id"><head>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>CBR Coordinator — Beranda | MEL NLR</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
-  <title>CBR Coordinator — Beranda | MEL NLR</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <link rel="stylesheet" href="../css/main.css"/>
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
-    .kpi-8{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
-    .kpi-box{background:var(--white);border:1px solid var(--ink-100);border-radius:var(--radius-md);padding:14px;border-top:3px solid var(--kc,var(--nlr-500))}
-    .kpi-box .kv{font-family:var(--font-mono);font-size:1.6rem;font-weight:700;color:var(--kc,var(--ink-900));line-height:1}
-    .kpi-box .kl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-400);margin:6px 0 3px}
-    .kpi-box .ks{font-size:.68rem;color:var(--ink-300)}
-    .obs-domain-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-    .domain-card{background:var(--surface);border-radius:var(--radius-sm);padding:12px}
-    .domain-title{font-size:.72rem;font-weight:700;color:var(--ink-600);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
-    .domain-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:.7rem}
+    /* ══════════════════════════════════════════
+       COORD BERANDA — ENTERPRISE DASHBOARD
+    ══════════════════════════════════════════ */
+
+    /* ── PAGE HEADER ── */
+    .page-header--compact {
+      display        : flex;
+      align-items    : flex-start;
+      justify-content: space-between;
+      margin-bottom  : 16px;
+      padding-left   : 14px;
+      border-left    : 4px solid #F97316;
+    }
+    .page-header--compact h1 {
+      font-size  : 1.15rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color      : #1F2937;
+      margin     : 0 0 2px;
+    }
+    .page-header--compact p {
+      font-size: .72rem;
+      color    : #6b7280;
+      margin   : 0;
+    }
+    .header-freshness {
+      text-align : right;
+      font-size  : .62rem;
+      color      : #9ca3af;
+      white-space: nowrap;
+      line-height: 1.6;
+    }
+    .header-freshness strong { color:#6b7280; font-weight:600; }
+
+    /* ── KPI ROW ── */
+    .kpi-8 {
+      display              : grid;
+      grid-template-columns: repeat(auto-fit,minmax(140px,1fr));
+      gap                  : 8px;
+      margin-bottom        : 16px;
+    }
+    .kpi-box {
+      background   : white;
+      border       : 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding      : 12px 14px;
+      position     : relative;
+      overflow     : hidden;
+      display      : flex;
+      align-items  : flex-start;
+      gap          : 10px;
+    }
+    .kpi-box::before {
+      content   : '';
+      position  : absolute;
+      top:0; left:0;
+      width     : 3px;
+      height    : 100%;
+      background: var(--kc,#F97316);
+    }
+    .kpi-icon {
+      width          : 32px;
+      height         : 32px;
+      border-radius  : 8px;
+      display        : flex;
+      align-items    : center;
+      justify-content: center;
+      flex-shrink    : 0;
+    }
+    .kpi-icon svg { width:15px; height:15px; }
+    .kpi-body { flex:1; min-width:0; }
+    .kpi-v { font-size:1.5rem; font-weight:800; color:var(--kc,#F97316); line-height:1; }
+    .kpi-l { font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#9ca3af; margin:4px 0 2px; }
+    .kpi-s { font-size:.61rem; color:#9ca3af; }
+
+    /* ── MAIN 2-COL LAYOUT ── */
+    .coord-row {
+      display: grid;
+      gap    : 14px;
+      margin-bottom: 14px;
+    }
+    .coord-row.col-2     { grid-template-columns: 1fr 1fr; }
+    .coord-row.col-6-4   { grid-template-columns: 3fr 2fr; }
+    .coord-row.col-3     { grid-template-columns: 1fr 1fr 1fr; }
+    @media(max-width:1100px){ .coord-row { grid-template-columns:1fr !important; } }
+
+    /* ── PANEL ── */
+    .panel {
+      background   : white;
+      border       : 1px solid #e5e7eb;
+      border-radius: 12px;
+      overflow     : hidden;
+    }
+    .panel-head {
+      display        : flex;
+      align-items    : center;
+      justify-content: space-between;
+      padding        : 12px 16px;
+      border-bottom  : 1px solid #f3f4f6;
+      gap            : 8px;
+    }
+    .panel-title {
+      font-size  : .8rem;
+      font-weight: 700;
+      color      : #111827;
+    }
+    .panel-body { padding:16px; }
+    .panel-body.no-pad { padding:0; }
+
+    /* ── BADGE ── */
+    .badge-sm {
+      font-size    : .62rem;
+      font-weight  : 700;
+      padding      : 2px 8px;
+      border-radius: 99px;
+      white-space  : nowrap;
+    }
+    .badge-red    { background:#fee2e2; color:#dc2626; }
+    .badge-orange { background:#fff7ed; color:#d4500a; }
+    .badge-blue   { background:#dbeafe; color:#2563eb; }
+    .badge-green  { background:#dcfce7; color:#15803d; }
+
+    /* ── SKOR DISTRIBUSI ── */
+    .skor-bar-row {
+      display      : flex;
+      align-items  : center;
+      gap          : 10px;
+      padding      : 7px 0;
+      border-bottom: 1px solid #f9fafb;
+      font-size    : .75rem;
+    }
+    .skor-bar-row:last-child { border-bottom:none; }
+    .skor-label { min-width:90px; font-weight:600; }
+    .prog-wrap  { flex:1; height:8px; background:#f3f4f6; border-radius:99px; overflow:hidden; }
+    .prog-fill  { height:100%; border-radius:99px; transition:width .4s ease; }
+    .skor-num   { font-size:.72rem; font-weight:700; min-width:60px; text-align:right; color:#6b7280; }
+
+    /* ── TABEL PERHATIAN ── */
+    .tbl-perhatian { width:100%; border-collapse:collapse; font-size:.75rem; }
+    .tbl-perhatian thead th {
+      background    : #f9fafb;
+      color         : #9ca3af;
+      font-size     : .62rem;
+      font-weight   : 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      padding       : 8px 12px;
+      text-align    : left;
+      border-bottom : 1px solid #e5e7eb;
+    }
+    .tbl-perhatian tbody tr { border-bottom:1px solid #f9fafb; }
+    .tbl-perhatian tbody tr:last-child { border-bottom:none; }
+    .tbl-perhatian tbody tr:hover { background:#fafafa; }
+    .tbl-perhatian tbody td { padding:8px 12px; vertical-align:middle; }
+    .avatar-sm {
+      width          : 26px;
+      height         : 26px;
+      border-radius  : 50%;
+      background     : #f3f4f6;
+      display        : inline-flex;
+      align-items    : center;
+      justify-content: center;
+      font-size      : .6rem;
+      font-weight    : 700;
+      color          : #6b7280;
+      margin-right   : 6px;
+      vertical-align : middle;
+      flex-shrink    : 0;
+    }
+    .level-badge {
+      font-size    : .6rem;
+      font-weight  : 700;
+      padding      : 2px 6px;
+      border-radius: 4px;
+      white-space  : nowrap;
+    }
+    .alasan-text { font-size:.68rem; color:#6b7280; }
+
+    /* ── WORKER TABLE ── */
+    .tbl-worker { width:100%; border-collapse:collapse; font-size:.74rem; }
+    .tbl-worker thead th {
+      background    : #f9fafb;
+      color         : #9ca3af;
+      font-size     : .6rem;
+      font-weight   : 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      padding       : 8px 10px;
+      text-align    : left;
+      border-bottom : 1px solid #e5e7eb;
+    }
+    .tbl-worker thead th.right { text-align:center; }
+    .tbl-worker tbody tr { border-bottom:1px solid #f9fafb; }
+    .tbl-worker tbody tr:last-child { border-bottom:none; }
+    .tbl-worker tbody tr:hover { background:#fafafa; }
+    .tbl-worker tbody td { padding:7px 10px; vertical-align:middle; }
+    .tbl-worker tbody td.center { text-align:center; }
+    .mini-prog-wrap { height:5px; background:#f3f4f6; border-radius:99px; overflow:hidden; margin-top:3px; }
+    .mini-prog-fill { height:100%; border-radius:99px; }
+
+    /* ── ICF DOMAINS ── */
+    .icf-grid {
+      display              : grid;
+      grid-template-columns: 1fr 1fr;
+      gap                  : 12px;
+    }
+    .icf-domain {
+      background   : #f9fafb;
+      border-radius: 10px;
+      padding      : 12px 14px;
+      border-left  : 3px solid var(--dc, #1a6fd4);
+    }
+    .icf-domain-head {
+      display      : flex;
+      align-items  : center;
+      gap          : 8px;
+      margin-bottom: 8px;
+    }
+    .icf-domain-icon {
+      width          : 26px;
+      height         : 26px;
+      border-radius  : 6px;
+      background     : var(--di, rgba(26,111,212,.1));
+      display        : flex;
+      align-items    : center;
+      justify-content: center;
+      flex-shrink    : 0;
+    }
+    .icf-domain-icon svg { width:13px; height:13px; }
+    .icf-domain-label { font-size:.68rem; font-weight:700; color:var(--dc,#1a6fd4); text-transform:uppercase; letter-spacing:.05em; }
+    .icf-pct { font-size:1.1rem; font-weight:800; color:var(--dc,#1a6fd4); line-height:1; }
+    .icf-sub { font-size:.62rem; color:#9ca3af; margin-top:2px; }
+    .icf-prog-wrap { height:6px; background:#e5e7eb; border-radius:99px; overflow:hidden; margin:8px 0 4px; }
+    .icf-prog-fill { height:100%; border-radius:99px; background:var(--dc,#1a6fd4); }
+
+    /* ── DISTRIBUSI DONUT ── */
+    .dist-row {
+      display      : grid;
+      grid-template-columns: 160px 1fr;
+      gap          : 16px;
+      align-items  : center;
+    }
+    .donut-wrap { position:relative; height:150px; }
+    .donut-center {
+      position  : absolute;
+      top:50%; left:50%;
+      transform : translate(-50%,-55%);
+      text-align: center;
+      pointer-events:none;
+    }
+    .donut-center-num   { font-size:1.5rem; font-weight:800; color:#111827; line-height:1; }
+    .donut-center-label { font-size:.55rem; color:#9ca3af; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+    .dist-legend { list-style:none; padding:0; margin:0; }
+    .dist-legend li {
+      display      : flex;
+      align-items  : center;
+      justify-content: space-between;
+      padding      : 5px 0;
+      border-bottom: 1px solid #f9fafb;
+      font-size    : .72rem;
+    }
+    .dist-legend li:last-child { border-bottom:none; }
+    .dist-legend-label { display:flex; align-items:center; gap:7px; }
+    .dist-dot { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
+    .dist-num { font-weight:700; color:#111827; }
+    .dist-pct { font-size:.65rem; color:#9ca3af; margin-left:4px; }
+
+    /* ── INTISARI BOX ── */
+    .intisari-box {
+      background   : #fff9f5;
+      border       : 1px solid rgba(212,80,10,.15);
+      border-left  : 4px solid #d4500a;
+      border-radius: 10px;
+      padding      : 14px 16px;
+    }
+    .intisari-head {
+      display      : flex;
+      align-items  : center;
+      gap          : 8px;
+      margin-bottom: 10px;
+      font-size    : .75rem;
+      font-weight  : 700;
+      color        : #d4500a;
+    }
+    .intisari-head svg { width:15px; height:15px; }
+    .intisari-list { list-style:none; padding:0; margin:0; }
+    .intisari-list li {
+      display      : flex;
+      align-items  : flex-start;
+      gap          : 8px;
+      padding      : 5px 0;
+      border-bottom: 1px solid rgba(212,80,10,.08);
+      font-size    : .72rem;
+      color        : #374151;
+      line-height  : 1.5;
+    }
+    .intisari-list li:last-child { border-bottom:none; }
+    .intisari-check { color:#059669; font-weight:700; flex-shrink:0; }
+    .intisari-link {
+      display    : block;
+      font-size  : .65rem;
+      font-weight: 700;
+      color      : #d4500a;
+      margin-top : 10px;
+      text-decoration: none;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:900px){
+      .icf-grid { grid-template-columns:1fr; }
+      .dist-row { grid-template-columns:1fr; }
+    }
   </style>
 </head>
 <body>
-<div class="app"><div class="main">
-  <header class="topbar">
-    <div class="topbar-left"><div class="topbar-breadcrumb">CBR Coordinator <span class="sep">›</span><span class="current">Beranda</span></div></div>
-    <div class="topbar-right">
-      <span class="scn-badge" id="scn-badge">—</span>
-      <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
-      <span id="sync-time" style="font-size:.65rem;color:var(--ink-300);display:none"></span>
-      <span class="topbar-date" id="topbar-date">—</span>
-    </div>
-  </header>
-  <div class="page">
-    <div class="page-header"><h1>Beranda CBR Coordinator</h1><p>Overview program, kondisi beneficiary, dan kinerja seluruh CBR Worker.</p></div>
-
-    <!-- 8 KPI -->
-    <div class="kpi-8" id="kpi-coord"></div>
-
-    <!-- Quick stats distribusi -->
-    <div class="grid-2" style="margin-top:16px">
-      <div class="card">
-        <div class="card-head"><span class="card-title">Distribusi Skor Anak</span></div>
-        <div class="card-body" id="skor-dist-coord"></div>
+<div class="app">
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="openSidebar()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="topbar-breadcrumb">CBR Coordinator <span class="sep">›</span><span class="current">Beranda</span></div>
       </div>
-      <div class="card">
-        <div class="card-head"><span class="card-title">Anak Perlu Perhatian</span><span class="badge badge-red" id="badge-perhatian">—</span></div>
-        <div class="card-body no-pad"><div class="tbl-wrap"><table>
-          <thead><tr><th>Nama Anak</th><th>CBR Worker</th><th style="text-align:center">Skor</th><th>Level</th></tr></thead>
-          <tbody id="tbl-perhatian"></tbody>
-        </table></div></div>
+      <div class="topbar-right">
+        <span class="scn-badge" id="scn-badge">—</span>
+        <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+        <span id="sync-time" style="font-size:.65rem;color:#9ca3af;display:none"></span>
+        <span class="topbar-date" id="topbar-date">—</span>
       </div>
-    </div>
+    </header>
 
-    <div class="grid-2" style="margin-top:20px">
+    <div class="page">
 
-      <!-- Worker performance table -->
-      <div class="card">
-        <div class="card-head"><span class="card-title">Kinerja Per CBR Worker</span><span class="badge badge-nlr" id="badge-worker-count">—</span></div>
-        <div class="card-body no-pad"><div class="tbl-wrap"><table>
-          <thead><tr><th>CBR Worker</th><th style="text-align:center">Anak</th><th style="text-align:center">Kunjungan</th><th style="text-align:center">Avg Skor</th><th style="text-align:center">Kritis</th><th style="text-align:center">Terlambat</th></tr></thead>
-          <tbody id="tbl-workers"></tbody>
-        </table></div></div>
-      </div>
-
-      <!-- ICF Overview dari Observasi -->
-      <div class="card">
-        <div class="card-head"><span class="card-title">Temuan ICF — Ringkasan Domain</span><span class="badge badge-blue" id="badge-obs-count">— obs</span></div>
-        <div class="card-body">
-          <div class="obs-domain-grid" id="icf-domain-grid"></div>
+      <!-- PAGE HEADER -->
+      <div class="page-header--compact">
+        <div>
+          <h1>Beranda CBR Coordinator</h1>
+          <p>Overview program, kondisi beneficiary, dan kinerja seluruh CBR Worker.</p>
+        </div>
+        <div class="header-freshness" id="header-freshness">
+          <div>⊙ Data terakhir diperbarui</div>
+          <div><strong id="freshness-detail">—</strong></div>
         </div>
       </div>
 
-    </div>
+      <!-- KPI ROW -->
+      <div class="kpi-8" id="kpi-coord"></div>
 
-    <!-- Distribusi ragam + level -->
-    <div class="grid-2" style="margin-top:16px">
-      <div class="card">
-        <div class="card-head"><span class="card-title">Distribusi Ragam Disabilitas</span></div>
-        <div class="card-body" id="ragam-dist"></div>
+      <!-- ROW 1: Distribusi Skor + Anak Perlu Perhatian -->
+      <div class="coord-row col-2">
+
+        <!-- Distribusi Skor Anak -->
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">Distribusi Skor Anak</span>
+          </div>
+          <div class="panel-body" id="skor-dist-coord"></div>
+        </div>
+
+        <!-- Anak Perlu Perhatian -->
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">Anak Perlu Perhatian</span>
+            <span class="badge-sm badge-red" id="badge-perhatian">—</span>
+          </div>
+          <div class="panel-body no-pad">
+            <div style="overflow-x:auto">
+              <table class="tbl-perhatian">
+                <thead>
+                  <tr>
+                    <th>Nama Anak</th>
+                    <th>CBR Worker</th>
+                    <th class="right">Skor</th>
+                    <th>Level</th>
+                    <th>Alasan</th>
+                  </tr>
+                </thead>
+                <tbody id="tbl-perhatian"></tbody>
+              </table>
+            </div>
+            <a href="coord-benef.html" style="display:block;text-align:center;font-size:.68rem;font-weight:700;color:#d4500a;padding:10px;border-top:1px solid #f3f4f6;text-decoration:none">Lihat semua →</a>
+          </div>
+        </div>
+
       </div>
-      <div class="card">
-        <div class="card-head"><span class="card-title">Distribusi Level Disabilitas</span></div>
-        <div class="card-body" id="level-dist"></div>
+
+      <!-- ROW 2: Kinerja Worker + ICF -->
+      <div class="coord-row col-2">
+
+        <!-- Kinerja Per CBR Worker -->
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">Kinerja Per CBR Worker</span>
+            <span class="badge-sm badge-orange" id="badge-worker-count">—</span>
+          </div>
+          <div class="panel-body no-pad">
+            <div style="overflow-x:auto">
+              <table class="tbl-worker">
+                <thead>
+                  <tr>
+                    <th>CBR Worker</th>
+                    <th class="right">Anak</th>
+                    <th class="right">Kunjungan</th>
+                    <th class="right">Avg Skor</th>
+                    <th class="right">Kritis</th>
+                    <th class="right">Terlambat</th>
+                  </tr>
+                </thead>
+                <tbody id="tbl-workers"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ICF Ringkasan Domain -->
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">Temuan ICF — Ringkasan Domain</span>
+            <span class="badge-sm badge-blue" id="badge-obs-count">— obs</span>
+          </div>
+          <div class="panel-body">
+            <div class="icf-grid" id="icf-domain-grid"></div>
+          </div>
+        </div>
+
       </div>
-    </div>
-  </div>
-</div></div>
+
+      <!-- ROW 3: Ragam + Level + Intisari -->
+      <div class="coord-row col-3">
+
+        <!-- Distribusi Ragam -->
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">Distribusi Ragam Disabilitas</span>
+          </div>
+          <div class="panel-body">
+            <div class="dist-row">
+              <div class="donut-wrap">
+                <canvas id="c-ragam-donut"></canvas>
+                <div class="donut-center">
+                  <div class="donut-center-num" id="ragam-total">—</div>
+                  <div class="donut-center-label">Anak</div>
+                </div>
+              </div>
+              <ul class="dist-legend" id="ragam-legend"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distribusi Level -->
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">Distribusi Level Disabilitas</span>
+          </div>
+          <div class="panel-body">
+            <div class="dist-row">
+              <div class="donut-wrap">
+                <canvas id="c-level-donut"></canvas>
+                <div class="donut-center">
+                  <div class="donut-center-num" id="level-total">—</div>
+                  <div class="donut-center-label">Anak</div>
+                </div>
+              </div>
+              <ul class="dist-legend" id="level-legend"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Intisari Hari Ini -->
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">Intisari Hari Ini</span>
+          </div>
+          <div class="panel-body">
+            <div class="intisari-box">
+              <div class="intisari-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Ringkasan Program
+              </div>
+              <ul class="intisari-list" id="intisari-list"></ul>
+              <a href="mel-beranda.html" class="intisari-link">Lihat laporan lengkap →</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /.page -->
+  </div><!-- /.main -->
+</div><!-- /.app -->
+
 <script>
-const RAGAM_COLOR={Fisik:'#1a6fd4',Intelektual:'#10b8a6','Sensorik (penglihatan)':'#d97706','Sensorik (pendengaran dan bicara)':'#7c3aed',Ganda:'#dc2626',Lainnya:'#6b7280'};
-const LEVEL_COLOR={'Parah (dukungan penuh)':'#dc2626','Sedang (dukungan reguler)':'#d97706','Rendah (sedikit dukungan)':'#16a34a'};
-function sc(v){return v<=3?'#dc2626':v<=6?'#d97706':'#16a34a';}
+// ── HELPERS ────────────────────────────────────────────────
+const RAGAM_COLOR = {
+  'Fisik'                              : '#1a6fd4',
+  'Intelektual'                        : '#10b8a6',
+  'Sensorik (penglihatan)'             : '#d97706',
+  'Sensorik (pendengaran dan bicara)'  : '#7c3aed',
+  'Ganda'                              : '#dc2626',
+  'Lainnya'                            : '#6b7280',
+};
+const LEVEL_COLOR = {
+  'Parah (dukungan penuh)'   : '#dc2626',
+  'Sedang (dukungan reguler)': '#d97706',
+  'Rendah (sedikit dukungan)': '#16a34a',
+};
+const LEVEL_LABEL = {
+  'Parah (dukungan penuh)'   : 'Berat',
+  'Sedang (dukungan reguler)': 'Sedang',
+  'Rendah (sedikit dukungan)': 'Ringan',
+};
 
-function renderPage(d, scnId) {
-  if (!d||!d.anak) return;
+const KPI_ICONS = {
+  total   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  skor    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+  kritis  : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  parah   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  obs     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+  belum   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>`,
+  late    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  worker  : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`,
+};
+
+let CHARTS = {};
+
+function sc(v){ return v<=3?'#dc2626':v<=5?'#d97706':v<=7?'#f59e0b':'#16a34a'; }
+function scBg(v){ return v<=3?'#fee2e2':v<=5?'#fef3c7':v<=7?'#fffbeb':'#dcfce7'; }
+function avg(arr){ const v=arr.filter(x=>x!=null&&!isNaN(x)); return v.length?v.reduce((a,b)=>a+b,0)/v.length:0; }
+
+function mkDonut(id, labels, data, colors){
+  if(CHARTS[id]){ CHARTS[id].destroy(); delete CHARTS[id]; }
+  const el = document.getElementById(id); if(!el) return;
+  CHARTS[id] = new Chart(el,{
+    type:'doughnut',
+    data:{ labels, datasets:[{ data, backgroundColor:colors, borderColor:'#F8FAFC', borderWidth:2, hoverOffset:4 }]},
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'65%',
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'} }
+    }
+  });
+}
+
+// ── RENDER PAGE ────────────────────────────────────────────
+function renderPage(d, scnId){
+  if(!d||!d.anak) return;
   const anak    = d.anak;
   const workers = d.workers||[];
   const obs     = d.obs||[];
   const total   = anak.length;
 
   const obsMap={};
-  obs.forEach(o=>{if(o.na) obsMap[o.na.toLowerCase()]=o;});
+  obs.forEach(o=>{ if(o.na) obsMap[o.na.toLowerCase()]=o; });
 
-  const lk     = anak.filter(a=>a.gender==='L').length;
-  const pr     = anak.filter(a=>a.gender==='P').length;
-  const sp     = anak.map(a=>a.sp).filter(v=>v!=null);
-  const avSA   = sp.length?(sp.reduce((s,v)=>s+v,0)/sp.length).toFixed(1):0;
-  const parah  = anak.filter(a=>(a.level||'').includes('Parah')).length;
-  const kritis = anak.filter(a=>a.sp!=null&&a.sp<=3).length;
-  const ep     = anak.filter(a=>a.ep).length;
-  const punyaObs=anak.filter(a=>obsMap[a.nama?.toLowerCase()]).length;
-  const belumObs=total-punyaObs;
-  const terlambat=anak.filter(a=>a.hari>30).length;
-  const totalKunj=workers.reduce((s,w)=>s+w.kunjungan_bulan,0);
+  const lk         = anak.filter(a=>a.gender==='L').length;
+  const pr         = anak.filter(a=>a.gender==='P').length;
+  const sp         = anak.map(a=>a.sp).filter(v=>v!=null);
+  const avSP       = sp.length ? avg(sp) : 0;
+  const parah      = anak.filter(a=>(a.level||'').includes('Parah')).length;
+  const kritis     = anak.filter(a=>a.sp!=null&&a.sp<=3).length;
+  const punyaObs   = anak.filter(a=>obsMap[a.nama?.toLowerCase()]).length;
+  const belumObs   = total - punyaObs;
+  const terlambat  = anak.filter(a=>a.hari>30).length;
+  const totalKunj  = workers.reduce((s,w)=>s+w.kunjungan_bulan,0);
 
-  // KPI 8
-  document.getElementById('kpi-coord').innerHTML=[
-    {v:total,    l:'Total Beneficiary',   s:lk+' L · '+pr+' P',        c:'var(--nlr-600)'},
-    {v:avSA,     l:'Avg Skor Anak',       s:'Cantrill Ladder 1–10',     c:sc(parseFloat(avSA)||0)},
-    {v:kritis,   l:'Kondisi Kritis',      s:'Skor ≤ 3',                 c:'#dc2626'},
-    {v:parah,    l:'Level Parah',         s:'Dukungan penuh',           c:'#dc2626'},
-    {v:punyaObs, l:'Sudah Diobservasi',   s:'dari '+total+' anak',      c:'#16a34a'},
-    {v:belumObs, l:'Belum Diobservasi',   s:'perlu kunjungan',          c:belumObs>20?'#dc2626':'#d97706'},
-    {v:terlambat,l:'>30 Hari Tdk Dikunjungi',s:'perlu tindak lanjut',   c:terlambat>0?'#dc2626':'#16a34a'},
-    {v:workers.length,l:'CBR Worker Aktif',s:totalKunj+' kunjungan bulan ini',c:'#0284c7'},
-  ].map(k=>`<div class="kpi-box" style="--kc:${k.c}"><div class="kv">${k.v}</div><div class="kl">${k.l}</div><div class="ks">${k.s}</div></div>`).join('');
+  // ── KPI ──
+  const kpiData = [
+    {v:total,         l:'Total Beneficiary',        s:lk+' L · '+pr+' P',            c:'#F97316', ki:'rgba(249,115,22,.1)',  icon:KPI_ICONS.total},
+    {v:avSP.toFixed(1),l:'Avg Skor Anak',           s:'Cantrill Ladder 1–10',         c:sc(avSP),  ki:scBg(avSP),            icon:KPI_ICONS.skor},
+    {v:kritis,        l:'Kondisi Kritis',            s:'Skor ≤ 3',                     c:'#dc2626', ki:'#fee2e2',             icon:KPI_ICONS.kritis},
+    {v:parah,         l:'Level Parah',               s:'Dukungan penuh',               c:'#dc2626', ki:'#fee2e2',             icon:KPI_ICONS.parah},
+    {v:punyaObs,      l:'Sudah Diobservasi',         s:'dari '+total+' anak',          c:'#16a34a', ki:'#dcfce7',             icon:KPI_ICONS.obs},
+    {v:belumObs,      l:'Belum Diobservasi',         s:'perlu kunjungan',              c:belumObs>20?'#dc2626':'#d97706', ki:belumObs>20?'#fee2e2':'#fef3c7', icon:KPI_ICONS.belum},
+    {v:terlambat,     l:'>30 Hari Tdk Dikunjungi',  s:'perlu tindak lanjut',          c:terlambat>0?'#dc2626':'#16a34a', ki:terlambat>0?'#fee2e2':'#dcfce7', icon:KPI_ICONS.late},
+    {v:workers.length,l:'CBR Worker Aktif',          s:totalKunj+' kunjungan bulan ini', c:'#2563eb', ki:'#dbeafe',           icon:KPI_ICONS.worker},
+  ];
+  document.getElementById('kpi-coord').innerHTML = kpiData.map(k=>`
+    <div class="kpi-box" style="--kc:${k.c}">
+      <div class="kpi-icon" style="background:${k.ki};color:${k.c}">${k.icon}</div>
+      <div class="kpi-body">
+        <div class="kpi-v">${k.v}</div>
+        <div class="kpi-l">${k.l}</div>
+        <div class="kpi-s">${k.s}</div>
+      </div>
+    </div>`).join('');
 
+  // ── DISTRIBUSI SKOR ──
+  const skorGroups=[
+    {l:'Kritis (1–3)', n:anak.filter(a=>a.sp!=null&&a.sp<=3).length,          c:'#dc2626'},
+    {l:'Rendah (4–5)', n:anak.filter(a=>a.sp!=null&&a.sp>=4&&a.sp<=5).length, c:'#d97706'},
+    {l:'Sedang (6–7)', n:anak.filter(a=>a.sp!=null&&a.sp>=6&&a.sp<=7).length, c:'#f59e0b'},
+    {l:'Baik (8–10)',  n:anak.filter(a=>a.sp!=null&&a.sp>=8).length,           c:'#16a34a'},
+    {l:'Belum diisi',  n:anak.filter(a=>a.sp==null).length,                    c:'#9ca3af'},
+  ];
+  const maxSkor = Math.max(...skorGroups.map(g=>g.n),1);
+  document.getElementById('skor-dist-coord').innerHTML = skorGroups.map(g=>`
+    <div class="skor-bar-row">
+      <span class="skor-label" style="color:${g.c}">${g.l}</span>
+      <div class="prog-wrap"><div class="prog-fill" style="width:${Math.round(g.n/maxSkor*100)}%;background:${g.c}"></div></div>
+      <span class="skor-num">${g.n} (${total>0?Math.round(g.n/total*100):0}%)</span>
+    </div>`).join('');
 
-  // Worker table
-  document.getElementById('badge-worker-count').textContent=workers.length+' petugas';
-  document.getElementById('tbl-workers').innerHTML=workers.map(w=>{
-    const myAnak=anak.filter(a=>a.cbr===w.nama);
-    const mySp=myAnak.map(a=>a.sp).filter(v=>v!=null);
-    const myAvg=mySp.length?(mySp.reduce((s,v)=>s+v,0)/mySp.length).toFixed(1):'—';
-    const myKritis=myAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
-    const pct=w.anak>0?Math.min(Math.round(w.kunjungan_bulan/w.anak*100),100):0;
-    const col=pct>=80?'#16a34a':pct>=50?'#1a6fd4':'#d97706';
+  // ── TABEL PERHATIAN ──
+  const perhatian = anak
+    .filter(a=>(a.sp!=null&&a.sp<=4)||a.hari>30)
+    .sort((a,b)=>(a.sp||10)-(b.sp||10))
+    .slice(0,10);
+  document.getElementById('badge-perhatian').textContent = perhatian.length+' anak';
+
+  const alasanFor = a => {
+    if(a.sp!=null&&a.sp<=3) return 'Skor sangat rendah';
+    if(a.sp!=null&&a.sp<=4) return 'Skor rendah';
+    if(a.hari>30)           return 'Belum dikunjungi >'+a.hari+' hari';
+    return '—';
+  };
+  const levelBadgeColor = l => {
+    if((l||'').includes('Parah'))  return {bg:'#fee2e2',c:'#dc2626'};
+    if((l||'').includes('Sedang')) return {bg:'#fef3c7',c:'#d97706'};
+    return {bg:'#dcfce7',c:'#16a34a'};
+  };
+  document.getElementById('tbl-perhatian').innerHTML = perhatian.length
+    ? perhatian.map(a=>{
+        const lbc = levelBadgeColor(a.level);
+        const init = (a.nama||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+        return `<tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:0">
+              <span class="avatar-sm">${init}</span>
+              <strong style="font-size:.74rem">${a.nama||'—'}</strong>
+            </div>
+          </td>
+          <td style="font-size:.68rem;color:#6b7280">${a.cbr||'—'}</td>
+          <td class="center">
+            <span style="font-size:.85rem;font-weight:800;color:${a.sp!=null?sc(a.sp):'#9ca3af'}">${a.sp!=null?a.sp:'—'}</span>
+          </td>
+          <td>
+            <span class="level-badge" style="background:${lbc.bg};color:${lbc.c}">
+              ${(a.level||'—').split(' ')[0]}
+            </span>
+          </td>
+          <td class="alasan-text">${alasanFor(a)}</td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="5" style="text-align:center;padding:20px;color:#9ca3af;font-size:.75rem">Tidak ada anak perlu perhatian</td></tr>';
+
+  // ── WORKER TABLE ──
+  document.getElementById('badge-worker-count').textContent = workers.length+' petugas';
+  document.getElementById('tbl-workers').innerHTML = workers.map(w=>{
+    const myAnak  = anak.filter(a=>a.cbr===w.nama);
+    const mySp    = myAnak.map(a=>a.sp).filter(v=>v!=null);
+    const myAvg   = mySp.length ? avg(mySp).toFixed(1) : '—';
+    const myKritis= myAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
+    const pct     = w.anak>0?Math.min(Math.round(w.kunjungan_bulan/w.anak*100),100):0;
+    const pctCol  = pct>=80?'#16a34a':pct>=50?'#2563eb':'#d97706';
     return `<tr>
-      <td><strong>${w.nama}</strong></td>
-      <td class="mono" style="text-align:center">${w.anak}</td>
-      <td style="text-align:center">
-        <div style="display:flex;align-items:center;gap:6px">
-          <div class="prog-wrap" style="width:60px"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div>
-          <span class="mono" style="font-size:.7rem;color:${col}">${pct}%</span>
+      <td><strong style="font-size:.74rem">${w.nama}</strong></td>
+      <td class="center" style="font-weight:700">${w.anak}</td>
+      <td>
+        <div style="min-width:80px">
+          <div style="font-size:.68rem;color:${pctCol};font-weight:700;text-align:center">${pct}%</div>
+          <div class="mini-prog-wrap"><div class="mini-prog-fill" style="width:${pct}%;background:${pctCol}"></div></div>
         </div>
       </td>
-      <td class="mono" style="text-align:center;color:${myAvg!=='—'?sc(parseFloat(myAvg)):''}">${myAvg}</td>
-      <td class="mono" style="text-align:center;color:${myKritis>0?'#dc2626':'var(--ink-300)'}">${myKritis}</td>
-      <td class="mono" style="text-align:center;color:${w.late>0?'#dc2626':'#16a34a'};font-weight:${w.late>0?700:400}">${w.late}</td>
+      <td class="center" style="font-weight:700;color:${myAvg!=='—'?sc(parseFloat(myAvg)):'#9ca3af'}">${myAvg}</td>
+      <td class="center" style="color:${myKritis>0?'#dc2626':'#9ca3af'};font-weight:${myKritis>0?700:400}">${myKritis}</td>
+      <td class="center" style="color:${w.late>0?'#dc2626':'#9ca3af'};font-weight:${w.late>0?700:400}">${w.late}</td>
     </tr>`;
   }).join('');
 
-  // ICF domain overview dari obs
-  document.getElementById('badge-obs-count').textContent=obs.length+' observasi';
+  // ── ICF DOMAINS ──
+  document.getElementById('badge-obs-count').textContent = obs.length+' observasi';
   const domains=[
-    {key:'st',label:'Struktur Tubuh',color:'#1a6fd4'},
-    {key:'kg',label:'Kegiatan & Partisipasi',color:'#10b8a6'},
-    {key:'pf',label:'Faktor Personal',color:'#7c3aed'},
-    {key:'lg',label:'Lingkungan',color:'#d97706'},
+    {key:'st', label:'Struktur Tubuh',        c:'#1a6fd4', ci:'rgba(26,111,212,.1)',
+      icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#1a6fd4" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`},
+    {key:'kg', label:'Kegiatan & Partisipasi', c:'#10b8a6', ci:'rgba(16,184,166,.1)',
+      icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#10b8a6" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`},
+    {key:'pf', label:'Faktor Personal',        c:'#7c3aed', ci:'rgba(124,58,237,.1)',
+      icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>`},
+    {key:'lg', label:'Lingkungan',             c:'#d97706', ci:'rgba(217,119,6,.1)',
+      icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`},
   ];
-  document.getElementById('icf-domain-grid').innerHTML=domains.map(dom=>{
-    const vals=obs.map(o=>o[dom.key]).filter(v=>v&&v.length>2);
-    const hasPosKata=['baik','mampu','aktif','bisa','normal','fasilitator'];
-    const hasNegKata=['terganggu','terbatas','hambatan','tidak bisa','sulit','tidak mampu'];
-    const pos=vals.filter(v=>hasPosKata.some(k=>v.toLowerCase().includes(k))).length;
-    const neg=vals.filter(v=>hasNegKata.some(k=>v.toLowerCase().includes(k))).length;
-    const pct=vals.length>0?Math.round(pos/vals.length*100):0;
-    return `<div class="domain-card" style="border-left:3px solid ${dom.color}">
-      <div class="domain-title" style="color:${dom.color}">${dom.label}</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-        <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${pct}%;background:${dom.color}"></div></div>
-        <span class="mono" style="font-size:.75rem;color:${dom.color}">${pct}% baik</span>
+  const posKata = ['baik','mampu','aktif','bisa','normal','fasilitator'];
+  const negKata = ['terganggu','terbatas','hambatan','tidak bisa','sulit','tidak mampu'];
+  document.getElementById('icf-domain-grid').innerHTML = domains.map(dom=>{
+    const vals = obs.map(o=>o[dom.key]).filter(v=>v&&v.length>2);
+    const pos  = vals.filter(v=>posKata.some(k=>v.toLowerCase().includes(k))).length;
+    const neg  = vals.filter(v=>negKata.some(k=>v.toLowerCase().includes(k))).length;
+    const pct  = vals.length>0?Math.round(pos/vals.length*100):0;
+    return `<div class="icf-domain" style="--dc:${dom.c};--di:${dom.ci}">
+      <div class="icf-domain-head">
+        <div class="icf-domain-icon" style="background:${dom.ci}">${dom.icon}</div>
+        <span class="icf-domain-label">${dom.label}</span>
       </div>
-      <div style="font-size:.68rem;color:var(--ink-400)">${vals.length} observasi · ${pos} positif · ${neg} perlu perhatian</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span class="icf-pct">${pct}%</span>
+        <span style="font-size:.65rem;color:#9ca3af">baik</span>
+      </div>
+      <div class="icf-prog-wrap"><div class="icf-prog-fill" style="width:${pct}%;background:${dom.c}"></div></div>
+      <div class="icf-sub">${vals.length} observasi · ${pos} positif · ${neg} perlu perhatian</div>
     </div>`;
   }).join('');
 
-  // Distribusi skor anak (untuk mengisi ruang kosong)
-  const skorGroups=[
-    ['Kritis (1–3)',  anak.filter(a=>a.sp!=null&&a.sp<=3).length,  '#dc2626'],
-    ['Rendah (4–5)',  anak.filter(a=>a.sp!=null&&a.sp>=4&&a.sp<=5).length, '#d97706'],
-    ['Sedang (6–7)',  anak.filter(a=>a.sp!=null&&a.sp>=6&&a.sp<=7).length, '#f59e0b'],
-    ['Baik (8–10)',   anak.filter(a=>a.sp!=null&&a.sp>=8).length,  '#16a34a'],
-    ['Belum diisi',   anak.filter(a=>a.sp==null).length,            '#9ca3af'],
-  ];
-  const maxSkor=Math.max(...skorGroups.map(g=>g[1]),1);
-  document.getElementById('skor-dist-coord').innerHTML=skorGroups.map(([l,n,c])=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:.77rem">
-      <span style="min-width:90px;color:${c};font-weight:600">${l}</span>
-      <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${Math.round(n/maxSkor*100)}%;background:${c}"></div></div>
-      <span class="mono" style="font-size:.72rem;min-width:50px;text-align:right">${n} (${total>0?Math.round(n/total*100):0}%)</span>
-    </div>`).join('');
-
-  // Tabel anak perlu perhatian (kritis + terlambat)
-  const perhatian=anak.filter(a=>(a.sp!=null&&a.sp<=4)||a.hari>30).sort((a,b)=>(a.sp||10)-(b.sp||10)).slice(0,10);
-  document.getElementById('badge-perhatian').textContent=perhatian.length+' anak';
-  document.getElementById('tbl-perhatian').innerHTML=perhatian.map(a=>`<tr>
-    <td><strong>${a.nama}</strong></td>
-    <td style="font-size:.72rem;color:#6b7280">${a.cbr||'—'}</td>
-    <td style="text-align:center"><span class="mono" style="font-weight:800;color:${a.sp!=null?sc(a.sp):'#9ca3af'}">${a.sp!=null?a.sp:'—'}</span></td>
-    <td style="font-size:.68rem;color:${LC[a.level]||'#9ca3af'}">${(a.level||'—').split('(')[0].trim()}</td>
-  </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;padding:16px;color:#9ca3af">Tidak ada anak perlu perhatian.</td></tr>';
-
-  // Distribusi ragam
+  // ── DONUT RAGAM ──
   const ragamCnt={};
-  anak.forEach(a=>{ragamCnt[a.ragam||'Lainnya']=(ragamCnt[a.ragam||'Lainnya']||0)+1;});
-  const rMax=Math.max(...Object.values(ragamCnt),1);
-  document.getElementById('ragam-dist').innerHTML=Object.entries(ragamCnt).sort((a,b)=>b[1]-a[1]).map(([r,n])=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--ink-100);font-size:.77rem">
-      <span style="min-width:190px;color:${RAGAM_COLOR[r]||'#888'};font-weight:600">${r}</span>
-      <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${Math.round(n/rMax*100)}%;background:${RAGAM_COLOR[r]||'#888'}"></div></div>
-      <span class="mono" style="font-size:.75rem;min-width:24px;text-align:right">${n}</span>
-    </div>`).join('');
+  anak.forEach(a=>{ ragamCnt[a.ragam||'Lainnya']=(ragamCnt[a.ragam||'Lainnya']||0)+1; });
+  const ragamKeys   = Object.keys(ragamCnt).sort((a,b)=>ragamCnt[b]-ragamCnt[a]);
+  const ragamLabels = ragamKeys;
+  const ragamData   = ragamKeys.map(r=>ragamCnt[r]);
+  const ragamColors = ragamKeys.map(r=>RAGAM_COLOR[r]||'#9ca3af');
+  document.getElementById('ragam-total').textContent = total;
+  mkDonut('c-ragam-donut', ragamLabels, ragamData, ragamColors);
+  document.getElementById('ragam-legend').innerHTML = ragamKeys.map(r=>`
+    <li>
+      <span class="dist-legend-label">
+        <span class="dist-dot" style="background:${RAGAM_COLOR[r]||'#9ca3af'}"></span>
+        ${r.replace('Sensorik ','S.')}
+      </span>
+      <span>
+        <span class="dist-num">${ragamCnt[r]}</span>
+        <span class="dist-pct">(${total>0?Math.round(ragamCnt[r]/total*100):0}%)</span>
+      </span>
+    </li>`).join('');
 
-  // Level
-  const levelCnt={};
-  anak.forEach(a=>{levelCnt[a.level||'Tidak diketahui']=(levelCnt[a.level||'Tidak diketahui']||0)+1;});
-  const lMax=Math.max(...Object.values(levelCnt),1);
-  document.getElementById('level-dist').innerHTML=Object.entries(levelCnt).sort((a,b)=>b[1]-a[1]).map(([l,n])=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--ink-100);font-size:.77rem">
-      <span style="min-width:190px;color:${LEVEL_COLOR[l]||'var(--ink-400)'};font-weight:600">${l.split('(')[0].trim()}</span>
-      <div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:${Math.round(n/lMax*100)}%;background:${LEVEL_COLOR[l]||'#888'}"></div></div>
-      <span class="mono" style="font-size:.75rem;min-width:24px;text-align:right">${n}</span>
-    </div>`).join('');
+  // ── DONUT LEVEL ──
+  const levelKeys   = Object.keys(LEVEL_COLOR);
+  const levelCnt    = {};
+  anak.forEach(a=>{ levelCnt[a.level||'Tidak diketahui']=(levelCnt[a.level||'Tidak diketahui']||0)+1; });
+  const levelData   = levelKeys.map(l=>levelCnt[l]||0);
+  const levelColors = levelKeys.map(l=>LEVEL_COLOR[l]);
+  document.getElementById('level-total').textContent = total;
+  mkDonut('c-level-donut', levelKeys.map(l=>LEVEL_LABEL[l]||l), levelData, levelColors);
+  document.getElementById('level-legend').innerHTML = levelKeys.map(l=>`
+    <li>
+      <span class="dist-legend-label">
+        <span class="dist-dot" style="background:${LEVEL_COLOR[l]}"></span>
+        ${LEVEL_LABEL[l]||l}
+      </span>
+      <span>
+        <span class="dist-num">${levelCnt[l]||0}</span>
+        <span class="dist-pct">(${total>0?Math.round((levelCnt[l]||0)/total*100):0}%)</span>
+      </span>
+    </li>`).join('');
+
+  // ── INTISARI ──
+  const icfDomBest = domains.reduce((best,dom)=>{
+    const vals = obs.map(o=>o[dom.key]).filter(v=>v&&v.length>2);
+    const pos  = vals.filter(v=>posKata.some(k=>v.toLowerCase().includes(k))).length;
+    const pct  = vals.length>0?Math.round(pos/vals.length*100):0;
+    return pct > (best.pct||0) ? {label:dom.label, pct} : best;
+  },{});
+
+  const ragamTerbanyak = ragamKeys[0] || '—';
+  const intisari = [
+    kritis>0  ? `${kritis} anak dalam kondisi kritis (skor ≤ 3) perlu perhatian segera.` : 'Tidak ada anak dalam kondisi kritis saat ini.',
+    terlambat>0 ? `${terlambat} anak belum dikunjungi > 30 hari.` : 'Semua anak sudah dikunjungi dalam 30 hari terakhir.',
+    icfDomBest.label ? `Domain ${icfDomBest.label} menunjukkan hasil terbaik (${icfDomBest.pct}%).` : '',
+    `Rata-rata skor anak: ${avSP.toFixed(1)} (kategori ${avSP>=8?'baik':avSP>=6?'sedang':avSP>=4?'rendah':'kritis'}).`,
+  ].filter(Boolean);
+  document.getElementById('intisari-list').innerHTML = intisari.map(t=>`
+    <li><span class="intisari-check">✓</span>${t}</li>`).join('');
+
+  // ── FRESHNESS ──
+  const st = document.getElementById('sync-time');
+  const fd = document.getElementById('freshness-detail');
+  if(st&&fd){ const txt=st.textContent.replace('Sync:','').trim(); if(txt) fd.textContent=txt; }
 }
 </script>
+
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
 <script>
   buildSidebar();
   const SESSION = AUTH.requireAuth('../index.html');
-  if (SESSION) {
+  if(SESSION){
     AUTH.applySession({
-      onScnSwitch: async function(scnId) {
+      onScnSwitch: async function(scnId){
         const d = await API.get(scnId);
-        if (window.renderPage) renderPage(d, scnId);
+        if(window.renderPage) renderPage(d, scnId);
       }
     });
-    AUTH.initSidebar('coord', 'c-beranda');
-    API.get(AUTH.getScnFilter()).then(d => {
-      if (window.renderPage) renderPage(d, AUTH.getScnFilter());
+    AUTH.initSidebar('coord','c-beranda');
+    API.get(AUTH.getScnFilter()).then(d=>{
+      if(window.renderPage) renderPage(d, AUTH.getScnFilter());
     });
   }
 </script>
-</body></html>
+</body>
+</html>

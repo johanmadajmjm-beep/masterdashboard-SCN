@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
   <title>CBR Worker — Observasi | MEL NLR</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <link rel="stylesheet" href="../css/main.css"/>
@@ -287,7 +285,7 @@ const THEMES_ICF = {
 let OBS_DATA   = [];
 let TABEL_DATA = {struktur:[],kegiatan:[],personal:[],lingkungan:[]};
 let CHARTS     = {};
-const PAL = ['#d4500a','#2563eb','#16a34a','#d97706','#7c3aed','#dc2626','#0891b2','#84cc16'];
+const PAL = ['#F97316','#FB923C','#FDBA74','#FED7AA','#1E293B','#475569','#94A3B8','#CBD5E1'];
 
 // ── ANALYZE ────────────────────────────────────────────────
 function analyzeThemes(obs){
@@ -358,7 +356,7 @@ function renderRingkasan(d){
   const tglCnt={};
   obs.forEach(o=>{if(o.tgl)tglCnt[o.tgl]=(tglCnt[o.tgl]||0)+1;});
   const tglSorted=Object.entries(tglCnt).sort((a,b)=>a[0].localeCompare(b[0]));
-  mk('c-tgl','bar',{labels:tglSorted.map(([t])=>t.slice(5)),datasets:[{data:tglSorted.map(([,v])=>v),backgroundColor:'#2563eb',borderRadius:4,borderSkipped:false}]},{...BASE,layout:{padding:{top:18}}});
+  mk('c-tgl','bar',{labels:tglSorted.map(([t])=>t.slice(5)),datasets:[{data:tglSorted.map(([,v])=>v),backgroundColor:'#F97316',borderRadius:4,borderSkipped:false}]},{...BASE,layout:{padding:{top:18}}});
 
   // Domain summary
   const themes=analyzeThemes(obs);
@@ -436,7 +434,7 @@ function renderPersonal(data){
 
   mk('c-personal','bar',{
     labels,
-    datasets:[{data:counts,backgroundColor:'#7c3aed',borderRadius:5,borderSkipped:false}]
+    datasets:[{data:counts,backgroundColor:'#475569',borderRadius:5,borderSkipped:false}]
   },{...BASE,indexAxis:'y',layout:{padding:{right:28}},
     scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}},beginAtZero:true},y:{grid:{display:false},ticks:{color:'#9ca3af',font:{size:10}}}},
     onClick:(e,elements)=>{

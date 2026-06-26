@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="id"><head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
 <title>CBR Coordinator — Per CBR Worker | MEL NLR</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="../css/main.css"/>
@@ -122,13 +120,13 @@ function renderPage(d,scnId){
   }).join('');
 
   // Bar jumlah anak
-  mk('c-worker-bar','bar',{labels:workers.map(w=>w.split(' ').pop()),datasets:[{data:workers.map(w=>ALL_ANAK.filter(a=>a.cbr===w).length),backgroundColor:PAL,borderRadius:5,borderSkipped:false}]},{...BASE,layout:{padding:{top:18}}});
+  mk('c-worker-bar','bar',{labels:workers.map(w=>w.split(' ').pop()),datasets:[{data:workers.map(w=>ALL_ANAK.filter(a=>a.cbr===w).length),backgroundColor:['#F97316','#FB923C','#FDBA74','#FED7AA','#1E293B','#475569','#94A3B8','#CBD5E1'],borderRadius:5,borderSkipped:false}]},{...BASE,layout:{padding:{top:18}}});
 
   // Bar desa top 15
   const desaCnt={};
   ALL_ANAK.forEach(a=>{if(a.desa&&a.desa!=='—')desaCnt[a.desa]=(desaCnt[a.desa]||0)+1;});
   const top15=Object.entries(desaCnt).sort((a,b)=>b[1]-a[1]).slice(0,15);
-  mk('c-desa-bar','bar',{labels:top15.map(x=>x[0]),datasets:[{data:top15.map(x=>x[1]),backgroundColor:PAL.concat(PAL),borderRadius:5,borderSkipped:false}]},{responsive:true,maintainAspectRatio:false,indexAxis:'y',layout:{padding:{right:28}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}},beginAtZero:true},y:{grid:{display:false},ticks:{color:'#9ca3af',font:{size:9}}}},animation:{onComplete:function(){drawLabels(this);}}});
+  mk('c-desa-bar','bar',{labels:top15.map(x=>x[0]),datasets:[{data:top15.map(x=>x[1]),backgroundColor:['#F97316','#FB923C','#FDBA74','#FED7AA','#1E293B','#475569','#94A3B8','#CBD5E1'].concat(PAL),borderRadius:5,borderSkipped:false}]},{responsive:true,maintainAspectRatio:false,indexAxis:'y',layout:{padding:{right:28}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}},beginAtZero:true},y:{grid:{display:false},ticks:{color:'#9ca3af',font:{size:9}}}},animation:{onComplete:function(){drawLabels(this);}}});
 
   // Tabel summary
   document.getElementById('worker-table').innerHTML=`

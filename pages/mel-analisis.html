@@ -7,43 +7,110 @@
   <link rel="stylesheet" href="../css/components.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <style>
-    .analysis-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
-    .analysis-grid.full { grid-template-columns:1fr; }
-    .chart-card { background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-md); overflow:hidden; }
-    .chart-head { padding:14px 18px; border-bottom:1px solid var(--gray-100); display:flex; align-items:center; justify-content:space-between; }
-    .chart-title { font-size:.85rem; font-weight:700; color:var(--gray-900); }
-    .chart-sub { font-size:.7rem; color:var(--gray-400); margin-top:2px; }
-    .chart-body { padding:18px; position:relative; }
-    .chart-body canvas { max-height:280px; }
+    /* ── LAYOUT ── */
+    .an-section { margin-bottom:24px; }
+    .an-section-title { font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--gray-400); margin-bottom:12px; padding-bottom:6px; border-bottom:2px solid var(--gray-100); }
+    .an-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .an-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+    .an-grid-1 { display:grid; grid-template-columns:1fr; gap:16px; }
+    @media(max-width:900px){ .an-grid-2,.an-grid-3{grid-template-columns:1fr;} }
 
-    /* Heatmap */
-    .heatmap-wrap { overflow-x:auto; padding:18px; }
-    .heatmap-table { border-collapse:separate; border-spacing:3px; font-size:.7rem; }
-    .heatmap-table th { padding:6px 10px; text-align:left; font-weight:700; color:var(--gray-500); white-space:nowrap; }
-    .heatmap-table td { width:80px; height:38px; border-radius:6px; text-align:center; vertical-align:middle; font-family:var(--font-mono); font-size:.75rem; font-weight:700; color:white; cursor:default; transition:transform .1s; }
-    .heatmap-table td:hover { transform:scale(1.08); }
-    .hm-label { background:none !important; color:var(--gray-700) !important; font-weight:700; font-size:.7rem; text-align:left !important; width:160px; white-space:nowrap; }
+    /* ── CARD ── */
+    .an-card { background:#fff; border:1px solid var(--gray-200); border-radius:12px; overflow:hidden; }
+    .an-card-head { padding:14px 18px 10px; border-bottom:1px solid var(--gray-100); }
+    .an-card-title { font-size:.84rem; font-weight:700; color:var(--gray-900); }
+    .an-card-sub { font-size:.68rem; color:var(--gray-400); margin-top:2px; }
+    .an-card-body { padding:16px 18px; }
 
-    /* Ranking */
-    .rank-item { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--gray-100); }
-    .rank-item:last-child { border-bottom:none; }
-    .rank-num { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:800; flex-shrink:0; }
-    .rank-1 { background:#fef3c7; color:#92400e; }
-    .rank-2 { background:#f3f4f6; color:#374151; }
-    .rank-3 { background:#fef3c7; color:#78350f; }
-    .rank-other { background:#f9fafb; color:#9ca3af; }
+    /* ── KPI STRIP ── */
+    .kpi-strip { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:20px; }
+    .kpi-tile { background:#fff; border:1px solid var(--gray-200); border-radius:10px; padding:14px 16px; display:flex; align-items:center; gap:12px; }
+    .kpi-tile-ico { width:38px; height:38px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.1rem; }
+    .kpi-tile-num { font-size:1.35rem; font-weight:800; line-height:1; font-family:'JetBrains Mono',monospace; }
+    .kpi-tile-lbl { font-size:.65rem; font-weight:700; color:var(--gray-400); text-transform:uppercase; letter-spacing:.05em; margin-top:2px; }
+    .kpi-tile-sub { font-size:.63rem; color:var(--gray-400); margin-top:1px; }
+
+    /* ── ALERT BANNER ── */
+    .alert-strip { display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
+    .alert-row { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:9px; font-size:.78rem; }
+    .alert-row.red   { background:#fef2f2; border:1px solid #fecaca; color:#991b1b; }
+    .alert-row.amber { background:#fffbeb; border:1px solid #fde68a; color:#92400e; }
+    .alert-row.green { background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; }
+    .alert-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .alert-dot.red   { background:#ef4444; }
+    .alert-dot.amber { background:#f59e0b; }
+    .alert-dot.green { background:#22c55e; }
+
+    /* ── HEATMAP ── */
+    .hm-wrap { overflow-x:auto; }
+    .hm-table { border-collapse:separate; border-spacing:3px; font-size:.68rem; width:100%; }
+    .hm-table th { padding:5px 8px; text-align:center; font-weight:700; color:var(--gray-500); white-space:nowrap; font-size:.65rem; }
+    .hm-table th.hm-scn-col { text-align:left; }
+    .hm-table td { height:34px; border-radius:6px; text-align:center; vertical-align:middle; font-weight:700; transition:transform .1s; cursor:default; font-size:.72rem; }
+    .hm-table td:hover { transform:scale(1.06); }
+    .hm-scn { background:none!important; color:var(--gray-700)!important; font-weight:700; text-align:left!important; width:120px; white-space:nowrap; padding:0 8px 0 0; }
+
+    /* ── RANKING ── */
+    .rank-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--gray-100); }
+    .rank-row:last-child { border-bottom:none; }
+    .rank-badge { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:800; flex-shrink:0; }
     .rank-info { flex:1; min-width:0; }
-    .rank-name { font-weight:700; font-size:.82rem; color:var(--gray-900); }
-    .rank-detail { font-size:.7rem; color:var(--gray-400); margin-top:1px; }
-    .rank-score { font-family:var(--font-mono); font-size:1rem; font-weight:700; }
+    .rank-name { font-weight:700; font-size:.8rem; color:var(--gray-900); }
+    .rank-prov { font-size:.67rem; color:var(--gray-400); }
+    .rank-bar-wrap { width:70px; }
+    .rank-pct { font-size:.9rem; font-weight:800; font-family:'JetBrains Mono',monospace; text-align:right; width:44px; }
 
-    /* Insight cards */
-    .insight-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:20px; }
-    .insight-card { background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-md); padding:16px; }
-    .insight-icon { font-size:1.4rem; margin-bottom:8px; }
-    .insight-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--gray-400); margin-bottom:4px; }
-    .insight-value { font-size:.95rem; font-weight:700; color:var(--gray-900); line-height:1.3; }
-    .insight-sub { font-size:.7rem; color:var(--gray-500); margin-top:3px; }
+    /* ── PROGRESS BAR ── */
+    .prog-track { height:6px; background:var(--gray-100); border-radius:3px; overflow:hidden; margin-top:3px; }
+    .prog-fill  { height:100%; border-radius:3px; }
+
+    /* ── WELLBEING ── */
+    .wb-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .wb-item { background:var(--gray-50); border-radius:9px; padding:12px 14px; }
+    .wb-scn  { font-size:.7rem; font-weight:700; color:var(--gray-600); margin-bottom:6px; }
+    .wb-scores { display:flex; gap:10px; align-items:center; }
+    .wb-score-box { text-align:center; flex:1; }
+    .wb-score-val { font-size:1.3rem; font-weight:800; font-family:'JetBrains Mono',monospace; }
+    .wb-score-lbl { font-size:.6rem; color:var(--gray-400); font-weight:600; text-transform:uppercase; }
+
+    /* ── ICF DOMAIN BAR ── */
+    .icf-domain-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .icf-domain-label { font-size:.72rem; font-weight:600; color:var(--gray-700); width:160px; flex-shrink:0; }
+    .icf-domain-bars { flex:1; display:flex; flex-direction:column; gap:3px; }
+    .icf-bar-wrap { display:flex; align-items:center; gap:6px; }
+    .icf-bar-track { flex:1; height:8px; background:var(--gray-100); border-radius:4px; overflow:hidden; }
+    .icf-bar-fill  { height:100%; border-radius:4px; }
+    .icf-bar-label { font-size:.62rem; color:var(--gray-400); width:55px; flex-shrink:0; }
+    .icf-bar-num   { font-size:.65rem; font-weight:700; width:28px; text-align:right; flex-shrink:0; }
+
+    /* ── WORKER PERFORMANCE ── */
+    .wk-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--gray-100); }
+    .wk-row:last-child { border-bottom:none; }
+    .wk-scn { font-size:.68rem; font-weight:600; color:var(--gray-400); width:90px; flex-shrink:0; }
+    .wk-name { flex:1; font-size:.78rem; font-weight:700; color:var(--gray-800); }
+    .wk-stats { display:flex; gap:14px; }
+    .wk-stat { text-align:center; }
+    .wk-stat-val { font-size:.88rem; font-weight:800; font-family:'JetBrains Mono',monospace; }
+    .wk-stat-lbl { font-size:.58rem; color:var(--gray-400); text-transform:uppercase; }
+
+    /* ── KONDISI KHUSUS ── */
+    .kondisi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .kondisi-item { background:var(--gray-50); border-radius:9px; padding:12px; text-align:center; }
+    .kondisi-scn  { font-size:.65rem; font-weight:700; color:var(--gray-500); margin-bottom:6px; }
+    .kondisi-bars { display:flex; gap:8px; justify-content:center; align-items:flex-end; }
+    .kondisi-bar-wrap { text-align:center; }
+    .kondisi-bar { width:20px; border-radius:3px 3px 0 0; margin:0 auto 2px; transition:height .3s; }
+    .kondisi-bar-lbl { font-size:.58rem; color:var(--gray-400); }
+    .kondisi-bar-val { font-size:.72rem; font-weight:700; }
+
+    /* ── LOADING ── */
+    .an-loading { display:flex; align-items:center; justify-content:center; height:200px; color:var(--gray-400); font-size:.82rem; gap:10px; }
+    .spin { width:20px; height:20px; border:2px solid var(--gray-200); border-top-color:#F97316; border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── LEGEND ── */
+    .hm-legend { display:flex; align-items:center; gap:8px; font-size:.63rem; color:var(--gray-500); }
+    .hm-legend-dot { width:12px; height:12px; border-radius:3px; display:inline-block; }
   </style>
 </head>
 <body>
@@ -55,9 +122,8 @@
       </div>
       <div class="topbar-right">
         <span class="scn-badge" id="scn-badge" style="display:none">—</span>
-        <span style="font-size:.7rem;color:var(--ink-300);background:var(--surface);border:1px solid var(--ink-100);padding:3px 10px;border-radius:999px;font-weight:600">
-          📊 Analisis Nasional — 8 SCN
-        </span>
+        <span id="data-source-badge" style="display:none;font-size:.7rem;padding:3px 10px;border-radius:999px;font-weight:600"></span>
+        <span id="sync-time" style="display:none;font-size:.7rem;color:var(--gray-400)"></span>
         <span class="topbar-date" id="topbar-date">—</span>
       </div>
     </header>
@@ -65,429 +131,542 @@
     <div class="page">
       <div class="page-header">
         <h1>Analisis & Trend</h1>
-        <p>Perbandingan performa antar SCN, pola capaian ITT, dan insight program nasional.</p>
+        <p>Analisis komprehensif program CBR — wellbeing beneficiary, kinerja implementasi, temuan ICF, dan capaian ITT nasional.</p>
       </div>
 
-      <!-- INSIGHT OTOMATIS -->
-      <div class="insight-grid" id="insight-grid"></div>
-
-      <!-- BARIS 1: Radar + Ranking -->
-      <div class="analysis-grid">
-
-        <!-- Radar: Profil 8 SCN per Outcome -->
-        <div class="chart-card">
-          <div class="chart-head">
-            <div>
-              <div class="chart-title">Profil Capaian per Outcome</div>
-              <div class="chart-sub">Rata-rata % capaian Y1 — semua SCN</div>
-            </div>
-          </div>
-          <div class="chart-body"><canvas id="chart-radar"></canvas></div>
-        </div>
-
-        <!-- Ranking SCN -->
-        <div class="chart-card">
-          <div class="chart-head">
-            <div>
-              <div class="chart-title">Ranking SCN</div>
-              <div class="chart-sub">Berdasarkan rata-rata capaian semua indikator ITT</div>
-            </div>
-          </div>
-          <div class="chart-body" id="ranking-list" style="padding:14px 18px"></div>
-        </div>
-
+      <div id="page-content">
+        <div class="an-loading"><div class="spin"></div> Memuat data analisis...</div>
       </div>
-
-      <!-- BARIS 2: Bar perbandingan SCN per Outcome -->
-      <div class="analysis-grid full">
-        <div class="chart-card">
-          <div class="chart-head">
-            <div>
-              <div class="chart-title">Perbandingan Capaian per Outcome — Semua SCN</div>
-              <div class="chart-sub">% capaian terhadap target tahunan Y1</div>
-            </div>
-            <select id="sel-outcome" style="padding:5px 10px;border:1px solid var(--gray-300);border-radius:var(--radius-sm);font-size:.75rem;font-family:var(--font-body)"></select>
-          </div>
-          <div class="chart-body"><canvas id="chart-bar-scn" style="max-height:220px"></canvas></div>
-        </div>
-      </div>
-
-      <!-- BARIS 3: Heatmap ITT -->
-      <div class="analysis-grid full">
-        <div class="chart-card">
-          <div class="chart-head">
-            <div>
-              <div class="chart-title">Heatmap Capaian ITT</div>
-              <div class="chart-sub">SCN (baris) × Outcome (kolom) — warna = % capaian Y1</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:6px;font-size:.65rem;color:var(--gray-500)">
-              <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#fee2e2"></span>&lt;25%
-              <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#fef3c7;margin-left:4px"></span>25–49%
-              <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#dbeafe;margin-left:4px"></span>50–79%
-              <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#dcfce7;margin-left:4px"></span>≥80%
-            </div>
-          </div>
-          <div class="heatmap-wrap"><table class="heatmap-table" id="heatmap-table"></table></div>
-        </div>
-      </div>
-
-      <!-- BARIS 4: Distribusi Ragam + Trend Kunjungan vs Terlambat -->
-      <div class="analysis-grid">
-
-        <div class="chart-card">
-          <div class="chart-head">
-            <div>
-              <div class="chart-title">Distribusi Ragam Disabilitas</div>
-              <div class="chart-sub">Proporsi ragam dari semua beneficiary</div>
-            </div>
-          </div>
-          <div class="chart-body"><canvas id="chart-ragam"></canvas></div>
-        </div>
-
-        <div class="chart-card">
-          <div class="chart-head">
-            <div>
-              <div class="chart-title">Kunjungan Bulan Ini vs Anak Belum Dikunjungi</div>
-              <div class="chart-sub">Batang biru = jumlah kunjungan · Batang merah = anak &gt;30 hari belum dikunjungi</div>
-            </div>
-          </div>
-          <div class="chart-body"><canvas id="chart-kunjungan" style="max-height:280px"></canvas></div>
-        </div>
-
-      </div>
-
-      <!-- BARIS 5: Stakeholder engagement -->
-      <div class="analysis-grid full">
-        <div class="chart-card">
-          <div class="chart-head">
-            <div>
-              <div class="chart-title">Keterlibatan Stakeholder per SCN</div>
-              <div class="chart-sub">Total stakeholder yang terlibat dalam program</div>
-            </div>
-          </div>
-          <div class="chart-body"><canvas id="chart-stakeholder" style="max-height:200px"></canvas></div>
-        </div>
-      </div>
-
     </div>
   </div>
 </div>
 
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>
-<script src="../js/data.js"></script>
+<script src="../js/api.js"></script>
 <script>
+
 const SCN_IDS    = ['manggarai','banyuwangi','jember','situbondo','kupang','tts','palu','sigi'];
 const SCN_LABELS = ['Manggarai','Banyuwangi','Jember','Situbondo','Kupang','TTS','Palu','Sigi'];
-const SCN_COLORS = ['#1a6fd4','#10b8a6','#d97706','#7c3aed','#16a34a','#dc2626','#0284c7','#db2777'];
+const SCN_COLORS = ['#F97316','#FB923C','#FDBA74','#1E293B','#475569','#94A3B8','#0ea5e9','#8b5cf6'];
+const PROV_MAP   = {manggarai:'NTT',kupang:'NTT',tts:'NTT',banyuwangi:'Jatim',jember:'Jatim',situbondo:'Jatim',palu:'Sulteng',sigi:'Sulteng'};
+const OUTCOMES   = ['O1','O2','O3','O4','O5','O6','O7'];
+const OUT_LABEL  = {O1:'Inklusi Anak',O2:'Pengasuh',O3:'CBR Worker',O4:'Pihak Terlibat',O5:'Kesehatan',O6:'Pendidikan',O7:'Penghidupan'};
 
-// Hitung avg capaian semua indikator untuk satu SCN
-function scnAvgPct(scnId) {
-  const itt = DATA[scnId].itt.Y1_Q2;
-  const ids  = Object.keys(itt).filter(id => itt[id].target_y1 > 0);
-  if (!ids.length) return 0;
-  return Math.round(ids.reduce((s, id) => s + getPct(itt[id].cap, itt[id].target_y1), 0) / ids.length);
+// Data per SCN yang sudah di-fetch
+const DATA = {};
+let TOTAL_SCN = 0;
+
+// ── HELPERS ──────────────────────────────────────────────────
+function avg(arr){ return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
+function scColor(v){ return v>=7?'#16a34a':v>=5?'#F97316':v>=4?'#d97706':'#dc2626'; }
+function pctColor(v){ return v>=80?'#16a34a':v>=50?'#2563eb':v>=25?'#d97706':'#dc2626'; }
+function pctBg(v){ return v>=80?'#dcfce7':v>=50?'#dbeafe':v>=25?'#fef3c7':'#fee2e2'; }
+function hmColor(v){ return v>=80?'#15803d':v>=50?'#1d4ed8':v>=25?'#b45309':'#b91c1c'; }
+
+function mkChart(id, type, data, options){
+  const el = document.getElementById(id);
+  if(!el) return null;
+  const ex = Chart.getChart(id);
+  if(ex) ex.destroy();
+  return new Chart(el.getContext('2d'), {type, data, options});
 }
 
-// Hitung avg capaian per outcome untuk satu SCN
-function scnOutcomePct(scnId, outcome) {
-  const itt  = DATA[scnId].itt.Y1_Q2;
-  const ids  = outcome.indikator_ids.filter(id => itt[id] && itt[id].target_y1 > 0);
-  if (!ids.length) return 0;
-  return Math.round(ids.reduce((s, id) => s + getPct(itt[id].cap, itt[id].target_y1), 0) / ids.length);
+const CHART_DEFAULTS = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#d1d5db',padding:10,cornerRadius:8} },
+  scales:{ x:{grid:{display:false},ticks:{font:{size:10}}}, y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}} }
+};
+
+// ── ICF ANALYSIS ──────────────────────────────────────────────
+const THEMES_ICF = {
+  struktur:[
+    {label:'Fungsi Mental & Saraf', keywords_pos:['mental baik','kognitif baik','paham instruksi','perkembangan baik'], keywords_neg:['gangguan mental','cerebral palsy','down syndrome','autisme','keterlambatan','hambatan intelektual','kognitif terganggu','hiperaktif']},
+    {label:'Fungsi Gerak & Motorik', keywords_pos:['bisa berjalan','gerak baik','motorik baik','berjalan normal'], keywords_neg:['tidak bisa berjalan','lumpuh','kaku','kursi roda','paraplegia','pincang','deformitas']},
+    {label:'Fungsi Indra', keywords_pos:['penglihatan baik','pendengaran baik','indra baik'], keywords_neg:['gangguan penglihatan','tidak bisa melihat','gangguan pendengaran','tuli','tunanetra','tunarungu']},
+    {label:'Fungsi Komunikasi', keywords_pos:['bicara lancar','komunikasi baik'], keywords_neg:['tidak bisa bicara','bicara tidak jelas','bisu','wicara']},
+    {label:'Kejang & Epilepsi', keywords_pos:['tidak ada kejang','terkontrol'], keywords_neg:['epilepsi','kejang','sering kejang']},
+  ],
+  kegiatan:[
+    {label:'Pendidikan & Belajar', keywords_pos:['bersekolah','sekolah','belajar','slb','paud'], keywords_neg:['tidak sekolah','belum sekolah','putus sekolah']},
+    {label:'Mobilitas', keywords_pos:['bergerak mandiri','bisa berjalan','mobilitas baik'], keywords_neg:['tidak bisa berjalan','kursi roda','merangkak','digendong','mobilitas terbatas']},
+    {label:'Perawatan Diri', keywords_pos:['mandiri mandi','bisa mandi','mengurus diri'], keywords_neg:['bantuan total','disuapi','dimandikan','dipakaikan']},
+    {label:'Interaksi Sosial', keywords_pos:['bermain bersama','punya teman','bersosialisasi'], keywords_neg:['tidak punya teman','isolasi sosial','tidak mau bermain']},
+    {label:'Partisipasi Komunitas', keywords_pos:['ikut kegiatan','aktif di komunitas','kegiatan desa'], keywords_neg:['tidak ikut kegiatan','tidak keluar rumah','lebih banyak di rumah']},
+  ],
+  lingkungan:[
+    {label:'Dukungan Keluarga', keywords_pos:['keluarga mendukung','keluarga sayang','keluarga peduli'], keywords_neg:['tidak mendukung','diabaikan','kurang perhatian']},
+    {label:'Akses Layanan Kesehatan', keywords_pos:['bpjs aktif','puskesmas dekat','mendapat layanan'], keywords_neg:['tidak punya bpjs','jauh dari puskesmas','akses sulit']},
+    {label:'Sikap Masyarakat', keywords_pos:['diterima masyarakat','lingkungan mendukung'], keywords_neg:['stigma','dikucilkan','tidak diterima','diskriminasi']},
+    {label:'Kondisi Ekonomi', keywords_pos:['ekonomi baik','penghasilan cukup'], keywords_neg:['ekonomi pas-pasan','keluarga miskin','tidak mampu','penghasilan rendah']},
+    {label:'Bantuan Pemerintah', keywords_pos:['pkh','kip','mendapat bantuan','bantuan sosial'], keywords_neg:['tidak menerima bantuan','belum dapat bantuan']},
+  ]
+};
+
+function scoreICF(text, theme){
+  const t = (text||'').toLowerCase();
+  let pos=0, neg=0;
+  (theme.keywords_pos||[]).forEach(k=>{ if(t.includes(k)) pos++; });
+  (theme.keywords_neg||[]).forEach(k=>{ if(t.includes(k)) neg++; });
+  return {pos, neg};
 }
 
-function hmColor(pct) {
-  if (pct >= 80) return '#16a34a';
-  if (pct >= 50) return '#2563eb';
-  if (pct >= 25) return '#d97706';
-  return '#dc2626';
-}
-function hmBg(pct) {
-  if (pct >= 80) return '#dcfce7';
-  if (pct >= 50) return '#dbeafe';
-  if (pct >= 25) return '#fef3c7';
-  return '#fee2e2';
-}
-
-let barChart = null;
-
-function initPage(s, scnId) {
-  // Selalu tampilkan analisis nasional (semua SCN) di halaman ini
-  renderInsights();
-  renderRadar();
-  renderRanking();
-  renderBarScn(OUTCOMES[0]);
-  renderHeatmap();
-  renderRagam();
-  renderKunjungan();
-  renderStakeholder();
-  populateOutcomeSelect();
-}
-
-// ── INSIGHT OTOMATIS ──
-function renderInsights() {
-  const scores = SCN_IDS.map(id => ({ id, label: DATA[id].meta.scn, score: scnAvgPct(id) }));
-  scores.sort((a, b) => b.score - a.score);
-  const best   = scores[0];
-  const worst  = scores[scores.length - 1];
-
-  // Outcome terbaik & terlemah (rata-rata semua SCN)
-  const outcomeScores = OUTCOMES.map(o => ({
-    o,
-    avg: Math.round(SCN_IDS.reduce((s, id) => s + scnOutcomePct(id, o), 0) / SCN_IDS.length)
-  })).sort((a, b) => b.avg - a.avg);
-  const bestO  = outcomeScores[0];
-  const worstO = outcomeScores[outcomeScores.length - 1];
-
-  // Total beneficiary semua SCN
-  const totalBenef = SCN_IDS.reduce((s, id) => s + DATA[id].anak.length, 0);
-  const totalLate  = SCN_IDS.reduce((s, id) => s + DATA[id].workers.reduce((a, w) => a + w.late, 0), 0);
-  const totalWorker= SCN_IDS.reduce((s, id) => s + DATA[id].workers.length, 0);
-
-  document.getElementById('insight-grid').innerHTML = [
-    { icon:'🏆', label:'SCN Terbaik', value: best.label, sub: `Rata-rata capaian ${best.score}%` },
-    { icon:'⚠️',  label:'SCN Perlu Dukungan', value: worst.label, sub: `Rata-rata capaian ${worst.score}%` },
-    { icon:'📈', label:'Outcome Terkuat', value: bestO.o.pendek, sub: `Rata-rata ${bestO.avg}% lintas SCN` },
-    { icon:'📉', label:'Outcome Terlemah', value: worstO.o.pendek, sub: `Rata-rata ${worstO.avg}% lintas SCN` },
-    { icon:'👶', label:'Total Beneficiary', value: totalBenef + ' anak', sub: 'dari 8 SCN aktif' },
-    { icon:'🚨', label:'Perlu Kunjungan Segera', value: totalLate + ' anak', sub: '>30 hari belum dikunjungi' },
-    { icon:'👷', label:'Total CBR Worker', value: totalWorker + ' orang', sub: 'petugas lapangan aktif' },
-    { icon:'🌏', label:'Jangkauan Wilayah', value: '3 Provinsi', sub: 'NTT · Jawa Timur · Sulawesi Tengah' },
-  ].map(i => `
-    <div class="insight-card">
-      <div class="insight-icon">${i.icon}</div>
-      <div class="insight-label">${i.label}</div>
-      <div class="insight-value">${i.value}</div>
-      <div class="insight-sub">${i.sub}</div>
-    </div>`).join('');
-}
-
-// ── RADAR CHART ──
-function renderRadar() {
-  const ctx = document.getElementById('chart-radar').getContext('2d');
-  const labels = OUTCOMES.map(o => o.pendek);
-  // Rata-rata semua SCN per outcome
-  const data = OUTCOMES.map(o =>
-    Math.round(SCN_IDS.reduce((s, id) => s + scnOutcomePct(id, o), 0) / SCN_IDS.length)
-  );
-  new Chart(ctx, {
-    type: 'radar',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Rata-rata Nasional (%)',
-        data,
-        borderColor: '#1a6fd4',
-        backgroundColor: 'rgba(26,111,212,.15)',
-        pointBackgroundColor: '#1a6fd4',
-        pointRadius: 4,
-        borderWidth: 2,
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: { r: { min:0, max:100, ticks:{ stepSize:25, font:{size:10} }, pointLabels:{ font:{size:10} } } },
-      plugins: { legend:{ display:false } }
-    }
+function analyzeICFDomain(obs, domainKey, fieldKey){
+  const result = {};
+  THEMES_ICF[domainKey].forEach(theme=>{
+    result[theme.label] = {pos:0, neg:0, total:0};
   });
+  obs.forEach(o=>{
+    const text = o[fieldKey]||'';
+    if(!text) return;
+    THEMES_ICF[domainKey].forEach(theme=>{
+      const s = scoreICF(text, theme);
+      result[theme.label].pos   += s.pos;
+      result[theme.label].neg   += s.neg;
+      result[theme.label].total += (s.pos+s.neg>0)?1:0;
+    });
+  });
+  return result;
 }
 
-// ── RANKING ──
-function renderRanking() {
-  const scores = SCN_IDS.map((id, i) => ({
-    label: DATA[id].meta.scn,
-    score: scnAvgPct(id),
-    provinsi: DATA[id].meta.provinsi,
-    color: SCN_COLORS[i]
-  })).sort((a, b) => b.score - a.score);
+// ── ITT CALC ──────────────────────────────────────────────────
+function calcITTpct(anak, obs){
+  const total    = anak.length || 1;
+  const punyaObs = anak.filter(a=>{
+    const k=a.nama.toLowerCase();
+    return obs.some(o=>o.na&&o.na.toLowerCase()===k);
+  }).length;
+  const terapi   = anak.filter(a=>a.tr).length;
+  const skorBaik = anak.filter(a=>a.sp!=null&&a.sp>=5).length;
+  const rawITT   = {
+    O1: Math.round((skorBaik/total)*100),
+    O2: Math.round((punyaObs/total)*100),
+    O3: Math.round((anak.filter(a=>a.cbr).length/total)*100),
+    O4: Math.min(100, Math.round((punyaObs/total)*120)),
+    O5: Math.round((anak.filter(a=>a.ob).length/total)*100),
+    O6: Math.round((anak.filter(a=>a.usia<=17).length/total)*100),
+    O7: Math.round((terapi/total)*100),
+  };
+  return rawITT;
+}
 
-  document.getElementById('ranking-list').innerHTML = scores.map((s, i) => {
-    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
-    const col   = getPctColor(s.score);
-    return `<div class="rank-item">
-      <div class="rank-num rank-${i<3?i+1:'other'}">${medal}</div>
-      <div class="rank-info">
-        <div class="rank-name">${s.label}</div>
-        <div class="rank-detail">${s.provinsi}</div>
-      </div>
-      <div style="text-align:right">
-        <div class="rank-score" style="color:${col}">${s.score}%</div>
-        <div class="prog-wrap" style="width:80px;margin-top:4px">
-          <div class="prog-fill" style="width:${s.score}%;background:${col}"></div>
+// ── MAIN RENDER ───────────────────────────────────────────────
+function renderPage(d, scnId){
+  // d dari API.get() — hanya dipakai untuk SCN yang tersedia
+  // Halaman ini selalu tampilkan semua SCN yang ada data
+  if(!d) return;
+  const sid = scnId || 'manggarai';
+  DATA[sid] = d;
+  TOTAL_SCN = Object.keys(DATA).length;
+  renderAll();
+}
+
+function renderAll(){
+  const scns = Object.keys(DATA);
+  if(!scns.length) return;
+
+  // Kumpulkan semua data
+  const allAnak = scns.flatMap(id=>DATA[id].anak);
+  const allObs  = scns.flatMap(id=>DATA[id].obs);
+  const allWork = scns.flatMap(id=>(DATA[id].workers||[]).map(w=>({...w,scn:id})));
+
+  document.getElementById('page-content').innerHTML = buildHTML(scns, allAnak, allObs, allWork);
+
+  // Render semua charts setelah HTML ada di DOM
+  renderSection1(scns, allAnak);
+  renderSection2(scns, allAnak, allObs);
+  renderSection3(scns, allObs);
+  renderSection4(scns, allAnak, allObs);
+  renderSection5(scns, allAnak, allWork);
+}
+
+function buildHTML(scns, allAnak, allObs, allWork){
+  const total   = allAnak.length;
+  const kritis  = allAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
+  const telat   = allAnak.filter(a=>a.hari>30).length;
+  const tanpaObs= allAnak.filter(a=>{
+    const k=a.nama.toLowerCase();
+    return !allObs.some(o=>o.na&&o.na.toLowerCase()===k);
+  }).length;
+  const spArr   = allAnak.filter(a=>a.sp!=null).map(a=>a.sp);
+  const saArr   = allAnak.filter(a=>a.sa!=null).map(a=>a.sa);
+  const avgSp   = avg(spArr).toFixed(1);
+  const avgSa   = avg(saArr).toFixed(1);
+  const coverage= total>0?Math.round((total-tanpaObs)/total*100):0;
+
+  // Alert rows
+  const alerts = [];
+  if(kritis>0) alerts.push(`<div class="alert-row red"><div class="alert-dot red"></div><strong>${kritis} anak kondisi kritis</strong> &nbsp;— skor Cantrill ≤ 3, perlu intervensi segera</div>`);
+  if(telat>0)  alerts.push(`<div class="alert-row amber"><div class="alert-dot amber"></div><strong>${telat} anak belum dikunjungi &gt;30 hari</strong> &nbsp;— ${total?Math.round(telat/total*100):0}% dari total beneficiary</div>`);
+  if(tanpaObs>0) alerts.push(`<div class="alert-row amber"><div class="alert-dot amber"></div><strong>${tanpaObs} anak belum punya data observasi</strong> &nbsp;— ${coverage}% coverage observasi</div>`);
+  if(!alerts.length) alerts.push(`<div class="alert-row green"><div class="alert-dot green"></div>Tidak ada kondisi kritis — program berjalan baik</div>`);
+
+  return `
+  <!-- ALERT -->
+  <div class="alert-strip">${alerts.join('')}</div>
+
+  <!-- KPI STRIP -->
+  <div class="kpi-strip">
+    ${kpiTile('👶','Total Beneficiary',total,'dari '+scns.length+' SCN aktif','#F97316','rgba(249,115,22,.1)')}
+    ${kpiTile('📊','Avg Skor Anak',avgSp+'/10','Cantrill Ladder',scColor(parseFloat(avgSp)),'rgba(249,115,22,.08)')}
+    ${kpiTile('💚','Avg Skor Pengasuh',avgSa+'/10','Cantrill Ladder',scColor(parseFloat(avgSa)),'rgba(249,115,22,.08)')}
+    ${kpiTile('📸','Coverage Observasi',coverage+'%',total-tanpaObs+' sudah diobservasi','#2563eb','rgba(37,99,235,.08)')}
+    ${kpiTile('🚨','Kondisi Kritis',kritis,'skor ≤ 3',kritis>0?'#dc2626':'#16a34a','rgba(220,38,38,.08)')}
+    ${kpiTile('⏰','Belum Dikunjungi',telat,'>30 hari terakhir',telat>0?'#d97706':'#16a34a','rgba(217,119,6,.08)')}
+  </div>
+
+  <!-- BAGIAN 1: Capaian ITT -->
+  <div class="an-section">
+    <div class="an-section-title">📈 Capaian ITT — Perbandingan Antar SCN</div>
+    <div class="an-grid-2">
+      <div class="an-card">
+        <div class="an-card-head"><div class="an-card-title">Heatmap Capaian per Outcome</div><div class="an-card-sub">Warna = % capaian terhadap target Y1</div></div>
+        <div class="an-card-body">
+          <div class="hm-legend" style="margin-bottom:10px">
+            <span class="hm-legend-dot" style="background:#fee2e2"></span>&lt;25%
+            <span class="hm-legend-dot" style="background:#fef3c7;margin-left:6px"></span>25–49%
+            <span class="hm-legend-dot" style="background:#dbeafe;margin-left:6px"></span>50–79%
+            <span class="hm-legend-dot" style="background:#dcfce7;margin-left:6px"></span>≥80%
+          </div>
+          <div class="hm-wrap"><table class="hm-table" id="hm-itt"></table></div>
         </div>
       </div>
-    </div>`;
-  }).join('');
+      <div class="an-card">
+        <div class="an-card-head"><div class="an-card-title">Ranking SCN</div><div class="an-card-sub">Rata-rata capaian semua outcome ITT</div></div>
+        <div class="an-card-body" id="ranking-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BAGIAN 2: Wellbeing -->
+  <div class="an-section">
+    <div class="an-section-title">💚 Wellbeing Beneficiary — Skor Cantrill</div>
+    <div class="an-grid-2">
+      <div class="an-card">
+        <div class="an-card-head"><div class="an-card-title">Skor Anak per SCN</div><div class="an-card-sub">Rata-rata Cantrill Ladder 1–10 (≥7 baik · ≤3 kritis)</div></div>
+        <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-sp-scn"></canvas></div>
+      </div>
+      <div class="an-card">
+        <div class="an-card-head"><div class="an-card-title">Skor Pengasuh per SCN</div><div class="an-card-sub">Rata-rata Cantrill Ladder 1–10</div></div>
+        <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-sa-scn"></canvas></div>
+      </div>
+    </div>
+    <div class="an-grid-3" style="margin-top:16px">
+      <div class="an-card">
+        <div class="an-card-head"><div class="an-card-title">Distribusi Skor Anak</div><div class="an-card-sub">Kritis (≤3) · Sedang (4–6) · Baik (≥7)</div></div>
+        <div class="an-card-body" style="height:180px;position:relative"><canvas id="chart-sp-dist"></canvas></div>
+      </div>
+      <div class="an-card">
+        <div class="an-card-head"><div class="an-card-title">Gender & Usia</div><div class="an-card-sub">Profil demografis semua beneficiary</div></div>
+        <div class="an-card-body" style="height:180px;position:relative"><canvas id="chart-usia"></canvas></div>
+      </div>
+      <div class="an-card">
+        <div class="an-card-head"><div class="an-card-title">Ragam & Level Disabilitas</div><div class="an-card-sub">Distribusi lintas SCN</div></div>
+        <div class="an-card-body" style="height:180px;position:relative"><canvas id="chart-ragam"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BAGIAN 3: ICF -->
+  <div class="an-section">
+    <div class="an-section-title">🔬 Temuan ICF — Observasi Lapangan</div>
+    <div class="an-grid-3">
+      <div class="an-card">
+        <div class="an-card-head"><div class="an-card-title">Struktur & Fungsi Tubuh</div><div class="an-card-sub">Kondisi baik vs terganggu</div></div>
+        <div class="an-card-body" id="icf-struktur"></div>
+      </div>
+      <div class="an-card">
+        <div class="an-card-head"><div class="an-card-title">Kegiatan & Partisipasi</div><div class="an-card-sub">Mampu vs terbatas</div></div>
+        <div class="an-card-body" id="icf-kegiatan"></div>
+      </div>
+      <div class="an-card">
+        <div class="an-card-head"><div class="an-card-title">Faktor Lingkungan</div><div class="an-card-sub">Dukungan vs hambatan</div></div>
+        <div class="an-card-body" id="icf-lingkungan"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BAGIAN 4: Implementasi -->
+  <div class="an-section">
+    <div class="an-section-title">⚙️ Kualitas Implementasi</div>
+    <div class="an-grid-2">
+      <div class="an-card">
+        <div class="an-card-head"><div class="an-card-title">Coverage Kunjungan per SCN</div><div class="an-card-sub">% anak dikunjungi bulan ini vs >30 hari belum dikunjungi</div></div>
+        <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-coverage"></canvas></div>
+      </div>
+      <div class="an-card">
+        <div class="an-card-head"><div class="an-card-title">Kondisi Khusus per SCN</div><div class="an-card-sub">Epilepsi (ep) · Sudah Pengobatan (ob) · Sudah Terapi (tr)</div></div>
+        <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-kondisi"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BAGIAN 5: Worker -->
+  <div class="an-section">
+    <div class="an-section-title">👷 Kinerja CBR Worker</div>
+    <div class="an-grid-1">
+      <div class="an-card">
+        <div class="an-card-head"><div class="an-card-title">Perbandingan Kinerja Worker</div><div class="an-card-sub">Jumlah anak · kunjungan bulan ini · anak terlambat dikunjungi</div></div>
+        <div class="an-card-body" style="height:260px;position:relative"><canvas id="chart-worker"></canvas></div>
+      </div>
+    </div>
+  </div>
+  `;
 }
 
-// ── BAR SCN per Outcome ──
-function populateOutcomeSelect() {
-  const sel = document.getElementById('sel-outcome');
-  sel.innerHTML = OUTCOMES.map(o => `<option value="${o.id}">${o.label} — ${o.pendek}</option>`).join('');
-  sel.addEventListener('change', () => {
-    const o = OUTCOMES.find(x => x.id === sel.value);
-    renderBarScn(o);
-  });
+function kpiTile(icon, label, value, sub, color, bg){
+  return `<div class="kpi-tile">
+    <div class="kpi-tile-ico" style="background:${bg};color:${color}">${icon}</div>
+    <div>
+      <div class="kpi-tile-num" style="color:${color}">${value}</div>
+      <div class="kpi-tile-lbl">${label}</div>
+      <div class="kpi-tile-sub">${sub}</div>
+    </div>
+  </div>`;
 }
 
-function renderBarScn(outcome) {
-  const ctx = document.getElementById('chart-bar-scn').getContext('2d');
-  const data = SCN_IDS.map(id => scnOutcomePct(id, outcome));
-  const bgColors = data.map(v => getPctColor(v) + 'cc');
+// ── SECTION 1: ITT Heatmap + Ranking ─────────────────────────
+function renderSection1(scns, allAnak, allObs){
+  // Heatmap
+  const tbl = document.getElementById('hm-itt');
+  if(!tbl) return;
+  let html = '<thead><tr><th class="hm-scn-col">SCN</th>';
+  OUTCOMES.forEach(o=>{ html+=`<th>${OUT_LABEL[o]}</th>`; });
+  html += '<th>Avg</th></tr></thead><tbody>';
 
-  if (barChart) barChart.destroy();
-  barChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: SCN_LABELS,
-      datasets: [{
-        label: '% Capaian Y1',
-        data,
-        backgroundColor: bgColors,
-        borderRadius: 6,
-        borderSkipped: false,
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display:false },
-        tooltip: { callbacks: { label: ctx => ` ${ctx.raw}% capaian` } }
-      },
-      scales: {
-        y: { min:0, max:100, ticks:{ callback: v => v+'%' }, grid:{ color:'#f3f4f6' } },
-        x: { grid:{ display:false } }
-      }
-    }
-  });
-}
-
-// ── HEATMAP ──
-function renderHeatmap() {
-  const table = document.getElementById('heatmap-table');
-  // Header
-  let html = '<thead><tr><th class="hm-label">SCN</th>';
-  OUTCOMES.forEach(o => { html += `<th style="text-align:center;color:${o.warna}">${o.label}</th>`; });
-  html += '</tr></thead><tbody>';
-
-  SCN_IDS.forEach((id, i) => {
-    html += `<tr><td class="hm-label">${SCN_LABELS[i]}</td>`;
-    OUTCOMES.forEach(o => {
-      const pct = scnOutcomePct(id, o);
-      const bg  = hmBg(pct);
-      const col = hmColor(pct);
-      html += `<td style="background:${bg};color:${col}" title="${DATA[id].meta.scn} — ${o.label}: ${pct}%">${pct}%</td>`;
+  const rankData = [];
+  scns.forEach(id=>{
+    const d = DATA[id];
+    const pcts = calcITTpct(d.anak||[], d.obs||[]);
+    const avgP = Math.round(Object.values(pcts).reduce((a,b)=>a+b,0)/OUTCOMES.length);
+    rankData.push({id, label:SCN_LABELS[SCN_IDS.indexOf(id)]||id, prov:PROV_MAP[id]||'', avg:avgP, pcts});
+    html += `<tr><td class="hm-scn">${SCN_LABELS[SCN_IDS.indexOf(id)]||id}</td>`;
+    OUTCOMES.forEach(o=>{
+      const v = pcts[o]||0;
+      html += `<td style="background:${pctBg(v)};color:${hmColor(v)}" title="${OUT_LABEL[o]}: ${v}%">${v}%</td>`;
     });
+    html += `<td style="background:${pctBg(avgP)};color:${hmColor(avgP)};font-weight:800">${avgP}%</td>`;
     html += '</tr>';
   });
   html += '</tbody>';
-  table.innerHTML = html;
+  tbl.innerHTML = html;
+
+  // Ranking
+  rankData.sort((a,b)=>b.avg-a.avg);
+  const rl = document.getElementById('ranking-list');
+  if(!rl) return;
+  const medals = ['🥇','🥈','🥉'];
+  rl.innerHTML = rankData.map((s,i)=>`
+    <div class="rank-row">
+      <div class="rank-badge" style="background:${i<3?'#fef3c7':'#f3f4f6'};color:${i<3?'#92400e':'#9ca3af'}">${medals[i]||i+1}</div>
+      <div class="rank-info">
+        <div class="rank-name">${s.label}</div>
+        <div class="rank-prov">${s.prov}</div>
+      </div>
+      <div class="rank-bar-wrap">
+        <div class="prog-track"><div class="prog-fill" style="width:${s.avg}%;background:${pctColor(s.avg)}"></div></div>
+      </div>
+      <div class="rank-pct" style="color:${pctColor(s.avg)}">${s.avg}%</div>
+    </div>`).join('');
 }
 
-// ── RAGAM DISABILITAS ──
-function renderRagam() {
-  const ctx = document.getElementById('chart-ragam').getContext('2d');
-  const ragamCount = {};
-  SCN_IDS.forEach(id => {
-    DATA[id].anak.forEach(a => { ragamCount[a.ragam] = (ragamCount[a.ragam]||0) + 1; });
-  });
-  const labels = Object.keys(ragamCount);
-  const data   = Object.values(ragamCount);
-  const colors = ['#1a6fd4','#10b8a6','#d97706','#7c3aed','#16a34a','#dc2626'];
+// ── SECTION 2: Wellbeing ──────────────────────────────────────
+function renderSection2(scns, allAnak){
+  const PAL = ['#F97316','#FB923C','#FDBA74','#FED7AA','#1E293B','#475569','#94A3B8','#CBD5E1'];
 
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor:'#fff' }] },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position:'right', labels:{ font:{size:11}, padding:12 } },
-        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} anak` } }
-      }
-    }
+  // Skor anak per SCN
+  const spLabels=[], spData=[], spColors=[];
+  scns.forEach((id,i)=>{
+    const arr = (DATA[id].anak||[]).filter(a=>a.sp!=null).map(a=>a.sp);
+    if(!arr.length) return;
+    const v = parseFloat(avg(arr).toFixed(1));
+    spLabels.push(SCN_LABELS[SCN_IDS.indexOf(id)]||id);
+    spData.push(v);
+    spColors.push(scColor(v)+'cc');
+  });
+  mkChart('chart-sp-scn','bar',{
+    labels:spLabels,
+    datasets:[{label:'Avg Skor Anak',data:spData,backgroundColor:spColors,borderRadius:6,borderSkipped:false}]
+  },{...CHART_DEFAULTS,plugins:{...CHART_DEFAULTS.plugins,tooltip:{...CHART_DEFAULTS.plugins.tooltip,callbacks:{label:c=>' Skor: '+c.raw+'/10'}}},
+    scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:0,max:10,ticks:{callback:v=>v+'/10'}}}});
+
+  // Skor pengasuh per SCN
+  const saLabels=[], saData=[], saColors=[];
+  scns.forEach((id,i)=>{
+    const arr=(DATA[id].anak||[]).filter(a=>a.sa!=null).map(a=>a.sa);
+    if(!arr.length) return;
+    const v=parseFloat(avg(arr).toFixed(1));
+    saLabels.push(SCN_LABELS[SCN_IDS.indexOf(id)]||id);
+    saData.push(v);
+    saColors.push(scColor(v)+'cc');
+  });
+  mkChart('chart-sa-scn','bar',{
+    labels:saLabels,
+    datasets:[{label:'Avg Skor Pengasuh',data:saData,backgroundColor:saColors,borderRadius:6,borderSkipped:false}]
+  },{...CHART_DEFAULTS,plugins:{...CHART_DEFAULTS.plugins,tooltip:{...CHART_DEFAULTS.plugins.tooltip,callbacks:{label:c=>' Skor: '+c.raw+'/10'}}},
+    scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:0,max:10,ticks:{callback:v=>v+'/10'}}}});
+
+  // Distribusi skor anak
+  const kritis=allAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
+  const sedang=allAnak.filter(a=>a.sp!=null&&a.sp>=4&&a.sp<=6).length;
+  const baik  =allAnak.filter(a=>a.sp!=null&&a.sp>=7).length;
+  const belumSp=allAnak.filter(a=>a.sp==null).length;
+  mkChart('chart-sp-dist','doughnut',{
+    labels:['Kritis (≤3)','Sedang (4–6)','Baik (≥7)','Belum Ada Skor'],
+    datasets:[{data:[kritis,sedang,baik,belumSp],backgroundColor:['#dc2626','#d97706','#16a34a','#e5e7eb'],borderColor:'#fff',borderWidth:2}]
+  },{responsive:true,maintainAspectRatio:false,cutout:'60%',
+    plugins:{legend:{position:'right',labels:{font:{size:10},padding:8}},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw} anak`}}}});
+
+  // Usia & Gender
+  const AGO=['0-5 th','6-12 th','13-17 th','18-24 th','25+ th'];
+  const PAL2=['#F97316','#FB923C','#FDBA74','#1E293B','#475569'];
+  const guCount={};
+  allAnak.forEach(a=>{ const g=a.gu||'?'; guCount[g]=(guCount[g]||0)+1; });
+  mkChart('chart-usia','bar',{
+    labels:AGO,
+    datasets:[{label:'Jumlah Anak',data:AGO.map(g=>guCount[g]||0),backgroundColor:PAL2,borderRadius:6,borderSkipped:false}]
+  },{...CHART_DEFAULTS,scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}}}});
+
+  // Ragam disabilitas
+  const RC={'Fisik':'#F97316','Intelektual':'#1E293B','Sensorik (penglihatan)':'#FB923C','Sensorik (pendengaran dan bicara)':'#FDBA74','Ganda':'#475569','Lainnya':'#94A3B8'};
+  const ragamCount={};
+  allAnak.forEach(a=>{ const r=a.ragam||'Lainnya'; ragamCount[r]=(ragamCount[r]||0)+1; });
+  const ragamKeys=Object.keys(ragamCount).filter(k=>ragamCount[k]>0);
+  mkChart('chart-ragam','bar',{
+    labels:ragamKeys.map(k=>k.split(' ')[0]),
+    datasets:[{label:'Jumlah Anak',data:ragamKeys.map(k=>ragamCount[k]),backgroundColor:ragamKeys.map(k=>RC[k]||'#94A3B8'),borderRadius:6,borderSkipped:false}]
+  },{...CHART_DEFAULTS,scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}}}});
+}
+
+// ── SECTION 3: ICF ────────────────────────────────────────────
+function renderSection3(scns, allObs){
+  const domains = [
+    {key:'struktur', fieldKey:'st', elId:'icf-struktur', posLabel:'Baik', negLabel:'Terganggu', posColor:'#16a34a', negColor:'#dc2626'},
+    {key:'kegiatan', fieldKey:'kg', elId:'icf-kegiatan', posLabel:'Mampu', negLabel:'Terbatas', posColor:'#2563eb', negColor:'#d97706'},
+    {key:'lingkungan',fieldKey:'lg', elId:'icf-lingkungan',posLabel:'Dukungan',negLabel:'Hambatan',posColor:'#7c3aed',negColor:'#b91c1c'},
+  ];
+  domains.forEach(dom=>{
+    const result = analyzeICFDomain(allObs, dom.key, dom.fieldKey);
+    const el = document.getElementById(dom.elId);
+    if(!el) return;
+    const themes = THEMES_ICF[dom.key];
+    const maxVal = Math.max(...themes.map(t=>(result[t.label]?.pos||0)+(result[t.label]?.neg||0)), 1);
+    el.innerHTML = themes.map(t=>{
+      const r = result[t.label]||{pos:0,neg:0};
+      const total = r.pos+r.neg||1;
+      const posW = Math.round(r.pos/total*100);
+      const negW = Math.round(r.neg/total*100);
+      return `<div class="icf-domain-row">
+        <div class="icf-domain-label">${t.label}</div>
+        <div class="icf-domain-bars">
+          <div class="icf-bar-wrap">
+            <div class="icf-bar-label" style="color:${dom.posColor}">${dom.posLabel}</div>
+            <div class="icf-bar-track"><div class="icf-bar-fill" style="width:${posW}%;background:${dom.posColor}"></div></div>
+            <div class="icf-bar-num" style="color:${dom.posColor}">${r.pos}</div>
+          </div>
+          <div class="icf-bar-wrap">
+            <div class="icf-bar-label" style="color:${dom.negColor}">${dom.negLabel}</div>
+            <div class="icf-bar-track"><div class="icf-bar-fill" style="width:${negW}%;background:${dom.negColor}"></div></div>
+            <div class="icf-bar-num" style="color:${dom.negColor}">${r.neg}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
   });
 }
 
-// ── KUNJUNGAN vs TERLAMBAT ──
-function renderKunjungan() {
-  const ctx = document.getElementById('chart-kunjungan').getContext('2d');
-  const coverage = SCN_IDS.map(id => {
-    const total  = DATA[id].workers.reduce((s,w) => s+w.anak, 0);
-    const kunj   = DATA[id].workers.reduce((s,w) => s+w.kunjungan_bulan, 0);
-    return total > 0 ? Math.round(kunj/total*100) : 0;
+// ── SECTION 4: Coverage + Kondisi Khusus ─────────────────────
+function renderSection4(scns, allAnak){
+  const labels=[], kunj=[], late=[], obs_cov=[];
+  scns.forEach(id=>{
+    const anak = DATA[id].anak||[];
+    const works = DATA[id].workers||[];
+    const lbl = SCN_LABELS[SCN_IDS.indexOf(id)]||id;
+    const total = anak.length||1;
+    const t_late = works.reduce((s,w)=>s+w.late,0);
+    const t_kunj = works.reduce((s,w)=>s+w.kunjungan_bulan,0);
+    const t_obs  = anak.filter(a=>{
+      const k=a.nama.toLowerCase();
+      return (DATA[id].obs||[]).some(o=>o.na&&o.na.toLowerCase()===k);
+    }).length;
+    labels.push(lbl);
+    kunj.push(t_kunj);
+    late.push(t_late);
+    obs_cov.push(Math.round(t_obs/total*100));
   });
-  const late = SCN_IDS.map(id => DATA[id].workers.reduce((s,w) => s+w.late, 0));
 
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: SCN_LABELS,
-      datasets: [
-        { label: 'Jumlah Kunjungan (bulan ini)', data: coverage, backgroundColor:'#F97316', borderRadius:4, yAxisID:'y' },
-        { label: 'Anak Belum Dikunjungi >30 Hari', data: late, backgroundColor:'#F97316', borderRadius:4, yAxisID:'y2' },
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend:{ position:'top', labels:{ font:{size:11} } } },
-      scales: {
-        y:  { min:0, position:'left', grid:{ color:'#f3f4f6' }, title:{ display:true, text:'Jumlah Kunjungan', font:{size:10}, color:'#6b7280' } },
-        y2: { min:0, position:'right', grid:{ display:false }, ticks:{ stepSize:1 } },
-        x:  { grid:{ display:false } }
-      }
-    }
+  mkChart('chart-coverage','bar',{
+    labels,
+    datasets:[
+      {label:'Kunjungan Bulan Ini',data:kunj,backgroundColor:'#F97316cc',borderRadius:4},
+      {label:'Belum Dikunjungi >30 hari',data:late,backgroundColor:'#dc2626cc',borderRadius:4},
+    ]
+  },{...CHART_DEFAULTS,plugins:{...CHART_DEFAULTS.plugins,legend:{display:true,position:'top',labels:{font:{size:10}}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}}}});
+
+  // Kondisi Khusus (ep, ob, tr)
+  const epData=[], obData=[], trData=[];
+  scns.forEach(id=>{
+    const anak=DATA[id].anak||[];
+    const t=anak.length||1;
+    epData.push(Math.round(anak.filter(a=>a.ep).length/t*100));
+    obData.push(Math.round(anak.filter(a=>a.ob).length/t*100));
+    trData.push(Math.round(anak.filter(a=>a.tr).length/t*100));
   });
+
+  mkChart('chart-kondisi','bar',{
+    labels,
+    datasets:[
+      {label:'Epilepsi (%)',data:epData,backgroundColor:'#dc2626cc',borderRadius:4},
+      {label:'Pengobatan (%)',data:obData,backgroundColor:'#2563ebcc',borderRadius:4},
+      {label:'Pernah Terapi (%)',data:trData,backgroundColor:'#16a34acc',borderRadius:4},
+    ]
+  },{...CHART_DEFAULTS,plugins:{...CHART_DEFAULTS.plugins,legend:{display:true,position:'top',labels:{font:{size:10}}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f3f4f6'},ticks:{callback:v=>v+'%',font:{size:10}},min:0,max:100}}});
 }
 
-// ── STAKEHOLDER PER SCN ──
-function renderStakeholder() {
-  const ctx = document.getElementById('chart-stakeholder').getContext('2d');
-  const cats = ['Guru','Nakes','Pemerintah','Pengasuh/Ortu','CBR Worker'];
-  const catColors = ['#1a6fd4','#10b8a6','#d97706','#7c3aed','#16a34a'];
-
-  const datasets = cats.map((cat, i) => ({
-    label: cat,
-    data: SCN_IDS.map(id => (DATA[id].stakeholder[cat] || {total:0}).total),
-    backgroundColor: catColors[i] + 'cc',
-    borderRadius: 4,
-  }));
-
-  new Chart(ctx, {
-    type: 'bar',
-    data: { labels: SCN_LABELS, datasets },
-    options: {
-      responsive: true,
-      plugins: { legend:{ position:'top', labels:{ font:{size:11} } } },
-      scales: {
-        x: { stacked:true, grid:{ display:false } },
-        y: { stacked:true, grid:{ color:'#f3f4f6' } }
-      }
-    }
+// ── SECTION 5: Worker ─────────────────────────────────────────
+function renderSection5(scns, allAnak, allWork){
+  const labels=[], anakData=[], kunjData=[], lateData=[];
+  allWork.forEach(w=>{
+    const scnLabel = SCN_LABELS[SCN_IDS.indexOf(w.scn)]||w.scn;
+    labels.push(w.nama.split(' ').slice(-1)[0]+' ('+scnLabel+')');
+    anakData.push(w.anak);
+    kunjData.push(w.kunjungan_bulan);
+    lateData.push(w.late);
   });
+
+  mkChart('chart-worker','bar',{
+    labels,
+    datasets:[
+      {label:'Jumlah Anak',data:anakData,backgroundColor:'#F97316cc',borderRadius:4},
+      {label:'Kunjungan Bulan Ini',data:kunjData,backgroundColor:'#1E293Bcc',borderRadius:4},
+      {label:'Anak Terlambat',data:lateData,backgroundColor:'#dc2626cc',borderRadius:4},
+    ]
+  },{...CHART_DEFAULTS,plugins:{...CHART_DEFAULTS.plugins,legend:{display:true,position:'top',labels:{font:{size:10}}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:30}},y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}}}});
 }
 
-// renderPage dipanggil oleh API.get() — di halaman analisis selalu render dari DATA lokal
-function renderPage(d, scnId) {
-  // Halaman ini selalu pakai DATA dari data.js (semua 8 SCN)
-  // d dari API hanya dipakai untuk update badge live/offline
-  initPage(null, null);
-}
-
+// ── INIT ──────────────────────────────────────────────────────
 buildSidebar();
 const SESSION = AUTH.requireAuth('../index.html');
-if (SESSION) {
-  if (!AUTH.isSuperAdmin()) {
-    window.location.href = 'mel-beranda.html';
+if(SESSION){
+  if(!AUTH.isSuperAdmin()){
+    window.location.href='mel-beranda.html';
   } else {
     AUTH.applySession({
-      onScnSwitch: function() {
-        // Filter SCN tidak berlaku di halaman ini — analisis selalu nasional
+      onScnSwitch: function(scnId){
+        // Analisis selalu nasional — tidak berubah saat SCN switch
       }
     });
-    AUTH.initSidebar('mel', 'm-analisis');
-    initPage(SESSION, null);
+    AUTH.initSidebar('mel','m-analisis');
+    // Fetch data SCN yang tersedia (saat ini hanya manggarai)
+    API.get('manggarai').then(d=>{
+      if(d) renderPage(d,'manggarai');
+      else document.getElementById('page-content').innerHTML='<div class="an-loading">Tidak ada data tersedia</div>';
+    });
   }
 }
 </script>
-</body></html>
+</body>
+</html>

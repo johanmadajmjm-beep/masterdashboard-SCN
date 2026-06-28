@@ -8,13 +8,7 @@
   <link rel="stylesheet" href="../css/main.css"/>
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
-    /* ── SCN TABS ─────────────────────────────────── */
-    .scn-tabs-wrap{background:#fff;border-bottom:1px solid #E5E7EB;padding:0 20px;position:sticky;top:var(--topbar-h,60px);z-index:10;display:flex;align-items:center;gap:0}
-    .scn-tab{padding:10px 16px;font-size:.75rem;font-weight:600;color:#6B7280;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:.15s;user-select:none}
-    .scn-tab:hover{color:#1F2937;background:#F9FAFB}
-    .scn-tab.active{color:#F97316;border-bottom-color:#F97316;font-weight:700}
-
-    /* ── ACCORDION ────────────────────────────────── */
+    /* ── ACCORDION ── */
     .itt-block{background:#fff;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;margin-bottom:10px}
     .itt-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#F9FAFB;border-left:4px solid var(--o-color,#999);cursor:pointer;user-select:none;transition:background .15s}
     .itt-header:hover{background:#F3F4F6}
@@ -26,6 +20,10 @@
     .itt-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
     .itt-block.open .itt-body{max-height:9999px}
     .acc-controls{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+    /* ── SCN TABS ── */
+    .scn-tab{padding:10px 16px;font-size:.75rem;font-weight:600;color:#6B7280;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:.15s;user-select:none;display:inline-flex;align-items:center}
+    .scn-tab:hover{color:#1F2937;background:#F9FAFB}
+    .scn-tab.active{color:#F97316;border-bottom-color:#F97316;font-weight:700}
   </style>
 </head>
 <body>
@@ -33,11 +31,6 @@
   <div class="main">
     <header class="topbar">
       <div class="topbar-left">
-        <button class="topbar-menu-btn" onclick="openSidebar()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
         <div class="topbar-breadcrumb">MEL <span class="sep">›</span><span class="current">ITT Tracker</span></div>
       </div>
       <div class="topbar-right">
@@ -46,31 +39,29 @@
       </div>
     </header>
 
-    <div class="page" style="padding:0;display:flex;flex-direction:column">
-      <!-- SCN TABS -->
-      <div class="scn-tabs-wrap" id="scn-tabs"></div>
+    <!-- SCN TABS: sticky di bawah topbar, di dalam .main tapi SEBELUM .page -->
+    <div id="scn-tabs" style="background:#fff;border-bottom:1px solid #E5E7EB;padding:0 20px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:20"></div>
 
-      <div style="padding:14px 20px;flex:1">
-        <!-- Page header -->
-        <div style="margin-bottom:14px">
-          <h1 style="font-size:1.1rem;font-weight:800;color:#1F2937;margin:0 0 2px">Indicator Tracking Table</h1>
-          <p style="font-size:.72rem;color:#6B7280;margin:0">Struktur ITT NLR Indonesia — 7 Outcome · Target & Capaian diisi dari sistem SCN</p>
-        </div>
-
-        <!-- Accordion controls -->
-        <div class="acc-controls">
-          <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick="toggleAll(true)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="6 9 12 15 18 9"/></svg>
-            Buka Semua
-          </button>
-          <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick="toggleAll(false)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="18 15 12 9 6 15"/></svg>
-            Tutup Semua
-          </button>
-        </div>
-
-        <div id="itt-container"></div>
+    <div class="page">
+      <!-- Page header -->
+      <div class="page-header">
+        <h1>Indicator Tracking Table</h1>
+        <p>Struktur ITT NLR Indonesia — 7 Outcome · Target & Capaian diisi dari sistem SCN</p>
       </div>
+
+      <!-- Accordion controls -->
+      <div class="acc-controls">
+        <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick="toggleAll(true)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="6 9 12 15 18 9"/></svg>
+          Buka Semua
+        </button>
+        <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick="toggleAll(false)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="18 15 12 9 6 15"/></svg>
+          Tutup Semua
+        </button>
+      </div>
+
+      <div id="itt-container"></div>
     </div>
   </div>
 </div>

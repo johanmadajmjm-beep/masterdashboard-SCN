@@ -4,14 +4,75 @@
 <title>CBR Coordinator — Per CBR Worker | MEL NLR</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="../css/main.css"/>
-  <link rel="stylesheet" href="../css/components.css"/>
+<link rel="stylesheet" href="../css/components.css"/>
 <style>
-.worker-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:16px}
-.worker-card{background:white;border:1px solid #e5e7eb;border-radius:10px;padding:14px;border-left:3px solid var(--wc,#d4500a)}
-.wc-name{font-weight:700;font-size:.82rem;color:#111827;margin-bottom:8px}
-.wc-stat{display:flex;justify-content:space-between;font-size:.72rem;color:#6b7280;margin-bottom:3px}
-.wc-stat span:last-child{color:#111827;font-weight:700}
-.ch{position:relative}.ch.h200{height:200px}.ch.h220{height:220px}
+/* ── LAYOUT ── */
+.cw-wrap{display:flex;gap:0;height:calc(100vh - 60px);overflow:hidden}
+
+/* ── LIST PANEL ── */
+.ld-list{width:100%;min-width:0;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden;transition:width .2s}
+.cw-wrap.detail-open .ld-list{width:260px;min-width:260px;}
+.ld-list-header{padding:12px 14px;border-bottom:1px solid #E5E7EB;flex-shrink:0}
+.ld-search{width:100%;padding:7px 10px;border:1px solid #E5E7EB;border-radius:8px;font-size:.75rem;font-family:inherit;background:#F9FAFB;outline:none;transition:.15s}
+.ld-search:focus{border-color:#F97316;background:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.08)}
+.ld-items{flex:1;overflow-y:auto}
+.ld-items::-webkit-scrollbar{width:4px}
+.ld-items::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:2px}
+.ld-item{padding:11px 14px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .12s;border-left:3px solid transparent}
+.ld-item:hover{background:#FFF7ED}
+.ld-item.active{background:#FFF7ED;border-left-color:#F97316}
+.ld-item-name{font-size:.8rem;font-weight:700;color:#1F2937;margin-bottom:3px}
+.ld-item-sub{font-size:.67rem;color:#9CA3AF;display:flex;gap:8px}
+.ld-item-badge{font-size:.62rem;font-weight:700;padding:1px 7px;border-radius:999px;margin-top:3px;display:inline-block}
+
+/* ── MAIN PANEL (charts + detail) ── */
+.cw-main{flex:1;overflow-y:auto;background:#F8FAFC;display:flex;flex-direction:column}
+.cw-main::-webkit-scrollbar{width:5px}
+.cw-main::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
+
+/* ── CHARTS ROW (always visible) ── */
+.charts-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:14px 14px 0}
+.chart-card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;overflow:hidden}
+.chart-card-head{padding:10px 12px;border-bottom:1px solid #F3F4F6;font-size:.72rem;font-weight:700;color:#1F2937}
+.chart-card-body{padding:10px 12px}
+.ch{position:relative;height:180px}
+
+/* ── DETAIL PANEL ── */
+.ld-detail{display:none;flex:1;padding:14px}
+.cw-wrap.detail-open .ld-detail{display:block}
+.det-back{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#6B7280;font-size:.75rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:14px}
+.det-back:hover{background:#F9FAFB;color:#1F2937}
+.det-back svg{width:14px;height:14px}
+.det-name{font-size:1.05rem;font-weight:800;color:#1F2937;margin-bottom:8px}
+.det-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.det-chip{padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:600;background:#F3F4F6;color:#4B5563}
+
+/* stat grid */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat-card{background:#fff;border:1px solid #E5E7EB;border-radius:9px;padding:12px;text-align:center}
+.stat-val{font-size:1.4rem;font-weight:800;line-height:1;font-family:'JetBrains Mono',monospace}
+.stat-lbl{font-size:.6rem;color:#9CA3AF;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+
+/* detail section */
+.det-section{background:#fff;border:1px solid #E5E7EB;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.det-section-head{padding:9px 13px;border-bottom:1px solid #F3F4F6;font-size:.72rem;font-weight:700;color:#1F2937}
+.det-section-body{padding:10px 13px}
+.det-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #F9FAFB;font-size:.76rem}
+.det-row:last-child{border-bottom:none}
+.det-row-label{color:#6B7280;font-weight:500}
+.det-row-val{font-weight:700;color:#1F2937}
+
+/* anak mini table */
+.mini-tbl{width:100%;border-collapse:collapse;font-size:.72rem}
+.mini-tbl th{padding:7px 10px;text-align:left;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;border-bottom:1px solid #E5E7EB;background:#F9FAFB}
+.mini-tbl td{padding:7px 10px;border-bottom:1px solid #F9FAFB;color:#1F2937;vertical-align:middle}
+.mini-tbl tr:last-child td{border-bottom:none}
+.mini-tbl tr:hover td{background:#FFF7ED}
+
+/* empty state */
+.cw-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px;min-height:200px}
+.cw-empty svg{width:44px;height:44px;opacity:.25}
+.cw-empty p{font-size:.8rem;text-align:center}
 </style>
 </head><body>
 <div class="app"><div class="main">
@@ -26,55 +87,66 @@
     <span class="topbar-date" id="topbar-date">—</span>
   </div>
 </header>
-<div class="page">
-  <div class="page-header"><h1>Profil & Beban CBR Worker</h1><p>Analisis kinerja, caseload, dan kondisi anak per CBR Worker.</p></div>
 
-  <!-- Worker cards -->
-  <div class="section-divider">Profil per CBR Worker</div>
-  <div class="worker-grid" id="worker-cards"></div>
-
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-head"><span class="card-title">Jumlah Anak per CBR Worker</span></div>
-      <div class="card-body"><div class="ch h200"><canvas id="c-worker-bar"></canvas></div></div>
+<div class="cw-wrap">
+  <!-- LIST PANEL -->
+  <div class="ld-list">
+    <div class="ld-list-header">
+      <div style="font-size:.8rem;font-weight:700;color:#1F2937;margin-bottom:8px">CBR Worker</div>
+      <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama..."/>
+      <div style="font-size:.67rem;color:#9CA3AF;margin-top:6px" id="ld-count">—</div>
     </div>
-    <div class="card">
-      <div class="card-head"><span class="card-title">Jumlah Anak per Desa (Top 15)</span></div>
-      <div class="card-body"><div class="ch h200"><canvas id="c-desa-bar"></canvas></div></div>
-    </div>
+    <div class="ld-items" id="ld-items"></div>
   </div>
 
-  <!-- Tabel detail -->
-  <div class="card">
-    <div class="card-head"><span class="card-title">Tabel Detail per CBR Worker</span></div>
-    <div class="card-body no-pad"><div class="tbl-wrap"><table id="worker-table"></table></div></div>
-  </div>
+  <!-- MAIN RIGHT PANEL -->
+  <div class="cw-main" id="cw-main">
 
-  <!-- Drill-down per worker -->
-  <div class="section-divider">Detail Anak per CBR Worker</div>
-  <div class="card">
-    <div class="card-head">
-      <span class="card-title">Pilih CBR Worker</span>
-      <select id="sel-worker" style="padding:6px 12px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.78rem;min-width:220px"></select>
-      <span class="badge badge-nlr" id="badge-drill">—</span>
+    <!-- CHARTS ROW — always visible -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-card-head">Jumlah Anak per CBR Worker</div>
+        <div class="chart-card-body"><div class="ch"><canvas id="c-worker-bar"></canvas></div></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-head">Jumlah Anak per Desa (Top 15)</div>
+        <div class="chart-card-body"><div class="ch"><canvas id="c-desa-bar"></canvas></div></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-head">Ragam Disabilitas per CBR Worker</div>
+        <div class="chart-card-body"><div class="ch"><canvas id="c-ragam-bar"></canvas></div></div>
+      </div>
     </div>
-    <div class="card-body no-pad"><div class="tbl-wrap"><table id="tbl-drill"></table></div></div>
-  </div>
 
-</div></div></div>
+    <!-- EMPTY STATE (sebelum klik) -->
+    <div class="cw-empty" id="cw-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <p>Pilih nama CBR Worker<br>untuk melihat detail beban kerja</p>
+    </div>
+
+    <!-- DETAIL PANEL -->
+    <div class="ld-detail" id="ld-detail"></div>
+
+  </div>
+</div>
+</div></div>
+
 <script>
 const RC={'Fisik':'#dc2626','Intelektual':'#2563eb','Sensorik (penglihatan)':'#16a34a','Sensorik (pendengaran dan bicara)':'#d97706','Ganda':'#7c3aed','Lainnya':'#6b7280'};
 const LC={'Parah (dukungan penuh)':'#dc2626','Sedang (dukungan reguler)':'#d97706','Rendah (sedikit dukungan)':'#16a34a'};
-const PAL=['#d4500a','#2563eb','#16a34a','#d97706','#7c3aed','#dc2626','#0891b2','#84cc16'];
-let CHARTS={}, ALL_ANAK=[], ALL_OBS=[];
+const PAL=['#F97316','#2563eb','#16a34a','#d97706','#7c3aed','#dc2626','#0891b2','#84cc16'];
+
+let CHARTS={}, ALL_ANAK=[], ALL_OBS=[], ALL_WORKERS=[];
+
 function sc(v){return v<=3?'#dc2626':v<=6?'#d97706':'#16a34a';}
-function avg(arr){const v=arr.filter(x=>x!=null&&!isNaN(x));return v.length?v.reduce((a,b)=>a+b,0)/v.length:0;}
+function avg(arr){const v=arr.filter(x=>x!=null&&!isNaN(x));return v.length?(v.reduce((a,b)=>a+b,0)/v.length):0;}
 
 function mk(id,type,data,opts){
   if(CHARTS[id]){CHARTS[id].destroy();delete CHARTS[id];}
   const el=document.getElementById(id);if(!el)return;
   CHARTS[id]=new Chart(el,{type,data,options:opts});
 }
+
 function drawLabels(chart){
   const ctx=chart.ctx;
   chart.data.datasets.forEach((ds,i)=>{
@@ -82,108 +154,230 @@ function drawLabels(chart){
     meta.data.forEach((bar,idx)=>{
       const v=ds.data[idx];if(!v&&v!==0)return;
       const isH=chart.config.options.indexAxis==='y';
-      ctx.save();ctx.fillStyle='#374151';ctx.font='bold 10px system-ui';
-      if(isH){ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(v,bar.x+4,bar.y);}
+      ctx.save();ctx.fillStyle='#374151';ctx.font='bold 9px system-ui';
+      if(isH){ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(v,bar.x+3,bar.y);}
       else{ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(v,bar.x,bar.y-2);}
       ctx.restore();
     });
   });
 }
-const BASE={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:10}}},y:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:10}},beginAtZero:true}},animation:{onComplete:function(){drawLabels(this);}}};
+
+const BASE_OPTS={
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},
+  scales:{
+    x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}}},
+    y:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}},beginAtZero:true}
+  },
+  animation:{onComplete:function(){drawLabels(this);}}
+};
 
 function renderPage(d,scnId){
   if(!d||!d.anak)return;
   ALL_ANAK=d.anak;
   ALL_OBS=d.obs||[];
-  const workers=[...new Set(ALL_ANAK.map(a=>a.cbr).filter(Boolean))].sort();
-  const wStats=d.workers||[];
+  ALL_WORKERS=[...new Set(ALL_ANAK.map(a=>a.cbr).filter(Boolean))].sort();
 
-  // Worker cards
-  document.getElementById('worker-cards').innerHTML=workers.map((w,i)=>{
-    const g=ALL_ANAK.filter(a=>a.cbr===w);
-    const spArr=g.map(a=>a.sp).filter(v=>v!=null);
-    const saArr=g.map(a=>a.sa).filter(v=>v!=null);
-    const avSP=spArr.length?avg(spArr).toFixed(1):'—';
-    const avSA=saArr.length?avg(saArr).toFixed(1):'—';
-    const parah=g.filter(a=>(a.level||'').includes('Parah')).length;
-    const kritis=g.filter(a=>a.sp!=null&&a.sp<=3).length;
-    const ws=wStats.find(x=>x.nama===w)||{};
-    return `<div class="worker-card" style="--wc:${PAL[i%PAL.length]}">
-      <div class="wc-name" style="color:${PAL[i%PAL.length]}">${w}</div>
-      <div class="wc-stat"><span>Total dampingan</span><span>${g.length}</span></div>
-      <div class="wc-stat"><span>Skor anak avg</span><span style="color:${avSP!=='—'?sc(parseFloat(avSP)):'#9ca3af'}">${avSP}/10</span></div>
-      <div class="wc-stat"><span>Skor pengasuh avg</span><span style="color:${avSA!=='—'?sc(parseFloat(avSA)):'#9ca3af'}">${avSA}/10</span></div>
-      <div class="wc-stat"><span>Level parah</span><span style="color:#dc2626">${parah}</span></div>
-      <div class="wc-stat"><span>Kritis ≤3</span><span style="color:${kritis>0?'#dc2626':'#16a34a'}">${kritis}</span></div>
-      <div class="wc-stat"><span>Terlambat >30h</span><span style="color:${(ws.late||0)>0?'#dc2626':'#16a34a'}">${ws.late||0}</span></div>
-    </div>`;
-  }).join('');
+  // ── CHART 1: Anak per Worker ──
+  mk('c-worker-bar','bar',
+    {labels:ALL_WORKERS.map(w=>w.split(' ').slice(-1)[0]),
+     datasets:[{data:ALL_WORKERS.map(w=>ALL_ANAK.filter(a=>a.cbr===w).length),
+       backgroundColor:PAL,borderRadius:4,borderSkipped:false}]},
+    {...BASE_OPTS,layout:{padding:{top:16}}}
+  );
 
-  // Bar jumlah anak
-  mk('c-worker-bar','bar',{labels:workers.map(w=>w.split(' ').pop()),datasets:[{data:workers.map(w=>ALL_ANAK.filter(a=>a.cbr===w).length),backgroundColor:['#F97316','#FB923C','#FDBA74','#FED7AA','#1E293B','#475569','#94A3B8','#CBD5E1'],borderRadius:5,borderSkipped:false}]},{...BASE,layout:{padding:{top:18}}});
-
-  // Bar desa top 15
+  // ── CHART 2: Anak per Desa top 15 ──
   const desaCnt={};
   ALL_ANAK.forEach(a=>{if(a.desa&&a.desa!=='—')desaCnt[a.desa]=(desaCnt[a.desa]||0)+1;});
   const top15=Object.entries(desaCnt).sort((a,b)=>b[1]-a[1]).slice(0,15);
-  mk('c-desa-bar','bar',{labels:top15.map(x=>x[0]),datasets:[{data:top15.map(x=>x[1]),backgroundColor:['#F97316','#FB923C','#FDBA74','#FED7AA','#1E293B','#475569','#94A3B8','#CBD5E1'].concat(PAL),borderRadius:5,borderSkipped:false}]},{responsive:true,maintainAspectRatio:false,indexAxis:'y',layout:{padding:{right:28}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}},beginAtZero:true},y:{grid:{display:false},ticks:{color:'#9ca3af',font:{size:9}}}},animation:{onComplete:function(){drawLabels(this);}}});
+  mk('c-desa-bar','bar',
+    {labels:top15.map(x=>x[0]),datasets:[{data:top15.map(x=>x[1]),backgroundColor:PAL.concat(PAL),borderRadius:4,borderSkipped:false}]},
+    {responsive:true,maintainAspectRatio:false,indexAxis:'y',layout:{padding:{right:24}},
+     plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},
+     scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}},beginAtZero:true},y:{grid:{display:false},ticks:{color:'#9ca3af',font:{size:9}}}},
+     animation:{onComplete:function(){drawLabels(this);}}}
+  );
 
-  // Tabel summary
-  document.getElementById('worker-table').innerHTML=`
-    <thead><tr><th>CBR Worker</th><th>Total</th><th>Skor Anak</th><th>Skor Pengasuh</th><th>Parah</th><th>Sedang</th><th>Rendah</th><th>Kritis ≤3</th><th>Epilepsi</th><th>Terapi</th></tr></thead>
-    <tbody>${workers.map((w,i)=>{
-      const g=ALL_ANAK.filter(a=>a.cbr===w);
-      const spArr=g.map(a=>a.sp).filter(v=>v!=null);
-      const saArr=g.map(a=>a.sa).filter(v=>v!=null);
-      const avSP=spArr.length?avg(spArr).toFixed(1):'—';
-      const avSA=saArr.length?avg(saArr).toFixed(1):'—';
-      const kritis=g.filter(a=>a.sp!=null&&a.sp<=3).length;
-      return `<tr>
-        <td><strong style="color:${PAL[i%PAL.length]}">${w}</strong></td>
-        <td class="mono">${g.length}</td>
-        <td class="mono" style="color:${avSP!=='—'?sc(parseFloat(avSP)):'#9ca3af'};font-weight:700">${avSP}</td>
-        <td class="mono" style="color:${avSA!=='—'?sc(parseFloat(avSA)):'#9ca3af'};font-weight:700">${avSA}</td>
-        <td class="mono" style="color:#dc2626">${g.filter(a=>(a.level||'').includes('Parah')).length}</td>
-        <td class="mono" style="color:#d97706">${g.filter(a=>(a.level||'').includes('Sedang')).length}</td>
-        <td class="mono" style="color:#16a34a">${g.filter(a=>(a.level||'').includes('Rendah')).length}</td>
-        <td class="mono" style="color:${kritis>0?'#dc2626':'#16a34a'};font-weight:700">${kritis}</td>
-        <td class="mono">${g.filter(a=>a.ep).length}</td>
-        <td class="mono">${g.filter(a=>a.tr).length}</td>
-      </tr>`;
-    }).join('')}</tbody>`;
+  // ── CHART 3: Ragam per Worker (stacked bar) ──
+  const ragams=[...new Set(ALL_ANAK.map(a=>a.ragam).filter(Boolean))].sort();
+  const ragamColors=Object.values(RC);
+  const ragamDatasets=ragams.map((rg,i)=>({
+    label:rg.split(' ')[0],
+    data:ALL_WORKERS.map(w=>ALL_ANAK.filter(a=>a.cbr===w&&a.ragam===rg).length),
+    backgroundColor:(Object.values(RC)[i]||PAL[i%PAL.length])+'CC',
+    borderRadius:0,
+  }));
+  mk('c-ragam-bar','bar',
+    {labels:ALL_WORKERS.map(w=>w.split(' ').slice(-1)[0]),datasets:ragamDatasets},
+    {responsive:true,maintainAspectRatio:false,
+     plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:9,font:{size:9},color:'#6B7280',padding:6}},
+       tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},
+     scales:{x:{stacked:true,grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}}},
+       y:{stacked:true,grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}},beginAtZero:true}},
+     animation:{}}
+  );
 
-  // Drill-down dropdown
-  const sel=document.getElementById('sel-worker');
-  sel.innerHTML=workers.map(w=>`<option value="${w}">${w}</option>`).join('');
-  sel.addEventListener('change',()=>renderDrill(sel.value));
-  renderDrill(workers[0]);
+  // ── LIST ──
+  renderList();
 }
 
-function renderDrill(wNama){
-  if(!wNama||!ALL_ANAK.length)return;
+function renderList(){
+  const q=(document.getElementById('flt-search').value||'').toLowerCase();
+  const list=ALL_WORKERS.filter(w=>!q||w.toLowerCase().includes(q));
+  document.getElementById('ld-count').textContent=list.length+' CBR Worker';
+  document.getElementById('ld-items').innerHTML=list.map((w,i)=>{
+    const g=ALL_ANAK.filter(a=>a.cbr===w);
+    const kritis=g.filter(a=>a.sp!=null&&a.sp<=3).length;
+    const parah=g.filter(a=>(a.level||'').includes('Parah')).length;
+    return `<div class="ld-item" id="li-${i}" data-name="${w}">
+      <div class="ld-item-name" style="color:${PAL[i%PAL.length]}">${w}</div>
+      <div class="ld-item-sub">
+        <span>👶 ${g.length} anak</span>
+        ${kritis?`<span style="color:#dc2626">⚠ ${kritis} kritis</span>`:''}
+        ${parah?`<span style="color:#d97706">● ${parah} parah</span>`:''}
+      </div>
+    </div>`;
+  }).join('') || '<div style="text-align:center;padding:24px;color:#9CA3AF;font-size:.76rem">Tidak ada data</div>';
+
+  document.querySelectorAll('.ld-item').forEach(el=>{
+    el.onclick=()=>showDetail(el, el.dataset.name);
+  });
+}
+
+let _lastEl=null;
+function showDetail(el, wNama){
+  if(_lastEl) _lastEl.classList.remove('active');
+  el.classList.add('active'); _lastEl=el;
+  document.querySelector('.cw-wrap').classList.add('detail-open');
+  document.getElementById('cw-empty').style.display='none';
+
   const g=ALL_ANAK.filter(a=>a.cbr===wNama);
+  const spArr=g.map(a=>a.sp).filter(v=>v!=null);
+  const saArr=g.map(a=>a.sa).filter(v=>v!=null);
+  const avSP=spArr.length?avg(spArr).toFixed(1):null;
+  const avSA=saArr.length?avg(saArr).toFixed(1):null;
+  const kritis=g.filter(a=>a.sp!=null&&a.sp<=3).length;
+  const parah=g.filter(a=>(a.level||'').includes('Parah')).length;
+  const sedang=g.filter(a=>(a.level||'').includes('Sedang')).length;
+  const rendah=g.filter(a=>(a.level||'').includes('Rendah')).length;
+  const epilepsi=g.filter(a=>a.ep).length;
+  const terapi=g.filter(a=>a.tr).length;
+  const lk=g.filter(a=>a.gender==='L').length;
+  const pr=g.filter(a=>a.gender==='P').length;
+  const ws=ALL_WORKERS.indexOf(wNama);
+  const wColor=PAL[ws%PAL.length];
+
+  // Ragam breakdown
+  const ragamRows=Object.entries(
+    g.reduce((acc,a)=>{acc[a.ragam||'Lainnya']=(acc[a.ragam||'Lainnya']||0)+1;return acc;},{})
+  ).sort((a,b)=>b[1]-a[1]);
+
+  // Anak mini table (latest obs)
   const obsMap={};
   ALL_OBS.forEach(o=>{if(o.na)obsMap[o.na.toLowerCase()]=o;});
-  document.getElementById('badge-drill').textContent=g.length+' anak';
-  document.getElementById('tbl-drill').innerHTML=`
-    <thead><tr><th>#</th><th>Nama Anak</th><th>Ragam</th><th>Level</th><th>Desa</th><th>Usia</th><th style="text-align:center">Skor Anak</th><th style="text-align:center">Skor Pengasuh</th><th>Terakhir Obs</th></tr></thead>
-    <tbody>${g.map((a,i)=>{
-      const spCol=a.sp!=null?sc(a.sp):'#9ca3af';
-      const saCol=a.sa!=null?sc(a.sa):'#9ca3af';
-      const hStr=a.hari===999?'<span style="color:#dc2626;font-size:.7rem">Belum pernah</span>':a.hari>30?`<span style="color:#dc2626;font-weight:700;font-size:.7rem">${a.hari}h lalu</span>`:`<span style="color:#6b7280;font-size:.7rem">${a.hari}h lalu</span>`;
-      return `<tr>
-        <td style="color:#9ca3af">${i+1}</td>
-        <td><strong>${a.nama||'—'}</strong></td>
-        <td><span style="font-size:.7rem;font-weight:700;color:${RC[a.ragam]||'#888'}">${a.ragam||'—'}</span></td>
-        <td><span style="font-size:.68rem;color:${LC[a.level]||'#9ca3af'}">${(a.level||'—').split('(')[0].trim()}</span></td>
-        <td style="font-size:.72rem">${a.desa||'—'}</td>
-        <td class="mono" style="font-size:.72rem">${a.usia||'?'} th</td>
-        <td style="text-align:center"><span class="mono" style="font-weight:700;color:${spCol}">${a.sp!=null?a.sp:'—'}</span></td>
-        <td style="text-align:center"><span class="mono" style="font-weight:700;color:${saCol}">${a.sa!=null?a.sa:'—'}</span></td>
-        <td>${hStr}</td>
-      </tr>`;
-    }).join('')}</tbody>`;
+  const anakRows=g.map((a,i)=>{
+    const spCol=a.sp!=null?sc(a.sp):'#9ca3af';
+    const saCol=a.sa!=null?sc(a.sa):'#9ca3af';
+    const hStr=a.hari===999?'<span style="color:#dc2626;font-size:.68rem">Belum</span>':
+      a.hari>30?`<span style="color:#dc2626;font-weight:700;font-size:.68rem">${a.hari}h</span>`:
+      `<span style="color:#6b7280;font-size:.68rem">${a.hari}h</span>`;
+    return `<tr>
+      <td style="color:#9CA3AF;font-size:.65rem">${i+1}</td>
+      <td style="font-weight:600;font-size:.74rem">${a.nama||'—'}</td>
+      <td style="font-size:.67rem;color:${RC[a.ragam]||'#888'};font-weight:700">${(a.ragam||'—').split(' ')[0]}</td>
+      <td style="font-size:.67rem;color:${LC[a.level]||'#9ca3af'}">${(a.level||'—').split('(')[0].trim()}</td>
+      <td style="font-size:.67rem">${a.desa||'—'}</td>
+      <td style="font-weight:700;color:${spCol};font-size:.72rem;text-align:center">${a.sp!=null?a.sp:'—'}</td>
+      <td style="font-weight:700;color:${saCol};font-size:.72rem;text-align:center">${a.sa!=null?a.sa:'—'}</td>
+      <td>${hStr}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('ld-detail').innerHTML=`
+    <button class="det-back" onclick="clearDetail()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Kembali
+    </button>
+    <div class="det-name" style="color:${wColor}">${wNama}</div>
+    <div class="det-meta">
+      <span class="det-chip">👶 ${g.length} anak dampingan</span>
+      <span class="det-chip">👦 ${lk} LK · 👧 ${pr} PR</span>
+      ${kritis?`<span class="det-chip" style="background:#FEE2E2;color:#DC2626">⚠ ${kritis} kritis</span>`:''}
+    </div>
+
+    <!-- Stat grid -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-val" style="color:${avSP?sc(parseFloat(avSP)):'#9CA3AF'}">${avSP||'—'}</div>
+        <div class="stat-lbl">Skor Anak Avg</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:${avSA?sc(parseFloat(avSA)):'#9CA3AF'}">${avSA||'—'}</div>
+        <div class="stat-lbl">Skor Pengasuh Avg</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:${kritis>0?'#dc2626':'#16a34a'}">${kritis}</div>
+        <div class="stat-lbl">Kritis ≤3</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:#dc2626">${parah}</div>
+        <div class="stat-lbl">Level Parah</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:#d97706">${epilepsi}</div>
+        <div class="stat-lbl">Epilepsi</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:#16a34a">${terapi}</div>
+        <div class="stat-lbl">Pernah Terapi</div>
+      </div>
+    </div>
+
+    <!-- Level breakdown -->
+    <div class="det-section">
+      <div class="det-section-head">Level Dukungan</div>
+      <div class="det-section-body">
+        <div class="det-row"><span class="det-row-label">Parah (dukungan penuh)</span><span class="det-row-val" style="color:#dc2626">${parah}</span></div>
+        <div class="det-row"><span class="det-row-label">Sedang (dukungan reguler)</span><span class="det-row-val" style="color:#d97706">${sedang}</span></div>
+        <div class="det-row"><span class="det-row-label">Rendah (sedikit dukungan)</span><span class="det-row-val" style="color:#16a34a">${rendah}</span></div>
+      </div>
+    </div>
+
+    <!-- Ragam breakdown -->
+    <div class="det-section">
+      <div class="det-section-head">Ragam Disabilitas</div>
+      <div class="det-section-body">
+        ${ragamRows.map(([rg,ct])=>`
+          <div class="det-row">
+            <span class="det-row-label" style="color:${RC[rg]||'#6b7280'}">${rg}</span>
+            <span class="det-row-val">${ct} <span style="color:#9CA3AF;font-size:.65rem;font-weight:400">anak</span></span>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Daftar anak -->
+    <div class="det-section">
+      <div class="det-section-head">Daftar Anak Dampingan (${g.length})</div>
+      <div style="overflow-x:auto">
+        <table class="mini-tbl">
+          <thead><tr>
+            <th>#</th><th>Nama Anak</th><th>Ragam</th><th>Level</th><th>Desa</th>
+            <th style="text-align:center">Skor A</th><th style="text-align:center">Skor P</th><th>Obs</th>
+          </tr></thead>
+          <tbody>${anakRows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
 }
+
+function clearDetail(){
+  document.querySelector('.cw-wrap').classList.remove('detail-open');
+  document.getElementById('cw-empty').style.display='flex';
+  document.getElementById('ld-detail').innerHTML='';
+  if(_lastEl){_lastEl.classList.remove('active');_lastEl=null;}
+}
+
+document.getElementById('flt-search').addEventListener('input',renderList);
 </script>
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>

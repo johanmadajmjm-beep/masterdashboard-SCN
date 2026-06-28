@@ -12,10 +12,12 @@
 
 /* Panel kiri — list */
 .ld-list {
-  width:340px; min-width:340px; flex-shrink:0;
+  width:100%; min-width:0; flex-shrink:0;
   background:#fff; border-right:1px solid #E5E7EB;
   display:flex; flex-direction:column; overflow:hidden;
+  transition:width .2s;
 }
+.ld-wrap.detail-open .ld-list { width:340px; min-width:340px; }
 .ld-list-header {
   padding:14px 16px; border-bottom:1px solid #E5E7EB;
   background:#fff; flex-shrink:0;
@@ -67,18 +69,11 @@
 
 /* Panel kanan — detail */
 .ld-detail {
-  flex:1; overflow-y:auto; background:#F8FAFC; display:flex; flex-direction:column;
+  flex:1; overflow-y:auto; background:#F8FAFC; display:none;
 }
+.ld-wrap.detail-open .ld-detail { display:block; }
 .ld-detail::-webkit-scrollbar { width:5px; }
 .ld-detail::-webkit-scrollbar-thumb { background:#E5E7EB; border-radius:3px; }
-
-/* Detail empty state */
-.ld-empty {
-  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  color:#9CA3AF; gap:10px; padding:40px;
-}
-.ld-empty svg { width:48px; height:48px; opacity:.3; }
-.ld-empty p { font-size:.82rem; text-align:center; }
 
 /* Detail content */
 .ld-detail-inner { padding:24px; }
@@ -204,11 +199,7 @@
 
   <!-- PANEL KANAN: DETAIL -->
   <div class="ld-detail" id="ld-detail">
-    <div class="ld-empty" id="ld-empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
-      <p>Pilih nama anak di sebelah kiri<br>untuk melihat rekomendasi RTL</p>
-    </div>
-    <div class="ld-detail-inner" id="ld-detail-inner" style="display:none"></div>
+    <div class="ld-detail-inner" id="ld-detail-inner"></div>
   </div>
 </div>
 </div></div>
@@ -358,8 +349,7 @@ function showDetail(a,el){
   if(_lastEl) _lastEl.classList.remove('active');
   el.classList.add('active');
   _lastEl=el;
-  document.getElementById('ld-empty').style.display='none';
-  document.getElementById('ld-detail-inner').style.display='block';
+  document.querySelector('.ld-wrap').classList.add('detail-open');
   const spVal=a.sp!=null?a.sp:0;
   const saVal=a.sa!=null?a.sa:0;
   const domains=ACTIVE_DOMAIN==='all'?Object.entries(a.rekom):Object.entries(a.rekom).filter(([k])=>k===ACTIVE_DOMAIN);
@@ -410,8 +400,8 @@ function showDetail(a,el){
 }
 
 function showEmpty(){
-  document.getElementById('ld-empty').style.display='flex';
-  document.getElementById('ld-detail-inner').style.display='none';
+  document.querySelector('.ld-wrap').classList.remove('detail-open');
+  document.getElementById('ld-detail-inner').innerHTML='';
   if(_lastEl){ _lastEl.classList.remove('active'); _lastEl=null; }
 }
 

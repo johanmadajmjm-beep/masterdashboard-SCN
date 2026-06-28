@@ -3,93 +3,29 @@
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"/>
   <title>MEL — ITT Tracker | MEL NLR Indonesia</title>
   <link rel="stylesheet" href="../css/main.css"/>
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
-    /* Accordion outcome */
-    .itt-block {
-      background    : var(--white);
-      border        : 1px solid var(--gray-200);
-      border-radius : var(--radius-md);
-      overflow      : hidden;
-      margin-bottom : 12px;
-    }
-    .itt-header {
-      display        : flex;
-      align-items    : center;
-      justify-content: space-between;
-      padding        : 14px 18px;
-      background     : var(--gray-50);
-      border-left    : 4px solid var(--o-color, #999);
-      cursor         : pointer;
-      user-select    : none;
-      transition     : background .15s;
-    }
-    .itt-header:hover { background: var(--gray-100); }
-    .itt-header-left { display: flex; align-items: center; gap: 14px; }
-    .itt-header-right { display: flex; align-items: center; gap: 10px; }
+    /* ── SCN TABS ─────────────────────────────────── */
+    .scn-tabs-wrap{background:#fff;border-bottom:1px solid #E5E7EB;padding:0 20px;position:sticky;top:60px;z-index:10;display:flex;align-items:center;gap:0}
+    .scn-tab{padding:10px 16px;font-size:.75rem;font-weight:600;color:#6B7280;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:.15s;user-select:none}
+    .scn-tab:hover{color:#1F2937;background:#F9FAFB}
+    .scn-tab.active{color:#F97316;border-bottom-color:#F97316;font-weight:700}
 
-    .itt-label {
-      font-size     : .65rem;
-      font-weight   : 800;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      color         : var(--o-color, #999);
-    }
-    .itt-name {
-      font-size  : .9rem;
-      font-weight: 700;
-      color      : var(--gray-900);
-      margin-top : 2px;
-    }
-    .itt-avg {
-      font-family: var(--font-mono);
-      font-size  : 1.1rem;
-      font-weight: 700;
-      color      : var(--o-color, #999);
-    }
-
-    /* Tombol chevron */
-    .itt-toggle {
-      width           : 28px;
-      height          : 28px;
-      border-radius   : 50%;
-      background      : rgba(0,0,0,.06);
-      border          : none;
-      display         : flex;
-      align-items     : center;
-      justify-content : center;
-      cursor          : pointer;
-      transition      : background .15s, transform .2s;
-      flex-shrink     : 0;
-    }
-    .itt-toggle:hover { background: rgba(0,0,0,.12); }
-    .itt-toggle svg { width: 14px; height: 14px; color: var(--gray-600); transition: transform .2s; }
-    .itt-block.open .itt-toggle svg { transform: rotate(180deg); }
-
-    /* Body accordion */
-    .itt-body {
-      max-height : 0;
-      overflow   : hidden;
-      transition : max-height .3s ease;
-    }
-    .itt-block.open .itt-body { max-height: 2000px; }
-
-    /* Mini progress bar di header */
-    .itt-header-prog {
-      width      : 80px;
-      flex-shrink: 0;
-    }
-
-    /* Tombol expand all / collapse all */
-    .acc-controls {
-      display    : flex;
-      align-items: center;
-      gap        : 8px;
-      margin-bottom: 14px;
-    }
+    /* ── ACCORDION ────────────────────────────────── */
+    .itt-block{background:#fff;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;margin-bottom:10px}
+    .itt-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#F9FAFB;border-left:4px solid var(--o-color,#999);cursor:pointer;user-select:none;transition:background .15s}
+    .itt-header:hover{background:#F3F4F6}
+    .itt-label{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--o-color,#999)}
+    .itt-name{font-size:.85rem;font-weight:700;color:#1F2937;margin-top:1px}
+    .itt-toggle{width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.06);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;flex-shrink:0}
+    .itt-toggle svg{width:13px;height:13px;color:#6B7280;transition:transform .2s}
+    .itt-block.open .itt-toggle svg{transform:rotate(180deg)}
+    .itt-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+    .itt-block.open .itt-body{max-height:9999px}
+    .acc-controls{display:flex;align-items:center;gap:6px;margin-bottom:12px}
   </style>
 </head>
 <body>
@@ -97,45 +33,68 @@
   <div class="main">
     <header class="topbar">
       <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="openSidebar()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
         <div class="topbar-breadcrumb">MEL <span class="sep">›</span><span class="current">ITT Tracker</span></div>
       </div>
       <div class="topbar-right">
         <span class="scn-badge" id="scn-badge">—</span>
-        <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
-        <span id="sync-time" style="font-size:.65rem;color:var(--ink-300);display:none"></span>
         <span class="topbar-date" id="topbar-date">—</span>
       </div>
     </header>
-    <div class="page">
-      <div class="page-header">
-        <h1>Indicator Tracking Table</h1>
-        <p>Capaian per indikator berdasarkan ITT NLR Indonesia — 7 Outcome · Year 1 2026.</p>
-      </div>
 
-      <!-- Kontrol expand/collapse -->
-      <div class="acc-controls">
-        <button class="btn btn-ghost" onclick="toggleAll(true)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          Buka Semua
-        </button>
-        <button class="btn btn-ghost" onclick="toggleAll(false)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
-          Tutup Semua
-        </button>
-      </div>
+    <div class="page" style="padding-top:0">
+      <!-- SCN TABS -->
+      <div class="scn-tabs-wrap" id="scn-tabs"></div>
 
-      <div id="itt-container"></div>
+      <div style="padding:16px 20px">
+        <!-- Page header -->
+        <div style="margin-bottom:14px">
+          <h1 style="font-size:1.1rem;font-weight:800;color:#1F2937;margin:0 0 2px">Indicator Tracking Table</h1>
+          <p style="font-size:.72rem;color:#6B7280;margin:0">Struktur ITT NLR Indonesia — 7 Outcome · Target & Capaian diisi dari sistem SCN</p>
+        </div>
+
+        <!-- Accordion controls -->
+        <div class="acc-controls">
+          <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick="toggleAll(true)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="6 9 12 15 18 9"/></svg>
+            Buka Semua
+          </button>
+          <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick="toggleAll(false)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="18 15 12 9 6 15"/></svg>
+            Tutup Semua
+          </button>
+        </div>
+
+        <div id="itt-container"></div>
+      </div>
     </div>
   </div>
 </div>
+
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════
-// ITT STRUKTUR LENGKAP — 7 Outcome, IO, Output
-// Target & Capaian diisi dari GSheet (placeholder = null)
+// SCN LIST
 // ══════════════════════════════════════════════════════════
+const SCN_LIST = [
+  { id:'manggarai',  label:'SCN Manggarai' },
+  { id:'kupang',     label:'SCN Kupang' },
+  { id:'tts',        label:'SCN TTS' },
+  { id:'banyuwangi', label:'SCN Banyuwangi' },
+  { id:'jember',     label:'SCN Jember' },
+  { id:'situbondo',  label:'SCN Situbondo' },
+  { id:'palu',       label:'SCN Palu' },
+  { id:'sigi',       label:'SCN Sigi' },
+];
+
+let ACTIVE_SCN_TAB = 'manggarai';
+let CURRENT_SCN_FILTER = null; // null = semua SCN
 
 const O_COLORS = {
   O1:'#2563EB', O2:'#0891B2', O3:'#D97706',
@@ -518,7 +477,6 @@ const ITT = [
     target:null, capaian:null },
 ];
 
-// ── OUTCOME META ───────────────────────────────────────────
 const OUTCOME_META = {
   O1:{ label:'Outcome 1', short:'CYWD Berdaya & Berpartisipasi',
        desc:'CYWD berdaya, percaya diri, dan mampu mengambil keputusan terkait kesejahteraan mereka, termasuk HKSR dan partisipasi sosial' },
@@ -537,6 +495,8 @@ const OUTCOME_META = {
 };
 
 // ── LEVEL STYLE ───────────────────────────────────────────
+
+
 const LEVEL_STYLE = {
   outcome:  { bg:'#EFF6FF', border:'#BFDBFE', label:'OUTCOME',       bold:true,  indent:0  },
   io:       { bg:'#F9FAFB', border:'#E5E7EB', label:'INT. OUTCOME',  bold:true,  indent:16 },
@@ -544,120 +504,114 @@ const LEVEL_STYLE = {
   output:   { bg:'#FAFAFA', border:'#F3F4F6', label:'OUTPUT',        bold:false, indent:48 },
 };
 
-// ── RENDER ────────────────────────────────────────────────
-function renderPage(d, scnId) {
-  // Load target/capaian dari GSheet jika tersedia
-  const capData = (d && d.itt) ? d.itt : {};
+
+
+// ══════════════════════════════════════════════════════════
+// RENDER TABS
+// ══════════════════════════════════════════════════════════
+function renderTabs(scnFilter) {
+  const wrap = document.getElementById('scn-tabs');
+  
+  // Jika filter spesifik — hanya 1 tab
+  const tabs = scnFilter ? SCN_LIST.filter(s => s.id === scnFilter) : SCN_LIST;
+  if (tabs.length === 1) ACTIVE_SCN_TAB = tabs[0].id;
+
+  wrap.innerHTML = tabs.map(s => `
+    <div class="scn-tab ${ACTIVE_SCN_TAB === s.id ? 'active' : ''}" onclick="switchTab('${s.id}')">
+      ${s.label}
+    </div>
+  `).join('');
+}
+
+function switchTab(scnId) {
+  ACTIVE_SCN_TAB = scnId;
+  // Update tab active state
+  document.querySelectorAll('.scn-tab').forEach(t => {
+    t.classList.toggle('active', t.textContent.trim() === SCN_LIST.find(s=>s.id===scnId)?.label);
+  });
+  // Re-render ITT untuk SCN ini
+  renderITT(scnId);
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER ITT PER SCN
+// ══════════════════════════════════════════════════════════
+function renderITT(scnId) {
+  // Data target & capaian per SCN — placeholder, diisi dari GSheet nanti
+  // Format: { kode: { target: number|null, capaian: number|null } }
+  const capData = {}; // kosong — siap disambungkan ke GSheet
 
   const container = document.getElementById('itt-container');
-
-  // Group by outcome
   const byO = {};
-  ITT.forEach(ind => {
-    if (!byO[ind.o]) byO[ind.o] = [];
-    byO[ind.o].push(ind);
-  });
+  ITT.forEach(ind => { if (!byO[ind.o]) byO[ind.o] = []; byO[ind.o].push(ind); });
 
   container.innerHTML = Object.keys(OUTCOME_META).map(oKey => {
     const meta = OUTCOME_META[oKey];
     const color = O_COLORS[oKey];
     const rows = byO[oKey] || [];
-
-    // Count indikator (exclude io header rows)
     const inds = rows.filter(r => r.level !== 'io');
-    const withTarget = inds.filter(r => r.target != null);
-    const countStr = withTarget.length > 0
-      ? `${withTarget.length} indikator dengan target`
-      : `${inds.length} indikator`;
 
     const rowsHtml = rows.map(ind => {
       const st = LEVEL_STYLE[ind.level] || LEVEL_STYLE['io-ind'];
-      const isHeader = ind.level === 'io';
-
-      // Untuk header IO: tampilkan label section, tidak ada kolom angka
-      if (isHeader) {
-        return `<div style="
-          background:${st.bg};
-          border-bottom:1px solid ${st.border};
-          padding:8px 16px 8px ${16 + st.indent}px;
-          display:flex;align-items:center;gap:8px;
-        ">
-          <span style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
-            color:${color};background:${color}18;padding:1px 7px;border-radius:999px;flex-shrink:0">${st.label}</span>
-          <span style="font-size:.74rem;font-weight:700;color:#374151">${ind.label}</span>
+      if (ind.level === 'io') {
+        return `<div style="background:${st.bg};border-bottom:1px solid ${st.border};padding:7px 16px 7px ${16+st.indent}px;display:flex;align-items:center;gap:8px">
+          <span style="font-size:.57rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:${color};background:${color}18;padding:1px 7px;border-radius:999px;flex-shrink:0">${st.label}</span>
+          <span style="font-size:.72rem;font-weight:700;color:#374151">${ind.label}</span>
         </div>`;
       }
 
-      // Indikator / Output row
-      const capVal = ind.capaian;
-      const tgtVal = ind.target;
+      const d = capData[ind.kode] || {};
+      const tgtVal = d.target != null ? d.target : ind.target;
+      const capVal = d.capaian != null ? d.capaian : ind.capaian;
       const pct = (capVal != null && tgtVal) ? Math.min(Math.round(capVal/tgtVal*100),100) : null;
-      const pctColor = pct == null ? '#D1D5DB' : pct>=80?'#059669':pct>=50?'#2563EB':pct>=25?'#D97706':'#DC2626';
+      const pctColor = pct==null?'#D1D5DB':pct>=80?'#059669':pct>=50?'#2563EB':pct>=25?'#D97706':'#DC2626';
 
-      const tipeTag = ind.tipe ? `<span style="font-size:.55rem;font-weight:700;padding:1px 6px;border-radius:999px;
-        background:${ind.tipe==='Standard LF'?'#DBEAFE':'#FEF3C7'};
-        color:${ind.tipe==='Standard LF'?'#1D4ED8':'#92400E'};flex-shrink:0">${ind.tipe}</span>` : '';
+      const tipeTag = ind.tipe ? `<span style="font-size:.54rem;font-weight:700;padding:1px 5px;border-radius:999px;white-space:nowrap;background:${ind.tipe==='Standard LF'?'#DBEAFE':'#FEF3C7'};color:${ind.tipe==='Standard LF'?'#1D4ED8':'#92400E'}">${ind.tipe}</span>` : '';
 
-      const targetDisplay = tgtVal != null ? `<span style="font-size:.8rem;font-weight:700;font-family:monospace;color:#374151">${tgtVal}</span>` 
-        : `<span style="font-size:.72rem;color:#D1D5DB">—</span>`;
-      const capDisplay = capVal != null ? `<span style="font-size:.8rem;font-weight:700;font-family:monospace;color:${pctColor}">${capVal}</span>` 
-        : `<span style="font-size:.72rem;color:#D1D5DB">—</span>`;
-      const pctDisplay = pct != null ? `<span style="font-size:.75rem;font-weight:800;font-family:monospace;color:${pctColor}">${pct}%</span>`
-        : `<span style="font-size:.72rem;color:#D1D5DB">—</span>`;
+      const tgtDisp = tgtVal!=null?`<span style="font-size:.78rem;font-weight:700;font-family:monospace;color:#374151">${tgtVal}</span>`:`<span style="font-size:.7rem;color:#D1D5DB">—</span>`;
+      const capDisp = capVal!=null?`<span style="font-size:.78rem;font-weight:700;font-family:monospace;color:${pctColor}">${capVal}</span>`:`<span style="font-size:.7rem;color:#D1D5DB">—</span>`;
+      const pctDisp = pct!=null?`<span style="font-size:.73rem;font-weight:800;font-family:monospace;color:${pctColor}">${pct}%</span>`:`<span style="font-size:.7rem;color:#D1D5DB">—</span>`;
+      const bar = pct!=null?`<div style="width:54px;height:4px;background:#F3F4F6;border-radius:2px;overflow:hidden;flex-shrink:0"><div style="width:${pct}%;height:100%;background:${pctColor};border-radius:2px"></div></div>`:'';
 
-      const progressBar = pct != null ? `<div style="width:60px;height:4px;background:#F3F4F6;border-radius:2px;overflow:hidden;flex-shrink:0">
-          <div style="width:${pct}%;height:100%;background:${pctColor};border-radius:2px"></div>
-        </div>` : '';
-
-      return `<div style="
-        background:${st.bg};
-        border-bottom:1px solid ${st.border};
-        padding:8px 16px 8px ${16 + st.indent}px;
-        display:flex;align-items:center;gap:10px;
-      ">
-        <span style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
-          color:#6B7280;background:#F3F4F6;padding:1px 6px;border-radius:999px;flex-shrink:0;white-space:nowrap">${ind.kode}</span>
-        <span style="font-size:.74rem;font-weight:${st.bold?'600':'400'};color:#1F2937;flex:1;line-height:1.4">${ind.label}</span>
+      return `<div style="background:${st.bg};border-bottom:1px solid ${st.border};padding:7px 16px 7px ${16+st.indent}px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:.57rem;font-weight:800;color:#9CA3AF;background:#F3F4F6;padding:1px 6px;border-radius:999px;flex-shrink:0;white-space:nowrap">${ind.kode}</span>
+        <span style="font-size:.72rem;font-weight:${st.bold?'600':'400'};color:#1F2937;flex:1;line-height:1.4">${ind.label}</span>
         ${tipeTag}
-        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;min-width:180px;justify-content:flex-end">
-          <span style="font-size:.6rem;color:#9CA3AF;white-space:nowrap">Target</span>
-          ${targetDisplay}
-          <span style="font-size:.6rem;color:#9CA3AF;white-space:nowrap">Capaian</span>
-          ${capDisplay}
-          ${progressBar}
-          ${pctDisplay}
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:170px;justify-content:flex-end">
+          <span style="font-size:.58rem;color:#9CA3AF">Target</span>${tgtDisp}
+          <span style="font-size:.58rem;color:#9CA3AF">Capaian</span>${capDisp}
+          ${bar}${pctDisp}
         </div>
       </div>`;
     }).join('');
 
-    return `<div class="itt-block" id="block-${oKey}">
-      <div class="itt-header" style="--o-color:${color}" onclick="toggleBlock('${oKey}')">
-        <div class="itt-header-left">
+    return `<div class="itt-block" id="block-${oKey}-${scnId}">
+      <div class="itt-header" style="--o-color:${color}" onclick="toggleBlock('${oKey}','${scnId}')">
+        <div style="display:flex;align-items:center;gap:12px">
           <div>
             <div class="itt-label">${meta.label}</div>
             <div class="itt-name">${meta.short}</div>
           </div>
         </div>
-        <div class="itt-header-right">
-          <span style="font-size:.65rem;color:#9CA3AF">${countStr}</span>
-          <button class="itt-toggle" onclick="event.stopPropagation();toggleBlock('${oKey}')">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:.63rem;color:#9CA3AF">${inds.length} indikator</span>
+          <button class="itt-toggle" onclick="event.stopPropagation();toggleBlock('${oKey}','${scnId}')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
         </div>
       </div>
       <div class="itt-body">
-        <div style="padding:4px 0;border-top:1px solid #F3F4F6">
-          <div style="padding:8px 16px;background:#FAFAFA;border-bottom:1px solid #F3F4F6">
-            <p style="font-size:.7rem;color:#6B7280;margin:0;line-height:1.5">${meta.desc}</p>
+        <div style="padding:3px 0;border-top:1px solid #F3F4F6">
+          <div style="padding:7px 16px;background:#FAFAFA;border-bottom:1px solid #F3F4F6">
+            <p style="font-size:.68rem;color:#6B7280;margin:0;line-height:1.5">${meta.desc}</p>
           </div>
-          <!-- Column header -->
-          <div style="display:flex;align-items:center;gap:10px;padding:5px 16px;background:#F9FAFB;border-bottom:1px solid #E5E7EB">
-            <span style="flex:1;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF">Indikator / Output</span>
-            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;min-width:180px;justify-content:flex-end">
-              <span style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;white-space:nowrap">Target Y1</span>
-              <span style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;white-space:nowrap">Capaian</span>
-              <span style="width:60px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;text-align:center">Progress</span>
-              <span style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF">%</span>
+          <div style="display:flex;align-items:center;gap:8px;padding:4px 16px;background:#F9FAFB;border-bottom:1px solid #E5E7EB">
+            <span style="flex:1;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF">Indikator / Output</span>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:170px;justify-content:flex-end">
+              <span style="font-size:.56rem;font-weight:700;text-transform:uppercase;color:#9CA3AF">Target Y1</span>
+              <span style="font-size:.56rem;font-weight:700;text-transform:uppercase;color:#9CA3AF">Capaian</span>
+              <span style="width:54px;font-size:.56rem;font-weight:700;text-transform:uppercase;color:#9CA3AF;text-align:center">Progress</span>
+              <span style="font-size:.56rem;font-weight:700;text-transform:uppercase;color:#9CA3AF">%</span>
             </div>
           </div>
           ${rowsHtml}
@@ -666,26 +620,39 @@ function renderPage(d, scnId) {
     </div>`;
   }).join('');
 
-  // Expand O1 by default
-  document.getElementById('block-O1')?.classList.add('open');
+  // Default: buka O1
+  document.getElementById(`block-O1-${scnId}`)?.classList.add('open');
 }
 
-function toggleBlock(oKey) {
-  document.getElementById('block-'+oKey)?.classList.toggle('open');
+function toggleBlock(oKey, scnId) {
+  document.getElementById(`block-${oKey}-${scnId}`)?.classList.toggle('open');
 }
 function toggleAll(open) {
-  document.querySelectorAll('.itt-block').forEach(b => {
-    open ? b.classList.add('open') : b.classList.remove('open');
-  });
+  document.querySelectorAll('.itt-block').forEach(b => open ? b.classList.add('open') : b.classList.remove('open'));
 }
 
-// Init
-document.addEventListener('DOMContentLoaded', () => {
-  renderPage({}, null);
-  document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  if (typeof initSidebar === 'function') initSidebar();
-  if (typeof initAuth === 'function') initAuth(renderPage);
-});
+// ══════════════════════════════════════════════════════════
+// RENDER PAGE (dipanggil dari AUTH/API)
+// ══════════════════════════════════════════════════════════
+function renderPage(d, scnId) {
+  CURRENT_SCN_FILTER = scnId || null;
+  if (scnId) ACTIVE_SCN_TAB = scnId;
+  renderTabs(CURRENT_SCN_FILTER);
+  renderITT(ACTIVE_SCN_TAB);
+}
+
+// ── INIT ─────────────────────────────────────────────────
+buildSidebar();
+const SESSION = AUTH.requireAuth('../index.html');
+if (SESSION) {
+  AUTH.applySession({
+    onScnSwitch: function(scnId) {
+      renderPage({}, scnId);
+    }
+  });
+  AUTH.initSidebar('mel', 'mel-itt');
+  renderPage({}, AUTH.getScnFilter());
+}
 </script>
 </body>
 </html>

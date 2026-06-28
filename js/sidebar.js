@@ -67,7 +67,7 @@ function buildSidebar() {
       </div>
       <div class="nav-group-items">
         <a class="nav-sub-item" data-page="w-beranda"  href="${base}/pages/worker-beranda.html">${ICONS.home} Beranda</a>
-        <a class="nav-sub-item" data-page="w-anak"     href="${base}/pages/worker-anak.html">${ICONS.list} Daftar Anak</a>
+        <a class="nav-sub-item" data-page="w-anak"     href="${base}/pages/worker-anak.html">${ICONS.list} Profil Anak</a>
         <a class="nav-sub-item" data-page="w-obs"      href="${base}/pages/worker-obs.html">${ICONS.obs} Observasi</a>
         <a class="nav-sub-item" data-page="w-plan"     href="${base}/pages/worker-plan.html">${ICONS.plan} Perencanaan</a>
         <a class="nav-sub-item" data-page="w-diary"    href="${base}/pages/worker-diary.html">${ICONS.diary} Buku Harian</a>
@@ -85,9 +85,10 @@ function buildSidebar() {
       </div>
       <div class="nav-group-items">
         <a class="nav-sub-item" data-page="c-beranda" href="${base}/pages/coord-beranda.html">${ICONS.home} Beranda</a>
-        <a class="nav-sub-item" data-page="c-worker"  href="${base}/pages/coord-worker.html">${ICONS.worker} Per CBR Worker</a>
+        <a class="nav-sub-item" data-page="c-worker"  href="${base}/pages/coord-worker.html">${ICONS.worker} Profil Worker</a>
         <a class="nav-sub-item" data-page="c-benef"   href="${base}/pages/coord-benef.html">${ICONS.benef} Beneficiary</a>
         <a class="nav-sub-item" data-page="c-rtl"     href="${base}/pages/coord-rtl.html">${ICONS.rtl} RTL</a>
+        <a class="nav-sub-item" data-page="c-pihak"  href="${base}/pages/coord-pihak.html">${ICONS.stake} Pihak Terlibat</a>
       </div>
     </div>
 

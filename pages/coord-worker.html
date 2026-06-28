@@ -6,8 +6,18 @@
 <link rel="stylesheet" href="../css/main.css"/>
 <link rel="stylesheet" href="../css/components.css"/>
 <style>
-/* ── LAYOUT ── */
-.cw-wrap{display:flex;gap:0;height:calc(100vh - 60px);overflow:hidden}
+/* ── OUTER LAYOUT ── */
+.outer-wrap{display:flex;flex-direction:column;height:calc(100vh - 60px);overflow:hidden}
+
+/* ── CHARTS ROW — di atas, always visible ── */
+.charts-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:12px 14px;background:#F8FAFC;border-bottom:1px solid #E5E7EB;flex-shrink:0}
+.chart-card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;overflow:hidden}
+.chart-card-head{padding:9px 12px;border-bottom:1px solid #F3F4F6;font-size:.72rem;font-weight:700;color:#1F2937}
+.chart-card-body{padding:8px 12px}
+.ch{position:relative;height:170px}
+
+/* ── LIST + DETAIL ROW ── */
+.cw-wrap{display:flex;gap:0;flex:1;overflow:hidden}
 
 /* ── LIST PANEL ── */
 .ld-list{width:100%;min-width:0;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden;transition:width .2s}
@@ -23,27 +33,17 @@
 .ld-item.active{background:#FFF7ED;border-left-color:#F97316}
 .ld-item-name{font-size:.8rem;font-weight:700;color:#1F2937;margin-bottom:3px}
 .ld-item-sub{font-size:.67rem;color:#9CA3AF;display:flex;gap:8px}
-.ld-item-badge{font-size:.62rem;font-weight:700;padding:1px 7px;border-radius:999px;margin-top:3px;display:inline-block}
-
-/* ── MAIN PANEL (charts + detail) ── */
-.cw-main{flex:1;overflow-y:auto;background:#F8FAFC;display:flex;flex-direction:column}
-.cw-main::-webkit-scrollbar{width:5px}
-.cw-main::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
-
-/* ── CHARTS ROW (always visible) ── */
-.charts-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:14px 14px 0}
-.chart-card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;overflow:hidden}
-.chart-card-head{padding:10px 12px;border-bottom:1px solid #F3F4F6;font-size:.72rem;font-weight:700;color:#1F2937}
-.chart-card-body{padding:10px 12px}
-.ch{position:relative;height:180px}
 
 /* ── DETAIL PANEL ── */
-.ld-detail{display:none;flex:1;padding:14px}
+.ld-detail{flex:1;overflow-y:auto;background:#F8FAFC;display:none}
+.ld-detail::-webkit-scrollbar{width:5px}
+.ld-detail::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
 .cw-wrap.detail-open .ld-detail{display:block}
+.det-inner{padding:16px}
 .det-back{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#6B7280;font-size:.75rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:14px}
 .det-back:hover{background:#F9FAFB;color:#1F2937}
 .det-back svg{width:14px;height:14px}
-.det-name{font-size:1.05rem;font-weight:800;color:#1F2937;margin-bottom:8px}
+.det-name{font-size:1.05rem;font-weight:800;margin-bottom:8px}
 .det-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
 .det-chip{padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:600;background:#F3F4F6;color:#4B5563}
 
@@ -53,7 +53,6 @@
 .stat-val{font-size:1.4rem;font-weight:800;line-height:1;font-family:'JetBrains Mono',monospace}
 .stat-lbl{font-size:.6rem;color:#9CA3AF;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
 
-/* detail section */
 .det-section{background:#fff;border:1px solid #E5E7EB;border-radius:10px;margin-bottom:10px;overflow:hidden}
 .det-section-head{padding:9px 13px;border-bottom:1px solid #F3F4F6;font-size:.72rem;font-weight:700;color:#1F2937}
 .det-section-body{padding:10px 13px}
@@ -62,15 +61,13 @@
 .det-row-label{color:#6B7280;font-weight:500}
 .det-row-val{font-weight:700;color:#1F2937}
 
-/* anak mini table */
 .mini-tbl{width:100%;border-collapse:collapse;font-size:.72rem}
 .mini-tbl th{padding:7px 10px;text-align:left;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;border-bottom:1px solid #E5E7EB;background:#F9FAFB}
 .mini-tbl td{padding:7px 10px;border-bottom:1px solid #F9FAFB;color:#1F2937;vertical-align:middle}
 .mini-tbl tr:last-child td{border-bottom:none}
 .mini-tbl tr:hover td{background:#FFF7ED}
 
-/* empty state */
-.cw-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px;min-height:200px}
+.cw-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px}
 .cw-empty svg{width:44px;height:44px;opacity:.25}
 .cw-empty p{font-size:.8rem;text-align:center}
 </style>
@@ -88,43 +85,44 @@
   </div>
 </header>
 
-<div class="cw-wrap">
-  <!-- LIST PANEL -->
-  <div class="ld-list">
-    <div class="ld-list-header">
-      <div style="font-size:.8rem;font-weight:700;color:#1F2937;margin-bottom:8px">CBR Worker</div>
-      <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama..."/>
-      <div style="font-size:.67rem;color:#9CA3AF;margin-top:6px" id="ld-count">—</div>
+<div class="outer-wrap">
+
+  <!-- ① CHARTS ROW — di atas, di luar list/detail -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-card-head">Jumlah Anak per CBR Worker</div>
+      <div class="chart-card-body"><div class="ch"><canvas id="c-worker-bar"></canvas></div></div>
     </div>
-    <div class="ld-items" id="ld-items"></div>
+    <div class="chart-card">
+      <div class="chart-card-head">Jumlah Anak per Desa (Top 15)</div>
+      <div class="chart-card-body"><div class="ch"><canvas id="c-desa-bar"></canvas></div></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-head">Ragam Disabilitas per CBR Worker</div>
+      <div class="chart-card-body"><div class="ch"><canvas id="c-ragam-bar"></canvas></div></div>
+    </div>
   </div>
 
-  <!-- MAIN RIGHT PANEL -->
-  <div class="cw-main" id="cw-main">
+  <!-- ② LIST + DETAIL ROW — di bawah grafik -->
+  <div class="cw-wrap">
 
-    <!-- CHARTS ROW — always visible -->
-    <div class="charts-row">
-      <div class="chart-card">
-        <div class="chart-card-head">Jumlah Anak per CBR Worker</div>
-        <div class="chart-card-body"><div class="ch"><canvas id="c-worker-bar"></canvas></div></div>
+    <!-- LIST -->
+    <div class="ld-list">
+      <div class="ld-list-header">
+        <div style="font-size:.8rem;font-weight:700;color:#1F2937;margin-bottom:8px">CBR Worker</div>
+        <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama..."/>
+        <div style="font-size:.67rem;color:#9CA3AF;margin-top:6px" id="ld-count">—</div>
       </div>
-      <div class="chart-card">
-        <div class="chart-card-head">Jumlah Anak per Desa (Top 15)</div>
-        <div class="chart-card-body"><div class="ch"><canvas id="c-desa-bar"></canvas></div></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-head">Ragam Disabilitas per CBR Worker</div>
-        <div class="chart-card-body"><div class="ch"><canvas id="c-ragam-bar"></canvas></div></div>
-      </div>
+      <div class="ld-items" id="ld-items"></div>
     </div>
 
-    <!-- EMPTY STATE (sebelum klik) -->
+    <!-- EMPTY STATE -->
     <div class="cw-empty" id="cw-empty">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       <p>Pilih nama CBR Worker<br>untuk melihat detail beban kerja</p>
     </div>
 
-    <!-- DETAIL PANEL -->
+    <!-- DETAIL -->
     <div class="ld-detail" id="ld-detail"></div>
 
   </div>
@@ -146,7 +144,6 @@ function mk(id,type,data,opts){
   const el=document.getElementById(id);if(!el)return;
   CHARTS[id]=new Chart(el,{type,data,options:opts});
 }
-
 function drawLabels(chart){
   const ctx=chart.ctx;
   chart.data.datasets.forEach((ds,i)=>{
@@ -178,7 +175,7 @@ function renderPage(d,scnId){
   ALL_OBS=d.obs||[];
   ALL_WORKERS=[...new Set(ALL_ANAK.map(a=>a.cbr).filter(Boolean))].sort();
 
-  // ── CHART 1: Anak per Worker ──
+  // Chart 1: Anak per Worker
   mk('c-worker-bar','bar',
     {labels:ALL_WORKERS.map(w=>w.split(' ').slice(-1)[0]),
      datasets:[{data:ALL_WORKERS.map(w=>ALL_ANAK.filter(a=>a.cbr===w).length),
@@ -186,7 +183,7 @@ function renderPage(d,scnId){
     {...BASE_OPTS,layout:{padding:{top:16}}}
   );
 
-  // ── CHART 2: Anak per Desa top 15 ──
+  // Chart 2: Anak per Desa top 15
   const desaCnt={};
   ALL_ANAK.forEach(a=>{if(a.desa&&a.desa!=='—')desaCnt[a.desa]=(desaCnt[a.desa]||0)+1;});
   const top15=Object.entries(desaCnt).sort((a,b)=>b[1]-a[1]).slice(0,15);
@@ -198,17 +195,16 @@ function renderPage(d,scnId){
      animation:{onComplete:function(){drawLabels(this);}}}
   );
 
-  // ── CHART 3: Ragam per Worker (stacked bar) ──
+  // Chart 3: Ragam per Worker (stacked)
   const ragams=[...new Set(ALL_ANAK.map(a=>a.ragam).filter(Boolean))].sort();
-  const ragamColors=Object.values(RC);
-  const ragamDatasets=ragams.map((rg,i)=>({
-    label:rg.split(' ')[0],
-    data:ALL_WORKERS.map(w=>ALL_ANAK.filter(a=>a.cbr===w&&a.ragam===rg).length),
-    backgroundColor:(Object.values(RC)[i]||PAL[i%PAL.length])+'CC',
-    borderRadius:0,
-  }));
   mk('c-ragam-bar','bar',
-    {labels:ALL_WORKERS.map(w=>w.split(' ').slice(-1)[0]),datasets:ragamDatasets},
+    {labels:ALL_WORKERS.map(w=>w.split(' ').slice(-1)[0]),
+     datasets:ragams.map((rg,i)=>({
+       label:rg.split(' ')[0],
+       data:ALL_WORKERS.map(w=>ALL_ANAK.filter(a=>a.cbr===w&&a.ragam===rg).length),
+       backgroundColor:(Object.values(RC)[i]||PAL[i%PAL.length])+'CC',
+       borderRadius:0,
+     }))},
     {responsive:true,maintainAspectRatio:false,
      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:9,font:{size:9},color:'#6B7280',padding:6}},
        tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},
@@ -217,7 +213,6 @@ function renderPage(d,scnId){
      animation:{}}
   );
 
-  // ── LIST ──
   renderList();
 }
 
@@ -229,8 +224,8 @@ function renderList(){
     const g=ALL_ANAK.filter(a=>a.cbr===w);
     const kritis=g.filter(a=>a.sp!=null&&a.sp<=3).length;
     const parah=g.filter(a=>(a.level||'').includes('Parah')).length;
-    return `<div class="ld-item" id="li-${i}" data-name="${w}">
-      <div class="ld-item-name" style="color:${PAL[i%PAL.length]}">${w}</div>
+    return `<div class="ld-item" data-name="${w}">
+      <div class="ld-item-name" style="color:${PAL[ALL_WORKERS.indexOf(w)%PAL.length]}">${w}</div>
       <div class="ld-item-sub">
         <span>👶 ${g.length} anak</span>
         ${kritis?`<span style="color:#dc2626">⚠ ${kritis} kritis</span>`:''}
@@ -264,15 +259,13 @@ function showDetail(el, wNama){
   const terapi=g.filter(a=>a.tr).length;
   const lk=g.filter(a=>a.gender==='L').length;
   const pr=g.filter(a=>a.gender==='P').length;
-  const ws=ALL_WORKERS.indexOf(wNama);
-  const wColor=PAL[ws%PAL.length];
+  const wi=ALL_WORKERS.indexOf(wNama);
+  const wColor=PAL[wi%PAL.length];
 
-  // Ragam breakdown
   const ragamRows=Object.entries(
     g.reduce((acc,a)=>{acc[a.ragam||'Lainnya']=(acc[a.ragam||'Lainnya']||0)+1;return acc;},{})
   ).sort((a,b)=>b[1]-a[1]);
 
-  // Anak mini table (latest obs)
   const obsMap={};
   ALL_OBS.forEach(o=>{if(o.na)obsMap[o.na.toLowerCase()]=o;});
   const anakRows=g.map((a,i)=>{
@@ -294,77 +287,53 @@ function showDetail(el, wNama){
   }).join('');
 
   document.getElementById('ld-detail').innerHTML=`
-    <button class="det-back" onclick="clearDetail()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Kembali
-    </button>
-    <div class="det-name" style="color:${wColor}">${wNama}</div>
-    <div class="det-meta">
-      <span class="det-chip">👶 ${g.length} anak dampingan</span>
-      <span class="det-chip">👦 ${lk} LK · 👧 ${pr} PR</span>
-      ${kritis?`<span class="det-chip" style="background:#FEE2E2;color:#DC2626">⚠ ${kritis} kritis</span>`:''}
-    </div>
-
-    <!-- Stat grid -->
-    <div class="stat-grid">
-      <div class="stat-card">
-        <div class="stat-val" style="color:${avSP?sc(parseFloat(avSP)):'#9CA3AF'}">${avSP||'—'}</div>
-        <div class="stat-lbl">Skor Anak Avg</div>
+    <div class="det-inner">
+      <button class="det-back" onclick="clearDetail()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Kembali ke daftar
+      </button>
+      <div class="det-name" style="color:${wColor}">${wNama}</div>
+      <div class="det-meta">
+        <span class="det-chip">👶 ${g.length} anak dampingan</span>
+        <span class="det-chip">👦 ${lk} LK · 👧 ${pr} PR</span>
+        ${kritis?`<span class="det-chip" style="background:#FEE2E2;color:#DC2626">⚠ ${kritis} kritis</span>`:''}
       </div>
-      <div class="stat-card">
-        <div class="stat-val" style="color:${avSA?sc(parseFloat(avSA)):'#9CA3AF'}">${avSA||'—'}</div>
-        <div class="stat-lbl">Skor Pengasuh Avg</div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-val" style="color:${avSP?sc(parseFloat(avSP)):'#9CA3AF'}">${avSP||'—'}</div><div class="stat-lbl">Skor Anak Avg</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:${avSA?sc(parseFloat(avSA)):'#9CA3AF'}">${avSA||'—'}</div><div class="stat-lbl">Skor Pengasuh Avg</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:${kritis>0?'#dc2626':'#16a34a'}">${kritis}</div><div class="stat-lbl">Kritis ≤3</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:#dc2626">${parah}</div><div class="stat-lbl">Level Parah</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:#d97706">${epilepsi}</div><div class="stat-lbl">Epilepsi</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:#16a34a">${terapi}</div><div class="stat-lbl">Pernah Terapi</div></div>
       </div>
-      <div class="stat-card">
-        <div class="stat-val" style="color:${kritis>0?'#dc2626':'#16a34a'}">${kritis}</div>
-        <div class="stat-lbl">Kritis ≤3</div>
+      <div class="det-section">
+        <div class="det-section-head">Level Dukungan</div>
+        <div class="det-section-body">
+          <div class="det-row"><span class="det-row-label">Parah (dukungan penuh)</span><span class="det-row-val" style="color:#dc2626">${parah}</span></div>
+          <div class="det-row"><span class="det-row-label">Sedang (dukungan reguler)</span><span class="det-row-val" style="color:#d97706">${sedang}</span></div>
+          <div class="det-row"><span class="det-row-label">Rendah (sedikit dukungan)</span><span class="det-row-val" style="color:#16a34a">${rendah}</span></div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-val" style="color:#dc2626">${parah}</div>
-        <div class="stat-lbl">Level Parah</div>
+      <div class="det-section">
+        <div class="det-section-head">Ragam Disabilitas</div>
+        <div class="det-section-body">
+          ${ragamRows.map(([rg,ct])=>`
+            <div class="det-row">
+              <span class="det-row-label" style="color:${RC[rg]||'#6b7280'}">${rg}</span>
+              <span class="det-row-val">${ct} <span style="color:#9CA3AF;font-size:.65rem;font-weight:400">anak</span></span>
+            </div>`).join('')}
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-val" style="color:#d97706">${epilepsi}</div>
-        <div class="stat-lbl">Epilepsi</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-val" style="color:#16a34a">${terapi}</div>
-        <div class="stat-lbl">Pernah Terapi</div>
-      </div>
-    </div>
-
-    <!-- Level breakdown -->
-    <div class="det-section">
-      <div class="det-section-head">Level Dukungan</div>
-      <div class="det-section-body">
-        <div class="det-row"><span class="det-row-label">Parah (dukungan penuh)</span><span class="det-row-val" style="color:#dc2626">${parah}</span></div>
-        <div class="det-row"><span class="det-row-label">Sedang (dukungan reguler)</span><span class="det-row-val" style="color:#d97706">${sedang}</span></div>
-        <div class="det-row"><span class="det-row-label">Rendah (sedikit dukungan)</span><span class="det-row-val" style="color:#16a34a">${rendah}</span></div>
-      </div>
-    </div>
-
-    <!-- Ragam breakdown -->
-    <div class="det-section">
-      <div class="det-section-head">Ragam Disabilitas</div>
-      <div class="det-section-body">
-        ${ragamRows.map(([rg,ct])=>`
-          <div class="det-row">
-            <span class="det-row-label" style="color:${RC[rg]||'#6b7280'}">${rg}</span>
-            <span class="det-row-val">${ct} <span style="color:#9CA3AF;font-size:.65rem;font-weight:400">anak</span></span>
-          </div>`).join('')}
-      </div>
-    </div>
-
-    <!-- Daftar anak -->
-    <div class="det-section">
-      <div class="det-section-head">Daftar Anak Dampingan (${g.length})</div>
-      <div style="overflow-x:auto">
-        <table class="mini-tbl">
-          <thead><tr>
-            <th>#</th><th>Nama Anak</th><th>Ragam</th><th>Level</th><th>Desa</th>
-            <th style="text-align:center">Skor A</th><th style="text-align:center">Skor P</th><th>Obs</th>
-          </tr></thead>
-          <tbody>${anakRows}</tbody>
-        </table>
+      <div class="det-section">
+        <div class="det-section-head">Daftar Anak Dampingan (${g.length})</div>
+        <div style="overflow-x:auto">
+          <table class="mini-tbl">
+            <thead><tr>
+              <th>#</th><th>Nama Anak</th><th>Ragam</th><th>Level</th><th>Desa</th>
+              <th style="text-align:center">Skor A</th><th style="text-align:center">Skor P</th><th>Obs</th>
+            </tr></thead>
+            <tbody>${anakRows}</tbody>
+          </table>
+        </div>
       </div>
     </div>
   `;

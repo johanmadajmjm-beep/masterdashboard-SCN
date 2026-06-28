@@ -463,14 +463,14 @@ function renderList(){
     return (!q2||a.label.toLowerCase().includes(q2))&&(!kat2||a.kat===kat2);
   });
   const cardHTML=filteredList.map((a,i)=>{
-    const cfg=KAT_CONFIG[a.kat]||{color:'#9CA3AF',bg:'#F3F4F6'};
+    const cfg=KATEGORI_CFG[a.kat]||{color:'#9CA3AF',bg:'#F3F4F6'};
     return `<div class="item-card" data-key="${a.key}">
       <div class="item-card-name"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${cfg.color};margin-right:5px;vertical-align:middle"></span>${a.label}</div>
       <div class="item-card-sub">${KAT_LABEL[a.kat]||a.kat}</div>
     </div>`;
   }).join('');
   const lstHTML2=filteredList.map(a=>{
-    const cfg=KAT_CONFIG[a.kat]||{color:'#9CA3AF'};
+    const cfg=KATEGORI_CFG[a.kat]||{color:'#9CA3AF'};
     return `<div class="lst-item-ph" data-key="${a.key}">
       <div style="width:7px;height:7px;border-radius:50%;background:${cfg.color};flex-shrink:0"></div>
       <span class="lst-item-ph-name">${a.label}</span>

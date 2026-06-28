@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="id"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CBR Coordinator — Pihak Terlibat | MEL NLR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
+<link rel="stylesheet" href="../css/main.css"/>
+<link rel="stylesheet" href="../css/components.css"/>
+<style>
+/* ── LAYOUT ── */
+.ph-wrap{display:flex;gap:0;height:calc(100vh - 60px);overflow:hidden}
+
+/* ── LIST PANEL ── */
+.ld-list{width:100%;min-width:0;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden;transition:width .2s}
+.ph-wrap.detail-open .ld-list{width:300px;min-width:300px}
+.ld-list-header{padding:12px 14px;border-bottom:1px solid #E5E7EB;flex-shrink:0}
+.ld-search{width:100%;padding:7px 10px;border:1px solid #E5E7EB;border-radius:8px;font-size:.75rem;font-family:inherit;background:#F9FAFB;outline:none;transition:.15s}
+.ld-search:focus{border-color:#F97316;background:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.08)}
+.ld-select{padding:5px 8px;border:1px solid #E5E7EB;border-radius:6px;font-size:.72rem;font-family:inherit;background:#F9FAFB;outline:none;width:100%}
+.ld-select:focus{border-color:#F97316}
+.ld-items{flex:1;overflow-y:auto}
+.ld-items::-webkit-scrollbar{width:4px}
+.ld-items::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:2px}
+
+/* ── GROUP HEADER di list ── */
+.ld-group-header{padding:6px 14px 4px;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;background:#F9FAFB;border-bottom:1px solid #F3F4F6;position:sticky;top:0;z-index:2}
+
+/* ── LIST ITEM ── */
+.ld-item{padding:9px 14px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .1s;border-left:3px solid transparent;display:flex;align-items:center;gap:9px}
+.ld-item:hover{background:#FFF7ED}
+.ld-item.active{background:#FFF7ED;border-left-color:#F97316}
+.ld-item-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ld-item-body{flex:1;min-width:0}
+.ld-item-name{font-size:.78rem;font-weight:600;color:#1F2937;margin-bottom:1px}
+.ld-item-sub{font-size:.63rem;color:#9CA3AF}
+.ld-item-badge{font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:999px;background:#F3F4F6;color:#6B7280;flex-shrink:0}
+
+/* ── DETAIL PANEL ── */
+.ld-detail{flex:1;overflow-y:auto;background:#F8FAFC;display:none}
+.ld-detail::-webkit-scrollbar{width:5px}
+.ld-detail::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
+.ph-wrap.detail-open .ld-detail{display:block}
+.det-inner{padding:18px}
+
+/* back button */
+.det-back{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#6B7280;font-size:.75rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:14px}
+.det-back:hover{background:#F9FAFB;color:#1F2937}
+.det-back svg{width:14px;height:14px}
+
+/* header pihak */
+.det-pihak-hdr{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
+.det-pihak-avatar{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.det-pihak-name{font-size:1.05rem;font-weight:800;color:#1F2937;margin-bottom:4px}
+.det-pihak-kat{font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:999px;display:inline-block;margin-bottom:8px}
+.det-pihak-desc{font-size:.76rem;color:#6B7280;line-height:1.6}
+
+/* stat strip */
+.det-stat-strip{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.det-stat{background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:8px 14px;text-align:center;flex:1;min-width:80px}
+.det-stat-val{font-size:1.2rem;font-weight:800;color:#F97316;font-family:'JetBrains Mono',monospace;line-height:1}
+.det-stat-lbl{font-size:.58rem;color:#9CA3AF;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+
+/* section */
+.det-section{background:#fff;border:1px solid #E5E7EB;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.det-section-head{padding:9px 13px;border-bottom:1px solid #F3F4F6;font-size:.72rem;font-weight:700;color:#1F2937;display:flex;align-items:center;gap:6px}
+.det-section-body{padding:10px 13px}
+
+/* peran per domain */
+.peran-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #F9FAFB;align-items:flex-start}
+.peran-item:last-child{border-bottom:none}
+.peran-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.peran-domain{font-size:.65rem;font-weight:700;color:#9CA3AF;min-width:90px;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em}
+.peran-aksi{font-size:.75rem;color:#374151;line-height:1.55}
+
+/* anak list dalam detail */
+.anak-chip-wrap{display:flex;flex-wrap:wrap;gap:5px;padding:10px 13px}
+.anak-chip{font-size:.68rem;font-weight:600;padding:3px 10px;border-radius:999px;background:#FFF7ED;color:#EA6C0A;border:1px solid #FED7AA;cursor:default}
+.anak-chip.no-data{background:#F3F4F6;color:#9CA3AF;border-color:#E5E7EB}
+
+/* empty */
+.ph-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px}
+.ph-empty svg{width:44px;height:44px;opacity:.25}
+.ph-empty p{font-size:.8rem;text-align:center}
+</style>
+</head><body>
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="topbar-breadcrumb">CBR Coordinator <span class="sep">›</span><span class="current">Pihak Terlibat</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
+
+<div class="ph-wrap">
+  <!-- LIST -->
+  <div class="ld-list">
+    <div class="ld-list-header">
+      <div style="font-size:.8rem;font-weight:700;color:#1F2937;margin-bottom:8px">Pihak Terlibat</div>
+      <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama pihak..."/>
+      <div style="margin-top:6px">
+        <select class="ld-select" id="flt-kat"><option value="">Semua Kategori</option></select>
+      </div>
+      <div style="font-size:.67rem;color:#9CA3AF;margin-top:6px" id="ld-count">—</div>
+    </div>
+    <div class="ld-items" id="ld-items"></div>
+  </div>
+
+  <!-- EMPTY -->
+  <div class="ph-empty" id="ph-empty">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <p>Pilih nama pihak untuk<br>melihat peran dan daftar anak</p>
+  </div>
+
+  <!-- DETAIL -->
+  <div class="ld-detail" id="ld-detail"></div>
+</div>
+</div></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA MASTER PIHAK — 63 aktor, 10 kategori
+// ═══════════════════════════════════════════════════════════
+const KATEGORI_CFG = {
+  Keluarga       : {color:'#F97316', bg:'rgba(249,115,22,.1)',  emoji:'👨‍👩‍👧', desc:'Anggota keluarga inti dan besar yang tinggal bersama atau di sekitar anak'},
+  Komunitas      : {color:'#06B6D4', bg:'rgba(6,182,212,.1)',   emoji:'🏘️',  desc:'Lingkungan sosial terdekat anak — tetangga, teman bermain, dan warga sekitar'},
+  Adat           : {color:'#92400E', bg:'rgba(146,64,14,.1)',   emoji:'🪶',  desc:'Pemangku adat dan tokoh tradisional yang memiliki otoritas sosial di komunitas'},
+  Keagamaan      : {color:'#7C3AED', bg:'rgba(124,58,237,.1)',  emoji:'⛪',  desc:'Pemuka dan komunitas keagamaan yang memiliki pengaruh spiritual dan sosial'},
+  Pendidikan     : {color:'#1D4ED8', bg:'rgba(29,78,216,.1)',   emoji:'🎓',  desc:'Tenaga pendidik dan institusi sekolah yang mendukung tumbuh kembang anak'},
+  Kesehatan      : {color:'#059669', bg:'rgba(5,150,105,.1)',   emoji:'🏥',  desc:'Tenaga kesehatan yang memantau dan menangani kondisi medis anak'},
+  PemerintahDesa : {color:'#D97706', bg:'rgba(217,119,6,.1)',   emoji:'🏛️',  desc:'Aparatur desa yang memiliki akses ke program sosial dan kebijakan lokal'},
+  PemerintahKab  : {color:'#B45309', bg:'rgba(180,83,9,.1)',    emoji:'🏢',  desc:'Instansi pemerintah kabupaten dengan kewenangan program dan anggaran lebih besar'},
+  Organisasi     : {color:'#10B981', bg:'rgba(16,185,129,.1)',  emoji:'🤝',  desc:'Organisasi kemasyarakatan dan jaringan CBR yang bergerak di bidang disabilitas'},
+  Mitra          : {color:'#6366F1', bg:'rgba(99,102,241,.1)',  emoji:'🌐',  desc:'Lembaga mitra nasional dan internasional yang mendukung program secara teknis dan finansial'},
+};
+
+const AKTOR_DATA = [
+  // KELUARGA
+  {key:'ayah',              label:'Ayah',                   kat:'Keluarga',
+   peran:[{domain:'Semua',color:'#F97316',aksi:'Pengasuhan utama, stimulasi kemandirian, kehadiran dalam diskusi RTL, dan pengambilan keputusan untuk anak'}]},
+  {key:'ibu',               label:'Ibu',                    kat:'Keluarga',
+   peran:[{domain:'Semua',color:'#F97316',aksi:'Perawatan harian, pelaksana latihan kemandirian di rumah, penghubung utama dengan CBR Worker'}]},
+  {key:'saudara_kandung',   label:'Saudara Kandung',        kat:'Keluarga',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Bermain bersama anak, membantu stimulasi interaksi sosial dan kemandirian dasar sehari-hari'}]},
+  {key:'kakek_nenek_serumah',label:'Kakek/Nenek (serumah)', kat:'Keluarga',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Mendukung pengasuhan, memberikan rasa aman emosional, dan menjaga anak saat orang tua bekerja'}]},
+  {key:'paman_bibi',        label:'Paman/Bibi',             kat:'Keluarga',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Jaringan dukungan keluarga besar — membantu saat orang tua berhalangan atau dalam kondisi krisis'}]},
+  {key:'kakek_nenek_luar',  label:'Kakek/Nenek (luar)',     kat:'Keluarga',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Dukungan moral dan kadang finansial dari luar rumah tangga, terutama pada keluarga pengasuh tunggal'}]},
+  {key:'sepupu',            label:'Sepupu',                 kat:'Keluarga',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Teman sebaya dalam keluarga besar — dapat menjadi mitra bermain dan pendukung partisipasi sosial anak'}]},
+  {key:'keluarga_besar_lain',label:'Keluarga Besar',        kat:'Keluarga',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Jaringan sosial dan ekonomi keluarga — mobilisasi sumber daya saat dibutuhkan'}]},
+  // KOMUNITAS
+  {key:'tetangga',          label:'Tetangga',               kat:'Komunitas',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Penerimaan sosial di lingkungan terdekat — mengurangi stigma dan mendukung partisipasi anak di luar rumah'}]},
+  {key:'teman_sebaya',      label:'Teman Sebaya',           kat:'Komunitas',
+   peran:[{domain:'Sosial & Pemberdayaan',color:'#059669',aksi:'Stimulasi interaksi sosial, bermain bersama, dan membangun kepercayaan diri anak'}]},
+  {key:'kelompok_bermain',  label:'Kelompok Bermain',       kat:'Komunitas',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Wadah partisipasi sosial terstruktur — mendorong inklusi anak dalam kegiatan kelompok sebaya'}]},
+  {key:'warga_kampung',     label:'Warga Kampung',          kat:'Komunitas',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Menciptakan lingkungan yang inklusif dan bebas stigma melalui kesadaran kolektif masyarakat'}]},
+  // ADAT
+  {key:'tua_golo',          label:'Tua Golo',               kat:'Adat',
+   peran:[{domain:'Sosial & Pemberdayaan',color:'#92400E',aksi:'Otoritas adat tertinggi di kampung — advokasi penerimaan anak disabilitas, fasilitasi dukungan komunal, dan penyelesaian konflik keluarga'}]},
+  {key:'tua_teno',          label:'Tua Teno',               kat:'Adat',
+   peran:[{domain:'Penghidupan',color:'#D97706',aksi:'Pengelola lahan dan sumber daya — dapat memfasilitasi akses keluarga ke tanah produktif'}]},
+  {key:'tokoh_adat',        label:'Tokoh Adat',             kat:'Adat',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Edukasi nilai inklusif dalam adat, mengurangi stigma melalui pengaruh tradisional di masyarakat'}]},
+  {key:'wau',               label:'Wau',                    kat:'Adat',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Jaringan kekerabatan patrilineal Manggarai — mobilisasi dukungan sosial dan ekonomi dalam krisis keluarga'}]},
+  // KEAGAMAAN
+  {key:'pastor',            label:'Pastor/Romo',            kat:'Keagamaan',
+   peran:[{domain:'Sosial & Pemberdayaan',color:'#7C3AED',aksi:'Edukasi inklusivitas dari mimbar, dukungan spiritual keluarga, fasilitasi jaringan gereja untuk bantuan praktis'}]},
+  {key:'suster_bruder',     label:'Suster/Bruder',          kat:'Keagamaan',
+   peran:[{domain:'Pendidikan & Kesehatan',color:'#1D4ED8',aksi:'Layanan pendidikan dan kesehatan berbasis gereja — sekolah, klinik, dan pusat rehabilitasi'}]},
+  {key:'katekis',           label:'Katekis',                kat:'Keagamaan',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Pendamping rohani keluarga di tingkat lingkungan — penghubung antara gereja dan keluarga anak'}]},
+  {key:'prodiakon',         label:'Prodiakon',              kat:'Keagamaan',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Kunjungan pastoral ke keluarga — mendukung semangat dan ketabahan pengasuh dalam pendampingan anak'}]},
+  {key:'kelompok_doa',      label:'Kelompok Doa/Legio Maria',kat:'Keagamaan',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Jaringan dukungan sosial berbasis iman — kunjungan, doa bersama, dan solidaritas praktis untuk keluarga'}]},
+  {key:'pengurus_gereja',   label:'Pengurus Gereja',        kat:'Keagamaan',
+   peran:[{domain:'Penghidupan',color:'#D97706',aksi:'Akses ke dana sosial gereja dan program karitatif untuk keluarga yang membutuhkan'}]},
+  {key:'guru_agama',        label:'Guru Agama',             kat:'Keagamaan',
+   peran:[{domain:'Pendidikan',color:'#1D4ED8',aksi:'Integrasi nilai inklusif dalam pendidikan agama — mendukung penerimaan anak di lingkungan sekolah'}]},
+  // PENDIDIKAN
+  {key:'guru_kelas',        label:'Guru Kelas',             kat:'Pendidikan',
+   peran:[{domain:'Pendidikan',color:'#1D4ED8',aksi:'Adaptasi metode pembelajaran, pemantauan perkembangan akademik, dan fasilitasi inklusi di kelas'}]},
+  {key:'wali_kelas',        label:'Wali Kelas',             kat:'Pendidikan',
+   peran:[{domain:'Pendidikan',color:'#1D4ED8',aksi:'Koordinasi dengan orang tua, pemantauan kehadiran, dan advokasi kebutuhan anak kepada sekolah'}]},
+  {key:'kepala_sekolah',    label:'Kepala Sekolah',         kat:'Pendidikan',
+   peran:[{domain:'Pendidikan',color:'#1D4ED8',aksi:'Kebijakan inklusi sekolah, penugasan GPK, dan koordinasi dengan Dinas Pendidikan untuk kebutuhan anak'}]},
+  {key:'gpk',               label:'Guru Pendamping Khusus', kat:'Pendidikan',
+   peran:[{domain:'Pendidikan',color:'#1D4ED8',aksi:'Pendampingan individual dalam kelas — program pembelajaran individual (PPI) sesuai kemampuan anak'}]},
+  {key:'guru_paud',         label:'Guru PAUD/TK',           kat:'Pendidikan',
+   peran:[{domain:'Pendidikan',color:'#1D4ED8',aksi:'Stimulasi dini untuk anak usia 0-6 tahun — deteksi dini keterlambatan dan intervensi awal'}]},
+  {key:'pengelola_paud',    label:'Pengelola PAUD',         kat:'Pendidikan',
+   peran:[{domain:'Pendidikan',color:'#1D4ED8',aksi:'Kebijakan penerimaan anak berkebutuhan khusus di PAUD dan koordinasi dengan orang tua'}]},
+  {key:'teman_sekelas',     label:'Teman Sekelas',          kat:'Pendidikan',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Interaksi sebaya di lingkungan sekolah — mendukung inklusi dan partisipasi sosial anak'}]},
+  // KESEHATAN
+  {key:'bidan_desa',        label:'Bidan Desa',             kat:'Kesehatan',
+   peran:[{domain:'Kesehatan',color:'#059669',aksi:'Pemantauan tumbuh kembang, rujukan ke puskesmas, edukasi gizi, dan deteksi dini kondisi medis'}]},
+  {key:'perawat_puskesmas', label:'Perawat Puskesmas',      kat:'Kesehatan',
+   peran:[{domain:'Kesehatan',color:'#059669',aksi:'Pelayanan medis dasar, pemantauan kondisi kronis (epilepsi, gizi), dan koordinasi rujukan'}]},
+  {key:'dokter_puskesmas',  label:'Dokter Puskesmas',       kat:'Kesehatan',
+   peran:[{domain:'Kesehatan',color:'#059669',aksi:'Diagnosis, penanganan medis, penulisan rujukan, dan koordinasi layanan kesehatan komprehensif untuk anak'}]},
+  {key:'kader_posyandu',    label:'Kader Posyandu',         kat:'Kesehatan',
+   peran:[{domain:'Kesehatan',color:'#059669',aksi:'Pemantauan gizi bulanan, imunisasi, dan deteksi dini masalah tumbuh kembang di tingkat desa'}]},
+  {key:'kader_posbindu',    label:'Kader Posbindu',         kat:'Kesehatan',
+   peran:[{domain:'Kesehatan',color:'#059669',aksi:'Pemantauan kondisi kesehatan kronis dan skrining faktor risiko di tingkat komunitas'}]},
+  {key:'fisioterapis',      label:'Fisioterapis',           kat:'Kesehatan',
+   peran:[{domain:'Kesehatan & Pemberdayaan',color:'#059669',aksi:'Terapi gerak dan motorik, latihan kemandirian fungsional, rekomendasi alat bantu mobilitas'}]},
+  // PEMERINTAH DESA
+  {key:'kepala_desa',       label:'Kepala Desa',            kat:'PemerintahDesa',
+   peran:[{domain:'Penghidupan',color:'#D97706',aksi:'Akses program bantuan sosial (PKH, BLT, rumah layak), advokasi ke kabupaten, dan koordinasi lintas sektor di desa'}]},
+  {key:'sekdes',            label:'Sekretaris Desa',        kat:'PemerintahDesa',
+   peran:[{domain:'Penghidupan',color:'#D97706',aksi:'Administrasi dokumen kependudukan dan sosial — DTKS, kartu disabilitas, surat keterangan'}]},
+  {key:'rt_rw',             label:'Ketua RT/RW',            kat:'PemerintahDesa',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Mediasi sosial di tingkat lingkungan, pengarsipan data warga, dan fasilitasi akses bantuan ke keluarga'}]},
+  {key:'kasi_kesra',        label:'Kasi Kesejahteraan',     kat:'PemerintahDesa',
+   peran:[{domain:'Penghidupan',color:'#D97706',aksi:'Pengelola program kesejahteraan desa — pendataan penerima bansos, koordinasi dengan Dinsos'}]},
+  {key:'pkk_desa',          label:'PKK Desa',               kat:'PemerintahDesa',
+   peran:[{domain:'Kesehatan & Penghidupan',color:'#059669',aksi:'Program gizi keluarga, keterampilan ibu, dan pemberdayaan perempuan pengasuh anak disabilitas'}]},
+  {key:'karang_taruna',     label:'Karang Taruna',          kat:'PemerintahDesa',
+   peran:[{domain:'Sosial & Pemberdayaan',color:'#7C3AED',aksi:'Fasilitasi kegiatan sosial inklusif, gotong royong, dan keterlibatan pemuda dalam pendampingan'}]},
+  {key:'bpd',               label:'BPD',                   kat:'PemerintahDesa',
+   peran:[{domain:'Penghidupan',color:'#D97706',aksi:'Pengawasan kebijakan anggaran desa — memastikan alokasi untuk keluarga rentan termasuk anak disabilitas'}]},
+  // PEMERINTAH KAB
+  {key:'dinsos',            label:'Dinas Sosial',           kat:'PemerintahKab',
+   peran:[{domain:'Penghidupan',color:'#B45309',aksi:'Program bansos (PKH, BPJS PBI, sembako), alat bantu disabilitas, UPTD sosial, dan pendataan DTKS'}]},
+  {key:'dinkes',            label:'Dinas Kesehatan',        kat:'PemerintahKab',
+   peran:[{domain:'Kesehatan',color:'#059669',aksi:'Layanan kesehatan rujukan, program epilepsi, obat gratis, dan koordinasi tenaga kesehatan'}]},
+  {key:'dindik',            label:'Dinas Pendidikan',       kat:'PemerintahKab',
+   peran:[{domain:'Pendidikan',color:'#1D4ED8',aksi:'Kebijakan pendidikan inklusi, penempatan GPK, dan akses ke SLB atau sekolah inklusi terdekat'}]},
+  {key:'uptd_sosial',       label:'UPTD Sosial',            kat:'PemerintahKab',
+   peran:[{domain:'Penghidupan',color:'#B45309',aksi:'Layanan rehabilitasi sosial, pendampingan kasus, dan rujukan ke program Dinsos kabupaten'}]},
+  {key:'p2tp2a',            label:'P2TP2A',                 kat:'PemerintahKab',
+   peran:[{domain:'Pemberdayaan',color:'#059669',aksi:'Perlindungan hak anak berkebutuhan khusus, advokasi kasus, dan layanan konseling keluarga'}]},
+  // ORGANISASI
+  {key:'scn',               label:'Sub Cluster Network',   kat:'Organisasi',
+   peran:[{domain:'Semua',color:'#10B981',aksi:'Koordinasi antar lembaga dalam jaringan CBR — berbagi informasi kasus, penguatan kapasitas, dan advokasi bersama'}]},
+  {key:'cbr_worker_lain',   label:'CBR Worker Lain',       kat:'Organisasi',
+   peran:[{domain:'Semua',color:'#10B981',aksi:'Konsultasi kasus antar pekerja, kunjungan bersama, dan berbagi pengalaman praktis penanganan anak'}]},
+  {key:'kader_disabilitas', label:'Kader Disabilitas',     kat:'Organisasi',
+   peran:[{domain:'Pemberdayaan',color:'#10B981',aksi:'Advokasi hak, pendampingan peer-to-peer, dan mobilisasi komunitas disabilitas di tingkat lokal'}]},
+  {key:'omk',               label:'OMK',                   kat:'Organisasi',
+   peran:[{domain:'Sosial',color:'#7C3AED',aksi:'Kegiatan sosial inklusif berbasis gereja — mengajak anak berpartisipasi dalam kegiatan komunitas pemuda'}]},
+  {key:'org_perempuan',     label:'Org. Perempuan',        kat:'Organisasi',
+   peran:[{domain:'Pemberdayaan',color:'#10B981',aksi:'Penguatan kapasitas ibu/pengasuh perempuan, advokasi hak, dan jaringan dukungan sosial'}]},
+  // MITRA
+  {key:'cbm_global',        label:'CBM Global',            kat:'Mitra',
+   peran:[{domain:'Kesehatan & Pemberdayaan',color:'#6366F1',aksi:'Dukungan teknis dan finansial — alat bantu, pelatihan CBR, pengembangan sistem, dan advokasi kebijakan inklusi'}]},
+  {key:'ayo_indonesia',     label:'Ayo Indonesia',         kat:'Mitra',
+   peran:[{domain:'Semua',color:'#6366F1',aksi:'Koordinasi program BEN secara keseluruhan — pelatihan, monitoring, pengembangan kapasitas SCN, dan sistem MEL'}]},
+  {key:'jpm_kupang',        label:'JPM Kupang',            kat:'Mitra',
+   peran:[{domain:'Kesehatan',color:'#6366F1',aksi:'Dukungan medis dan rehabilitasi dari mitra kesehatan regional — konsultasi kasus kompleks'}]},
+  {key:'lsm_lokal',         label:'LSM Lokal',             kat:'Mitra',
+   peran:[{domain:'Pemberdayaan',color:'#6366F1',aksi:'Program pemberdayaan masyarakat lokal yang bisa bermitra untuk kegiatan inklusif dan pelatihan vokasi'}]},
+  {key:'yayasan_mitra',     label:'Yayasan Mitra',         kat:'Mitra',
+   peran:[{domain:'Semua',color:'#6366F1',aksi:'Kemitraan strategis — program bersama, pendanaan, dan penguatan kapasitas organisasi di tingkat lokal'}]},
+  {key:'pkh_officer',       label:'Petugas PKH',           kat:'Mitra',
+   peran:[{domain:'Penghidupan',color:'#D97706',aksi:'Verifikasi dan aktivasi penerima PKH — memastikan keluarga anak terdaftar dan menerima manfaat program'}]},
+  {key:'kelompok_tani',     label:'Kelompok Tani',         kat:'Mitra',
+   peran:[{domain:'Penghidupan',color:'#D97706',aksi:'Jaringan ekonomi keluarga petani — akses bibit, alat, dan pasar untuk penghidupan keluarga anak'}]},
+];
+
+// ── Kategori label untuk filter ──
+const KAT_LABEL = {
+  Keluarga:'Keluarga', Komunitas:'Komunitas', Adat:'Adat', Keagamaan:'Keagamaan',
+  Pendidikan:'Pendidikan', Kesehatan:'Kesehatan',
+  PemerintahDesa:'Pemerintah Desa', PemerintahKab:'Pemerintah Kab',
+  Organisasi:'Organisasi', Mitra:'Mitra'
+};
+
+// ── Engine WHO CBR — identik dengan coord-rtl ──
+const RULES_KAT_W={
+  kesehatan:{kw:['sakit','epilepsi','kejang','terapi','obat','gizi','nutrisi','susu','pampers','kursi roda','alat bantu','kacamata','alat dengar','standing table','cerebral palsy','kekakuan','otot','saraf','fisioterapi','puskesmas','dokter','bidan','perawat','rujukan','operasi','rawat','low vision','tuli','bisu','gangguan penglihatan','gangguan pendengaran','luka','nyeri','kaku','lemah','baring','tumbuh kembang','berat badan','toilet training','cebok','inkontinensia'],pihak:['dokter_puskesmas','perawat_puskesmas','bidan_desa','kader_posyandu','fisioterapis','dinkes','ibu','ayah']},
+  pendidikan:{kw:['sekolah','belajar','baca','tulis','hitung','slb','sdlb','smplb','smalb','inklusi','gpk','guru pendamping','pendidikan','kelas','pip','beasiswa','putus sekolah','tidak sekolah','belum sekolah','paud','tk','literasi','numerasi','bahasa isyarat','bisindo','braille'],pihak:['guru_kelas','wali_kelas','kepala_sekolah','gpk','guru_paud','dindik','ayo_indonesia','ibu','ayah']},
+  penghidupan:{kw:['penghasilan','pendapatan','ekonomi','panen','hasil kebun','cengkeh','kemiri','buruh','harian','upah','tenun','kain','parang','sawah','kebun','tani','kiriman','merantau','pkh','blt','sembako','beras','bansos','bantuan sosial','bpjs','jkn','dtks','pse','rumah','dinding','lantai','bambu','tanah','semi permanen','layak huni','air bersih','listrik','modal','usaha','kios','ternak','kambing','biaya','tidak ada uang','keuangan'],pihak:['kepala_desa','kasi_kesra','pkk_desa','dinsos','uptd_sosial','pkh_officer','rt_rw','bpd','ibu','ayah']},
+  sosial:{kw:['stigma','dikucilkan','bully','ejek','malu','minder','teman','bermain','bergaul','sosialisasi','interaksi','isolasi','sendirian','tidak keluar','jarang','adat','tua golo','gereja','pastor','doa','misa','komunitas','tetangga','warga','masyarakat','pengasuh tunggal','janda','duda','jaringan','dukungan','ditinggal','merantau','partisipasi'],pihak:['tua_golo','tokoh_adat','pastor','katekis','kelompok_doa','rt_rw','warga_kampung','tetangga','karang_taruna','omk','ibu','ayah']},
+  pemberdayaan:{kw:['mandiri','kemandirian','percaya diri','kepercayaan diri','mandi sendiri','makan sendiri','pakai baju','berpakaian','toilet training','cebok sendiri','mobilitas','berjalan','berdiri','mimpi','cita-cita','harapan','masa depan','potensi','bakat','hak','advokasi','ktp','akta','kartu disabilitas','keterampilan','pelatihan','vokasi','produktif','emosi','perilaku','tantrum','regulasi'],pihak:['ibu','ayah','saudara_kandung','cbr_worker_lain','scn','kader_disabilitas','ayo_indonesia','bidan_desa']}
+};
+
+function hasKw(text,kws){if(!text)return false;const t=String(text).toLowerCase();return kws.some(k=>t.includes(k));}
+function getAllTeks(a,obs){return [a.nka||'',a.tka||'',a.nkp||'',a.tkp||'',obs?obs.st||'':'',obs?obs.kg||'':'',obs?obs.pf||'':'',obs?obs.lg||'':''].join(' ');}
+
+// ── State ──
+let ALL_ANAK=[], ALL_OBS=[], OBS_MAP={};
+// Map: aktorKey → [{namaAnak, cbr}]
+let AKTOR_ANAK_MAP={};
+
+// ── Build map: siapa saja anak yang melibatkan tiap pihak ──
+function buildAktorAnakMap(){
+  AKTOR_ANAK_MAP={};
+  ALL_ANAK.forEach(a=>{
+    const obs=OBS_MAP[a.nama?.toLowerCase()]||null;
+    const all=getAllTeks(a,obs).toLowerCase();
+    // Kumpulkan semua pihak yang relevan untuk anak ini
+    const pihakSet=new Set();
+    // Dari semua domain
+    Object.entries(RULES_KAT_W).forEach(([kat,cfg])=>{
+      if(hasKw(all,cfg.kw)||
+        (kat==='kesehatan'&&(a.ep||!a.ob||(!a.tr&&(a.level||'').includes('Parah'))))){
+        cfg.pihak.forEach(p=>pihakSet.add(p));
+        // Tambahan kontekstual
+        if(kat==='kesehatan'){
+          if(a.ep){pihakSet.add('dokter_puskesmas');pihakSet.add('dinkes');}
+          if(hasKw(all,['terapi','fisioterapi'])){pihakSet.add('fisioterapis');pihakSet.add('cbm_global');pihakSet.add('ayo_indonesia');}
+          if(hasKw(all,['kursi roda','alat bantu'])){pihakSet.add('dinsos');pihakSet.add('uptd_sosial');pihakSet.add('cbm_global');}
+          if((a.level||'').includes('Parah')){pihakSet.add('pastor');pihakSet.add('tua_golo');}
+        }
+        if(kat==='pendidikan'){
+          if(hasKw(all,['belum sekolah','tidak sekolah'])){pihakSet.add('kepala_sekolah');pihakSet.add('dindik');pihakSet.add('kepala_desa');}
+        }
+        if(kat==='sosial'){
+          if(hasKw(all,['stigma','dikucilkan','bully'])){pihakSet.add('tua_golo');pihakSet.add('tokoh_adat');pihakSet.add('pastor');}
+          if(hasKw(all,['gereja','pastor','doa','misa'])){pihakSet.add('pastor');pihakSet.add('katekis');pihakSet.add('kelompok_doa');}
+          if(hasKw(all,['adat','tua golo'])){pihakSet.add('tua_golo');pihakSet.add('tokoh_adat');}
+        }
+        if(kat==='pemberdayaan'){
+          if(hasKw(all,['ktp','akta','dtks','hak'])){pihakSet.add('kepala_desa');pihakSet.add('kasi_kesra');pihakSet.add('p2tp2a');}
+          if((a.level||'').includes('Parah')){pihakSet.add('fisioterapis');pihakSet.add('cbm_global');}
+        }
+      }
+    });
+    // Selalu tambahkan CBR Worker dan SCN
+    pihakSet.add('cbr_worker_lain');pihakSet.add('scn');
+    // Keluarga selalu terlibat
+    pihakSet.add('ibu');pihakSet.add('ayah');
+
+    pihakSet.forEach(key=>{
+      if(!AKTOR_ANAK_MAP[key])AKTOR_ANAK_MAP[key]=[];
+      AKTOR_ANAK_MAP[key].push({nama:a.nama,cbr:a.cbr});
+    });
+  });
+}
+
+function renderPage(d,scnId){
+  ALL_ANAK=d.anak||[];
+  ALL_OBS=d.obs||[];
+  OBS_MAP={};
+  ALL_OBS.forEach(o=>{if(o.na)OBS_MAP[o.na.toLowerCase()]=o;});
+  buildAktorAnakMap();
+
+  // Populate filter kategori
+  const fK=document.getElementById('flt-kat');
+  Object.entries(KAT_LABEL).forEach(([k,l])=>{
+    const o=document.createElement('option');o.value=k;o.textContent=l;fK.appendChild(o);
+  });
+  fK.addEventListener('change',renderList);
+  document.getElementById('flt-search').addEventListener('input',renderList);
+  renderList();
+}
+
+function renderList(){
+  const q=(document.getElementById('flt-search').value||'').toLowerCase();
+  const kat=document.getElementById('flt-kat').value;
+  const list=AKTOR_DATA.filter(a=>
+    (!q||a.label.toLowerCase().includes(q)||KAT_LABEL[a.kat]?.toLowerCase().includes(q))&&
+    (!kat||a.kat===kat)
+  );
+  document.getElementById('ld-count').textContent=list.length+' pihak';
+
+  // Group by kategori
+  const groups={};
+  list.forEach(a=>{
+    if(!groups[a.kat])groups[a.kat]=[];
+    groups[a.kat].push(a);
+  });
+
+  let html='';
+  Object.entries(groups).forEach(([kat,items])=>{
+    const cfg=KATEGORI_CFG[kat]||{color:'#6B7280',bg:'rgba(107,114,128,.1)'};
+    html+=`<div class="ld-group-header" style="color:${cfg.color}">${cfg.emoji} ${KAT_LABEL[kat]||kat}</div>`;
+    items.forEach(a=>{
+      const jumlahAnak=(AKTOR_ANAK_MAP[a.key]||[]).length;
+      html+=`<div class="ld-item" data-key="${a.key}">
+        <div class="ld-item-dot" style="background:${cfg.color}"></div>
+        <div class="ld-item-body">
+          <div class="ld-item-name">${a.label}</div>
+          <div class="ld-item-sub">${KAT_LABEL[kat]||kat}</div>
+        </div>
+        <span class="ld-item-badge" style="${jumlahAnak?`background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.color}40`:''}">
+          ${jumlahAnak?jumlahAnak+' anak':'—'}
+        </span>
+      </div>`;
+    });
+  });
+
+  document.getElementById('ld-items').innerHTML=html||'<div style="text-align:center;padding:24px;color:#9CA3AF;font-size:.76rem">Tidak ada data</div>';
+  document.querySelectorAll('.ld-item').forEach(el=>{
+    el.onclick=()=>showDetail(el,el.dataset.key);
+  });
+}
+
+let _lastEl=null;
+function showDetail(el,key){
+  if(_lastEl)_lastEl.classList.remove('active');
+  el.classList.add('active');_lastEl=el;
+  document.querySelector('.ph-wrap').classList.add('detail-open');
+  document.getElementById('ph-empty').style.display='none';
+
+  const aktor=AKTOR_DATA.find(a=>a.key===key);
+  if(!aktor)return;
+  const cfg=KATEGORI_CFG[aktor.kat]||{color:'#6B7280',bg:'rgba(107,114,128,.1)',emoji:'•',desc:''};
+  const anakList=AKTOR_ANAK_MAP[key]||[];
+  const katLabel=KAT_LABEL[aktor.kat]||aktor.kat;
+
+  // Render peran
+  const peranHtml=aktor.peran.map(p=>`
+    <div class="peran-item">
+      <div class="peran-dot" style="background:${p.color||cfg.color}"></div>
+      <div class="peran-domain">${p.domain}</div>
+      <div class="peran-aksi">${p.aksi}</div>
+    </div>`).join('');
+
+  // Render daftar anak
+  let anakHtml='';
+  if(anakList.length){
+    // Group per CBR Worker
+    const byCbr={};
+    anakList.forEach(a=>{
+      if(!byCbr[a.cbr])byCbr[a.cbr]=[];
+      byCbr[a.cbr].push(a.nama);
+    });
+    anakHtml=Object.entries(byCbr).map(([cbr,names])=>`
+      <div style="margin-bottom:12px">
+        <div style="font-size:.63rem;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">👤 ${cbr}</div>
+        <div class="anak-chip-wrap" style="padding:0;gap:4px;display:flex;flex-wrap:wrap">
+          ${names.map(n=>`<span class="anak-chip">${n}</span>`).join('')}
+        </div>
+      </div>`).join('');
+  } else {
+    anakHtml='<div style="padding:10px;font-size:.76rem;color:#9CA3AF">Belum ada anak yang membutuhkan keterlibatan pihak ini berdasarkan data saat ini.</div>';
+  }
+
+  document.getElementById('ld-detail').innerHTML=`
+    <div class="det-inner">
+      <button class="det-back" onclick="clearDetail()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Kembali
+      </button>
+
+      <div class="det-pihak-hdr">
+        <div class="det-pihak-avatar" style="background:${cfg.bg}">${cfg.emoji}</div>
+        <div>
+          <div class="det-pihak-name">${aktor.label}</div>
+          <span class="det-pihak-kat" style="background:${cfg.bg};color:${cfg.color}">${katLabel}</span>
+          <div class="det-pihak-desc">${cfg.desc}</div>
+        </div>
+      </div>
+
+      <div class="det-stat-strip">
+        <div class="det-stat">
+          <div class="det-stat-val" style="color:${cfg.color}">${anakList.length}</div>
+          <div class="det-stat-lbl">Anak Terlibat</div>
+        </div>
+        <div class="det-stat">
+          <div class="det-stat-val" style="color:${cfg.color}">${[...new Set(anakList.map(a=>a.cbr))].length}</div>
+          <div class="det-stat-lbl">CBR Worker</div>
+        </div>
+        <div class="det-stat">
+          <div class="det-stat-val" style="color:${cfg.color}">${aktor.peran.length}</div>
+          <div class="det-stat-lbl">Domain Peran</div>
+        </div>
+      </div>
+
+      <div class="det-section">
+        <div class="det-section-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Peran & Tanggung Jawab
+        </div>
+        <div class="det-section-body">${peranHtml}</div>
+      </div>
+
+      <div class="det-section">
+        <div class="det-section-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          Anak yang Membutuhkan Keterlibatan (${anakList.length})
+        </div>
+        <div class="det-section-body" style="padding:12px 13px">${anakHtml}</div>
+      </div>
+    </div>
+  `;
+}
+
+function clearDetail(){
+  document.querySelector('.ph-wrap').classList.remove('detail-open');
+  document.getElementById('ph-empty').style.display='flex';
+  document.getElementById('ld-detail').innerHTML='';
+  if(_lastEl){_lastEl.classList.remove('active');_lastEl=null;}
+}
+</script>
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/api.js"></script>
+<script>
+buildSidebar();
+const SESSION=AUTH.requireAuth('../index.html');
+if(SESSION){
+  AUTH.applySession({onScnSwitch:async function(scnId){const d=await API.get(scnId);if(window.renderPage)renderPage(d,scnId);}});
+  AUTH.initSidebar('coord','c-pihak');
+  API.get(AUTH.getScnFilter()).then(d=>{if(window.renderPage)renderPage(d,AUTH.getScnFilter());});
+}
+</script></body></html>

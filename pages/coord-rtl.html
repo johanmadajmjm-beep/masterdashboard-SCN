@@ -415,8 +415,7 @@ function buildKatTemuanW(kat,a,obs){
   const sources=[a.nka||'',a.tka||'',a.nkp||'',a.tkp||'',
     obs?obs.st||'':'',obs?obs.kg||'':'',obs?obs.pf||'':'',obs?obs.lg||'':''].filter(Boolean);
   sources.forEach(src=>{
-    String(src).replace(/
-/g,'.').split(/[.;]/).forEach(s=>{
+    String(src).replace(/\n/g,'.').split(/[.;]/).forEach(s=>{
       s=s.trim();
       if(s.length>10&&hasKwW(s,rule.kw)&&facts.length<4)facts.push(s);
     });

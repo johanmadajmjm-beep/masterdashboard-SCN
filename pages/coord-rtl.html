@@ -129,6 +129,23 @@
 .vmode:hover { background:#F9FAFB; color:#6B7280; }
 .vmode.active { background:#FFF7ED; border-color:#F97316; color:#F97316; }
 .vmode svg { width:13px; height:13px; }
+/* Card grid views */
+.card-grid-wrap{display:grid;gap:10px;padding:12px;overflow-y:auto;flex:1}
+.grid-xl{grid-template-columns:1fr 1fr}
+.grid-md{grid-template-columns:1fr 1fr 1fr}
+.grid-sm{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.lst-wrap{flex:1;overflow-y:auto}
+.item-card{background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:10px 12px;cursor:pointer;transition:box-shadow .15s}
+.item-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.item-card.active{border-color:#F97316;background:#FFF7ED}
+.item-card-name{font-size:.78rem;font-weight:700;color:#1F2937;margin-bottom:3px}
+.item-card-sub{font-size:.64rem;color:#9CA3AF;line-height:1.4}
+.grid-sm .item-card-sub{display:none}
+.lst-item{display:flex;align-items:center;gap:8px;padding:6px 14px;border-bottom:1px solid #F3F4F6;cursor:pointer;transition:background .1s}
+.lst-item:hover{background:#FFF7ED}
+.lst-item.active{background:#FFF7ED;border-left:3px solid #F97316;padding-left:11px}
+.lst-item-name{font-size:.74rem;font-weight:600;color:#1F2937;flex:1}
+.lst-item-right{font-size:.68rem;color:#9CA3AF}
 
 /* Grid views */
 .list-view-xl .ld-item { padding:14px 16px; }
@@ -222,7 +239,10 @@
       <button class="dpill" data-domain="sosial" onclick="filterDomain('sosial',this)">Sosial</button>
       <button class="dpill" data-domain="pemberdayaan" onclick="filterDomain('pemberdayaan',this)">Pemberdayaan</button>
     </div>
-    <div class="ld-items" id="ld-items"></div>
+    <div class="card-grid-wrap grid-xl" id="view-xl"></div>
+    <div class="card-grid-wrap grid-md" id="view-md" style="display:none"></div>
+    <div class="card-grid-wrap grid-sm" id="view-sm" style="display:none"></div>
+    <div class="lst-wrap" id="view-lst" style="display:none"></div>
   </div>
 
   <!-- PANEL KANAN: DETAIL -->
@@ -295,12 +315,9 @@ function buildRTL(anak){
 function setView(v){
   ACTIVE_VIEW=v;
   ['xl','md','sm','lst'].forEach(x=>document.getElementById('vm-'+x).classList.toggle('active',x===v));
-  const el=document.getElementById('ld-items');
-  el.className='ld-items';
-  if(v==='xl') el.classList.add('list-view-xl');
-  else if(v==='md') el.classList.add('list-view-md');
-  else if(v==='sm') el.classList.add('list-view-sm');
-  else if(v==='lst') el.classList.add('mode-lst');
+  ['view-xl','view-md','view-sm','view-lst'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const t=document.getElementById('view-'+v);
+  if(t) t.style.display=(v==='lst')?'block':'grid';
   renderList();
 }
 

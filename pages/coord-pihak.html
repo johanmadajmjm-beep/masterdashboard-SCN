@@ -81,6 +81,23 @@
 .ph-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px}
 .ph-empty svg{width:44px;height:44px;opacity:.25}
 .ph-empty p{font-size:.8rem;text-align:center}
+/* Card grid views */
+.card-grid-wrap{display:grid;gap:10px;padding:12px;overflow-y:auto;flex:1}
+.grid-xl{grid-template-columns:1fr 1fr}
+.grid-md{grid-template-columns:1fr 1fr 1fr}
+.grid-sm{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.lst-wrap-ph{flex:1;overflow-y:auto}
+.item-card{background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:10px 12px;cursor:pointer;transition:box-shadow .15s}
+.item-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.item-card.active{border-color:#F97316;background:#FFF7ED}
+.item-card-name{font-size:.78rem;font-weight:700;color:#1F2937;margin-bottom:3px}
+.item-card-sub{font-size:.64rem;color:#9CA3AF;line-height:1.4}
+.grid-sm .item-card-sub{display:none}
+.lst-item-ph{display:flex;align-items:center;gap:8px;padding:6px 14px;border-bottom:1px solid #F3F4F6;cursor:pointer;transition:background .1s}
+.lst-item-ph:hover{background:#FFF7ED}
+.lst-item-ph.active{background:#FFF7ED;border-left:3px solid #F97316;padding-left:11px}
+.lst-item-ph-name{font-size:.74rem;font-weight:600;color:#1F2937;flex:1}
+.lst-item-ph-right{font-size:.68rem;color:#9CA3AF}
 /* View modes */
 .view-modes{display:flex;gap:3px}
 .vmode{width:26px;height:26px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9CA3AF;transition:.12s}
@@ -139,7 +156,10 @@
       </div>
       <div style="font-size:.67rem;color:#9CA3AF;margin-top:6px" id="ld-count">—</div>
     </div>
-    <div class="ld-items" id="ld-items"></div>
+    <div class="card-grid-wrap grid-xl" id="view-xl"></div>
+    <div class="card-grid-wrap grid-md" id="view-md" style="display:none"></div>
+    <div class="card-grid-wrap grid-sm" id="view-sm" style="display:none"></div>
+    <div class="lst-wrap-ph" id="view-lst" style="display:none"></div>
   </div>
 
   <!-- EMPTY -->
@@ -394,12 +414,10 @@ function renderPage(d,scnId){
 let ACTIVE_VIEW_PH = 'xl';
 function setView(v){
   ACTIVE_VIEW_PH = v;
-  ['xl','md','sm','lst'].forEach(x => document.getElementById('vm-'+x).classList.toggle('active', x===v));
-  const el = document.getElementById('ld-items');
-  el.className = 'ld-items';
-  if(v==='md') el.classList.add('mode-md');
-  else if(v==='sm') el.classList.add('mode-sm');
-  else if(v==='lst') el.classList.add('mode-lst');
+  ['xl','md','sm','lst'].forEach(x=>document.getElementById('vm-'+x).classList.toggle('active',x===v));
+  ['view-xl','view-md','view-sm','view-lst'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const t=document.getElementById('view-'+v);
+  if(t) t.style.display=(v==='lst')?'block':'grid';
   renderList();
 }
 function renderList(){
@@ -437,8 +455,31 @@ function renderList(){
     });
   });
 
-  document.getElementById('ld-items').innerHTML=html||'<div style="text-align:center;padding:24px;color:#9CA3AF;font-size:.76rem">Tidak ada data</div>';
-  document.querySelectorAll('.ld-item').forEach(el=>{
+  const empty='<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem;grid-column:1/-1">Tidak ada data</div>';
+  // Build card & list from AKTOR_DATA filtered list
+  const filteredList = AKTOR_DATA.filter(a=>{
+    const q2=(document.getElementById('flt-search').value||'').toLowerCase();
+    const kat2=document.getElementById('flt-kat').value;
+    return (!q2||a.label.toLowerCase().includes(q2))&&(!kat2||a.kat===kat2);
+  });
+  const cardHTML=filteredList.map((a,i)=>{
+    const cfg=KAT_CONFIG[a.kat]||{color:'#9CA3AF',bg:'#F3F4F6'};
+    return `<div class="item-card" data-key="${a.key}">
+      <div class="item-card-name"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${cfg.color};margin-right:5px;vertical-align:middle"></span>${a.label}</div>
+      <div class="item-card-sub">${KAT_LABEL[a.kat]||a.kat}</div>
+    </div>`;
+  }).join('');
+  const lstHTML2=filteredList.map(a=>{
+    const cfg=KAT_CONFIG[a.kat]||{color:'#9CA3AF'};
+    return `<div class="lst-item-ph" data-key="${a.key}">
+      <div style="width:7px;height:7px;border-radius:50%;background:${cfg.color};flex-shrink:0"></div>
+      <span class="lst-item-ph-name">${a.label}</span>
+      <span class="lst-item-ph-right">${KAT_LABEL[a.kat]||a.kat}</span>
+    </div>`;
+  }).join('');
+  ['xl','md','sm'].forEach(v=>{document.getElementById('view-'+v).innerHTML=filteredList.length?cardHTML:empty;});
+  document.getElementById('view-lst').innerHTML=filteredList.length?lstHTML2:'<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem">Tidak ada data</div>';
+  document.querySelectorAll('.item-card,.lst-item-ph').forEach(el=>{
     el.onclick=()=>showDetail(el,el.dataset.key);
   });
 }

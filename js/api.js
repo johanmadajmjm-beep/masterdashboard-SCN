@@ -1,7 +1,8 @@
 // ============================================================
 //  api.js — Koneksi ke Apps Script Multi-SCN
 //  Data REAL dari Google Sheet via Apps Script
-//  Tidak ada data dummy — semua dari sumber nyata
+//  Cache: sessionStorage + lastSync detection
+//  Loading hanya terjadi saat data di server benar-benar berubah
 // ============================================================
 
 const API = (() => {
@@ -19,30 +20,95 @@ const API = (() => {
     // sigi       : 'https://script.google.com/macros/s/xxx/exec',
   };
 
-  // Cache 5 menit
-  const CACHE     = {};
-  const CACHE_TTL = 5 * 60 * 1000;
+  // ── SESSION STORAGE CACHE ─────────────────────────────────
+  // Cache disimpan di sessionStorage agar tetap ada saat pindah halaman.
+  // Loading hanya terjadi jika lastSync server berbeda dari cache.
+  const SS_PREFIX = 'mel_api_';
 
-  // ── FETCH DENGAN CACHE ────────────────────────────────────
-  async function fetchSheet(scnId, sheetName) {
-    const cacheKey = scnId + '_' + sheetName;
-    const now = Date.now();
-    if (CACHE[cacheKey] && (now - CACHE[cacheKey].ts) < CACHE_TTL) {
-      return CACHE[cacheKey].data;
+  function ssGet(key) {
+    try {
+      const raw = sessionStorage.getItem(SS_PREFIX + key);
+      return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+  }
+
+  function ssSet(key, value) {
+    try { sessionStorage.setItem(SS_PREFIX + key, JSON.stringify(value)); } catch(e) {}
+  }
+
+  function ssDel(key) {
+    try { sessionStorage.removeItem(SS_PREFIX + key); } catch(e) {}
+  }
+
+  function ssDelPrefix(prefix) {
+    try {
+      Object.keys(sessionStorage)
+        .filter(k => k.startsWith(SS_PREFIX + prefix))
+        .forEach(k => sessionStorage.removeItem(k));
+    } catch(e) {}
+  }
+
+  function ssDelAll() {
+    try {
+      Object.keys(sessionStorage)
+        .filter(k => k.startsWith(SS_PREFIX))
+        .forEach(k => sessionStorage.removeItem(k));
+    } catch(e) {}
+  }
+
+  // ── CEK LAST SYNC DARI SERVER (ringan, hanya 1 nilai) ────
+  async function fetchLastSync(scnId) {
+    const url = ENDPOINTS[scnId];
+    if (!url) return null;
+    try {
+      const resp = await fetch(`${url}?sheet=meta&scn=${scnId}`);
+      if (!resp.ok) return null;
+      const json = await resp.json();
+      return json.lastSync || null;
+    } catch(e) {
+      console.warn(`[API] Gagal cek lastSync ${scnId}:`, e.message);
+      return null;
     }
+  }
+
+  // ── FETCH SHEET DARI SERVER ───────────────────────────────
+  async function fetchSheetFromServer(scnId, sheetName) {
     const url = ENDPOINTS[scnId];
     if (!url) return null;
     try {
       const resp = await fetch(`${url}?sheet=${sheetName}&scn=${scnId}`);
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const json = await resp.json();
-      const data = json.data || json;
-      CACHE[cacheKey] = { ts: now, data };
-      return data;
-    } catch (e) {
+      return json;
+    } catch(e) {
       console.warn(`[API] Gagal fetch ${scnId}/${sheetName}:`, e.message);
       return null;
     }
+  }
+
+  // ── FETCH DENGAN CACHE CERDAS ─────────────────────────────
+  // 1. Cek lastSync server vs cache
+  // 2. Jika sama → pakai sessionStorage (instan)
+  // 3. Jika berbeda → fetch ulang, update cache
+  async function fetchSheet(scnId, sheetName, serverLastSync) {
+    const cacheKey = `${scnId}_${sheetName}`;
+    const cached   = ssGet(cacheKey);
+
+    // Jika ada cache dan lastSync sama → langsung pakai
+    if (cached && serverLastSync && cached.lastSync === serverLastSync) {
+      return cached.data;
+    }
+
+    // Fetch dari server
+    const json = await fetchSheetFromServer(scnId, sheetName);
+    if (!json) return cached ? cached.data : null; // fallback ke cache lama jika fetch gagal
+
+    const data = json.data || json;
+    const ls   = json.lastSync || serverLastSync || null;
+
+    // Simpan ke sessionStorage
+    ssSet(cacheKey, { data, lastSync: ls });
+    return data;
   }
 
   function normalizeDataAwal(rows) {
@@ -104,21 +170,17 @@ const API = (() => {
   // ── HITUNG STATISTIK DARI DATA REAL ──────────────────────
   function calcStats(anak, obs) {
     const now = new Date();
-
-    // Hari sejak observasi terakhir per anak
     const lastVisit = {};
     obs.forEach(o => {
       if (!o.na || !o.tgl || o.tgl === '—') return;
       const key = o.na.toLowerCase();
       if (!lastVisit[key] || o.tgl > lastVisit[key]) lastVisit[key] = o.tgl;
     });
-
     anak.forEach(a => {
       const key  = a.nama.toLowerCase();
       const last = lastVisit[key];
       a.hari = last ? Math.floor((now - new Date(last)) / 86400000) : 999;
     });
-
     return { anak };
   }
 
@@ -128,8 +190,6 @@ const API = (() => {
     const bulan    = now.getMonth();
     const tahun    = now.getFullYear();
     const workerMap = {};
-
-    // Hitung anak per worker
     anak.forEach(a => {
       const cb = a.cbr;
       if (!workerMap[cb]) {
@@ -144,8 +204,6 @@ const API = (() => {
       }
       workerMap[cb].anak++;
     });
-
-    // Hitung kunjungan bulan ini
     obs.forEach(o => {
       if (!o.tgl || o.tgl === '—') return;
       const d = new Date(o.tgl);
@@ -153,15 +211,12 @@ const API = (() => {
         if (workerMap[o.cb]) workerMap[o.cb].kunjungan_bulan++;
       }
     });
-
-    // Hitung late dan IRP aktif
     anak.forEach(a => {
       const w = workerMap[a.cbr];
       if (!w) return;
       if (a.hari > 30) w.late++;
       if (a.irp === 'Aktif') w.irp_aktif++;
     });
-
     return Object.values(workerMap);
   }
 
@@ -172,10 +227,8 @@ const API = (() => {
       const key = a.nama.toLowerCase();
       return obs.some(o => o.na && o.na.toLowerCase() === key);
     }).length;
-    const irpAktif    = anak.filter(a => a.irp === 'Aktif').length;
-    const terapi      = anak.filter(a => a.tr).length;
-    const skorBaik    = anak.filter(a => a.sp != null && a.sp >= 5).length;
-
+    const terapi   = anak.filter(a => a.tr).length;
+    const skorBaik = anak.filter(a => a.sp != null && a.sp >= 5).length;
     return {
       'O1-i1': { cap: skorBaik,              target_y1: 50,  target_total: 150 },
       'O1-i2': { cap: punyaObs,              target_y1: 30,  target_total: 100 },
@@ -243,9 +296,13 @@ const API = (() => {
 
   // ── LOAD DATA SATU SCN ────────────────────────────────────
   async function loadScn(scnId) {
+    // Langkah 1: cek lastSync server dulu (ringan)
+    const serverLastSync = await fetchLastSync(scnId);
+
+    // Langkah 2: fetch sheet dengan cache cerdas
     const [rawAwal, rawObs] = await Promise.all([
-      fetchSheet(scnId, 'DataAwal'),
-      fetchSheet(scnId, 'DataObs'),
+      fetchSheet(scnId, 'DataAwal', serverLastSync),
+      fetchSheet(scnId, 'DataObs',  serverLastSync),
     ]);
 
     if (!rawAwal || !rawAwal.length) {
@@ -256,7 +313,7 @@ const API = (() => {
 
     const awalRows = Array.isArray(rawAwal) ? rawAwal : (rawAwal.data || []);
     const obsRows  = rawObs ? (Array.isArray(rawObs) ? rawObs : (rawObs.data || [])) : [];
-    const lastSync = rawAwal.lastSync || null;
+    const lastSync = serverLastSync || null;
 
     const anak = normalizeDataAwal(awalRows);
     const obs  = normalizeObs(obsRows);
@@ -264,7 +321,6 @@ const API = (() => {
     const workers = buildWorkers(anak, obs);
     const itt     = calcITT(anak, obs);
 
-    // Stakeholder dari data nyata (proxy dari jumlah anak & worker)
     const stakeholder = {
       'CBR Worker'    : { total: workers.length, L: Math.ceil(workers.length*.4), P: Math.floor(workers.length*.6) },
       'Pengasuh/Ortu' : { total: anak.length,    L: Math.round(anak.length*.3),  P: Math.round(anak.length*.7)  },
@@ -274,7 +330,6 @@ const API = (() => {
       'Staff Mitra'   : { total: 7,  L: 5,  P: 2  },
     };
 
-    // Referral: anak yang belum dikunjungi >30 hari
     const referral = anak
       .filter(a => a.hari > 30)
       .slice(0, 15)
@@ -286,7 +341,6 @@ const API = (() => {
         cbr    : a.cbr,
       }));
 
-    // Aktivitas dari obs terbaru
     const aktivitas = obs
       .filter(o => o.tgl && o.tgl !== '—')
       .sort((a, b) => b.tgl.localeCompare(a.tgl))
@@ -311,12 +365,7 @@ const API = (() => {
         lastSync,
         sumber   : 'Google Sheets (real)',
       },
-      workers,
-      anak,
-      obs,
-      referral,
-      aktivitas,
-      stakeholder,
+      workers, anak, obs, referral, aktivitas, stakeholder,
       cerita : [],
       itt    : { Y1_Q2: itt },
     };
@@ -333,12 +382,12 @@ const API = (() => {
       return null;
     }
 
-    const workers    = valid.flatMap(d => d.workers.map(w => ({ ...w, scn: d.meta.scn, scn_id: d.meta.scn })));
-    const anak       = valid.flatMap(d => d.anak.map(a => ({ ...a, scn: d.meta.scn })));
-    const obs        = valid.flatMap(d => d.obs.map(o => ({ ...o, scn: d.meta.scn })));
-    const referral   = valid.flatMap(d => d.referral.map(r => ({ ...r, scn: d.meta.scn })));
-    const aktivitas  = valid.flatMap(d => d.aktivitas).sort((a, b) => b.tgl.localeCompare(a.tgl));
-    const cerita     = valid.flatMap(d => d.cerita);
+    const workers     = valid.flatMap(d => d.workers.map(w => ({ ...w, scn: d.meta.scn, scn_id: d.meta.scn })));
+    const anak        = valid.flatMap(d => d.anak.map(a => ({ ...a, scn: d.meta.scn })));
+    const obs         = valid.flatMap(d => d.obs.map(o => ({ ...o, scn: d.meta.scn })));
+    const referral    = valid.flatMap(d => d.referral.map(r => ({ ...r, scn: d.meta.scn })));
+    const aktivitas   = valid.flatMap(d => d.aktivitas).sort((a, b) => b.tgl.localeCompare(a.tgl));
+    const cerita      = valid.flatMap(d => d.cerita);
     const stakeholder = {};
     valid.forEach(d => {
       Object.entries(d.stakeholder).forEach(([cat, val]) => {
@@ -367,14 +416,12 @@ const API = (() => {
     };
   }
 
-  // ── CLEAR CACHE (dipanggil saat SCN switch) ──────────────
+  // ── CLEAR CACHE ───────────────────────────────────────────
   function clearCache(scnId) {
     if (scnId) {
-      // Hapus cache untuk SCN spesifik
-      Object.keys(CACHE).forEach(k => { if (k.startsWith(scnId + '_')) delete CACHE[k]; });
+      ssDelPrefix(scnId + '_');
     } else {
-      // Hapus semua cache
-      Object.keys(CACHE).forEach(k => delete CACHE[k]);
+      ssDelAll();
     }
   }
 
@@ -382,7 +429,6 @@ const API = (() => {
   async function get(scnId) {
     if (!scnId) return await loadAll();
     if (ENDPOINTS[scnId]) return await loadScn(scnId);
-    // SCN belum punya endpoint — tampilkan kosong
     setBadge(false, null);
     return {
       meta        : { scn: `SCN ${scnId}`, project: 'BEN', tahun: 2026, sumber: 'Belum terhubung' },

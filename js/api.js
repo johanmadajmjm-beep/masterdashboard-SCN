@@ -296,10 +296,20 @@ const API = (() => {
 
   // ── LOAD DATA SATU SCN ────────────────────────────────────
   async function loadScn(scnId) {
-    // Langkah 1: cek lastSync server dulu (ringan)
-    const serverLastSync = await fetchLastSync(scnId);
+    // Cache-first: ambil dari sessionStorage dulu (instan)
+    const cachedAwal = ssGet(scnId + '_DataAwal');
+    const cachedObs  = ssGet(scnId + '_DataObs');
 
-    // Langkah 2: fetch sheet dengan cache cerdas
+    if (cachedAwal) {
+      // Render dari cache langsung, cek lastSync di background
+      const result = buildResult(scnId, cachedAwal.data, cachedObs ? cachedObs.data : []);
+      // Background refresh: cek apakah ada data baru
+      _refreshIfNew(scnId, cachedAwal.lastSync);
+      return result;
+    }
+
+    // Tidak ada cache — fetch penuh dari server
+    const serverLastSync = await fetchLastSync(scnId);
     const [rawAwal, rawObs] = await Promise.all([
       fetchSheet(scnId, 'DataAwal', serverLastSync),
       fetchSheet(scnId, 'DataObs',  serverLastSync),
@@ -311,9 +321,15 @@ const API = (() => {
       return null;
     }
 
+    return buildResult(scnId, rawAwal, rawObs || []);
+  }
+
+  // ── BUILD RESULT DARI RAW DATA ────────────────────────────
+  function buildResult(scnId, rawAwal, rawObs) {
     const awalRows = Array.isArray(rawAwal) ? rawAwal : (rawAwal.data || []);
-    const obsRows  = rawObs ? (Array.isArray(rawObs) ? rawObs : (rawObs.data || [])) : [];
-    const lastSync = serverLastSync || null;
+    const obsRows  = Array.isArray(rawObs)  ? rawObs  : (rawObs.data  || []);
+    const cached   = ssGet(scnId + '_DataAwal');
+    const lastSync = cached ? cached.lastSync : null;
 
     const anak = normalizeDataAwal(awalRows);
     const obs  = normalizeObs(obsRows);
@@ -369,6 +385,26 @@ const API = (() => {
       cerita : [],
       itt    : { Y1_Q2: itt },
     };
+  }
+
+  // ── BACKGROUND REFRESH: cek data baru tanpa block render ─
+  async function _refreshIfNew(scnId, cachedLastSync) {
+    try {
+      const serverLastSync = await fetchLastSync(scnId);
+      if (!serverLastSync || serverLastSync === cachedLastSync) return; // tidak ada data baru
+      // Ada data baru — fetch ulang dan update cache
+      const [rawAwal, rawObs] = await Promise.all([
+        fetchSheet(scnId, 'DataAwal', serverLastSync),
+        fetchSheet(scnId, 'DataObs',  serverLastSync),
+      ]);
+      if (!rawAwal || !rawAwal.length) return;
+      // Re-render halaman aktif dengan data baru
+      const result = buildResult(scnId, rawAwal, rawObs || []);
+      if (window.renderPage) renderPage(result, scnId);
+      console.log('[API] Data baru terdeteksi, halaman di-refresh otomatis');
+    } catch(e) {
+      // Gagal refresh background — tidak masalah, tetap pakai cache
+    }
   }
 
   // ── AGREGASI SEMUA SCN ────────────────────────────────────

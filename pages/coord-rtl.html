@@ -365,30 +365,34 @@ function renderList(){
     return true;
   });
   document.getElementById('ld-count').textContent=list.length+' anak ditemukan';
-  document.getElementById('ld-items').innerHTML=list.length
-    ? list.map((a,i)=>{
-        const spVal=a.sp!=null?a.sp:null;
-        const domains=ACTIVE_DOMAIN==='all'?Object.keys(a.rekom):Object.keys(a.rekom).filter(k=>k===ACTIVE_DOMAIN);
-        const totalD=domains.reduce((s,k)=>s+(a.rekom[k]?.items?.length||0),0);
-        return `<div class="ld-item${SELECTED_IDX===i?' active':''}" onclick="selectItem(${i},this)">
-          <div class="ld-item-name">${a.nama||'—'}</div>
-          <div class="ld-item-sub">
-            <span>${a.cbr||'—'}</span>
-            <span>${(a.level||'—').split('(')[0].trim()}</span>
-            <span>${a.usia||'?'} th · ${a.gender||'—'}</span>
-          </div>
-          <div class="ld-item-badge">
-            ${domains.slice(0,3).map(k=>`<span class="ld-item-count" style="background:${RTL_MATRIX[k].color}18;color:${RTL_MATRIX[k].color}">${RTL_MATRIX[k].label}</span>`).join('')}
-            ${totalD>0?`<span class="ld-item-count" style="background:#F3F4F6;color:#6B7280">${totalD} aksi</span>`:''}
-          </div>
-          ${spVal!=null?`<div class="ld-item-score" style="color:${sc(spVal)}">${spVal}</div>`:''}
-        </div>`;
-      }).join('')
-    : '<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem">Tidak ada anak ditemukan</div>';
-  // Re-assign onclick with correct index from filtered list
-  document.querySelectorAll('.ld-item').forEach((el,i)=>{
-    el._rtlData=list[i];
-    el.onclick=()=>showDetail(list[i],el);
+  const empty='<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem;grid-column:1/-1">Tidak ada anak ditemukan</div>';
+  const cardHTML=list.map((a,i)=>{
+    const spVal=a.sp!=null?a.sp:null;
+    const domains=ACTIVE_DOMAIN==='all'?Object.keys(a.rekom):Object.keys(a.rekom).filter(k=>k===ACTIVE_DOMAIN);
+    const totalD=domains.reduce((s,k)=>s+(a.rekom[k]?.items?.length||0),0);
+    const spColor=spVal!=null?(spVal<=3?'#DC2626':spVal<=6?'#F97316':'#16A34A'):'#9CA3AF';
+    const domBadges=domains.slice(0,2).map(k=>`<span style="font-size:.55rem;font-weight:700;padding:1px 5px;border-radius:999px;background:${RTL_MATRIX[k].color}18;color:${RTL_MATRIX[k].color}">${RTL_MATRIX[k].label}</span>`).join(' ');
+    return `<div class="item-card" data-i="${i}">
+      <div class="item-card-name">${a.nama||'—'}</div>
+      <div class="item-card-sub">${a.cbr||'—'} · ${(a.level||'—').split('(')[0].trim()}</div>
+      <div style="margin-top:4px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${domBadges}${spVal!=null?`<span style="font-size:.75rem;font-weight:800;font-family:monospace;color:${spColor};margin-left:auto">${spVal}</span>`:''}</div>
+    </div>`;
+  }).join('');
+  const lstHTML=list.map((a,i)=>{
+    const spVal=a.sp!=null?a.sp:null;
+    const spColor=spVal!=null?(spVal<=3?'#DC2626':spVal<=6?'#F97316':'#16A34A'):'#9CA3AF';
+    return `<div class="lst-item" data-i="${i}">
+      <div style="width:7px;height:7px;border-radius:50%;background:#F97316;flex-shrink:0"></div>
+      <span class="lst-item-name">${a.nama||'—'}</span>
+      <span class="lst-item-right">${a.cbr||'—'}</span>
+      ${spVal!=null?`<span style="font-size:.72rem;font-weight:800;font-family:monospace;color:${spColor}">${spVal}</span>`:''}
+    </div>`;
+  }).join('');
+  ['xl','md','sm'].forEach(v=>{document.getElementById('view-'+v).innerHTML=list.length?cardHTML:empty;});
+  document.getElementById('view-lst').innerHTML=list.length?lstHTML:'<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem">Tidak ada anak ditemukan</div>';
+  document.querySelectorAll('.item-card,.lst-item').forEach(el=>{
+    const i=parseInt(el.dataset.i);
+    el.onclick=()=>{document.querySelectorAll('.item-card,.lst-item').forEach(e=>e.classList.remove('active'));el.classList.add('active');showDetail(list[i],el);};
   });
 }
 

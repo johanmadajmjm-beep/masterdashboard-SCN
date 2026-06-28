@@ -142,6 +142,30 @@
 .list-view-card { display:grid; grid-template-columns:1fr 1fr; gap:0; }
 .list-view-card .ld-item { border:none; border-bottom:1px solid #F9FAFB; border-right:1px solid #F9FAFB; }
 .list-view-card .ld-item-score { position:static; transform:none; font-size:.85rem; margin-top:4px; }
+
+/* ── WHO CBR 5 Kategori blocks ── */
+.who-block{background:#fff;border:1px solid #E5E7EB;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.who-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid #F3F4F6}
+.who-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.who-label{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.who-body{padding:12px 14px}
+.who-section-lbl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9CA3AF;margin-bottom:4px;margin-top:10px}
+.who-section-lbl:first-child{margin-top:0}
+.who-temuan{font-size:.76rem;color:#374151;line-height:1.6;margin-bottom:2px}
+.who-rtl{font-size:.75rem;color:#374151;line-height:1.65;background:#F9FAFB;border-left:3px solid;padding:8px 10px;border-radius:0 6px 6px 0;margin-bottom:2px}
+/* Pihak chips */
+.pihak-wrap{margin-top:6px}
+.pihak-kat-row{display:flex;align-items:flex-start;gap:6px;margin-bottom:5px;flex-wrap:wrap}
+.pihak-kat-lbl{font-size:.58rem;font-weight:700;padding:2px 7px;border-radius:8px;flex-shrink:0;margin-top:1px;white-space:nowrap}
+.pihak-chips{display:flex;flex-wrap:wrap;gap:3px}
+.pihak-chip{font-size:.62rem;font-weight:600;padding:2px 7px;border-radius:6px;border:1px solid transparent}
+/* who kategori colors */
+.who-kesehatan .who-head{background:#FEF2F2}.who-kesehatan .who-label{color:#DC2626}.who-kesehatan .who-rtl{border-color:#DC2626}
+.who-pendidikan .who-head{background:#EFF6FF}.who-pendidikan .who-label{color:#1D4ED8}.who-pendidikan .who-rtl{border-color:#1D4ED8}
+.who-penghidupan .who-head{background:#FFFBEB}.who-penghidupan .who-label{color:#D97706}.who-penghidupan .who-rtl{border-color:#D97706}
+.who-sosial .who-head{background:#F5F3FF}.who-sosial .who-label{color:#7C3AED}.who-sosial .who-rtl{border-color:#7C3AED}
+.who-pemberdayaan .who-head{background:#ECFDF5}.who-pemberdayaan .who-label{color:#059669}.who-pemberdayaan .who-rtl{border-color:#059669}
+/* domain pills existing — tidak diubah */
 </style>
 </head><body>
 <div class="app"><div class="main">
@@ -248,7 +272,7 @@ const RTL_MATRIX = {
   },
 };
 
-let ALL_RTL=[], ACTIVE_DOMAIN='all', ACTIVE_VIEW='xl', SELECTED_IDX=-1;
+let ALL_RTL=[], OBS_MAP={}, ACTIVE_DOMAIN='all', ACTIVE_VIEW='xl', SELECTED_IDX=-1;
 
 function sc(v){ return v<=3?'#1E293B':v<=6?'#FB923C':'#F97316'; }
 
@@ -287,6 +311,9 @@ function filterDomain(d,btn){
 
 function renderPage(d,scnId){
   const anak=d.anak||[], obs=d.obs||[];
+  // Buat map obs per nama anak
+  OBS_MAP={};
+  obs.forEach(o=>{if(o.na)OBS_MAP[o.na.toLowerCase()]=o;});
   ALL_RTL=buildRTL(anak);
   const cbrs=[...new Set(anak.map(a=>a.cbr).filter(Boolean))].sort();
   const levels=[...new Set(anak.map(a=>a.level).filter(Boolean))].sort();
@@ -344,15 +371,246 @@ function renderList(){
   });
 }
 
+// ═══════════════════════════════════════════════════════════
+// WHO CBR MATRIX 5 KATEGORI — ENGINE (dari BENkobo)
+// ═══════════════════════════════════════════════════════════
+const AKTOR_LABEL={ayah:"Ayah",ibu:"Ibu",saudara_kandung:"Saudara Kandung",kakek_nenek_serumah:"Kakek/Nenek (serumah)",paman_bibi:"Paman/Bibi",kakek_nenek_luar:"Kakek/Nenek (luar)",sepupu:"Sepupu",keluarga_besar_lain:"Keluarga Besar",tetangga:"Tetangga",teman_sebaya:"Teman Sebaya",kelompok_bermain:"Kelompok Bermain",warga_kampung:"Warga Kampung",tua_golo:"Tua Golo",tua_teno:"Tua Teno",tokoh_adat:"Tokoh Adat",wau:"Wau",pastor:"Pastor/Romo",suster_bruder:"Suster/Bruder",katekis:"Katekis",prodiakon:"Prodiakon",kelompok_doa:"Kelompok Doa/Legio Maria",pengurus_gereja:"Pengurus Gereja",guru_agama:"Guru Agama",guru_kelas:"Guru Kelas",wali_kelas:"Wali Kelas",kepala_sekolah:"Kepala Sekolah",gpk:"Guru Pendamping Khusus",guru_paud:"Guru PAUD/TK",pengelola_paud:"Pengelola PAUD",teman_sekelas:"Teman Sekelas",bidan_desa:"Bidan Desa",perawat_puskesmas:"Perawat Puskesmas",dokter_puskesmas:"Dokter Puskesmas",kader_posyandu:"Kader Posyandu",kader_posbindu:"Kader Posbindu",fisioterapis:"Fisioterapis",kepala_desa:"Kepala Desa",sekdes:"Sekretaris Desa",rt_rw:"Ketua RT/RW",kasi_kesra:"Kasi Kesejahteraan",pkk_desa:"PKK Desa",karang_taruna:"Karang Taruna",bpd:"BPD",dinsos:"Dinas Sosial",dinkes:"Dinas Kesehatan",dindik:"Dinas Pendidikan",uptd_sosial:"UPTD Sosial",p2tp2a:"P2TP2A",scn:"Sub Cluster Network",cbr_worker_lain:"CBR Worker Lain",kader_disabilitas:"Kader Disabilitas",kelompok_tani:"Kelompok Tani",koperasi:"Koperasi",omk:"OMK",org_perempuan:"Org. Perempuan",cbm_global:"CBM Global",ayo_indonesia:"Ayo Indonesia",jpm_kupang:"JPM Kupang",lsm_lokal:"LSM Lokal",yayasan_mitra:"Yayasan Mitra",pkh_officer:"Petugas PKH"};
+const AKTOR_KAT={Keluarga:["ayah","ibu","saudara_kandung","kakek_nenek_serumah","paman_bibi","kakek_nenek_luar","sepupu","keluarga_besar_lain"],Komunitas:["tetangga","teman_sebaya","kelompok_bermain","warga_kampung"],Adat:["tua_golo","tua_teno","tokoh_adat","wau"],Keagamaan:["pastor","suster_bruder","katekis","prodiakon","kelompok_doa","pengurus_gereja","guru_agama"],Pendidikan:["guru_kelas","wali_kelas","kepala_sekolah","gpk","guru_paud","pengelola_paud","teman_sekelas"],Kesehatan:["bidan_desa","perawat_puskesmas","dokter_puskesmas","kader_posyandu","kader_posbindu","fisioterapis"],PemerintahDesa:["kepala_desa","sekdes","rt_rw","kasi_kesra","pkk_desa","karang_taruna","bpd"],PemerintahKab:["dinsos","dinkes","dindik","uptd_sosial","p2tp2a"],Organisasi:["scn","cbr_worker_lain","kader_disabilitas","omk","org_perempuan"],Mitra:["cbm_global","ayo_indonesia","jpm_kupang","lsm_lokal","yayasan_mitra","pkh_officer"]};
+const AKTOR_KAT_LABEL={Keluarga:"Keluarga",Komunitas:"Komunitas",Adat:"Adat",Keagamaan:"Keagamaan",Pendidikan:"Pendidikan",Kesehatan:"Kesehatan",PemerintahDesa:"Pemerintah Desa",PemerintahKab:"Pemerintah Kab",Organisasi:"Organisasi",Mitra:"Mitra",Lainnya:"Lainnya"};
+const AKTOR_KAT_COLORS={Keluarga:{c:"#F97316",bg:"rgba(249,115,22,.1)"},Komunitas:{c:"#06b6d4",bg:"rgba(6,182,212,.1)"},Adat:{c:"#a16207",bg:"rgba(161,98,7,.1)"},Keagamaan:{c:"#8b5cf6",bg:"rgba(139,92,246,.1)"},Pendidikan:{c:"#2563EB",bg:"rgba(37,99,235,.1)"},Kesehatan:{c:"#16a34a",bg:"rgba(22,163,74,.1)"},PemerintahDesa:{c:"#d97706",bg:"rgba(217,119,6,.1)"},PemerintahKab:{c:"#D97706",bg:"rgba(217,119,6,.08)"},Organisasi:{c:"#10b981",bg:"rgba(16,185,129,.1)"},Mitra:{c:"#6366f1",bg:"rgba(99,102,241,.1)"},Lainnya:{c:"#6B7280",bg:"rgba(107,114,128,.1)"}};
+
+const RULES_KAT_W={
+  kesehatan:{label:"🏥 Kesehatan",cls:"who-kesehatan",color:"#DC2626",
+    kw:["sakit","epilepsi","kejang","terapi","obat","gizi","nutrisi","susu","pampers","kursi roda","alat bantu","kacamata","alat dengar","standing table","cerebral palsy","kekakuan","otot","saraf","fisioterapi","puskesmas","dokter","bidan","perawat","rujukan","operasi","rawat","low vision","tuli","bisu","gangguan penglihatan","gangguan pendengaran","luka","nyeri","kaku","lemah","baring","tumbuh kembang","berat badan","toilet training","cebok","inkontinensia"],
+    rtlMap:{epilepsi:"Pastikan obat epilepsi tersedia rutin dan jadwalkan kontrol ke Puskesmas dalam 1 bulan.",tidak_obat:"Koordinasikan akses pengobatan rutin melalui Puskesmas dan Bidan Desa dalam 2 minggu.",tidak_terapi:"Ajukan rujukan terapi ke Puskesmas atau Dinas Kesehatan dalam 1 bulan.",alat_bantu:"Identifikasi kebutuhan alat bantu dan ajukan ke Dinas Sosial/CBM Global dalam 1 bulan.",gizi:"Koordinasikan dengan Kader Posyandu untuk pemantauan gizi dan akses nutrisi dalam 2 minggu.",def:"Jadwalkan pemeriksaan kesehatan rutin dan diskusikan langkah perawatan di rumah dalam 2 minggu."}},
+  pendidikan:{label:"🎓 Pendidikan",cls:"who-pendidikan",color:"#1D4ED8",
+    kw:["sekolah","belajar","baca","tulis","hitung","slb","sdlb","smplb","smalb","inklusi","gpk","guru pendamping","pendidikan","kelas","pip","beasiswa","putus sekolah","tidak sekolah","belum sekolah","paud","tk","literasi","numerasi","bahasa isyarat","bisindo","braille"],
+    rtlMap:{belum_sekolah:"Koordinasikan dengan Dinas Pendidikan dan Kepala Sekolah untuk pendaftaran ke sekolah inklusi atau SLB dalam 1 bulan.",gpk:"Ajukan kebutuhan Guru Pendamping Khusus ke sekolah dan Dinas Pendidikan dalam 1 bulan.",def:"Diskusikan rencana pendidikan anak dengan keluarga dan koordinasikan dengan sekolah terdekat dalam 1 bulan."}},
+  penghidupan:{label:"💰 Penghidupan",cls:"who-penghidupan",color:"#D97706",
+    kw:["penghasilan","pendapatan","ekonomi","panen","hasil kebun","cengkeh","kemiri","buruh","harian","upah","tenun","kain","parang","sawah","kebun","tani","kiriman","merantau","pkh","blt","sembako","beras","bansos","bantuan sosial","bpjs","jkn","dtks","pse","rumah","dinding","lantai","bambu","tanah","semi permanen","layak huni","air bersih","listrik","modal","usaha","kios","ternak","kambing","biaya","tidak ada uang","keuangan"],
+    rtlMap:{bantuan:"Verifikasi status PKH/BLT/BPJS dan koordinasikan dengan Kepala Desa untuk aktivasi dalam 2 minggu.",rumah:"Laporkan kondisi rumah tidak layak ke Kepala Desa dan Dinas Sosial untuk program renovasi dalam 1 bulan.",def:"Koordinasikan akses bantuan sosial dan layanan ekonomi dengan Kepala Desa dan Dinas Sosial dalam 1 bulan."}},
+  sosial:{label:"👥 Sosial",cls:"who-sosial",color:"#7C3AED",
+    kw:["stigma","dikucilkan","bully","ejek","malu","minder","teman","bermain","bergaul","sosialisasi","interaksi","isolasi","sendirian","tidak keluar","jarang","adat","tua golo","gereja","pastor","doa","misa","komunitas","tetangga","warga","masyarakat","pengasuh tunggal","janda","duda","jaringan","dukungan","ditinggal","merantau","partisipasi"],
+    rtlMap:{stigma:"Lakukan edukasi kepada keluarga, tetangga, dan Tua Golo tentang disabilitas dan inklusivitas dalam 1 bulan.",isolasi:"Fasilitasi keterlibatan anak/pengasuh dalam kegiatan komunitas dalam 1 bulan.",tunggal:"Identifikasi anggota keluarga atau tetangga yang bisa membantu pengasuhan dalam 2 minggu.",def:"Diskusikan dengan Tua Golo dan pemuka gereja tentang dukungan sosial untuk keluarga dalam 1 bulan."}},
+  pemberdayaan:{label:"💪 Pemberdayaan",cls:"who-pemberdayaan",color:"#059669",
+    kw:["mandiri","kemandirian","percaya diri","kepercayaan diri","mandi sendiri","makan sendiri","pakai baju","berpakaian","toilet training","cebok sendiri","mobilitas","berjalan","berdiri","mimpi","cita-cita","harapan","masa depan","potensi","bakat","hak","advokasi","ktp","akta","kartu disabilitas","keterampilan","pelatihan","vokasi","produktif","emosi","perilaku","tantrum","regulasi"],
+    rtlMap:{kemandirian:"Latih pengasuh teknik stimulasi kemandirian (toilet training, makan, berpakaian) yang bisa dilakukan setiap hari.",percaya_diri:"Libatkan anak dalam kegiatan sederhana yang sesuai kemampuannya untuk membangun kepercayaan diri dalam 1 bulan.",hak:"Bantu keluarga mengurus dokumen hak disabilitas melalui Kepala Desa dalam 1 bulan.",def:"Rancang langkah kecil bersama keluarga untuk meningkatkan kemandirian anak dalam 1 bulan."}}
+};
+
+function hasKwW(text,kws){if(!text)return false;var t=String(text).toLowerCase();return kws.some(k=>t.includes(k));}
+function getAllTeksW(a,obs){
+  return [a.nka||'',a.tka||'',a.nkp||'',a.tkp||'',
+    obs?obs.st||'':'',obs?obs.kg||'':'',obs?obs.pf||'':'',obs?obs.lg||'':''].join(' ');
+}
+function buildKatTemuanW(kat,a,obs){
+  const rule=RULES_KAT_W[kat];
+  const all=getAllTeksW(a,obs);
+  const facts=[];
+  if(kat==='kesehatan'){
+    if(a.ep)facts.push('Epilepsi aktif');
+    if(!a.ob)facts.push('Tidak ada pengobatan rutin');
+    if(!a.tr&&(a.level||'').includes('Parah'))facts.push('Belum mendapat terapi meski level parah');
+  }
+  if(!hasKwW(all,rule.kw)&&!facts.length)return null;
+  const sources=[a.nka||'',a.tka||'',a.nkp||'',a.tkp||'',
+    obs?obs.st||'':'',obs?obs.kg||'':'',obs?obs.pf||'':'',obs?obs.lg||'':''].filter(Boolean);
+  sources.forEach(src=>{
+    String(src).replace(/
+/g,'.').split(/[.;]/).forEach(s=>{
+      s=s.trim();
+      if(s.length>10&&hasKwW(s,rule.kw)&&facts.length<4)facts.push(s);
+    });
+  });
+  return facts.length?facts.join('; '):null;
+}
+function buildKatRTLW(kat,temuan,a){
+  const rtl=RULES_KAT_W[kat].rtlMap;
+  const t=(temuan||'').toLowerCase();
+  if(kat==='kesehatan'){
+    if(a.ep)return rtl.epilepsi;
+    if(hasKwW(t,['pengobatan','tidak ada obat']))return rtl.tidak_obat;
+    if(hasKwW(t,['terapi','fisioterapi']))return rtl.tidak_terapi;
+    if(hasKwW(t,['kursi roda','alat bantu','kacamata']))return rtl.alat_bantu;
+    if(hasKwW(t,['gizi','nutrisi','susu']))return rtl.gizi;
+    return rtl.def;
+  }
+  if(kat==='pendidikan'){
+    if(hasKwW(t,['belum sekolah','tidak sekolah','putus sekolah']))return rtl.belum_sekolah;
+    if(hasKwW(t,['gpk','guru pendamping']))return rtl.gpk;
+    return rtl.def;
+  }
+  if(kat==='penghidupan'){
+    if(hasKwW(t,['pkh','blt','bantuan','sembako','bpjs','dtks']))return rtl.bantuan;
+    if(hasKwW(t,['rumah','dinding','lantai','bambu']))return rtl.rumah;
+    return rtl.def;
+  }
+  if(kat==='sosial'){
+    if(hasKwW(t,['stigma','dikucilkan','bully','ejek']))return rtl.stigma;
+    if(hasKwW(t,['isolasi','sendirian','tidak keluar']))return rtl.isolasi;
+    if(hasKwW(t,['tunggal','janda','duda','merantau','ditinggal']))return rtl.tunggal;
+    return rtl.def;
+  }
+  if(kat==='pemberdayaan'){
+    if(hasKwW(t,['toilet','cebok','mandi','makan','mandiri']))return rtl.kemandirian;
+    if(hasKwW(t,['percaya diri','minder','malu']))return rtl.percaya_diri;
+    if(hasKwW(t,['ktp','akta','dtks','hak']))return rtl.hak;
+    return rtl.def;
+  }
+  return rtl.def||'';
+}
+function buildKatPihakW(kat,temuan,a,obs){
+  const pihak=[...RULES_KAT_W[kat].kw]; // reset — pakai basis pihak dari kat saja
+  const base={
+    kesehatan:['dokter_puskesmas','perawat_puskesmas','bidan_desa','kader_posyandu','fisioterapis','dinkes'],
+    pendidikan:['guru_kelas','wali_kelas','kepala_sekolah','gpk','guru_paud','dindik','ayo_indonesia'],
+    penghidupan:['kepala_desa','kasi_kesra','pkk_desa','dinsos','uptd_sosial','pkh_officer','rt_rw','bpd'],
+    sosial:['tua_golo','tokoh_adat','pastor','katekis','kelompok_doa','rt_rw','warga_kampung','tetangga','karang_taruna','omk'],
+    pemberdayaan:['ibu','ayah','saudara_kandung','cbr_worker_lain','scn','kader_disabilitas','ayo_indonesia']
+  };
+  const list=[...base[kat]];
+  const all=getAllTeksW(a,obs).toLowerCase();
+  if(kat==='kesehatan'){
+    list.push('ibu','ayah');
+    if(hasKwW(all,['epilepsi','kejang']))list.push('dokter_puskesmas','dinkes');
+    if(hasKwW(all,['terapi','fisioterapi']))list.push('fisioterapis','cbm_global','ayo_indonesia');
+    if(hasKwW(all,['kursi roda','alat bantu','standing table']))list.push('dinsos','uptd_sosial','cbm_global');
+    if(hasKwW(all,['gizi','nutrisi','susu']))list.push('kader_posyandu','pkk_desa');
+    if(hasKwW(all,['bpjs','kartu']))list.push('kepala_desa','kasi_kesra');
+    if((a.level||'').includes('Parah'))list.push('pastor','tua_golo');
+  }
+  if(kat==='pendidikan'){
+    list.push('ibu','ayah','guru_agama');
+    if(hasKwW(all,['belum sekolah','tidak sekolah']))list.push('kepala_sekolah','dindik','kasi_kesra','kepala_desa');
+    if(hasKwW(all,['slb','sdlb']))list.push('dindik','gpk');
+    if(hasKwW(all,['paud','tk']))list.push('guru_paud','pengelola_paud');
+  }
+  if(kat==='penghidupan'){
+    list.push('ibu','ayah','bpd');
+    if(hasKwW(all,['pkh','blt','bantuan','dtks']))list.push('pkh_officer','kepala_desa','kasi_kesra','dinsos');
+    if(hasKwW(all,['rumah','dinding','lantai','bambu']))list.push('dinsos','uptd_sosial','kepala_desa','karang_taruna');
+    if(hasKwW(all,['panen','kebun','tani','ternak']))list.push('pkk_desa','kelompok_tani');
+  }
+  if(kat==='sosial'){
+    list.push('ibu','ayah','tetangga','pkk_desa');
+    if(hasKwW(all,['stigma','dikucilkan','bully']))list.push('tua_golo','tokoh_adat','pastor','rt_rw','kepala_desa');
+    if(hasKwW(all,['isolasi','sendirian','tidak keluar']))list.push('kelompok_doa','omk','karang_taruna','teman_sebaya');
+    if(hasKwW(all,['tunggal','janda','duda','merantau','ditinggal']))list.push('tua_golo','paman_bibi','kakek_nenek_serumah','rt_rw');
+    if(hasKwW(all,['gereja','pastor','doa','misa']))list.push('pastor','katekis','kelompok_doa');
+    if(hasKwW(all,['adat','tua golo']))list.push('tua_golo','tokoh_adat');
+  }
+  if(kat==='pemberdayaan'){
+    list.push('ibu','ayah','saudara_kandung');
+    if(hasKwW(all,['toilet','cebok','mandi','makan','mandiri']))list.push('bidan_desa','cbr_worker_lain');
+    if(hasKwW(all,['percaya diri','minder','malu']))list.push('guru_kelas','teman_sebaya','pastor','tua_golo');
+    if(hasKwW(all,['ktp','akta','dtks','hak']))list.push('kepala_desa','kasi_kesra','p2tp2a','dinsos');
+    if(hasKwW(all,['keterampilan','pelatihan','vokasi']))list.push('ayo_indonesia','cbm_global','lsm_lokal');
+    if((a.level||'').includes('Parah'))list.push('fisioterapis','cbm_global','ayo_indonesia');
+  }
+  list.push('cbr_worker_lain','scn');
+  return [...new Set(list)];
+}
+function analyzeWHO(a, obs){
+  const result={};
+  ['kesehatan','pendidikan','penghidupan','sosial','pemberdayaan'].forEach(kat=>{
+    const temuan=buildKatTemuanW(kat,a,obs);
+    if(!temuan)return;
+    result[kat]={
+      temuan,
+      rtl:buildKatRTLW(kat,temuan,a),
+      pihak:buildKatPihakW(kat,temuan,a,obs)
+    };
+  });
+  return result;
+}
+
+function getAktorKat(key){
+  for(const [kat,list] of Object.entries(AKTOR_KAT)){if(list.includes(key))return kat;}
+  return 'Lainnya';
+}
+function renderPihakChips(pihakList){
+  if(!pihakList||!pihakList.length)return '';
+  const byKat={};
+  pihakList.forEach(key=>{
+    const kat=getAktorKat(key);
+    if(!byKat[kat])byKat[kat]=[];
+    byKat[kat].push(key);
+  });
+  const rows=Object.entries(byKat).map(([kat,keys])=>{
+    const col=AKTOR_KAT_COLORS[kat]||{c:'#6B7280',bg:'rgba(107,114,128,.1)'};
+    const chips=keys.map(k=>{
+      const label=AKTOR_LABEL[k]||k;
+      return `<span class="pihak-chip" style="color:${col.c};background:${col.bg};border-color:${col.c}40">${label}</span>`;
+    }).join('');
+    return `<div class="pihak-kat-row">
+      <span class="pihak-kat-lbl" style="color:${col.c};background:${col.bg};border:1px solid ${col.c}40">${AKTOR_KAT_LABEL[kat]||kat}</span>
+      <div class="pihak-chips">${chips}</div>
+    </div>`;
+  }).join('');
+  return `<div class="pihak-wrap">
+    <div style="font-size:.6rem;color:#9CA3AF;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Pihak yang perlu dilibatkan</div>
+    ${rows}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// SHOW DETAIL — implementasi baru
+// ═══════════════════════════════════════════════════════════
 let _lastEl=null;
 function showDetail(a,el){
   if(_lastEl) _lastEl.classList.remove('active');
   el.classList.add('active');
   _lastEl=el;
   document.querySelector('.ld-wrap').classList.add('detail-open');
+
   const spVal=a.sp!=null?a.sp:0;
   const saVal=a.sa!=null?a.sa:0;
-  const domains=ACTIVE_DOMAIN==='all'?Object.entries(a.rekom):Object.entries(a.rekom).filter(([k])=>k===ACTIVE_DOMAIN);
+  const obs=OBS_MAP[a.nama?.toLowerCase()]||null;
+
+  // Analisis WHO CBR 5 kategori
+  const hasil=analyzeWHO(a,obs);
+  const katKeys=['kesehatan','pendidikan','penghidupan','sosial','pemberdayaan'];
+  let whoHtml='';
+  katKeys.forEach(kat=>{
+    const d=hasil[kat];if(!d)return;
+    const cfg=RULES_KAT_W[kat];
+    const ph=renderPihakChips(d.pihak);
+    whoHtml+=`<div class="who-block ${cfg.cls}">
+      <div class="who-head">
+        <div class="who-dot" style="background:${cfg.color}"></div>
+        <span class="who-label">${cfg.label}</span>
+      </div>
+      <div class="who-body">
+        <div class="who-section-lbl">Bahan Diskusi / Temuan</div>
+        <div class="who-temuan">${d.temuan}</div>
+        <div class="who-section-lbl">Rekomendasi &amp; Tindak Lanjut</div>
+        <div class="who-rtl" style="border-color:${cfg.color}">${d.rtl}</div>
+        ${ph?`<div class="who-section-lbl">Pihak yang Perlu Dilibatkan</div>${ph}`:''}
+      </div>
+    </div>`;
+  });
+
+  // Fallback: jika tidak ada hasil WHO, tampilkan domain RTL matrix lama
+  const domainEntries=ACTIVE_DOMAIN==='all'?Object.entries(a.rekom):Object.entries(a.rekom).filter(([k])=>k===ACTIVE_DOMAIN);
+  if(!whoHtml&&domainEntries.length){
+    whoHtml=domainEntries.map(([domain,{color,label,items}])=>`
+      <div class="det-domain">
+        <div class="det-domain-head">
+          <div class="det-domain-dot" style="background:${color}"></div>
+          <span class="det-domain-label" style="color:${color}">${label}</span>
+          <span class="det-domain-count">${items.length} rekomendasi</span>
+        </div>
+        <div class="det-rekom">
+          ${items.map(item=>`<div class="det-rekom-item">
+            <span class="det-aktor">${item.aktor}</span>
+            <span class="det-aksi">${item.aksi}</span>
+          </div>`).join('')}
+        </div>
+      </div>`).join('');
+  }
+  if(!whoHtml){
+    whoHtml='<div style="text-align:center;padding:24px;color:#9CA3AF;font-size:.78rem">Belum ada data observasi untuk analisis ini.</div>';
+  }
+
   document.getElementById('ld-detail-inner').innerHTML=`
     <button class="det-back" onclick="clearDetail()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -367,6 +625,7 @@ function showDetail(a,el){
         <span class="det-chip">🎂 ${a.usia||'?'} th · ${a.gender||'—'}</span>
         ${a.ep?'<span class="det-chip" style="background:#FEF3C7;color:#92400E">⚡ Epilepsi</span>':''}
         ${a.tr?'<span class="det-chip" style="background:#DCFCE7;color:#15803D">✓ Pernah Terapi</span>':''}
+        ${a.ob?'<span class="det-chip" style="background:#EFF6FF;color:#1D4ED8">💊 Pengobatan</span>':''}
       </div>
       <div class="det-scores">
         <div class="det-score-card">
@@ -381,21 +640,11 @@ function showDetail(a,el){
         </div>
       </div>
     </div>
-    ${domains.length?domains.map(([domain,{color,label,items}])=>`
-      <div class="det-domain">
-        <div class="det-domain-head">
-          <div class="det-domain-dot" style="background:${color}"></div>
-          <span class="det-domain-label" style="color:${color}">${label}</span>
-          <span class="det-domain-count">${items.length} rekomendasi</span>
-        </div>
-        <div class="det-rekom">
-          ${items.map(item=>`<div class="det-rekom-item">
-            <span class="det-aktor">${item.aktor}</span>
-            <span class="det-aksi">${item.aksi}</span>
-          </div>`).join('')}
-        </div>
-      </div>`).join('')
-    :'<div style="text-align:center;padding:24px;color:#9CA3AF;font-size:.78rem">Tidak ada rekomendasi untuk domain ini.</div>'}
+    <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#6B7280;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+      <span style="width:6px;height:6px;border-radius:50%;background:#F97316;display:inline-block"></span>
+      Bahan Diskusi Rencana Anak — 3 Bulan ke Depan
+    </div>
+    ${whoHtml}
   `;
 }
 

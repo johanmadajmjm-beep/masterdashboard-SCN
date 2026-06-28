@@ -8,7 +8,8 @@
 <link rel="stylesheet" href="../css/components.css"/>
 <style>
 .ld-wrap{display:flex;gap:0;height:calc(100vh - 60px);overflow:hidden}
-.ld-list{width:300px;min-width:300px;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden}
+.ld-list{width:100%;min-width:0;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden;transition:width .2s}
+.ld-wrap.detail-open .ld-list{width:300px;min-width:300px;}
 .ld-list-header{padding:12px 14px;border-bottom:1px solid #E5E7EB;flex-shrink:0}
 .ld-search{width:100%;padding:7px 10px;border:1px solid #E5E7EB;border-radius:8px;font-size:.75rem;font-family:inherit;background:#F9FAFB;outline:none;transition:.15s}
 .ld-search:focus{border-color:#F97316;background:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.1)}
@@ -21,7 +22,10 @@
 .ld-item.active{background:#FFF7ED;border-left:3px solid #F97316;padding-left:11px}
 .ld-item-name{font-size:.8rem;font-weight:600;color:#1F2937;margin-bottom:2px}
 .ld-item-sub{font-size:.67rem;color:#9CA3AF}
-.ld-detail{flex:1;overflow-y:auto;background:#F8FAFC}
+.ld-detail{flex:1;overflow-y:auto;background:#F8FAFC;display:none}
+.ld-wrap.detail-open .ld-detail{display:block;}
+.ld-detail::-webkit-scrollbar{width:5px}
+.ld-detail::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
 .ld-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px}
 .ld-empty svg{width:48px;height:48px;opacity:.3}
 .ld-empty p{font-size:.82rem;text-align:center}
@@ -99,13 +103,7 @@
     <div class="ld-items" id="ld-items"></div>
   </div>
 
-  <div class="ld-detail" id="ld-detail">
-    <div class="ld-empty" id="ld-empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      <p>Pilih nama anak untuk<br>melihat rencana intervensi</p>
-    </div>
-    <div class="det-wrap" id="det-wrap" style="display:none"></div>
-  </div>
+  <div class="ld-detail" id="ld-detail"></div>
 </div>
 </div></div>
 
@@ -169,8 +167,7 @@ let _lastEl=null;
 function showDetail(el,a){
   if(_lastEl) _lastEl.classList.remove('active');
   el.classList.add('active'); _lastEl=el;
-  document.getElementById('ld-empty').style.display='none';
-  document.getElementById('det-wrap').style.display='block';
+  document.querySelector('.ld-wrap').classList.add('detail-open');
   const p=PLAN_MAP[a.nama?.toLowerCase()];
   let content='';
   if(p){
@@ -205,7 +202,8 @@ function showDetail(el,a){
       <p>CBR Worker belum mengisi form Perencanaan (IRP) untuk anak ini melalui KoboToolbox.</p>
     </div>`;
   }
-  document.getElementById('det-wrap').innerHTML=`
+  document.getElementById('ld-detail').innerHTML=`
+    <div class="det-wrap">
     <button class="det-back" onclick="clearDetail()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Kembali
     </button>
@@ -217,11 +215,11 @@ function showDetail(el,a){
       <span class="det-chip">${a.usia||'?'} th · ${a.gender==='L'?'L':'P'}</span>
     </div>
     ${content}
+    </div>
   `;
 }
 function clearDetail(){
-  document.getElementById('ld-empty').style.display='flex';
-  document.getElementById('det-wrap').style.display='none';
+  document.querySelector('.ld-wrap').classList.remove('detail-open');
   if(_lastEl){_lastEl.classList.remove('active');_lastEl=null;}
 }
 </script>

@@ -7,8 +7,10 @@
 <link rel="stylesheet" href="../css/main.css"/>
 <link rel="stylesheet" href="../css/components.css"/>
 <style>
+/* LIST-DETAIL LAYOUT */
 .ld-wrap{display:flex;gap:0;height:calc(100vh - 60px);overflow:hidden}
-.ld-list{width:300px;min-width:300px;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden}
+.ld-list{width:100%;min-width:0;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden;transition:width .2s}
+.ld-wrap.detail-open .ld-list{width:300px;min-width:300px;}
 .ld-list-header{padding:12px 14px;border-bottom:1px solid #E5E7EB;flex-shrink:0}
 .ld-search{width:100%;padding:7px 10px;border:1px solid #E5E7EB;border-radius:8px;font-size:.75rem;font-family:inherit;background:#F9FAFB;outline:none;transition:.15s}
 .ld-search:focus{border-color:#F97316;background:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.1)}
@@ -22,10 +24,11 @@
 .ld-item-name{font-size:.8rem;font-weight:600;color:#1F2937;margin-bottom:2px}
 .ld-item-sub{font-size:.67rem;color:#9CA3AF}
 .ld-item-count{display:inline-block;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:999px;background:#FFF7ED;color:#EA6C0A;margin-top:3px}
-.ld-detail{flex:1;overflow-y:auto;background:#F8FAFC}
-.ld-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px}
-.ld-empty svg{width:48px;height:48px;opacity:.3}
-.ld-empty p{font-size:.82rem;text-align:center}
+/* DETAIL PANEL — hidden until detail-open */
+.ld-detail{flex:1;overflow-y:auto;background:#F8FAFC;display:none}
+.ld-wrap.detail-open .ld-detail{display:block;}
+.ld-detail::-webkit-scrollbar{width:5px}
+.ld-detail::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
 .det-wrap{padding:24px}
 .det-back{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#6B7280;font-size:.75rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:14px}
 .det-back:hover{background:#F9FAFB;color:#1F2937}
@@ -38,7 +41,6 @@
 .diary-tgl::before{content:'';width:6px;height:6px;border-radius:50%;background:#F97316;flex-shrink:0}
 .diary-text{font-size:.8rem;color:#374151;line-height:1.65}
 .diary-empty{background:#F9FAFB;border:1px dashed #E5E7EB;border-radius:10px;padding:20px;text-align:center;color:#9CA3AF;font-size:.78rem}
-
 /* View modes */
 .view-modes{display:flex;gap:3px}
 .vmode{width:26px;height:26px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9CA3AF;transition:.12s}
@@ -95,13 +97,7 @@
     <div class="ld-items" id="ld-items"></div>
   </div>
 
-  <div class="ld-detail" id="ld-detail">
-    <div class="ld-empty" id="ld-empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      <p>Pilih nama anak untuk<br>melihat catatan buku harian</p>
-    </div>
-    <div class="det-wrap" id="det-wrap" style="display:none"></div>
-  </div>
+  <div class="ld-detail" id="ld-detail"></div>
 </div>
 </div></div>
 
@@ -157,8 +153,7 @@ let _lastEl=null;
 function showDetail(el,a){
   if(_lastEl) _lastEl.classList.remove('active');
   el.classList.add('active'); _lastEl=el;
-  document.getElementById('ld-empty').style.display='none';
-  document.getElementById('det-wrap').style.display='block';
+  document.querySelector('.ld-wrap').classList.add('detail-open');
   const entries=DIARY_MAP[a.nama?.toLowerCase()]||[];
   let entryHTML='';
   if(entries.length===0){
@@ -174,7 +169,8 @@ function showDetail(el,a){
         ${e.tgl_diary_2?`<div><div style="font-size:.65rem;font-weight:600;color:#9CA3AF;margin-bottom:3px">${e.tgl_diary_2}</div><div class="diary-text">${e.isi_diary_2||'—'}</div></div>`:''}
       </div>`).join('');
   }
-  document.getElementById('det-wrap').innerHTML=`
+  document.getElementById('ld-detail').innerHTML=`
+    <div class="det-wrap">
     <button class="det-back" onclick="clearDetail()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Kembali
     </button>
@@ -186,11 +182,11 @@ function showDetail(el,a){
       <span class="det-chip">${entries.length} catatan</span>
     </div>
     ${entryHTML}
+    </div>
   `;
 }
 function clearDetail(){
-  document.getElementById('ld-empty').style.display='flex';
-  document.getElementById('det-wrap').style.display='none';
+  document.querySelector('.ld-wrap').classList.remove('detail-open');
   if(_lastEl){_lastEl.classList.remove('active');_lastEl=null;}
 }
 </script>

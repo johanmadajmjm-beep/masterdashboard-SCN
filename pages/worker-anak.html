@@ -108,7 +108,27 @@
 .vmode:hover{background:#F9FAFB;color:#6B7280}
 .vmode.active{background:#FFF7ED;border-color:#F97316;color:#F97316}
 .vmode svg{width:11px;height:11px}
-
+/* Card grid views */
+.card-grid{display:grid;gap:10px;padding:12px;overflow-y:auto;flex:1}
+.grid-xl{grid-template-columns:1fr 1fr}
+.grid-md{grid-template-columns:1fr 1fr 1fr}
+.grid-sm{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.lst-wrap{flex:1;overflow-y:auto}
+.item-card{background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:10px 12px;cursor:pointer;transition:box-shadow .15s;position:relative}
+.item-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.item-card.active{border-color:#F97316;background:#FFF7ED}
+.item-card-name{font-size:.78rem;font-weight:700;color:#1F2937;margin-bottom:3px}
+.item-card-sub{font-size:.64rem;color:#9CA3AF;line-height:1.4}
+.item-card-score{font-size:.85rem;font-weight:800;font-family:monospace;margin-top:4px}
+.grid-sm .item-card-sub{display:none}
+.lst-item{display:flex;align-items:center;gap:8px;padding:6px 14px;border-bottom:1px solid #F3F4F6;cursor:pointer;transition:background .1s}
+.lst-item:hover{background:#FFF7ED}
+.lst-item.active{background:#FFF7ED;border-left:3px solid #F97316;padding-left:11px}
+.lst-item-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.lst-item-name{font-size:.74rem;font-weight:600;color:#1F2937;flex:1}
+.lst-item-right{font-size:.72rem;color:#9CA3AF}
+.lst-item-score{font-size:.78rem;font-weight:800;font-family:monospace;color:#F97316}
+/* Old list modes kept for ld-items default */
 /* List modes */
 .mode-md .ld-item{padding:8px 14px}
 .mode-md .ld-item-name{font-size:.77rem}
@@ -161,7 +181,10 @@
       <div style="font-size:.68rem;color:#9CA3AF;margin-top:6px" id="ld-count">—</div>
     </div>
     <div class="status-chips" id="status-chips"></div>
-    <div class="ld-items" id="ld-items"></div>
+    <div class="card-grid grid-xl" id="view-xl"></div>
+    <div class="card-grid grid-md" id="view-md" style="display:none"></div>
+    <div class="card-grid grid-sm" id="view-sm" style="display:none"></div>
+    <div class="lst-wrap" id="view-lst" style="display:none"></div>
   </div>
 
   <div class="ld-detail" id="ld-detail">
@@ -180,11 +203,12 @@ let ALL_ANAK=[], OBS_MAP={}, ACTIVE_FILTER='all', ACTIVE_VIEW='xl';
 function setView(v){
   ACTIVE_VIEW=v;
   ['xl','md','sm','lst'].forEach(x=>document.getElementById('vm-'+x).classList.toggle('active',x===v));
-  const el=document.getElementById('ld-items');
-  el.className='ld-items';
-  if(v==='md') el.classList.add('mode-md');
-  else if(v==='sm') el.classList.add('mode-sm');
-  else if(v==='lst') el.classList.add('mode-lst');
+  ['view-xl','view-md','view-sm','view-lst'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display='none';
+  });
+  const t=document.getElementById('view-'+v);
+  if(t) t.style.display=(v==='lst')?'block':'grid';
   renderList();
 }
 
@@ -238,18 +262,32 @@ function renderList(){
     return true;
   });
   document.getElementById('ld-count').textContent=list.length+' anak';
-  document.getElementById('ld-items').innerHTML=list.length
-    ? list.map(a=>{
-        const hasObs=!!OBS_MAP[a.nama?.toLowerCase()];
-        const rColor=RC[a.ragam]||'#94A3B8';
-        return `<div class="ld-item" data-nama="${(a.nama||'').replace(/"/g,'&quot;')}">
-          <div class="ld-item-name"><span class="ld-item-tag" style="background:${rColor}"></span>${a.nama||'—'}</div>
-          <div class="ld-item-sub">${a.cbr||'—'} · ${a.desa||'—'} · ${hasObs?'✓ Obs':'Belum obs'}</div>
-          ${a.sp!=null?`<div class="ld-item-score" style="color:${sc(a.sp)}">${a.sp}</div>`:''}
-        </div>`;
-      }).join('')
-    : '<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem">Tidak ada data</div>';
-  document.querySelectorAll('.ld-item').forEach((el,i)=>{
+  const empty='<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem;grid-column:1/-1">Tidak ada data</div>';
+  const cardHTML=list.map((a,i)=>{
+    const hasObs=!!OBS_MAP[a.nama?.toLowerCase()];
+    const rColor=RC[a.ragam]||'#94A3B8';
+    return `<div class="item-card" data-i="${i}">
+      <div class="item-card-name"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${rColor};margin-right:5px;vertical-align:middle"></span>${a.nama||'—'}</div>
+      <div class="item-card-sub">${a.cbr||'—'} · ${a.desa||'—'}<br>${hasObs?'✓ Obs':'Belum obs'}</div>
+      ${a.sp!=null?`<div class="item-card-score" style="color:${sc(a.sp)}">${a.sp}</div>`:''}
+    </div>`;
+  }).join('');
+  const lstHTML=list.map((a,i)=>{
+    const hasObs=!!OBS_MAP[a.nama?.toLowerCase()];
+    const rColor=RC[a.ragam]||'#94A3B8';
+    return `<div class="lst-item" data-i="${i}">
+      <div class="lst-item-dot" style="background:${rColor}"></div>
+      <span class="lst-item-name">${a.nama||'—'}</span>
+      <span class="lst-item-right">${a.cbr||'—'}</span>
+      ${a.sp!=null?`<span class="lst-item-score" style="color:${sc(a.sp)}">${a.sp}</span>`:''}
+    </div>`;
+  }).join('');
+  ['xl','md','sm'].forEach(v=>{
+    document.getElementById('view-'+v).innerHTML=list.length?cardHTML:empty;
+  });
+  document.getElementById('view-lst').innerHTML=list.length?lstHTML:'<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem">Tidak ada data</div>';
+  document.querySelectorAll('.item-card,.lst-item').forEach(el=>{
+    const i=parseInt(el.dataset.i);
     el.onclick=()=>showDetail(el,list[i]);
   });
 }
@@ -258,9 +296,9 @@ let _lastEl=null;
 
 function showDetail(el,a){
   if(_lastEl) _lastEl.classList.remove('active');
+  // Also clear active from sibling views
+  document.querySelectorAll('.item-card,.lst-item').forEach(e=>{if(e!==el)e.classList.remove('active');});
   el.classList.add('active'); _lastEl=el;
-
-  // Show detail panel
   document.querySelector('.ld-wrap').classList.add('detail-open');
 
   const obs=OBS_MAP[a.nama?.toLowerCase()];

@@ -7,66 +7,44 @@
 <link rel="stylesheet" href="../css/main.css"/>
 <link rel="stylesheet" href="../css/components.css"/>
 <style>
-.ld-wrap{display:flex;gap:0;height:calc(100vh - 60px);overflow:hidden}
-.ld-list{width:320px;min-width:320px;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden}
-.ld-list-header{padding:14px 16px;border-bottom:1px solid #E5E7EB;flex-shrink:0}
-.ld-search{width:100%;padding:7px 10px;border:1px solid #E5E7EB;border-radius:8px;font-size:.75rem;font-family:inherit;color:#1F2937;background:#F9FAFB;outline:none;transition:.15s}
-.ld-search:focus{border-color:#F97316;background:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.1)}
-.ld-select{flex:1;min-width:90px;padding:5px 8px;border:1px solid #E5E7EB;border-radius:6px;font-size:.7rem;font-family:inherit;color:#1F2937;background:#F9FAFB;outline:none}
+.page-wrap{display:flex;flex-direction:column;height:calc(100vh - 60px);overflow:hidden}
+.page-header{padding:14px 20px;border-bottom:1px solid #E5E7EB;background:#fff;flex-shrink:0}
+.page-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.page-title{font-size:.9rem;font-weight:800;color:#1F2937}
+.kpi-bar{display:flex;gap:8px;flex-wrap:wrap}
+.kpi-card{background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:6px 14px;text-align:center;min-width:70px}
+.kpi-val{font-size:1.1rem;font-weight:800;color:#F97316;font-family:'JetBrains Mono',monospace;line-height:1}
+.kpi-lbl{font-size:.58rem;color:#9CA3AF;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ld-search{padding:6px 10px;border:1px solid #E5E7EB;border-radius:7px;font-size:.74rem;font-family:inherit;background:#F9FAFB;outline:none;transition:.15s;min-width:180px}
+.ld-search:focus{border-color:#F97316;background:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.08)}
+.ld-select{padding:6px 8px;border:1px solid #E5E7EB;border-radius:7px;font-size:.72rem;font-family:inherit;background:#F9FAFB;outline:none;color:#374151}
 .ld-select:focus{border-color:#F97316}
-.ld-items{flex:1;overflow-y:auto}
-.ld-items::-webkit-scrollbar{width:4px}
-.ld-items::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:2px}
-.ld-item{padding:11px 16px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .1s;position:relative}
-.ld-item:hover{background:#FFF7ED}
-.ld-item.active{background:#FFF7ED;border-left:3px solid #F97316;padding-left:13px}
-.ld-item-name{font-size:.8rem;font-weight:600;color:#1F2937;margin-bottom:2px}
-.ld-item-sub{font-size:.68rem;color:#9CA3AF}
-.ld-item-score{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:.95rem;font-weight:800;font-family:'JetBrains Mono',monospace}
-.ld-detail{flex:1;overflow-y:auto;background:#F8FAFC}
-.ld-detail::-webkit-scrollbar{width:5px}
-.ld-detail::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
-.ld-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px;height:100%}
-.ld-empty svg{width:48px;height:48px;opacity:.3}
-.ld-empty p{font-size:.82rem;text-align:center}
-.ld-detail-inner{padding:24px}
-.det-back{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#6B7280;font-size:.75rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:16px}
-.det-back:hover{background:#F9FAFB;color:#1F2937}
-.det-back svg{width:14px;height:14px}
-.det-name{font-size:1.2rem;font-weight:800;color:#1F2937;margin-bottom:8px}
-.det-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
-.det-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:600;background:#F3F4F6;color:#4B5563}
-.det-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.det-card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:14px;text-align:center}
-.det-card-val{font-size:1.6rem;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1}
-.det-card-lbl{font-size:.62rem;color:#9CA3AF;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-.det-card-bar{height:4px;border-radius:999px;background:#F3F4F6;margin-top:8px;overflow:hidden}
-.det-card-fill{height:100%;border-radius:999px}
-.det-section{background:#fff;border:1px solid #E5E7EB;border-radius:12px;margin-bottom:12px;overflow:hidden}
-.det-section-head{padding:12px 16px;border-bottom:1px solid #F3F4F6;display:flex;align-items:center;gap:8px}
-.det-section-title{font-size:.78rem;font-weight:700;color:#1F2937}
-.det-section-body{padding:14px 16px}
-.det-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #F9FAFB;font-size:.78rem}
-.det-row:last-child{border-bottom:none}
-.det-row-label{color:#6B7280;font-weight:500}
-.det-row-val{font-weight:600;color:#1F2937}
-
-/* View modes */
-.view-modes{display:flex;gap:4px}
-.vmode{width:28px;height:28px;border:1px solid #E5E7EB;border-radius:6px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9CA3AF;transition:.12s}
-.vmode:hover{background:#F9FAFB;color:#6B7280}
-.vmode.active{background:#FFF7ED;border-color:#F97316;color:#F97316}
-.vmode svg{width:12px;height:12px}
-
-/* List view modes */
-.list-xl .ld-item{padding:13px 16px}
-.list-xl .ld-item-name{font-size:.85rem}
-.list-sm .ld-item{padding:7px 16px}
-.list-sm .ld-item-name{font-size:.75rem}
-.list-sm .ld-item-sub{display:none}
-.list-card{display:grid;grid-template-columns:1fr 1fr}
-.list-card .ld-item{border-right:1px solid #F9FAFB}
-.list-card .ld-item-score{position:static;transform:none;font-size:.82rem;display:block;margin-top:3px}
+.count-label{font-size:.68rem;color:#9CA3AF;margin-left:4px}
+/* TABLE */
+.table-wrap{flex:1;overflow:auto}
+.table-wrap::-webkit-scrollbar{width:5px;height:5px}
+.table-wrap::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:.76rem}
+thead{position:sticky;top:0;z-index:10}
+thead tr{background:#F9FAFB}
+th{padding:10px 14px;text-align:left;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6B7280;border-bottom:2px solid #E5E7EB;white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:#F97316}
+th .sort-icon{margin-left:4px;opacity:.4;font-size:.6rem}
+th.sorted .sort-icon{opacity:1;color:#F97316}
+td{padding:9px 14px;border-bottom:1px solid #F3F4F6;color:#1F2937;vertical-align:middle}
+tr:hover td{background:#FFF7ED}
+.jabatan-badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:.63rem;font-weight:700;letter-spacing:.03em}
+.badge-anak{background:#FFF7ED;color:#EA6C0A}
+.badge-worker{background:#EFF6FF;color:#1D4ED8}
+.badge-lainnya{background:#F3F4F6;color:#6B7280}
+.gender-chip{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:.65rem;font-weight:700}
+.gender-l{background:#DBEAFE;color:#1D4ED8}
+.gender-p{background:#FCE7F3;color:#BE185D}
+.no-data{text-align:center;padding:48px;color:#9CA3AF;font-size:.8rem}
+/* empty state */
+.table-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:#9CA3AF;gap:8px}
+.table-empty svg{width:40px;height:40px;opacity:.25}
 </style>
 </head><body>
 <div class="app"><div class="main">
@@ -76,178 +54,189 @@
     <div class="topbar-breadcrumb">CBR Coordinator <span class="sep">›</span><span class="current">Beneficiary</span></div>
   </div>
   <div class="topbar-right">
-    <div id="kpi-top" style="display:flex;gap:8px"></div>
     <span class="scn-badge" id="scn-badge">—</span>
     <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
     <span class="topbar-date" id="topbar-date">—</span>
   </div>
 </header>
 
-<div class="ld-wrap">
-  <div class="ld-list">
-    <div class="ld-list-header">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:.82rem;font-weight:700;color:#1F2937">Daftar Beneficiary</span>
-        <div class="view-modes">
-          <button class="vmode active" id="vm-xl" onclick="setView('xl')" title="Normal">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-          </button>
-          <button class="vmode" id="vm-md" onclick="setView('md')" title="Sedang">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-          </button>
-          <button class="vmode" id="vm-sm" onclick="setView('sm')" title="Kompak">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="4"/><rect x="10" y="3" width="4" height="4"/><rect x="17" y="3" width="4" height="4"/><rect x="3" y="10" width="4" height="4"/><rect x="10" y="10" width="4" height="4"/><rect x="17" y="10" width="4" height="4"/></svg>
-          </button>
-          <button class="vmode" id="vm-cd" onclick="setView('cd')" title="Kartu">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-          </button>
-        </div>
-      </div>
-      <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama anak..."/>
-      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-        <select class="ld-select" id="flt-ragam"><option value="">Semua Ragam</option></select>
-        <select class="ld-select" id="flt-cbr"><option value="">Semua CBR</option></select>
-        <select class="ld-select" id="flt-level"><option value="">Semua Level</option></select>
-        <select class="ld-select" id="flt-skor"><option value="10">Semua Skor</option><option value="3">Kritis ≤3</option><option value="5">≤5</option></select>
-      </div>
-      <div style="font-size:.68rem;color:#9CA3AF;margin-top:6px" id="ld-count">—</div>
+<div class="page-wrap">
+  <!-- HEADER + FILTER -->
+  <div class="page-header">
+    <div class="page-header-top">
+      <span class="page-title">Daftar Beneficiary</span>
+      <div class="kpi-bar" id="kpi-bar"></div>
     </div>
-    <div class="ld-items list-xl" id="ld-items"></div>
+    <div class="filter-bar">
+      <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama..."/>
+      <select class="ld-select" id="flt-jabatan">
+        <option value="">Semua Jabatan</option>
+        <option value="Anak">Anak Disabilitas</option>
+        <option value="CBR Worker">CBR Worker</option>
+      </select>
+      <select class="ld-select" id="flt-gender">
+        <option value="">Semua JK</option>
+        <option value="L">Laki-laki</option>
+        <option value="P">Perempuan</option>
+      </select>
+      <select class="ld-select" id="flt-provinsi"><option value="">Semua Provinsi</option></select>
+      <span class="count-label" id="ld-count">—</span>
+    </div>
   </div>
 
-  <div class="ld-detail" id="ld-detail">
-    <div class="ld-empty" id="ld-empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      <p>Pilih nama anak di sebelah kiri<br>untuk melihat profil lengkap</p>
-    </div>
-    <div class="ld-detail-inner" id="ld-detail-inner" style="display:none"></div>
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table id="benef-table">
+      <thead>
+        <tr>
+          <th onclick="sortBy('no')" id="th-no">#<span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('nama')" id="th-nama">Nama Benef<span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('jabatan')" id="th-jabatan">Jabatan Benef<span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('provinsi')" id="th-provinsi">Provinsi<span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('gender')" id="th-gender">Jenis Kelamin<span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('usia')" id="th-usia">Umur<span class="sort-icon">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr><td colspan="6" class="no-data">Memuat data...</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 </div></div>
 
 <script>
-const RC={'Fisik':'#F97316','Intelektual':'#1D4ED8','Sensorik (penglihatan)':'#059669','Sensorik (pendengaran dan bicara)':'#7C3AED','Ganda':'#1E293B','Lainnya':'#94A3B8'};
-const LC={'Parah (dukungan penuh)':'#1E293B','Sedang (dukungan reguler)':'#F97316','Rendah (sedikit dukungan)':'#059669'};
-function sc(v){return v<=3?'#1E293B':v<=6?'#FB923C':'#F97316';}
-function avg(arr){const v=arr.filter(x=>x!=null);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0;}
+let ALL_BENEF = [];
+let SORT_KEY = 'jabatan', SORT_ASC = true;
 
-let ALL=[], ACTIVE_VIEW='xl';
+function renderPage(d, scnId) {
+  const anak = (d.anak || []).map(a => ({
+    nama    : a.nama || '—',
+    jabatan : 'Anak',
+    provinsi: a.provinsi || a.scn_id || '—',
+    gender  : a.gender || '—',
+    usia    : a.usia != null ? a.usia : null,
+    _cbr    : a.cbr || '',
+    _ragam  : a.ragam || '',
+  }));
 
-function setView(v){
-  ACTIVE_VIEW=v;
-  ['xl','md','sm','cd'].forEach(x=>document.getElementById('vm-'+x).classList.toggle('active',x===v));
-  const el=document.getElementById('ld-items');
-  el.className='ld-items';
-  if(v==='xl') el.classList.add('list-xl');
-  else if(v==='sm') el.classList.add('list-sm');
-  else if(v==='cd') el.classList.add('list-card');
-  renderList();
-}
+  const workers = (d.workers || []).map(w => ({
+    nama    : w.nama || '—',
+    jabatan : 'CBR Worker',
+    provinsi: w.scn || w.scn_id || d.meta?.scn || '—',
+    gender  : '—',
+    usia    : null,
+    _cbr    : '',
+    _ragam  : '',
+  }));
 
-function renderPage(d,scnId){
-  if(!d||!d.anak) return;
-  ALL=d.anak;
-  const total=ALL.length;
-  const lk=ALL.filter(a=>a.gender==='L').length;
-  const pr=ALL.filter(a=>a.gender==='P').length;
-  const kritis=ALL.filter(a=>a.sp!=null&&a.sp<=3).length;
-  const parah=ALL.filter(a=>(a.level||'').includes('Parah')).length;
-  document.getElementById('kpi-top').innerHTML=[
-    {v:total,l:'Total',c:'#F97316'},{v:kritis,l:'Kritis',c:'#DC2626'},{v:parah,l:'Parah',c:'#1E293B'}
-  ].map(k=>`<div style="background:white;border:1px solid #E5E7EB;border-radius:8px;padding:5px 10px;text-align:center"><div style="font-size:.95rem;font-weight:800;color:${k.c};font-family:'JetBrains Mono',monospace">${k.v}</div><div style="font-size:.58rem;color:#9CA3AF;font-weight:600;text-transform:uppercase">${k.l}</div></div>`).join('');
-  const ragams=[...new Set(ALL.map(a=>a.ragam).filter(Boolean))].sort();
-  const cbrs=[...new Set(ALL.map(a=>a.cbr).filter(Boolean))].sort();
-  const levels=[...new Set(ALL.map(a=>a.level).filter(Boolean))].sort();
-  const fR=document.getElementById('flt-ragam'),fC=document.getElementById('flt-cbr'),fL=document.getElementById('flt-level');
-  ragams.forEach(r=>{const o=document.createElement('option');o.value=o.textContent=r;fR.appendChild(o);});
-  cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});
-  levels.forEach(l=>{const o=document.createElement('option');o.value=l;o.textContent=l.split('(')[0].trim();fL.appendChild(o);});
-  ['flt-ragam','flt-cbr','flt-level','flt-skor'].forEach(id=>document.getElementById(id).addEventListener('change',renderList));
-  document.getElementById('flt-search').addEventListener('input',renderList);
-  renderList();
-}
+  ALL_BENEF = [...anak, ...workers];
 
-function renderList(){
-  const rg=document.getElementById('flt-ragam').value;
-  const cb=document.getElementById('flt-cbr').value;
-  const lv=document.getElementById('flt-level').value;
-  const sk=parseFloat(document.getElementById('flt-skor').value||10);
-  const q=(document.getElementById('flt-search').value||'').toLowerCase();
-  const list=ALL.filter(a=>(!rg||a.ragam===rg)&&(!cb||a.cbr===cb)&&(!lv||a.level===lv)&&(a.sp==null||a.sp<=sk)&&(!q||(a.nama||'').toLowerCase().includes(q)));
-  document.getElementById('ld-count').textContent=list.length+' anak ditemukan';
-  document.getElementById('ld-items').innerHTML=list.length
-    ? list.map(a=>`
-      <div class="ld-item" onclick="showDetail(this,${JSON.stringify(a).replace(/"/g,'&quot;')})">
-        <div class="ld-item-name">${a.nama||'—'}</div>
-        <div class="ld-item-sub">${a.cbr||'—'} · ${(a.ragam||'—').split(' ')[0]} · ${a.usia||'?'} th</div>
-        ${a.sp!=null?`<div class="ld-item-score" style="color:${sc(a.sp)}">${a.sp}</div>`:''}
-      </div>`).join('')
-    : '<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem">Tidak ada data</div>';
-  document.querySelectorAll('.ld-item').forEach((el,i)=>{
-    el._data=list[i];
-    el.onclick=()=>showDetail(el,list[i]);
+  // KPI
+  const totalAnak   = anak.length;
+  const totalWorker = workers.length;
+  const totalLK     = anak.filter(a => a.gender === 'L').length;
+  const totalPR     = anak.filter(a => a.gender === 'P').length;
+  document.getElementById('kpi-bar').innerHTML = [
+    { v: ALL_BENEF.length, l: 'Total Benef',  c: '#F97316' },
+    { v: totalAnak,        l: 'Anak',          c: '#EA6C0A' },
+    { v: totalWorker,      l: 'CBR Worker',    c: '#1D4ED8' },
+    { v: totalLK,          l: 'Laki-laki',     c: '#2563EB' },
+    { v: totalPR,          l: 'Perempuan',     c: '#BE185D' },
+  ].map(k => `<div class="kpi-card"><div class="kpi-val" style="color:${k.c}">${k.v}</div><div class="kpi-lbl">${k.l}</div></div>`).join('');
+
+  // Provinsi filter
+  const provs = [...new Set(ALL_BENEF.map(b => b.provinsi).filter(p => p && p !== '—'))].sort();
+  const fP = document.getElementById('flt-provinsi');
+  provs.forEach(p => { const o = document.createElement('option'); o.value = o.textContent = p; fP.appendChild(o); });
+
+  // Events
+  ['flt-search','flt-jabatan','flt-gender','flt-provinsi'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener(id === 'flt-search' ? 'input' : 'change', renderTable);
   });
+
+  renderTable();
 }
 
-let _lastEl=null;
-function showDetail(el,a){
-  if(_lastEl) _lastEl.classList.remove('active');
-  el.classList.add('active'); _lastEl=el;
-  document.getElementById('ld-empty').style.display='none';
-  document.getElementById('ld-detail-inner').style.display='block';
-  const spVal=a.sp!=null?a.sp:null;
-  const saVal=a.sa!=null?a.sa:null;
-  document.getElementById('ld-detail-inner').innerHTML=`
-    <button class="det-back" onclick="clearDetail()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Kembali
-    </button>
-    <div class="det-name">${a.nama||'—'}</div>
-    <div class="det-meta">
-      <span class="det-chip" style="background:${RC[a.ragam]||'#E5E7EB'}18;color:${RC[a.ragam]||'#6B7280'}">${a.ragam||'—'}</span>
-      <span class="det-chip" style="background:${LC[a.level]||'#E5E7EB'}18;color:${LC[a.level]||'#6B7280'}">${(a.level||'—').split('(')[0].trim()}</span>
-      ${a.ep?'<span class="det-chip" style="background:#FEF3C7;color:#92400E">⚡ Epilepsi</span>':''}
-      ${a.tr?'<span class="det-chip" style="background:#DCFCE7;color:#15803D">✓ Terapi</span>':''}
-      ${a.ob?'<span class="det-chip" style="background:#EFF6FF;color:#1D4ED8">💊 Pengobatan</span>':''}
-    </div>
-    <div class="det-grid">
-      <div class="det-card">
-        <div class="det-card-val" style="color:${spVal!=null?sc(spVal):'#9CA3AF'}">${spVal!=null?spVal:'—'}</div>
-        <div class="det-card-lbl">Skor Anak</div>
-        <div class="det-card-bar"><div class="det-card-fill" style="width:${spVal!=null?spVal*10:0}%;background:${spVal!=null?sc(spVal):'#E5E7EB'}"></div></div>
-      </div>
-      <div class="det-card">
-        <div class="det-card-val" style="color:${saVal!=null?sc(saVal):'#9CA3AF'}">${saVal!=null?saVal:'—'}</div>
-        <div class="det-card-lbl">Skor Pengasuh</div>
-        <div class="det-card-bar"><div class="det-card-fill" style="width:${saVal!=null?saVal*10:0}%;background:${saVal!=null?sc(saVal):'#E5E7EB'}"></div></div>
-      </div>
-    </div>
-    <div class="det-section">
-      <div class="det-section-head"><span class="det-section-title">Profil Anak</span></div>
-      <div class="det-section-body">
-        <div class="det-row"><span class="det-row-label">Nama Pengasuh</span><span class="det-row-val">${a.np||'—'}</span></div>
-        <div class="det-row"><span class="det-row-label">Usia</span><span class="det-row-val">${a.usia||'?'} tahun</span></div>
-        <div class="det-row"><span class="det-row-label">Jenis Kelamin</span><span class="det-row-val">${a.gender==='L'?'Laki-laki':'Perempuan'}</span></div>
-        <div class="det-row"><span class="det-row-label">Desa</span><span class="det-row-val">${a.desa||'—'}</span></div>
-        <div class="det-row"><span class="det-row-label">CBR Worker</span><span class="det-row-val">${a.cbr||'—'}</span></div>
-        <div class="det-row"><span class="det-row-label">Ragam Disabilitas</span><span class="det-row-val" style="color:${RC[a.ragam]||'#6B7280'}">${a.ragam||'—'}</span></div>
-        <div class="det-row"><span class="det-row-label">Level</span><span class="det-row-val" style="color:${LC[a.level]||'#6B7280'}">${(a.level||'—').split('(')[0].trim()}</span></div>
-      </div>
-    </div>
-    <div class="det-section">
-      <div class="det-section-head"><span class="det-section-title">Status Layanan</span></div>
-      <div class="det-section-body">
-        <div class="det-row"><span class="det-row-label">Epilepsi</span><span>${a.ep?'<span class="badge badge-amber">Ya</span>':'<span class="badge badge-gray">Tidak</span>'}</span></div>
-        <div class="det-row"><span class="det-row-label">Pengobatan Aktif</span><span>${a.ob?'<span class="badge badge-green">Ya</span>':'<span class="badge badge-gray">Tidak</span>'}</span></div>
-        <div class="det-row"><span class="det-row-label">Pernah Terapi</span><span>${a.tr?'<span class="badge badge-blue">Ya</span>':'<span class="badge badge-gray">Tidak</span>'}</span></div>
-        <div class="det-row"><span class="det-row-label">Terakhir Kunjungan</span><span class="det-row-val">${a.hari===999?'Belum pernah':a.hari+' hari lalu'}</span></div>
-      </div>
-    </div>
-  `;
+function getFiltered() {
+  const q  = (document.getElementById('flt-search').value || '').toLowerCase();
+  const jb = document.getElementById('flt-jabatan').value;
+  const gd = document.getElementById('flt-gender').value;
+  const pv = document.getElementById('flt-provinsi').value;
+  return ALL_BENEF.filter(b =>
+    (!q  || b.nama.toLowerCase().includes(q)) &&
+    (!jb || b.jabatan === jb) &&
+    (!gd || b.gender === gd) &&
+    (!pv || b.provinsi === pv)
+  );
 }
-function clearDetail(){
-  document.getElementById('ld-empty').style.display='flex';
-  document.getElementById('ld-detail-inner').style.display='none';
-  if(_lastEl){_lastEl.classList.remove('active');_lastEl=null;}
+
+function sortBy(key) {
+  if (SORT_KEY === key) SORT_ASC = !SORT_ASC;
+  else { SORT_KEY = key; SORT_ASC = true; }
+  document.querySelectorAll('th').forEach(th => th.classList.remove('sorted'));
+  const th = document.getElementById('th-' + key);
+  if (th) th.classList.add('sorted');
+  renderTable();
+}
+
+function renderTable() {
+  let list = getFiltered();
+  document.getElementById('ld-count').textContent = list.length + ' benef ditemukan';
+
+  // Sort
+  list.sort((a, b) => {
+    let va = a[SORT_KEY], vb = b[SORT_KEY];
+    if (SORT_KEY === 'no') { va = 0; vb = 0; } // no-op, use index
+    if (SORT_KEY === 'usia') {
+      va = va ?? -1; vb = vb ?? -1;
+      return SORT_ASC ? va - vb : vb - va;
+    }
+    va = String(va ?? '').toLowerCase();
+    vb = String(vb ?? '').toLowerCase();
+    return SORT_ASC ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+
+  if (!list.length) {
+    document.getElementById('table-body').innerHTML =
+      `<tr><td colspan="6"><div class="table-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span>Tidak ada data ditemukan</span>
+      </div></td></tr>`;
+    return;
+  }
+
+  document.getElementById('table-body').innerHTML = list.map((b, i) => {
+    const jabBadge = b.jabatan === 'Anak'
+      ? `<span class="jabatan-badge badge-anak">Anak Disabilitas</span>`
+      : b.jabatan === 'CBR Worker'
+      ? `<span class="jabatan-badge badge-worker">CBR Worker</span>`
+      : `<span class="jabatan-badge badge-lainnya">${b.jabatan}</span>`;
+
+    const genderChip = b.gender === 'L'
+      ? `<span class="gender-chip gender-l" title="Laki-laki">L</span>`
+      : b.gender === 'P'
+      ? `<span class="gender-chip gender-p" title="Perempuan">P</span>`
+      : `<span style="color:#D1D5DB;font-size:.72rem">—</span>`;
+
+    const usia = b.usia != null
+      ? `<span style="font-weight:600">${b.usia}</span> <span style="color:#9CA3AF;font-size:.68rem">th</span>`
+      : `<span style="color:#D1D5DB">—</span>`;
+
+    const provinsi = b.provinsi && b.provinsi !== '—'
+      ? b.provinsi
+      : `<span style="color:#D1D5DB">—</span>`;
+
+    return `<tr>
+      <td style="color:#9CA3AF;font-size:.68rem;font-weight:600;width:40px">${i + 1}</td>
+      <td style="font-weight:600">${b.nama}</td>
+      <td>${jabBadge}</td>
+      <td style="font-size:.74rem;color:#374151">${provinsi}</td>
+      <td>${genderChip}</td>
+      <td>${usia}</td>
+    </tr>`;
+  }).join('');
 }
 </script>
 <script src="../js/auth.js"></script>
@@ -255,10 +244,10 @@ function clearDetail(){
 <script src="../js/api.js"></script>
 <script>
 buildSidebar();
-const SESSION=AUTH.requireAuth('../index.html');
-if(SESSION){
-  AUTH.applySession({onScnSwitch:async function(scnId){const d=await API.get(scnId);if(window.renderPage)renderPage(d,scnId);}});
-  AUTH.initSidebar('coord','c-benef');
-  API.get(AUTH.getScnFilter()).then(d=>{if(window.renderPage)renderPage(d,AUTH.getScnFilter());});
+const SESSION = AUTH.requireAuth('../index.html');
+if (SESSION) {
+  AUTH.applySession({ onScnSwitch: async function(scnId) { const d = await API.get(scnId); if (window.renderPage) renderPage(d, scnId); } });
+  AUTH.initSidebar('coord', 'c-benef');
+  API.get(AUTH.getScnFilter()).then(d => { if (window.renderPage) renderPage(d, AUTH.getScnFilter()); });
 }
 </script></body></html>

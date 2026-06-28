@@ -81,6 +81,22 @@
 .ph-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px}
 .ph-empty svg{width:44px;height:44px;opacity:.25}
 .ph-empty p{font-size:.8rem;text-align:center}
+/* View modes */
+.view-modes{display:flex;gap:3px}
+.vmode{width:26px;height:26px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9CA3AF;transition:.12s}
+.vmode:hover{background:#F9FAFB;color:#6B7280}
+.vmode.active{background:#FFF7ED;border-color:#F97316;color:#F97316}
+.vmode svg{width:11px;height:11px}
+.mode-md .ld-item{padding:7px 14px}
+.mode-md .ld-item-name{font-size:.75rem}
+.mode-sm .ld-item{padding:5px 14px}
+.mode-sm .ld-item-name{font-size:.72rem}
+.mode-sm .ld-item-sub{display:none}
+.mode-sm .ld-item-badge{display:none}
+.mode-lst .ld-item{padding:4px 14px}
+.mode-lst .ld-item-name{font-size:.7rem}
+.mode-lst .ld-item-sub{display:none}
+.mode-lst .ld-item-badge{display:none}
 </style>
 </head><body>
 <div class="app"><div class="main">
@@ -100,7 +116,23 @@
   <!-- LIST -->
   <div class="ld-list">
     <div class="ld-list-header">
-      <div style="font-size:.8rem;font-weight:700;color:#1F2937;margin-bottom:8px">Pihak Terlibat</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:.8rem;font-weight:700;color:#1F2937">Pihak Terlibat</span>
+        <div class="view-modes">
+          <button class="vmode active" id="vm-xl" onclick="setView('xl')" title="Normal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="vmode" id="vm-md" onclick="setView('md')" title="Sedang">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <button class="vmode" id="vm-sm" onclick="setView('sm')" title="Kompak">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="4"/><rect x="10" y="3" width="4" height="4"/><rect x="17" y="3" width="4" height="4"/><rect x="3" y="10" width="4" height="4"/><rect x="10" y="10" width="4" height="4"/><rect x="17" y="10" width="4" height="4"/></svg>
+          </button>
+          <button class="vmode" id="vm-lst" onclick="setView('lst')" title="List Row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="3" height="3"/><line x1="8" y1="6.5" x2="21" y2="6.5"/><rect x="3" y="11" width="3" height="3"/><line x1="8" y1="12.5" x2="21" y2="12.5"/><rect x="3" y="17" width="3" height="3"/><line x1="8" y1="18.5" x2="21" y2="18.5"/></svg>
+          </button>
+        </div>
+      </div>
       <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama pihak..."/>
       <div style="margin-top:6px">
         <select class="ld-select" id="flt-kat"><option value="">Semua Kategori</option></select>
@@ -359,6 +391,17 @@ function renderPage(d,scnId){
   renderList();
 }
 
+let ACTIVE_VIEW_PH = 'xl';
+function setView(v){
+  ACTIVE_VIEW_PH = v;
+  ['xl','md','sm','lst'].forEach(x => document.getElementById('vm-'+x).classList.toggle('active', x===v));
+  const el = document.getElementById('ld-items');
+  el.className = 'ld-items';
+  if(v==='md') el.classList.add('mode-md');
+  else if(v==='sm') el.classList.add('mode-sm');
+  else if(v==='lst') el.classList.add('mode-lst');
+  renderList();
+}
 function renderList(){
   const q=(document.getElementById('flt-search').value||'').toLowerCase();
   const kat=document.getElementById('flt-kat').value;

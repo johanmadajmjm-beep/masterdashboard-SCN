@@ -6,6 +6,56 @@
 <title>CBR Worker — Evaluasi Akhir | MEL NLR</title>
 <link rel="stylesheet" href="../css/main.css"/>
   <link rel="stylesheet" href="../css/components.css"/>
+<style>
+/* ── LAYOUT ── */
+.ld-wrap{display:flex;gap:0;height:calc(100vh - 60px);overflow:hidden}
+.ld-list{width:100%;min-width:0;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden;transition:width .2s}
+.ld-wrap.detail-open .ld-list{width:300px;min-width:300px}
+.ld-list-header{padding:12px 14px;border-bottom:1px solid #E5E7EB;flex-shrink:0}
+.ld-search{width:100%;padding:7px 10px;border:1px solid #E5E7EB;border-radius:8px;font-size:.75rem;font-family:inherit;background:#F9FAFB;outline:none;transition:.15s}
+.ld-search:focus{border-color:#F97316;background:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.1)}
+.ld-select{flex:1;padding:5px 8px;border:1px solid #E5E7EB;border-radius:6px;font-size:.7rem;font-family:inherit;background:#F9FAFB;outline:none}
+.ld-items{flex:1;overflow-y:auto}
+.ld-items::-webkit-scrollbar{width:4px}
+.ld-items::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:2px}
+.ld-item{padding:10px 14px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .1s;position:relative}
+.ld-item:hover{background:#FFF7ED}
+.ld-item.active{background:#FFF7ED;border-left:3px solid #F97316;padding-left:11px}
+.ld-item-name{font-size:.8rem;font-weight:600;color:#1F2937;margin-bottom:2px}
+.ld-item-sub{font-size:.67rem;color:#9CA3AF}
+.ld-detail{flex:1;overflow-y:auto;background:#F8FAFC;display:none}
+.ld-wrap.detail-open .ld-detail{display:block}
+.ld-detail::-webkit-scrollbar{width:5px}
+.ld-detail::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
+.det-wrap{padding:24px}
+.det-back{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#6B7280;font-size:.75rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:14px}
+.det-back:hover{background:#F9FAFB;color:#1F2937}
+.det-back svg{width:14px;height:14px}
+.det-name{font-size:1.1rem;font-weight:800;color:#1F2937;margin-bottom:6px}
+.det-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.det-chip{padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:600;background:#F3F4F6;color:#4B5563}
+.det-section{background:#fff;border:1px solid #E5E7EB;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.det-section-head{padding:9px 14px;border-bottom:1px solid #F3F4F6;font-size:.72rem;font-weight:700;color:#1F2937}
+.det-section-body{padding:12px 14px}
+.det-row{display:grid;grid-template-columns:130px 1fr;gap:8px;padding:6px 0;border-bottom:1px solid #F9FAFB;font-size:.77rem}
+.det-row:last-child{border-bottom:none}
+.det-row-label{color:#6B7280;font-size:.72rem}
+.det-row-val{font-weight:600;color:#1F2937;word-break:break-word;line-height:1.55}
+/* View modes */
+.view-modes{display:flex;gap:3px}
+.vmode{width:26px;height:26px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9CA3AF;transition:.12s}
+.vmode:hover{background:#F9FAFB;color:#6B7280}
+.vmode.active{background:#FFF7ED;border-color:#F97316;color:#F97316}
+.vmode svg{width:11px;height:11px}
+.mode-md .ld-item{padding:8px 14px}
+.mode-md .ld-item-name{font-size:.77rem}
+.mode-sm .ld-item{padding:6px 14px}
+.mode-sm .ld-item-name{font-size:.74rem}
+.mode-sm .ld-item-sub{display:none}
+.mode-lst .ld-item{padding:5px 14px}
+.mode-lst .ld-item-name{font-size:.72rem}
+.mode-lst .ld-item-sub{display:none}
+</style>
 </head><body>
 <div class="app"><div class="main">
 <header class="topbar">
@@ -19,74 +69,108 @@
     <span class="topbar-date" id="topbar-date">—</span>
   </div>
 </header>
-<div class="page">
+
+<div class="ld-wrap">
+  <!-- LIST PANEL -->
+  <div class="ld-list">
+    <div class="ld-list-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:.8rem;font-weight:700;color:#1F2937">Evaluasi Akhir</span>
+        <div class="view-modes">
+          <button class="vmode active" id="vm-xl" onclick="setView('xl')" title="Normal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="vmode" id="vm-md" onclick="setView('md')" title="Sedang">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <button class="vmode" id="vm-sm" onclick="setView('sm')" title="Kompak">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="4"/><rect x="10" y="3" width="4" height="4"/><rect x="17" y="3" width="4" height="4"/><rect x="3" y="10" width="4" height="4"/><rect x="10" y="10" width="4" height="4"/><rect x="17" y="10" width="4" height="4"/></svg>
+          </button>
+          <button class="vmode" id="vm-lst" onclick="setView('lst')" title="List Row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="3" height="3"/><line x1="8" y1="6.5" x2="21" y2="6.5"/><rect x="3" y="11" width="3" height="3"/><line x1="8" y1="12.5" x2="21" y2="12.5"/><rect x="3" y="17" width="3" height="3"/><line x1="8" y1="18.5" x2="21" y2="18.5"/></svg>
+          </button>
+        </div>
+      </div>
+      <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama anak..."/>
+      <div style="display:flex;gap:5px;margin-top:7px">
+        <select class="ld-select" id="flt-cbr"><option value="">Semua CBR Worker</option></select>
+        <select class="ld-select" id="flt-status"><option value="">Semua Status</option><option value="Ya">Tercapai</option><option value="Tidak">Belum Tercapai</option></select>
+      </div>
+      <div style="font-size:.68rem;color:#9CA3AF;margin-top:6px" id="ld-count">—</div>
+    </div>
+    <div class="ld-items" id="ld-items"></div>
+  </div>
+  <!-- DETAIL PANEL -->
+  <div class="ld-detail" id="ld-detail"></div>
+</div>
+
   <div class="page-header"><h1>Evaluasi Akhir Program</h1><p>Penilaian akhir pencapaian tujuan IRP — apakah tujuan tercapai, sebagian, atau belum.</p></div>
-  <div class="stat-grid" id="kpi-eval"></div>
-  <div class="grid-2" style="margin-bottom:14px">
-    <div class="card">
-      <div class="card-head"><span class="card-title">Status Pencapaian Tujuan</span></div>
-      <div class="card-body" id="eval-summary">
-        <div style="text-align:center;padding:20px;color:#9ca3af;font-size:.78rem">Data evaluasi akhir belum tersedia.<br>Form akan tersedia setelah siklus program berakhir.</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-head"><span class="card-title">Evaluasi per CBR Worker</span></div>
-      <div class="card-body" id="eval-worker">
-        <div style="text-align:center;padding:20px;color:#9ca3af;font-size:.78rem">Menunggu data evaluasi akhir.</div>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-head">
-      <span class="card-title">Data Evaluasi Akhir</span>
-      <select id="flt-cbr" style="padding:5px 10px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.72rem"><option value="">Semua CBR Worker</option></select>
-      <span class="badge badge-blue" id="badge-eval">—</span>
-    </div>
-    <div class="card-body no-pad"><div class="tbl-wrap">
-      <table>
-        <thead><tr><th>#</th><th>Nama Anak</th><th>CBR Worker</th><th>Tanggal Evaluasi</th><th>Tujuan 1 Tercapai?</th><th>Penjelasan</th><th>Alasan Tidak Tercapai</th></tr></thead>
-        <tbody id="tbl-eval"></tbody>
-      </table>
-    </div></div>
-  </div>
-</div></div></div>
+
 <script>
+let ALL_ANAK_EV=[], ALL_EVAL=[], EVAL_MAP={}, ACTIVE_VIEW_EV='xl';
+
+function setView(v){
+  ACTIVE_VIEW_EV=v;
+  ['xl','md','sm','lst'].forEach(x=>document.getElementById('vm-'+x).classList.toggle('active',x===v));
+  const el=document.getElementById('ld-items');
+  el.className='ld-items';
+  if(v==='md') el.classList.add('mode-md');
+  else if(v==='sm') el.classList.add('mode-sm');
+  else if(v==='lst') el.classList.add('mode-lst');
+  renderList();
+}
+
+function renderList(){
+  const cb=document.getElementById('flt-cbr').value;
+  const st=document.getElementById('flt-status').value;
+  const q=(document.getElementById('flt-search').value||'').toLowerCase();
+  const list=ALL_ANAK_EV.filter(a=>{
+    if(cb&&a.cbr!==cb) return false;
+    if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
+    const ev=EVAL_MAP[a.nama?.toLowerCase()];
+    if(st&&(!ev||ev.tercapai_tujuan_1!==st)) return false;
+    return true;
+  });
+  document.getElementById('ld-count').textContent=list.length+' anak';
+  document.getElementById('ld-items').innerHTML=list.map(a=>{
+    const ev=EVAL_MAP[a.nama?.toLowerCase()];
+    const status=ev?.tercapai_tujuan_1||'Belum';
+    const statusColor=status==='Ya'?'#15803D':status==='Tidak'?'#DC2626':'#9CA3AF';
+    const statusBg=status==='Ya'?'#DCFCE7':status==='Tidak'?'#FEE2E2':'#F3F4F6';
+    return '<div class="ld-item"><div class="ld-item-name">' + (a.nama||'—') + '</div><div class="ld-item-sub">' + (a.cbr||'—') + ' · ' + (ev?.tanggal_eval||'Belum evaluasi') + '</div><div style="margin-top:3px"><span style="font-size:.62rem;font-weight:700;padding:1px 7px;border-radius:999px;background:' + statusBg + ';color:' + statusColor + '">' + (status==='Ya'?'✓ Tercapai':status==='Tidak'?'✗ Belum':'Belum ada') + '</span></div></div>';
+  }).join('') || '<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem">Tidak ada data</div>';
+  document.querySelectorAll('.ld-item').forEach((el,i)=>{
+    el.onclick=()=>showDetail(el,list[i]);
+  });
+}
+
+let _lastElEv=null;
+function showDetail(el,a){
+  if(_lastElEv) _lastElEv.classList.remove('active');
+  el.classList.add('active'); _lastElEv=el;
+  document.querySelector('.ld-wrap').classList.add('detail-open');
+  const ev=EVAL_MAP[a.nama?.toLowerCase()];
+  const status=ev?.tercapai_tujuan_1||'—';
+  const statusColor=status==='Ya'?'#15803D':status==='Tidak'?'#DC2626':'#9CA3AF';
+  document.getElementById('ld-detail').innerHTML='<div class="det-wrap"><button class="det-back" onclick="clearDetail()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Kembali</button><div class="det-name">' + (a.nama||'—') + '</div><div class="det-meta"><span class="det-chip">👤 ' + (a.cbr||'—') + '</span><span class="det-chip">📍 ' + (a.desa||'—') + '</span><span class="det-chip">🏷 ' + (a.ragam||'—') + '</span></div>' + (ev ? '<div class="det-section"><div class="det-section-head">Hasil Evaluasi Akhir</div><div class="det-section-body"><div class="det-row"><span class="det-row-label">Tanggal Evaluasi</span><span class="det-row-val">' + (ev.tanggal_eval||'—') + '</span></div><div class="det-row"><span class="det-row-label">CBR Worker</span><span class="det-row-val">' + (ev.cbr_worker||ev.cb||a.cbr||'—') + '</span></div><div class="det-row"><span class="det-row-label">Tujuan 1 Tercapai</span><span class="det-row-val" style="color:' + statusColor + ';font-weight:700">' + status + '</span></div><div class="det-row"><span class="det-row-label">Penjelasan</span><span class="det-row-val">' + (ev.penjelasan||'—') + '</span></div>' + (ev.alasan_tidak?'<div class="det-row"><span class="det-row-label">Alasan Tidak Tercapai</span><span class="det-row-val">' + ev.alasan_tidak + '</span></div>':'') + '</div></div>' : '<div class="det-section"><div class="det-section-head">Evaluasi</div><div class="det-section-body" style="text-align:center;color:#9CA3AF;font-size:.78rem;padding:20px">Belum ada data evaluasi akhir untuk anak ini</div></div>') + '</div>';
+}
+function clearDetail(){
+  document.querySelector('.ld-wrap').classList.remove('detail-open');
+  if(_lastElEv){_lastElEv.classList.remove('active');_lastElEv=null;}
+}
+
 function renderPage(d, scnId) {
-  const anak=d.anak||[], ev=d.evalAkhir||[];
+  ALL_ANAK_EV=d.anak||[];
+  ALL_EVAL=d.evalAkhir||[];
+  EVAL_MAP={};
+  ALL_EVAL.forEach(e=>{const key=(e.nama_anak||e.na||'').toLowerCase();EVAL_MAP[key]=e;});
+  const anak=ALL_ANAK_EV, ev=ALL_EVAL;
   const cbrs=[...new Set(anak.map(a=>a.cbr).filter(Boolean))].sort();
-  const fC=document.getElementById('flt-cbr');
+  const fC=document.getElementById('flt-cbr'); if(!fC) return;
   cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});
-  const tercapai=ev.filter(e=>e.tercapai_tujuan_1==='Ya').length;
-  const belum=ev.filter(e=>e.tercapai_tujuan_1==='Tidak').length;
-  document.getElementById('kpi-eval').innerHTML=[
-    {v:anak.length, l:'Total Anak',      s:'dalam caseload',             c:'var(--nlr-500,#d4500a)'},
-    {v:ev.length,   l:'Sudah Evaluasi',  s:'dari '+anak.length+' anak',  c:'#2563eb'},
-    {v:tercapai,    l:'Tujuan Tercapai', s:'hasil positif',               c:'#16a34a'},
-    {v:belum,       l:'Belum Tercapai',  s:'perlu tindak lanjut',         c:'#dc2626'},
-  ].map(k=>`<div class="stat-card" style="--accent:${k.c}"><div class="s-label">${k.l}</div><div class="s-value">${k.v}</div><div class="s-sub">${k.s}</div></div>`).join('');
-  if(ev.length){
-    const pct=ev.length?Math.round(tercapai/ev.length*100):0;
-    document.getElementById('eval-summary').innerHTML=`
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-        <div style="text-align:center"><div style="font-size:2rem;font-weight:800;color:#16a34a">${pct}%</div><div style="font-size:.7rem;color:#9ca3af">Tercapai</div></div>
-        <div style="flex:1"><div class="prog-wrap" style="height:12px"><div class="prog-fill" style="width:${pct}%;background:#16a34a"></div></div></div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <span class="badge badge-green">Tercapai: ${tercapai}</span>
-        <span class="badge badge-red">Belum: ${belum}</span>
-        <span class="badge badge-amber">Sebagian: ${ev.length-tercapai-belum}</span>
-      </div>`;
-    document.getElementById('eval-worker').innerHTML=cbrs.map(c=>{
-      const myEv=ev.filter(e=>(e.cbr_worker||e.cb)===c);
-      const myT=myEv.filter(e=>e.tercapai_tujuan_1==='Ya').length;
-      const pctW=myEv.length?Math.round(myT/myEv.length*100):0;
-      return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:4px"><span style="font-weight:600">${c}</span><span style="color:#16a34a;font-weight:700">${pctW}%</span></div><div class="prog-wrap"><div class="prog-fill" style="width:${pctW}%;background:#16a34a"></div></div></div>`;
-    }).join('');
-  }
-  document.getElementById('badge-eval').textContent=(ev.length||anak.length)+' entri';
-  document.getElementById('tbl-eval').innerHTML=ev.length
-    ?ev.map((e,i)=>`<tr><td style="color:#9ca3af">${i+1}</td><td><strong>${e.nama_anak||e.na||'—'}</strong></td><td style="font-size:.72rem;color:#6b7280">${e.cbr_worker||e.cb||'—'}</td><td class="mono" style="font-size:.7rem">${e.tanggal_eval||'—'}</td><td><span class="badge ${e.tercapai_tujuan_1==='Ya'?'badge-green':'badge-red'}">${e.tercapai_tujuan_1||'—'}</span></td><td style="font-size:.72rem;max-width:200px">${(e.penjelasan_ya_1||'—').substring(0,100)}</td><td style="font-size:.72rem;max-width:200px">${(e.alasan_tidak_1||'—').substring(0,100)}</td></tr>`).join('')
-    :anak.map((a,i)=>`<tr><td style="color:#9ca3af">${i+1}</td><td><strong>${a.nama}</strong></td><td style="font-size:.72rem;color:#6b7280">${a.cbr||'—'}</td><td style="color:#9ca3af">Belum diisi</td><td><span class="badge badge-amber">Menunggu</span></td><td>—</td><td>—</td></tr>`).join('');
+  [fC,document.getElementById('flt-status')].forEach(el=>el.addEventListener('change',renderList));
+  document.getElementById('flt-search').addEventListener('input',renderList);
+  renderList();
 }
 </script>
 <script src="../js/auth.js"></script>

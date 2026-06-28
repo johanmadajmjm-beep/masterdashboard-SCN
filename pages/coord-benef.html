@@ -45,6 +45,22 @@ tr:hover td{background:#FFF7ED}
 /* empty state */
 .table-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:#9CA3AF;gap:8px}
 .table-empty svg{width:40px;height:40px;opacity:.25}
+/* View modes */
+.view-modes{display:flex;gap:3px}
+.vmode{width:26px;height:26px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9CA3AF;transition:.12s}
+.vmode:hover{background:#F9FAFB;color:#6B7280}
+.vmode.active{background:#FFF7ED;border-color:#F97316;color:#F97316}
+.vmode svg{width:11px;height:11px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;padding:14px;overflow:auto;flex:1}
+.benef-card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:12px}
+.benef-card-name{font-size:.8rem;font-weight:700;color:#1F2937;margin-bottom:4px}
+.benef-card-sub{font-size:.67rem;color:#9CA3AF;margin-bottom:4px}
+.compact-list{flex:1;overflow:auto}
+.compact-item{display:flex;align-items:center;gap:8px;padding:5px 14px;border-bottom:1px solid #F3F4F6;font-size:.72rem}
+.compact-item-name{font-weight:600;color:#1F2937;flex:1}
+.lst-wrap{flex:1;overflow:auto}
+.lst-item{display:flex;align-items:center;gap:8px;padding:5px 14px;border-bottom:1px solid #F3F4F6}
+.lst-item-name{font-size:.72rem;font-weight:600;color:#1F2937;flex:1}
 </style>
 </head><body>
 <div class="app"><div class="main">
@@ -65,7 +81,23 @@ tr:hover td{background:#FFF7ED}
   <div class="page-header">
     <div class="page-header-top">
       <span class="page-title">Daftar Beneficiary</span>
-      <div class="kpi-bar" id="kpi-bar"></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="view-modes">
+          <button class="vmode active" id="vm-xl" onclick="setView('xl')" title="Tabel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="vmode" id="vm-md" onclick="setView('md')" title="Kartu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="9" height="8" rx="1"/><rect x="13" y="3" width="9" height="8" rx="1"/><rect x="2" y="13" width="9" height="8" rx="1"/><rect x="13" y="13" width="9" height="8" rx="1"/></svg>
+          </button>
+          <button class="vmode" id="vm-sm" onclick="setView('sm')" title="Grid Kecil">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="4"/><rect x="10" y="3" width="4" height="4"/><rect x="17" y="3" width="4" height="4"/><rect x="3" y="10" width="4" height="4"/><rect x="10" y="10" width="4" height="4"/><rect x="17" y="10" width="4" height="4"/></svg>
+          </button>
+          <button class="vmode" id="vm-lst" onclick="setView('lst')" title="List Row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="3" height="3"/><line x1="8" y1="6.5" x2="21" y2="6.5"/><rect x="3" y="11" width="3" height="3"/><line x1="8" y1="12.5" x2="21" y2="12.5"/><rect x="3" y="17" width="3" height="3"/><line x1="8" y1="18.5" x2="21" y2="18.5"/></svg>
+          </button>
+        </div>
+        <div class="kpi-bar" id="kpi-bar"></div>
+      </div>
     </div>
     <div class="filter-bar">
       <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama..."/>
@@ -84,8 +116,9 @@ tr:hover td{background:#FFF7ED}
     </div>
   </div>
 
-  <!-- TABLE -->
-  <div class="table-wrap">
+  <!-- CONTENT AREA -->
+  <div id="content-area" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+  <div class="table-wrap" id="view-xl">
     <table id="benef-table">
       <thead>
         <tr>
@@ -102,11 +135,27 @@ tr:hover td{background:#FFF7ED}
       </tbody>
     </table>
   </div>
+  <div class="card-grid" id="view-md" style="display:none"></div>
+  <div class="card-grid" id="view-sm" style="display:none;grid-template-columns:repeat(auto-fill,minmax(140px,1fr))"></div>
+  <div class="lst-wrap" id="view-lst" style="display:none"></div>
+  </div>
 </div>
 </div></div>
 
 <script>
-let ALL_BENEF = [];
+let ALL_BENEF = [], ACTIVE_VIEW = 'xl';
+
+function setView(v) {
+  ACTIVE_VIEW = v;
+  ['xl','md','sm','lst'].forEach(x => {
+    document.getElementById('vm-'+x).classList.toggle('active', x===v);
+    document.getElementById('view-'+x).style.display = x===v ? (x==='xl'?'block':'flex') : 'none';
+    if(x==='md'||x==='sm') document.getElementById('view-'+x).style.display = x===v ? 'grid' : 'none';
+    if(x==='lst') document.getElementById('view-'+x).style.display = x===v ? 'block' : 'none';
+  });
+  renderTable();
+}
+
 let SORT_KEY = 'jabatan', SORT_ASC = true;
 
 function renderPage(d, scnId) {
@@ -206,6 +255,20 @@ function renderTable() {
       </div></td></tr>`;
     return;
   }
+
+  // Render card/list views
+  const cardHtmlMd = list.map(b => {
+    const jabBadge = b.jabatan === 'Anak' ? '<span class="jabatan-badge badge-anak" style="font-size:.6rem">Anak</span>' : '<span class="jabatan-badge badge-worker" style="font-size:.6rem">CBR Worker</span>';
+    return '<div class="benef-card"><div class="benef-card-name">' + b.nama + '</div><div class="benef-card-sub">' + (b.jabatan==='Anak'?b._ragam||'—':b.provinsi||'—') + '</div>' + jabBadge + '</div>';
+  }).join('');
+  const cardHtmlSm = list.map(b => '<div class="benef-card"><div class="benef-card-name" style="font-size:.72rem">' + b.nama + '</div><div class="benef-card-sub">' + b.jabatan + '</div></div>').join('');
+  const lstHtml = list.map((b,i) => {
+    const jabBadge = b.jabatan === 'Anak' ? '<span class="jabatan-badge badge-anak" style="font-size:.58rem;padding:1px 6px">Anak</span>' : '<span class="jabatan-badge badge-worker" style="font-size:.58rem;padding:1px 6px">Worker</span>';
+    return '<div class="lst-item"><span style="color:#9CA3AF;font-size:.65rem;width:24px">' + (i+1) + '</span><span class="lst-item-name">' + b.nama + '</span>' + jabBadge + '</div>';
+  }).join('');
+  document.getElementById('view-md').innerHTML = cardHtmlMd || '<div style="padding:40px;text-align:center;color:#9CA3AF">Tidak ada data</div>';
+  document.getElementById('view-sm').innerHTML = cardHtmlSm || '';
+  document.getElementById('view-lst').innerHTML = lstHtml || '';
 
   document.getElementById('table-body').innerHTML = list.map((b, i) => {
     const jabBadge = b.jabatan === 'Anak'

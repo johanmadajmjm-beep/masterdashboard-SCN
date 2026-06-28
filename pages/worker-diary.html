@@ -53,8 +53,9 @@
 .mode-sm .ld-item-name{font-size:.74rem}
 .mode-sm .ld-item-sub{display:none}
 .mode-sm .ld-item-count{display:none}
-.mode-card{display:grid;grid-template-columns:1fr 1fr}
-.mode-card .ld-item{border-right:1px solid #F9FAFB}
+.mode-lst .ld-item{padding:5px 14px;border-bottom:1px solid #F9FAFB}
+.mode-lst .ld-item-name{font-size:.72rem}
+.mode-lst .ld-item-sub{display:none}
 </style>
 </head><body>
 <div class="app"><div class="main">
@@ -85,8 +86,8 @@
           <button class="vmode" id="vm-sm" onclick="setView('sm')" title="Kompak">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="4"/><rect x="10" y="3" width="4" height="4"/><rect x="17" y="3" width="4" height="4"/><rect x="3" y="10" width="4" height="4"/><rect x="10" y="10" width="4" height="4"/><rect x="17" y="10" width="4" height="4"/></svg>
           </button>
-          <button class="vmode" id="vm-cd" onclick="setView('cd')" title="Kartu">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          <button class="vmode" id="vm-lst" onclick="setView('lst')" title="List Row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="3" height="3"/><line x1="8" y1="6.5" x2="21" y2="6.5"/><rect x="3" y="11" width="3" height="3"/><line x1="8" y1="12.5" x2="21" y2="12.5"/><rect x="3" y="17" width="3" height="3"/><line x1="8" y1="18.5" x2="21" y2="18.5"/></svg>
           </button>
         </div>
       </div>
@@ -108,12 +109,12 @@ let ALL_ANAK=[], ALL_DIARY=[], DIARY_MAP={}, ACTIVE_VIEW='xl';
 
 function setView(v){
   ACTIVE_VIEW=v;
-  ['xl','md','sm','cd'].forEach(x=>document.getElementById('vm-'+x).classList.toggle('active',x===v));
+  ['xl','md','sm','lst'].forEach(x=>document.getElementById('vm-'+x).classList.toggle('active',x===v));
   const el=document.getElementById('ld-items');
   el.className='ld-items';
   if(v==='md') el.classList.add('mode-md');
   else if(v==='sm') el.classList.add('mode-sm');
-  else if(v==='cd') el.classList.add('mode-card');
+  else if(v==='lst') el.classList.add('mode-lst');
   renderList();
 }
 

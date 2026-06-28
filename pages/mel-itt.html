@@ -132,215 +132,560 @@
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
 <script>
-// ── ITT META ────────────────────────────────────────────────
-const OUTCOMES = [
-  { id:'O1', label:'Outcome 1', pendek:'CYWD Berdaya',          warna:'#2563eb', indikator_ids:['O1-i1','O1-i2','O1-i3','O1-i4','O1-i5','O1-i6'] },
-  { id:'O2', label:'Outcome 2', pendek:'Keluarga & Komunitas',  warna:'#0891b2', indikator_ids:['O2-i1','O2-i2','O2-i3','O2-i4'] },
-  { id:'O3', label:'Outcome 3', pendek:'DPO & CBR',             warna:'#d97706', indikator_ids:['O3-i1','O3-i2','O3-i3','O3-i4','O3-i5'] },
-  { id:'O4', label:'Outcome 4', pendek:'Layanan Kesehatan',     warna:'#7c3aed', indikator_ids:['O4-i1','O4-i2','O4-i3','O4-i4','O4-i5'] },
-  { id:'O5', label:'Outcome 5', pendek:'Pendidikan Inklusif',   warna:'#059669', indikator_ids:['O5-i1','O5-i2','O5-i3','O5-i4','O5-i5'] },
-  { id:'O6', label:'Outcome 6', pendek:'Pemberdayaan Ekonomi',  warna:'#dc2626', indikator_ids:['O6-i1','O6-i2','O6-i3','O6-i4'] },
-  { id:'O7', label:'Outcome 7', pendek:'Kebijakan & Advokasi',  warna:'#0284c7', indikator_ids:['O7-i1','O7-i2','O7-i3','O7-i4','O7-i5'] },
-];
+// ══════════════════════════════════════════════════════════
+// ITT STRUKTUR LENGKAP — 7 Outcome, IO, Output
+// Target & Capaian diisi dari GSheet (placeholder = null)
+// ══════════════════════════════════════════════════════════
 
-const ITT_LABELS = {
-  'O1-i1':'CYWD dengan peningkatan rasa kendali & pengambilan keputusan',
-  'O1-i2':'CYWD dengan peran aktif di komunitas',
-  'O1-i3':'CYWD menerima layanan rehabilitasi sesuai IRP',
-  'O1-i4':'CYWD memiliki keterampilan menyampaikan keinginan secara efektif',
-  'O1-i5':'CYWD mengetahui hak mereka (termasuk HKSR)',
-  'O1-i6':'CYWD berpartisipasi dalam kehidupan keluarga & komunitas',
-  'O2-i1':'Orang tua/pengasuh dengan peningkatan kapasitas mendukung CYWD',
-  'O2-i2':'Keluarga mengakses layanan rehabilitasi tanpa stigma',
-  'O2-i3':'CYWD dengan dokumen kependudukan lengkap & aktif di perlindungan sosial',
-  'O2-i4':'Kelompok keluarga/orang tua aktif di tingkat desa/kecamatan',
-  'O3-i1':'DPO/CSO yang mempekerjakan penyandang disabilitas dalam peran kepemimpinan',
-  'O3-i2':'Rujukan efektif oleh jejaring komunitas',
-  'O3-i3':'Pekerja CBR/CBID memberikan dukungan langsung kepada CYWD',
-  'O3-i4':'Pekerja CBR percaya diri dalam memberikan perawatan memadai',
-  'O3-i5':'DPO aktif berkolaborasi dalam sistem rujukan',
-  'O4-i1':'Penyedia layanan kesehatan yang meningkatkan fasilitas aksesibel',
-  'O4-i2':'Penyedia layanan yang meningkatkan layanan inklusif',
-  'O4-i3':'Tenaga kesehatan dilatih layanan KSR inklusif',
-  'O4-i4':'Kasus kusta yang diidentifikasi & diobati di komunitas',
-  'O4-i5':'CYWD yang memanfaatkan layanan KSR secara efektif',
-  'O5-i1':'CYWD terdaftar di program pendidikan inklusif',
-  'O5-i2':'CYWD menunjukkan kemajuan sesuai potensi (ILP)',
-  'O5-i3':'Sekolah dengan peningkatan kualitas pengajaran & lingkungan',
-  'O5-i4':'Sekolah mengajukan proposal aksesibilitas ke pemerintah',
-  'O5-i5':'Guru PAUD dengan peningkatan pengetahuan identifikasi dini',
-  'O6-i1':'YwD berpartisipasi dalam pasar tenaga kerja',
-  'O6-i2':'Orang tua/pengasuh dengan peningkatan pendapatan',
-  'O6-i3':'Pusat pelatihan vokasional menerapkan model inklusif',
-  'O6-i4':'Bisnis/tempat kerja dengan prosedur lingkungan kerja inklusif',
-  'O7-i1':'Kebijakan inklusif yang diadopsi & dimonitor bersama DPO/CYWD',
-  'O7-i2':'Aksi lobi & advokasi oleh DPO/NGO yang memengaruhi kebijakan',
-  'O7-i3':'Kebijakan/hukum yang diharmonisasi dengan kerangka inklusif',
-  'O7-i4':'Proses konsultasi kebijakan yang melibatkan CYWD',
-  'O7-i5':'Kasus insiden perlindungan anak yang dilaporkan & ditanggapi',
+const O_COLORS = {
+  O1:'#2563EB', O2:'#0891B2', O3:'#D97706',
+  O4:'#7C3AED', O5:'#059669', O6:'#DC2626', O7:'#0284C7'
 };
 
-function getPct(cap, target) { if (!target) return 0; return Math.min(Math.round(cap / target * 100), 100); }
-function getPctColor(pct) {
-  if (pct >= 80) return '#059669';
-  if (pct >= 50) return '#2563eb';
-  if (pct >= 25) return '#d97706';
-  return '#dc2626';
-}
-function getStatusBadge(pct) {
-  if (pct >= 80) return '<span class="badge badge-green">On Track</span>';
-  if (pct >= 50) return '<span class="badge badge-blue">Progres</span>';
-  if (pct >= 25) return '<span class="badge badge-amber">Perhatian</span>';
-  return '<span class="badge badge-red">Perlu Aksi</span>';
-}
+const ITT = [
+  // ─── OUTCOME 1 ───────────────────────────────────────────
+  { o:'O1', level:'outcome', kode:'O5.1', tipe:'Standard LF',
+    label:'Jumlah CYWD yang melaporkan peningkatan rasa kendali dan kemampuan mengambil keputusan atas hidup mereka',
+    target:null, capaian:null },
+  { o:'O1', level:'outcome', kode:'O5.2', tipe:'Standard LF',
+    label:'Jumlah CYWD yang memiliki peran aktif di komunitas untuk mencapai kesempatan yang setara bagi semua',
+    target:null, capaian:null },
+  { o:'O1', level:'io', kode:'IO1.1', tipe:'',
+    label:'IO 1.1 — CYWD memiliki akses layanan dukungan personal dan telah menyusun Rencana Dukungan Individual (IRP)',
+    target:null, capaian:null },
+  { o:'O1', level:'io-ind', kode:'IOA.1', tipe:'Standard LF',
+    label:'Jumlah CYWD yang menerima layanan perawatan dan rehabilitasi sesuai IRP mereka',
+    target:null, capaian:null },
+  { o:'O1', level:'io', kode:'IO1.2', tipe:'',
+    label:'IO 1.2 — CYWD berdaya untuk menyuarakan hak, memiliki self-stigma rendah, dan mampu mengambil keputusan termasuk HKSR',
+    target:null, capaian:null },
+  { o:'O1', level:'io-ind', kode:'IOD.1', tipe:'Standard LF',
+    label:'Jumlah CYWD yang memiliki keterampilan menyampaikan keinginan dan keberatan secara efektif',
+    target:null, capaian:null },
+  { o:'O1', level:'io-ind', kode:'IOD.2', tipe:'Standard LF',
+    label:'Jumlah CYWD yang mengetahui hak mereka (termasuk HKSR) untuk inklusi dan perlindungan',
+    target:null, capaian:null },
+  { o:'O1', level:'output', kode:'Out.1.2.1', tipe:'Custom',
+    label:'Jumlah pelatihan/sesi awareness raising mengenai hak anak, CRPD, SRHR, SGBV, dan Safeguarding',
+    target:null, capaian:null },
+  { o:'O1', level:'output', kode:'Out.1.2.2', tipe:'Custom',
+    label:'Jumlah CYWD yang hadir dalam pelatihan tentang hak anak, CRPD, SRHR, SGBV, dan Safeguarding',
+    target:null, capaian:null },
+  { o:'O1', level:'io', kode:'IO1.3', tipe:'',
+    label:'IO 1.3 — CYWD menikmati ruang aman dan inklusif untuk mengekspresikan diri melalui seni, olahraga, pertunjukan',
+    target:null, capaian:null },
+  { o:'O1', level:'io-ind', kode:'IOE.1', tipe:'Standard LF',
+    label:'Jumlah CYWD yang berpartisipasi dalam kehidupan keluarga dan komunitas (seni, olahraga, pertunjukan)',
+    target:null, capaian:null },
+  { o:'O1', level:'output', kode:'Out.1.3.1', tipe:'Custom',
+    label:'Jumlah pelatihan mengenai kepemimpinan, advokasi, dan komunikasi yang dilakukan kepada CYWD',
+    target:null, capaian:null },
+  { o:'O1', level:'output', kode:'Out.1.3.2', tipe:'Custom',
+    label:'Jumlah CYWD yang hadir dalam pelatihan mengenai kepemimpinan, advokasi, dan komunikasi',
+    target:null, capaian:null },
 
-// ── RENDER ITT ───────────────────────────────────────────────
+  // ─── OUTCOME 2 ───────────────────────────────────────────
+  { o:'O2', level:'outcome', kode:'IOC.1', tipe:'Standard LF',
+    label:'Jumlah orang tua/pengasuh yang menunjukkan peningkatan kapasitas dalam mendukung CYWD sesuai kebutuhan mereka',
+    target:null, capaian:null },
+  { o:'O2', level:'io', kode:'IO2.1', tipe:'',
+    label:'IO 2.1 — Keluarga dan pengasuh dibekali kemampuan mendukung CYWD sesuai IRP, termasuk kebutuhan pendidikan, penghidupan, dan inklusi sosial',
+    target:null, capaian:null },
+  { o:'O2', level:'output', kode:'Out.2.1.1', tipe:'Custom',
+    label:'Jumlah orang tua dan pengasuh yang mengikuti orientasi mengenai IRP dan peran keluarga dalam pemulihan',
+    target:null, capaian:null },
+  { o:'O2', level:'output', kode:'Out.2.1.2', tipe:'Custom',
+    label:'Jumlah sesi mentoring dan coaching teknis yang diberikan kepada keluarga untuk menerapkan strategi IRP di rumah',
+    target:null, capaian:null },
+  { o:'O2', level:'io', kode:'IO2.2', tipe:'',
+    label:'IO 2.2 — Keluarga dan pengasuh secara percaya diri mengakses layanan untuk CYWD tanpa kekhawatiran terhadap stigma',
+    target:null, capaian:null },
+  { o:'O2', level:'io-ind', kode:'IO2.2', tipe:'Custom',
+    label:'Jumlah keluarga/orang tua/pengasuh CYWD yang melaporkan telah mengakses layanan rehabilitasi dan pelayanan sosial tanpa stigma',
+    target:null, capaian:null },
+  { o:'O2', level:'output', kode:'Out.2.2.1', tipe:'Custom',
+    label:'Jumlah peserta kegiatan awareness raising terkait pengurangan stigma, registrasi sipil, dan skema perlindungan sosial',
+    target:null, capaian:null },
+  { o:'O2', level:'output', kode:'Out.2.2.2', tipe:'Custom',
+    label:'Jumlah sesi peningkatan kesadaran terkait pengurangan stigma, registrasi sipil, dan skema perlindungan sosial',
+    target:null, capaian:null },
+  { o:'O2', level:'io', kode:'IO2.3', tipe:'',
+    label:'IO 2.3 — Keluarga mengetahui dan memanfaatkan sistem administrasi kependudukan dan jaminan kesehatan (BPJS, DTKS, Jamkesda)',
+    target:null, capaian:null },
+  { o:'O2', level:'io-ind', kode:'IO2.3', tipe:'Custom',
+    label:'Jumlah CYWD yang telah memiliki dokumen kependudukan lengkap dan aktif dalam skema perlindungan sosial/asuransi',
+    target:null, capaian:null },
+  { o:'O2', level:'io', kode:'IO2.4', tipe:'',
+    label:'IO 2.4 — Jaringan dukungan berbasis keluarga dan komunitas atau kelompok sebaya terbentuk dan berfungsi',
+    target:null, capaian:null },
+  { o:'O2', level:'io-ind', kode:'IO2.4', tipe:'Custom',
+    label:'Jumlah kelompok keluarga/orang tua yang aktif dan beroperasi secara rutin di tingkat desa atau kecamatan',
+    target:null, capaian:null },
+  { o:'O2', level:'output', kode:'Out.2.4.1', tipe:'Custom',
+    label:'Jumlah Forum Orang Tua yang berhasil dibentuk dan memiliki struktur kepengurusan yang aktif',
+    target:null, capaian:null },
+  { o:'O2', level:'output', kode:'Out.2.4.2', tipe:'Custom',
+    label:'Jumlah pertemuan koordinasi rutin yang diselenggarakan oleh Forum Orang Tua',
+    target:null, capaian:null },
+  { o:'O2', level:'output', kode:'Out.2.4.3', tipe:'Custom',
+    label:'Jumlah anggota yang telah mengikuti pelatihan kepemimpinan dan fasilitasi sebaya (peer facilitation)',
+    target:null, capaian:null },
+
+  // ─── OUTCOME 3 ───────────────────────────────────────────
+  { o:'O3', level:'outcome', kode:'IO3.0', tipe:'Custom',
+    label:'Jumlah DPO atau CSO yang mempekerjakan penyandang disabilitas dalam peran memimpin atau ikut memimpin perencanaan, pemberian layanan, atau aksi advokasi terkait RBM/CBR',
+    target:null, capaian:null },
+  { o:'O3', level:'io', kode:'IO3.1', tipe:'',
+    label:'IO 3.1 — DPO terlibat aktif dalam proses rujukan, skrining disabilitas komunitas, deteksi dini, dan pengobatan kusta',
+    target:null, capaian:null },
+  { o:'O3', level:'io-ind', kode:'IOB.1', tipe:'Standard LF',
+    label:'Jumlah rujukan efektif yang dilakukan oleh jejaring berbasis komunitas kepada mitra dan penyedia layanan',
+    target:null, capaian:null },
+  { o:'O3', level:'output', kode:'Out.3.1.1', tipe:'Custom',
+    label:'Jumlah sesi kesadaran masyarakat terkait kusta dan disabilitas yang terlaksana',
+    target:null, capaian:null },
+  { o:'O3', level:'output', kode:'Out.3.1.2', tipe:'Custom',
+    label:'Jumlah peserta dari sesi kesadaran masyarakat terkait kusta dan disabilitas',
+    target:null, capaian:null },
+  { o:'O3', level:'io-ind', kode:'IOB.2', tipe:'Standard LF',
+    label:'Jumlah pekerja CBR/CBID yang memberikan dukungan langsung kepada CYWD',
+    target:null, capaian:null },
+  { o:'O3', level:'io-ind', kode:'IOA.2', tipe:'Standard LF',
+    label:'Jumlah pekerja CBR yang merasa percaya diri bahwa mereka mengetahui cara memberikan perawatan yang memadai untuk CYWD',
+    target:null, capaian:null },
+  { o:'O3', level:'output', kode:'Out.3.1.3', tipe:'Custom',
+    label:'Jumlah pelatihan komunitas mengenai pengenalan ragam disabilitas/tanda dan gejala kusta',
+    target:null, capaian:null },
+  { o:'O3', level:'output', kode:'Out.3.1.4', tipe:'Custom',
+    label:'Jumlah peserta yang mengikuti pelatihan mengenai pengenalan ragam disabilitas/tanda dan gejala kusta',
+    target:null, capaian:null },
+  { o:'O3', level:'io', kode:'IO3.2', tipe:'',
+    label:'IO 3.2 — DPO bekerja sama dengan pemangku kepentingan desa dalam membangun dan mengadvokasi jalur rujukan untuk CYWD',
+    target:null, capaian:null },
+  { o:'O3', level:'io-ind', kode:'IO3.2', tipe:'Custom',
+    label:'Jumlah DPO yang aktif berkolaborasi dengan penyedia layanan dan struktur desa dalam sistem rujukan',
+    target:null, capaian:null },
+  { o:'O3', level:'output', kode:'Out.3.2.1', tipe:'Custom',
+    label:'Jumlah kegiatan pelatihan yang dilakukan antara DPO dengan CBR Services',
+    target:null, capaian:null },
+  { o:'O3', level:'output', kode:'Out.3.2.2', tipe:'Custom',
+    label:'Jumlah CBR Worker yang dilatih untuk mendukung IRP',
+    target:null, capaian:null },
+  { o:'O3', level:'output', kode:'Out.3.2.3', tipe:'Custom',
+    label:'Jumlah kemitraan strategis yang dibangun antara DPO dengan penyedia layanan advokasi dan kesehatan serta CBR services',
+    target:null, capaian:null },
+  { o:'O3', level:'io', kode:'IO3.3', tipe:'',
+    label:'IO 3.3 — DPO dan CYWD berpartisipasi bermakna dalam proses pembangunan desa dan forum komunitas',
+    target:null, capaian:null },
+  { o:'O3', level:'io-ind', kode:'IO3.3', tipe:'Custom',
+    label:'Jumlah DPO yang melaporkan peningkatan kapasitas dalam mengadvokasi hak CYWD',
+    target:null, capaian:null },
+  { o:'O3', level:'output', kode:'Out.3.3.1', tipe:'Custom',
+    label:'Jumlah pengurus DPO yang mendapatkan pelatihan tata kelola organisasi, kepemimpinan, CBR, dan GEDSI',
+    target:null, capaian:null },
+  { o:'O3', level:'output', kode:'Out.3.3.2', tipe:'Custom',
+    label:'Jumlah pelatihan terkait tata kelola organisasi, kepemimpinan, CBR, dan GEDSI',
+    target:null, capaian:null },
+  { o:'O3', level:'io', kode:'IO3.4', tipe:'',
+    label:'IO 3.4 — DPO bekerja sama dengan kelompok masyarakat untuk mengadvokasi ruang komunitas dan fasilitas publik yang inklusif',
+    target:null, capaian:null },
+  { o:'O3', level:'io-ind', kode:'IO3.4', tipe:'Custom',
+    label:'Jumlah ruang publik atau fasilitas komunitas yang dibuat aksesibel dan aman sebagai hasil advokasi DPO & komunitas',
+    target:null, capaian:null },
+  { o:'O3', level:'output', kode:'Out.3.4.1', tipe:'Custom',
+    label:'Jumlah kunjungan lapangan untuk memperkuat aksesibilitas layanan',
+    target:null, capaian:null },
+
+  // ─── OUTCOME 4 ───────────────────────────────────────────
+  { o:'O4', level:'outcome', kode:'O1.2', tipe:'Standard LF',
+    label:'Jumlah penyedia layanan kesehatan/rehabilitasi yang meningkatkan peralatan atau fasilitas agar aksesibel bagi CYWD',
+    target:null, capaian:null },
+  { o:'O4', level:'outcome', kode:'IO4.0', tipe:'Custom',
+    label:'Jumlah penyedia layanan kesehatan/rehabilitasi yang meningkatkan penyediaan layanan agar inklusif (pengetahuan, sikap, keterampilan, dan praktik)',
+    target:null, capaian:null },
+  { o:'O4', level:'io', kode:'IO4.1', tipe:'',
+    label:'IO 4.1 — Kapasitas tenaga kesehatan diperkuat melalui pelatihan terkait inklusi disabilitas dan KSR inklusif',
+    target:null, capaian:null },
+  { o:'O4', level:'io-ind', kode:'IO4.1', tipe:'Custom',
+    label:'Jumlah tenaga kesehatan yang telah dilatih mengenai layanan KSR yang inklusif dan sensitif terhadap disabilitas',
+    target:null, capaian:null },
+  { o:'O4', level:'io', kode:'IO4.2', tipe:'',
+    label:'IO 4.2 — Penyedia layanan kesehatan bersama OPD/DPO memastikan jalur rujukan terbentuk dan layanan rehabilitasi inklusif',
+    target:null, capaian:null },
+  { o:'O4', level:'output', kode:'Out.4.2.1', tipe:'Custom',
+    label:'Jumlah tenaga kesehatan yang dilatih untuk berbagai topik (VCAT, Inklusi, SRHR, safeguarding, atau training penggunaan alat bantu)',
+    target:null, capaian:null },
+  { o:'O4', level:'output', kode:'Out.4.2.2', tipe:'Custom',
+    label:'Jumlah alat bantu yang didistribusikan kepada penerima manfaat sesuai kebutuhan spesifik mereka',
+    target:null, capaian:null },
+  { o:'O4', level:'output', kode:'Out.4.2.3', tipe:'Custom',
+    label:'Jumlah sesi pelatihan untuk berbagai topik (safeguarding, VCAT, Inklusi, SRHR, atau training penggunaan alat bantu)',
+    target:null, capaian:null },
+  { o:'O4', level:'io', kode:'IO4.3', tipe:'',
+    label:'IO 4.3 — Layanan kesehatan komunitas (Pustu dan Puskesmas) memastikan deteksi dini & pengobatan kusta terintegrasi',
+    target:null, capaian:null },
+  { o:'O4', level:'io-ind', kode:'IO4.3', tipe:'Custom',
+    label:'Jumlah kasus kusta yang diidentifikasi dan diobati di tingkat komunitas (Pustu/Puskesmas)',
+    target:null, capaian:null },
+  { o:'O4', level:'output', kode:'Out.4.3.1', tipe:'Custom',
+    label:'Jumlah tenaga kesehatan/staff puskesmas yang dilatih dalam deteksi dini, skrining, dan pemberian layanan bebas stigma bagi orang yang pernah mengalami kusta',
+    target:null, capaian:null },
+  { o:'O4', level:'output', kode:'Out.4.3.2', tipe:'Custom',
+    label:'Jumlah puskesmas yang menjalankan kemoprophylaxis',
+    target:null, capaian:null },
+  { o:'O4', level:'io', kode:'IO4.4', tipe:'',
+    label:'IO 4.4 — Penyedia layanan kesehatan meningkatkan layanan KSR remaja dengan disabilitas yang lebih inklusif dan mengurangi stigma',
+    target:null, capaian:null },
+  { o:'O4', level:'io-ind', kode:'IOD.3', tipe:'Standard LF',
+    label:'Jumlah CYWD yang memanfaatkan layanan Kesehatan Seksual dan Reproduksi (KSR) secara efektif',
+    target:null, capaian:null },
+
+  // ─── OUTCOME 5 ───────────────────────────────────────────
+  { o:'O5', level:'outcome', kode:'IO5.0', tipe:'Custom',
+    label:'Persentase/Jumlah CYWD dalam program yang terdaftar di program pendidikan inklusif dengan dukungan yang sesuai',
+    target:null, capaian:null },
+  { o:'O5', level:'outcome', kode:'O2.1', tipe:'Standard LF',
+    label:'Jumlah CYWD yang menunjukkan kemajuan sesuai potensi mereka (rencana pembelajaran individual)',
+    target:null, capaian:null },
+  { o:'O5', level:'outcome', kode:'O4.2', tipe:'Custom',
+    label:'Jumlah CYWD yang mengalami atau pernah mengalami kekerasan/abuse yang menerima perawatan dan dukungan yang memadai',
+    target:null, capaian:null },
+  { o:'O5', level:'io', kode:'IO5.1', tipe:'',
+    label:'IO 5.1 — Penyedia layanan pendidikan di semua tingkat dilatih tentang pendidikan inklusif dan perlindungan anak',
+    target:null, capaian:null },
+  { o:'O5', level:'io-ind', kode:'O2.2', tipe:'Standard LF',
+    label:'Jumlah sekolah atau lingkungan belajar dengan peningkatan kualitas pengajaran, pembelajaran, dan lingkungan sekolah',
+    target:null, capaian:null },
+  { o:'O5', level:'output', kode:'Out.5.1.1', tipe:'Custom',
+    label:'Jumlah kegiatan peningkatan kesadaran tentang disabilitas yang dilakukan kepada tenaga pendidik',
+    target:null, capaian:null },
+  { o:'O5', level:'output', kode:'Out.5.1.2', tipe:'Custom',
+    label:'Jumlah tenaga pendidik yang mengikuti kegiatan peningkatan kesadaran',
+    target:null, capaian:null },
+  { o:'O5', level:'output', kode:'Out.5.1.3', tipe:'Custom',
+    label:'Jumlah pelatihan tenaga pendidik inklusif yang dilakukan',
+    target:null, capaian:null },
+  { o:'O5', level:'output', kode:'Out.5.1.4', tipe:'Custom',
+    label:'Jumlah tenaga pendidik yang mengikuti kegiatan pelatihan inklusif',
+    target:null, capaian:null },
+  { o:'O5', level:'io', kode:'IO5.2', tipe:'',
+    label:'IO 5.2 — Penyedia pendidikan yang diperkuat kapasitasnya melakukan advokasi internal untuk fasilitas dan infrastruktur inklusif',
+    target:null, capaian:null },
+  { o:'O5', level:'io-ind', kode:'IO5.2', tipe:'Custom',
+    label:'Jumlah sekolah yang telah mengajukan permohonan atau proposal resmi kepada pemerintah untuk perbaikan aksesibilitas',
+    target:null, capaian:null },
+  { o:'O5', level:'output', kode:'Out.5.2.1', tipe:'Custom',
+    label:'Jumlah sekolah yang telah menyelesaikan penilaian hambatan dan aksesibilitas partisipatif (WTS)',
+    target:null, capaian:null },
+  { o:'O5', level:'output', kode:'Out.5.2.2', tipe:'Custom',
+    label:'Jumlah rencana aksi perbaikan fasilitas sekolah yang disusun dan dipantau implementasinya',
+    target:null, capaian:null },
+  { o:'O5', level:'io', kode:'IO5.3', tipe:'',
+    label:'IO 5.3 — Guru PAUD dan penyedia pendidikan dibekali kemampuan mendukung deteksi dini disabilitas',
+    target:null, capaian:null },
+  { o:'O5', level:'io-ind', kode:'IO5.3', tipe:'Custom',
+    label:'Jumlah guru PAUD yang menunjukkan peningkatan pengetahuan dalam menerapkan praktik identifikasi dini dan dukungan',
+    target:null, capaian:null },
+  { o:'O5', level:'output', kode:'Out.5.3.1', tipe:'Custom',
+    label:'Jumlah anak (CYWD) yang mengikuti proses skrining dan identifikasi dini kebutuhan belajar',
+    target:null, capaian:null },
+  { o:'O5', level:'output', kode:'Out.5.3.2', tipe:'Custom',
+    label:'Jumlah sesi pelatihan tentang skrining dan identifikasi dini',
+    target:null, capaian:null },
+  { o:'O5', level:'output', kode:'Out.5.3.3', tipe:'Custom',
+    label:'Jumlah guru yang mengikuti pelatihan skrining dan identifikasi dini',
+    target:null, capaian:null },
+  { o:'O5', level:'io', kode:'IO5.4', tipe:'',
+    label:'IO 5.4 — Penyedia pendidikan bersama komunitas mempromosikan akses pembelajaran berbasis komunitas yang inklusif',
+    target:null, capaian:null },
+  { o:'O5', level:'io-ind', kode:'IO5.4', tipe:'Custom',
+    label:'Jumlah anak yang mengakses pembelajaran berbasis komunitas sebagai pelengkap pendidikan formal',
+    target:null, capaian:null },
+  { o:'O5', level:'io', kode:'IO5.5', tipe:'',
+    label:'IO 5.5 — Sekolah menyediakan dukungan transisi bagi siswa untuk melanjutkan ke jenjang yang lebih tinggi atau memasuki dunia kerja',
+    target:null, capaian:null },
+  { o:'O5', level:'io-ind', kode:'IO5.5', tipe:'Custom',
+    label:'Jumlah CYWD yang mendapat dukungan melalui program bridging atau transisi',
+    target:null, capaian:null },
+  { o:'O5', level:'output', kode:'Out.5.5.1', tipe:'Custom',
+    label:'Jumlah lokakarya dukungan belajar berbasis komunitas yang diselenggarakan oleh sekolah bagi pemuda disabilitas',
+    target:null, capaian:null },
+  { o:'O5', level:'output', kode:'Out.5.5.2', tipe:'Custom',
+    label:'Jumlah peserta yang mengikuti pelatihan vokasional inklusif dan program pengenalan karier',
+    target:null, capaian:null },
+
+  // ─── OUTCOME 6 ───────────────────────────────────────────
+  { o:'O6', level:'outcome', kode:'O3.1', tipe:'Standard LF',
+    label:'Jumlah YwD yang berpartisipasi dalam pasar tenaga kerja',
+    target:null, capaian:null },
+  { o:'O6', level:'outcome', kode:'IOC.2', tipe:'Standard LF',
+    label:'Jumlah orang tua/pengasuh yang memiliki peningkatan pendapatan untuk memberikan dukungan memadai bagi CYwD',
+    target:null, capaian:null },
+  { o:'O6', level:'io', kode:'IO6.1', tipe:'',
+    label:'IO 6.1 — Pusat pelatihan vokasional meningkatkan kapasitas untuk menjadi lebih inklusif dan menawarkan model pelatihan fleksibel',
+    target:null, capaian:null },
+  { o:'O6', level:'io-ind', kode:'IO6.1', tipe:'Custom',
+    label:'Jumlah pusat pelatihan vokasional yang menerapkan model pelatihan inklusif dan fleksibel bagi pemuda dengan disabilitas dan pengasuh',
+    target:null, capaian:null },
+  { o:'O6', level:'output', kode:'Out.6.1.1', tipe:'Custom',
+    label:'Jumlah instruktur/tenaga pelatih yang mendapatkan peningkatan kapasitas dalam metode pengajaran adaptif dan dukungan kesiapan kerja',
+    target:null, capaian:null },
+  { o:'O6', level:'output', kode:'Out.6.1.2', tipe:'Custom',
+    label:'Jumlah sesi pelatihan peningkatan kapasitas dalam metode pengajaran adaptif dan dukungan kesiapan kerja bagi tenaga pelatih',
+    target:null, capaian:null },
+  { o:'O6', level:'output', kode:'Out.6.1.3', tipe:'Custom',
+    label:'Jumlah pemuda dengan disabilitas (YPWD) yang menyelesaikan pelatihan keterampilan teknis vokasional',
+    target:null, capaian:null },
+  { o:'O6', level:'io', kode:'IO6.2', tipe:'',
+    label:'IO 6.2 — Lembaga keuangan dan otoritas lokal mempromosikan inklusi keuangan dan mendukung kewirausahaan',
+    target:null, capaian:null },
+  { o:'O6', level:'io-ind', kode:'IO6.2', tipe:'Custom',
+    label:'Jumlah lembaga keuangan yang memiliki program inklusi disabilitas',
+    target:null, capaian:null },
+  { o:'O6', level:'output', kode:'Out.6.2.1', tipe:'Custom',
+    label:'Jumlah institusi keuangan yang menerima pelatihan literasi keuangan dan manajemen bisnis kecil',
+    target:null, capaian:null },
+  { o:'O6', level:'output', kode:'Out.6.2.2', tipe:'Custom',
+    label:'Jumlah remaja yang menerima pelatihan literasi keuangan dan manajemen bisnis kecil',
+    target:null, capaian:null },
+  { o:'O6', level:'io', kode:'IO6.3', tipe:'',
+    label:'IO 6.3 — Pemberi kerja menyediakan informasi pekerjaan dan kesempatan pelatihan yang dapat diakses',
+    target:null, capaian:null },
+  { o:'O6', level:'io-ind', kode:'O3.2', tipe:'Standard LF',
+    label:'Jumlah bisnis/tempat kerja/perusahaan yang meningkatkan proses dan prosedur untuk memfasilitasi lingkungan kerja yang inklusif',
+    target:null, capaian:null },
+  { o:'O6', level:'output', kode:'Out.6.3.1', tipe:'Custom',
+    label:'Jumlah pemberi kerja (perusahaan/UKM) yang mendapatkan sosialisasi dan pelatihan mengenai aksesibilitas tempat kerja serta akomodasi yang layak',
+    target:null, capaian:null },
+  { o:'O6', level:'output', kode:'Out.6.3.2', tipe:'Custom',
+    label:'Jumlah nota kesepahaman (MoU) atau kemitraan yang terbentuk antara penyedia layanan mata pencaharian dengan mitra',
+    target:null, capaian:null },
+  { o:'O6', level:'io', kode:'IO6.4', tipe:'',
+    label:'IO 6.4 — Penyedia perlindungan sosial disensitisasi mengenai inklusi disabilitas dan mendukung penghidupan berkelanjutan',
+    target:null, capaian:null },
+  { o:'O6', level:'io-ind', kode:'IO6.4', tipe:'Custom',
+    label:'Jumlah CYwD dan pengasuh yang menerima perlindungan sosial inklusif terkait penghidupan',
+    target:null, capaian:null },
+
+  // ─── OUTCOME 7 ───────────────────────────────────────────
+  { o:'O7', level:'outcome', kode:'IO7.0', tipe:'Custom',
+    label:'Jumlah kebijakan inklusif yang diadopsi, diimplementasikan, dan dimonitor dengan partisipasi DPO atau CYWD',
+    target:null, capaian:null },
+  { o:'O7', level:'io', kode:'IO7.1', tipe:'',
+    label:'IO 7.1 — Penguatan DPO/NGO untuk memantau anggaran publik dan melakukan advokasi secara efektif untuk inklusi',
+    target:null, capaian:null },
+  { o:'O7', level:'io-ind', kode:'IOF.1', tipe:'Standard LF',
+    label:'Jumlah aksi lobi dan advokasi kepada para pengambil kewajiban yang memengaruhi kebijakan/hukum/dokumen strategis terkait inklusi disabilitas, yang dipimpin oleh DPO/NGO',
+    target:null, capaian:null },
+  { o:'O7', level:'output', kode:'Out.7.1.1', tipe:'Custom',
+    label:'Jumlah anggota organisasi disabilitas (DPO) dan Forum CBR yang telah mengikuti pelatihan tata kelola organisasi dan kepemimpinan',
+    target:null, capaian:null },
+  { o:'O7', level:'io', kode:'IO7.2', tipe:'',
+    label:'IO 7.2 — Pemerintah memastikan kerangka hukum serta kebijakan inklusif disabilitas selaras di semua tingkat dan diimplementasikan',
+    target:null, capaian:null },
+  { o:'O7', level:'io-ind', kode:'IO7.2', tipe:'Custom',
+    label:'Jumlah kebijakan/hukum yang diharmonisasi atau diimplementasikan dengan kerangka inklusif',
+    target:null, capaian:null },
+  { o:'O7', level:'output', kode:'Out.7.2.1', tipe:'Custom',
+    label:'Jumlah dokumen pemetaan pemangku kepentingan dan pemutakhiran data disabilitas yang berhasil diselesaikan di tingkat distrik',
+    target:null, capaian:null },
+  { o:'O7', level:'output', kode:'Out.7.2.2', tipe:'Custom',
+    label:'Jumlah pertemuan koordinasi rutin Forum CBR dan SCN yang terlaksana',
+    target:null, capaian:null },
+  { o:'O7', level:'io', kode:'IO7.3', tipe:'',
+    label:'IO 7.3 — Pemerintah secara aktif mempromosikan dan mendukung partisipasi bermakna CYWD dalam proses perumusan kebijakan',
+    target:null, capaian:null },
+  { o:'O7', level:'io-ind', kode:'IO7.3', tipe:'Custom',
+    label:'Jumlah proses konsultasi atau penyusunan kebijakan yang melibatkan CYWD',
+    target:null, capaian:null },
+  { o:'O7', level:'output', kode:'Out.7.3.1', tipe:'Custom',
+    label:'Jumlah inisiatif advokasi bersama yang dilakukan oleh CYWD',
+    target:null, capaian:null },
+  { o:'O7', level:'io', kode:'IO7.4', tipe:'',
+    label:'IO 7.4 — Aktor pemerintah berkolaborasi dengan DPO/LSM untuk mempromosikan akses terhadap keadilan bagi CYWD',
+    target:null, capaian:null },
+  { o:'O7', level:'io-ind', kode:'IO7.4', tipe:'Custom',
+    label:'Jumlah inisiatif yang mempromosikan literasi hukum dan akses terhadap keadilan bagi CYWD',
+    target:null, capaian:null },
+  { o:'O7', level:'io-ind', kode:'IOF.2', tipe:'Standard LF',
+    label:'Jumlah kasus insiden perlindungan dan pengamanan anak yang dilaporkan kepada organisasi (mitra) dan ditanggapi',
+    target:null, capaian:null },
+  { o:'O7', level:'io', kode:'IO7.5', tipe:'',
+    label:'IO 7.5 — NGO/DPO mengembangkan dan melaksanakan kampanye media berbasis bukti yang meningkatkan kesadaran publik',
+    target:null, capaian:null },
+  { o:'O7', level:'io-ind', kode:'IO7.5', tipe:'Custom',
+    label:'Jumlah kampanye media yang mempromosikan layanan dan infrastruktur inklusif',
+    target:null, capaian:null },
+];
+
+// ── OUTCOME META ───────────────────────────────────────────
+const OUTCOME_META = {
+  O1:{ label:'Outcome 1', short:'CYWD Berdaya & Berpartisipasi',
+       desc:'CYWD berdaya, percaya diri, dan mampu mengambil keputusan terkait kesejahteraan mereka, termasuk HKSR dan partisipasi sosial' },
+  O2:{ label:'Outcome 2', short:'Keluarga & Komunitas',
+       desc:'Keluarga dan komunitas secara aktif mendukung dan mengadvokasi hak serta kebutuhan CYWD' },
+  O3:{ label:'Outcome 3', short:'DPO & Jaringan CBR',
+       desc:'DPO yang kuat secara aktif memimpin gerakan RBM/CBR dengan melibatkan tokoh masyarakat dan struktur desa' },
+  O4:{ label:'Outcome 4', short:'Layanan Kesehatan Inklusif',
+       desc:'Penyedia layanan kesehatan dan pusat rehabilitasi memastikan layanan benar-benar dapat diakses termasuk layanan KSR' },
+  O5:{ label:'Outcome 5', short:'Pendidikan Inklusif',
+       desc:'Aktor pendidikan secara konsisten menciptakan dan menjaga lingkungan belajar yang inklusif, aman, dan suportif' },
+  O6:{ label:'Outcome 6', short:'Pemberdayaan Ekonomi',
+       desc:'Penyedia pelatihan, pemberi kerja, dan otoritas lokal mendukung pemberdayaan ekonomi pemuda dengan disabilitas' },
+  O7:{ label:'Outcome 7', short:'Kebijakan & Advokasi',
+       desc:'Institusi pemerintah dan pembuat kebijakan secara konsisten mengembangkan, mengimplementasikan, dan memonitor hukum yang inklusif' },
+};
+
+// ── LEVEL STYLE ───────────────────────────────────────────
+const LEVEL_STYLE = {
+  outcome:  { bg:'#EFF6FF', border:'#BFDBFE', label:'OUTCOME',       bold:true,  indent:0  },
+  io:       { bg:'#F9FAFB', border:'#E5E7EB', label:'INT. OUTCOME',  bold:true,  indent:16 },
+  'io-ind': { bg:'#FFFFFF', border:'#F3F4F6', label:'INDIKATOR',     bold:false, indent:32 },
+  output:   { bg:'#FAFAFA', border:'#F3F4F6', label:'OUTPUT',        bold:false, indent:48 },
+};
+
+// ── RENDER ────────────────────────────────────────────────
 function renderPage(d, scnId) {
-  if (!d) return;
-  const itt = (d.itt && d.itt.Y1_Q2) ? d.itt.Y1_Q2 : {};
+  // Load target/capaian dari GSheet jika tersedia
+  const capData = (d && d.itt) ? d.itt : {};
+
   const container = document.getElementById('itt-container');
 
-  // KPI summary bar
-  const allInds = Object.values(itt);
-  const totalCap = allInds.reduce((s, v) => s + (v.cap || 0), 0);
-  const totalTgt = allInds.reduce((s, v) => s + (v.target_y1 || 0), 0);
-  const avgPct   = getPct(totalCap, totalTgt);
-  const onTrack  = allInds.filter(v => getPct(v.cap, v.target_y1) >= 80).length;
-  const perlu    = allInds.filter(v => getPct(v.cap, v.target_y1) < 25).length;
+  // Group by outcome
+  const byO = {};
+  ITT.forEach(ind => {
+    if (!byO[ind.o]) byO[ind.o] = [];
+    byO[ind.o].push(ind);
+  });
 
-  const summaryHtml = `
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px">
-    <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:14px;border-top:3px solid var(--nlr-600)">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:var(--nlr-600);line-height:1">${avgPct}%</div>
-      <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0;margin:6px 0 2px">Rata-rata Capaian</div>
-      <div style="font-size:.68rem;color:#8a9ab0">terhadap target Y1</div>
-    </div>
-    <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:14px;border-top:3px solid #059669">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:#059669;line-height:1">${onTrack}</div>
-      <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0;margin:6px 0 2px">On Track ≥80%</div>
-      <div style="font-size:.68rem;color:#8a9ab0">dari ${allInds.length} indikator</div>
-    </div>
-    <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:14px;border-top:3px solid #dc2626">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:#dc2626;line-height:1">${perlu}</div>
-      <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0;margin:6px 0 2px">Perlu Aksi &lt;25%</div>
-      <div style="font-size:.68rem;color:#8a9ab0">prioritas intervensi</div>
-    </div>
-    <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:14px;border-top:3px solid #2563eb">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:#2563eb;line-height:1">${allInds.length}</div>
-      <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0;margin:6px 0 2px">Total Indikator</div>
-      <div style="font-size:.68rem;color:#8a9ab0">7 Outcome ITT</div>
-    </div>
-  </div>`;
+  container.innerHTML = Object.keys(OUTCOME_META).map(oKey => {
+    const meta = OUTCOME_META[oKey];
+    const color = O_COLORS[oKey];
+    const rows = byO[oKey] || [];
 
-  // Accordion per Outcome
-  const accordionHtml = OUTCOMES.map(o => {
-    const inds = o.indikator_ids.map(id => {
-      const v   = itt[id] || { cap: 0, target_y1: 0, target_total: 0 };
-      const pct = getPct(v.cap, v.target_y1);
-      const col = getPctColor(pct);
-      return { id, label: ITT_LABELS[id] || id, ...v, pct, col };
-    });
+    // Count indikator (exclude io header rows)
+    const inds = rows.filter(r => r.level !== 'io');
+    const withTarget = inds.filter(r => r.target != null);
+    const countStr = withTarget.length > 0
+      ? `${withTarget.length} indikator dengan target`
+      : `${inds.length} indikator`;
 
-    const avgO  = inds.length ? Math.round(inds.reduce((s, i) => s + i.pct, 0) / inds.length) : 0;
-    const colO  = getPctColor(avgO);
+    const rowsHtml = rows.map(ind => {
+      const st = LEVEL_STYLE[ind.level] || LEVEL_STYLE['io-ind'];
+      const isHeader = ind.level === 'io';
 
-    const rowsHtml = inds.map((ind, idx) => `
-      <tr style="border-bottom:1px solid #f1f5f9">
-        <td style="padding:10px 18px;font-size:.72rem;font-weight:700;color:${o.warna};white-space:nowrap">${ind.id}</td>
-        <td style="padding:10px 12px;font-size:.78rem;color:#1c2330;line-height:1.45;max-width:340px">${ind.label}</td>
-        <td style="padding:10px 12px;text-align:center">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:700;color:#141820">${ind.cap}</span>
-        </td>
-        <td style="padding:10px 12px;text-align:center">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#8a9ab0">${ind.target_y1}</span>
-        </td>
-        <td style="padding:10px 12px;text-align:center">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#b8c4d0">${ind.target_total}</span>
-        </td>
-        <td style="padding:10px 18px;min-width:160px">
-          <div style="display:flex;align-items:center;gap:8px">
-            <div style="flex:1;height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden">
-              <div style="height:100%;width:${ind.pct}%;background:${ind.col};border-radius:99px;transition:width .4s ease"></div>
-            </div>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;color:${ind.col};min-width:32px;text-align:right">${ind.pct}%</span>
-          </div>
-        </td>
-        <td style="padding:10px 18px">${getStatusBadge(ind.pct)}</td>
-      </tr>`).join('');
+      // Untuk header IO: tampilkan label section, tidak ada kolom angka
+      if (isHeader) {
+        return `<div style="
+          background:${st.bg};
+          border-bottom:1px solid ${st.border};
+          padding:8px 16px 8px ${16 + st.indent}px;
+          display:flex;align-items:center;gap:8px;
+        ">
+          <span style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+            color:${color};background:${color}18;padding:1px 7px;border-radius:999px;flex-shrink:0">${st.label}</span>
+          <span style="font-size:.74rem;font-weight:700;color:#374151">${ind.label}</span>
+        </div>`;
+      }
 
-    return `
-    <div class="itt-block" id="block-${o.id}" style="--o-color:${o.warna}">
-      <div class="itt-header" onclick="toggleBlock('${o.id}')">
+      // Indikator / Output row
+      const capVal = ind.capaian;
+      const tgtVal = ind.target;
+      const pct = (capVal != null && tgtVal) ? Math.min(Math.round(capVal/tgtVal*100),100) : null;
+      const pctColor = pct == null ? '#D1D5DB' : pct>=80?'#059669':pct>=50?'#2563EB':pct>=25?'#D97706':'#DC2626';
+
+      const tipeTag = ind.tipe ? `<span style="font-size:.55rem;font-weight:700;padding:1px 6px;border-radius:999px;
+        background:${ind.tipe==='Standard LF'?'#DBEAFE':'#FEF3C7'};
+        color:${ind.tipe==='Standard LF'?'#1D4ED8':'#92400E'};flex-shrink:0">${ind.tipe}</span>` : '';
+
+      const targetDisplay = tgtVal != null ? `<span style="font-size:.8rem;font-weight:700;font-family:monospace;color:#374151">${tgtVal}</span>` 
+        : `<span style="font-size:.72rem;color:#D1D5DB">—</span>`;
+      const capDisplay = capVal != null ? `<span style="font-size:.8rem;font-weight:700;font-family:monospace;color:${pctColor}">${capVal}</span>` 
+        : `<span style="font-size:.72rem;color:#D1D5DB">—</span>`;
+      const pctDisplay = pct != null ? `<span style="font-size:.75rem;font-weight:800;font-family:monospace;color:${pctColor}">${pct}%</span>`
+        : `<span style="font-size:.72rem;color:#D1D5DB">—</span>`;
+
+      const progressBar = pct != null ? `<div style="width:60px;height:4px;background:#F3F4F6;border-radius:2px;overflow:hidden;flex-shrink:0">
+          <div style="width:${pct}%;height:100%;background:${pctColor};border-radius:2px"></div>
+        </div>` : '';
+
+      return `<div style="
+        background:${st.bg};
+        border-bottom:1px solid ${st.border};
+        padding:8px 16px 8px ${16 + st.indent}px;
+        display:flex;align-items:center;gap:10px;
+      ">
+        <span style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+          color:#6B7280;background:#F3F4F6;padding:1px 6px;border-radius:999px;flex-shrink:0;white-space:nowrap">${ind.kode}</span>
+        <span style="font-size:.74rem;font-weight:${st.bold?'600':'400'};color:#1F2937;flex:1;line-height:1.4">${ind.label}</span>
+        ${tipeTag}
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;min-width:180px;justify-content:flex-end">
+          <span style="font-size:.6rem;color:#9CA3AF;white-space:nowrap">Target</span>
+          ${targetDisplay}
+          <span style="font-size:.6rem;color:#9CA3AF;white-space:nowrap">Capaian</span>
+          ${capDisplay}
+          ${progressBar}
+          ${pctDisplay}
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="itt-block" id="block-${oKey}">
+      <div class="itt-header" style="--o-color:${color}" onclick="toggleBlock('${oKey}')">
         <div class="itt-header-left">
           <div>
-            <div class="itt-label">${o.label}</div>
-            <div class="itt-name">${o.pendek}</div>
+            <div class="itt-label">${meta.label}</div>
+            <div class="itt-name">${meta.short}</div>
           </div>
         </div>
         <div class="itt-header-right">
-          <div class="itt-header-prog">
-            <div style="height:5px;background:rgba(0,0,0,.08);border-radius:99px;overflow:hidden;margin-bottom:4px">
-              <div style="height:100%;width:${avgO}%;background:${o.warna};border-radius:99px"></div>
-            </div>
-            <div style="font-size:.65rem;color:#8a9ab0;text-align:right">${inds.length} indikator</div>
-          </div>
-          <div class="itt-avg" style="color:${colO}">${avgO}%</div>
-          ${getStatusBadge(avgO)}
-          <button class="itt-toggle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          <span style="font-size:.65rem;color:#9CA3AF">${countStr}</span>
+          <button class="itt-toggle" onclick="event.stopPropagation();toggleBlock('${oKey}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
         </div>
       </div>
       <div class="itt-body">
-        <div style="overflow-x:auto">
-          <table style="width:100%;border-collapse:collapse">
-            <thead>
-              <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0">
-                <th style="padding:9px 18px;text-align:left;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0;white-space:nowrap">ID</th>
-                <th style="padding:9px 12px;text-align:left;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0">Indikator</th>
-                <th style="padding:9px 12px;text-align:center;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0">Capaian</th>
-                <th style="padding:9px 12px;text-align:center;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0">Target Y1</th>
-                <th style="padding:9px 12px;text-align:center;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0">Target Total</th>
-                <th style="padding:9px 18px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0">Progress</th>
-                <th style="padding:9px 18px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8a9ab0">Status</th>
-              </tr>
-            </thead>
-            <tbody>${rowsHtml}</tbody>
-          </table>
+        <div style="padding:4px 0;border-top:1px solid #F3F4F6">
+          <div style="padding:8px 16px;background:#FAFAFA;border-bottom:1px solid #F3F4F6">
+            <p style="font-size:.7rem;color:#6B7280;margin:0;line-height:1.5">${meta.desc}</p>
+          </div>
+          <!-- Column header -->
+          <div style="display:flex;align-items:center;gap:10px;padding:5px 16px;background:#F9FAFB;border-bottom:1px solid #E5E7EB">
+            <span style="flex:1;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF">Indikator / Output</span>
+            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;min-width:180px;justify-content:flex-end">
+              <span style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;white-space:nowrap">Target Y1</span>
+              <span style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;white-space:nowrap">Capaian</span>
+              <span style="width:60px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;text-align:center">Progress</span>
+              <span style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF">%</span>
+            </div>
+          </div>
+          ${rowsHtml}
         </div>
       </div>
     </div>`;
   }).join('');
 
-  container.innerHTML = summaryHtml + accordionHtml;
-
-  // Buka accordion pertama by default
+  // Expand O1 by default
   document.getElementById('block-O1')?.classList.add('open');
 }
 
-// ── TOGGLE ───────────────────────────────────────────────────
-function toggleBlock(id) {
-  document.getElementById('block-' + id)?.classList.toggle('open');
+function toggleBlock(oKey) {
+  document.getElementById('block-'+oKey)?.classList.toggle('open');
 }
 function toggleAll(open) {
-  document.querySelectorAll('.itt-block').forEach(el => {
-    open ? el.classList.add('open') : el.classList.remove('open');
+  document.querySelectorAll('.itt-block').forEach(b => {
+    open ? b.classList.add('open') : b.classList.remove('open');
   });
 }
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  renderPage({}, null);
+  document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  if (typeof initSidebar === 'function') initSidebar();
+  if (typeof initAuth === 'function') initAuth(renderPage);
+});
 </script>
-<script>
-  buildSidebar();
-  const SESSION = AUTH.requireAuth('../index.html');
-  if (SESSION) {
-    AUTH.applySession({
-      onScnSwitch: async function(scnId) {
-        const d = await API.get(scnId);
-        if (window.renderPage) renderPage(d, scnId);
-      }
-    });
-    AUTH.initSidebar('mel', 'm-itt');
-    API.get(AUTH.getScnFilter()).then(d => {
-      if (window.renderPage) renderPage(d, AUTH.getScnFilter());
-    });
-  }
-</script></body></html>
+</body>
+</html>

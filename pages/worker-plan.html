@@ -53,6 +53,8 @@
 .vmode:hover{background:#F9FAFB;color:#6B7280}
 .vmode.active{background:#FFF7ED;border-color:#F97316;color:#F97316}
 .vmode svg{width:11px;height:11px}
+.mode-md .ld-item{padding:8px 14px}
+.mode-md .ld-item-name{font-size:.77rem}
 .mode-sm .ld-item{padding:6px 14px}
 .mode-sm .ld-item-name{font-size:.74rem}
 .mode-sm .ld-item-sub{display:none}
@@ -115,7 +117,8 @@ function setView(v){
   ['xl','md','sm','cd'].forEach(x=>document.getElementById('vm-'+x).classList.toggle('active',x===v));
   const el=document.getElementById('ld-items');
   el.className='ld-items';
-  if(v==='sm') el.classList.add('mode-sm');
+  if(v==='md') el.classList.add('mode-md');
+  else if(v==='sm') el.classList.add('mode-sm');
   else if(v==='cd') el.classList.add('mode-card');
   renderList();
 }

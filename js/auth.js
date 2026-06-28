@@ -81,6 +81,8 @@ const AUTH = (() => {
   function applySession(opts = {}) {
     const s = getSession();
     if (!s) return;
+    // Simpan onScnSwitch ke window agar sidebar.js juga bisa memanggilnya
+    if (opts.onScnSwitch) window.__onScnSwitch = opts.onScnSwitch;
     const q = sel => document.querySelector(sel);
     if (q('#user-av'))     q('#user-av').textContent    = s.username.charAt(0).toUpperCase();
     if (q('#user-name'))   q('#user-name').textContent  = s.username.toUpperCase();
@@ -99,22 +101,43 @@ const AUTH = (() => {
       sel.innerHTML = `<option value="">— Semua SCN —</option>` +
         SCN_LIST.map(x => `<option value="${x.id}">${x.label}</option>`).join('');
       sel.value = currentScn || '';
+      // Bug 2 Fix: langsung trigger onScnSwitch tanpa perlu refresh
       sel.addEventListener('change', () => {
         const scnId = sel.value || null;
         setScnFilter(scnId);
         updateScnBadge(scnId);
-        if (opts.onScnSwitch) opts.onScnSwitch(scnId);
+        if (window.API && API.clearCache) API.clearCache(scnId);
+        if (typeof window.__onScnSwitch === 'function') {
+          window.__onScnSwitch(scnId);
+        } else {
+          location.reload();
+        }
       });
       wrap.appendChild(sel);
     }
   }
 
   function initSidebar(activeGroup, activePage) {
+    // Set active nav item
+    document.querySelectorAll('.nav-sub-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.page === activePage);
+    });
+
+    // Bug 1 Fix: default semua grup collapsed, buka hanya grup aktif
+    document.querySelectorAll('.nav-group').forEach(g => {
+      const hasActive = g.querySelector('.nav-sub-item.active');
+      if (hasActive) {
+        g.classList.remove('collapsed');
+      } else {
+        g.classList.add('collapsed');
+      }
+    });
+
+    // Fallback: sistem lama pakai data-group + sub-* jika masih ada
     document.querySelectorAll('.nav-group-header').forEach(h => {
       const groupId = h.dataset.group;
       const sub     = document.getElementById('sub-' + groupId);
       if (!sub) return;
-      if (groupId === activeGroup) { h.classList.add('open'); sub.classList.add('open'); }
       h.addEventListener('click', () => {
         const isOpen = h.classList.contains('open');
         document.querySelectorAll('.nav-group-header').forEach(x => x.classList.remove('open'));
@@ -122,11 +145,14 @@ const AUTH = (() => {
         if (!isOpen) { h.classList.add('open'); sub.classList.add('open'); }
       });
     });
-    if (activePage) {
-      document.querySelectorAll('.nav-sub-item').forEach(item => {
-        if (item.dataset.page === activePage) item.classList.add('active');
-      });
-    }
+
+    // Bug 3 Fix: preload data di background agar cache terisi sebelum user navigasi
+    setTimeout(() => {
+      if (window.API) {
+        const scnId = getScnFilter();
+        API.get(scnId).catch(() => {});
+      }
+    }, 300);
   }
 
   return {

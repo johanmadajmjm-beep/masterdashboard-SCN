@@ -214,8 +214,13 @@ function buildSidebar() {
       if (badge) badge.textContent = scn ? ('SCN ' + scn.charAt(0).toUpperCase() + scn.slice(1)) : 'Semua SCN';
       // Clear cache agar data fresh saat SCN diganti
       if (window.API && API.clearCache) API.clearCache(scn);
-      // Trigger onScnSwitch dari halaman aktif
-      if (window.__onScnSwitch) window.__onScnSwitch(scn);
+      // Trigger onScnSwitch dari halaman aktif (langsung, tanpa perlu refresh)
+      if (typeof window.__onScnSwitch === 'function') {
+        window.__onScnSwitch(scn);
+      } else {
+        // Fallback: reload jika halaman belum registrasi onScnSwitch
+        location.reload();
+      }
     });
   }
 }
@@ -247,7 +252,15 @@ function initSidebar(group, pageId, scnLabel) {
     a.classList.toggle('active', a.dataset.page === pageId);
   });
 
-  // Semua grup default terbuka — tidak perlu tambah class apapun
+  // Bug 1 Fix: Default semua grup collapsed, buka hanya grup yang berisi halaman aktif
+  document.querySelectorAll('.nav-group').forEach(g => {
+    const hasActive = g.querySelector('.nav-sub-item.active');
+    if (hasActive) {
+      g.classList.remove('collapsed');
+    } else {
+      g.classList.add('collapsed');
+    }
+  });
 
   // Set topbar
   const topbarDate = document.getElementById('topbar-date');
@@ -262,6 +275,19 @@ function initSidebar(group, pageId, scnLabel) {
     const label = scnLabel || (scn ? ('SCN ' + scn.charAt(0).toUpperCase() + scn.slice(1)) : (AUTH.isSuperAdmin && AUTH.isSuperAdmin() ? 'Semua SCN' : '—'));
     scnBadge.textContent = label;
   }
+
+  // Bug 3 Fix: Preload data di background agar cache terisi sebelum user navigasi
+  _preloadData();
+}
+
+// ── PRELOAD DATA (background fetch untuk isi cache) ────────
+function _preloadData() {
+  if (!window.API || !window.AUTH) return;
+  const scnId = AUTH.getScnFilter ? AUTH.getScnFilter() : null;
+  // Fetch di background — tidak block UI, hasil masuk cache otomatis
+  setTimeout(() => {
+    API.get(scnId).catch(() => {});
+  }, 500); // delay 500ms agar UI render dulu
 }
 
 // ── INJECT CSS ──────────────────────────────────────────────

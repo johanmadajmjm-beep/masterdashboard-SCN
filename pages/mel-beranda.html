@@ -162,12 +162,9 @@ function buildUI(){
   anak.forEach(a=>{ const k=a.ragam||'Lainnya'; ragamMap[k]=(ragamMap[k]||0)+1; });
   const ragamLabels = Object.keys(ragamMap);
   const ragamData   = ragamLabels.map(k=>ragamMap[k]);
-  const ragamColors = ['#F97316','#2563eb','#16a34a','#7c3aed','#d97706','#0ea5e9','#94a3b8'];
-
   // Level
   const levelOrder = ['Parah (dukungan penuh)','Sedang (dukungan reguler)','Rendah (sedikit dukungan)'];
   const levelShort  = ['Parah','Sedang','Rendah'];
-  const levelColors = ['#dc2626','#d97706','#16a34a'];
   const levelData   = levelOrder.map(l=>anak.filter(a=>(a.level||'').includes(l.split(' ')[0])).length);
 
   // Outcome pct
@@ -295,24 +292,49 @@ function buildUI(){
     </div>
   `;
 
+  // ── SHARED: datalabel plugin (manual afterDraw) ──
+  const datalabelPlugin = {
+    id:'datalabel',
+    afterDatasetsDraw(chart){
+      const {ctx,data,scales:{x,y}}=chart;
+      ctx.save();
+      ctx.font='700 10px JetBrains Mono, monospace';
+      ctx.fillStyle='#1E293B';
+      ctx.textAlign='center';
+      ctx.textBaseline='bottom';
+      data.datasets.forEach((ds,di)=>{
+        chart.getDatasetMeta(di).data.forEach((bar,i)=>{
+          const val=ds.data[i];
+          if(val==null||val===0) return;
+          const suffix=chart.config.options._labelSuffix||'';
+          ctx.fillText(val+suffix, bar.x, bar.y-3);
+        });
+      });
+      ctx.restore();
+    }
+  };
+
   // ── CHART: Outcome ──
   const ctxOC = document.getElementById('ch-outcome');
   if(ctxOC){
     const ocPcts = OUT_CONF.map(o=>pcts[o.id]||0);
     const ocChart = new Chart(ctxOC, {
       type:'bar',
+      plugins:[datalabelPlugin],
       data:{
         labels: OUT_CONF.map(o=>o.label),
         datasets:[{
           data: ocPcts,
-          backgroundColor: OUT_CONF.map(o=>o.warna+'CC'),
-          borderColor:      OUT_CONF.map(o=>o.warna),
+          backgroundColor: '#F97316CC',
+          borderColor:      '#F97316',
           borderWidth:1.5,
           borderRadius:6,
         }]
       },
       options:{
+        _labelSuffix:'%',
         responsive:true, maintainAspectRatio:false,
+        layout:{padding:{top:18}},
         plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw+'%'}}},
         scales:{
           y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f1f5f9'}},
@@ -329,18 +351,21 @@ function buildUI(){
   if(ctxRg){
     const rgChart = new Chart(ctxRg, {
       type:'bar',
+      plugins:[datalabelPlugin],
       data:{
         labels: ragamLabels.map(l=>l.length>12?l.slice(0,12)+'…':l),
         datasets:[{
           data: ragamData,
-          backgroundColor: ragamColors.slice(0,ragamLabels.length).map(c=>c+'CC'),
-          borderColor:      ragamColors.slice(0,ragamLabels.length),
+          backgroundColor: '#1E293BCC',
+          borderColor:      '#1E293B',
           borderWidth:1.5,
           borderRadius:6,
         }]
       },
       options:{
+        _labelSuffix:'',
         responsive:true, maintainAspectRatio:false,
+        layout:{padding:{top:18}},
         plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw+' anak'}}},
         scales:{
           y:{beginAtZero:true,ticks:{font:{size:10},stepSize:1},grid:{color:'#f1f5f9'}},
@@ -356,18 +381,21 @@ function buildUI(){
   if(ctxLv){
     const lvChart = new Chart(ctxLv, {
       type:'bar',
+      plugins:[datalabelPlugin],
       data:{
         labels: levelShort,
         datasets:[{
           data: levelData,
-          backgroundColor: levelColors.map(c=>c+'CC'),
-          borderColor:      levelColors,
+          backgroundColor: '#F97316CC',
+          borderColor:      '#F97316',
           borderWidth:1.5,
           borderRadius:6,
         }]
       },
       options:{
+        _labelSuffix:'',
         responsive:true, maintainAspectRatio:false,
+        layout:{padding:{top:18}},
         plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw+' anak'}}},
         scales:{
           y:{beginAtZero:true,ticks:{font:{size:10},stepSize:1},grid:{color:'#f1f5f9'}},

@@ -38,18 +38,7 @@
     .kpi-tile-lbl{font-size:.62rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
     .kpi-tile-sub{font-size:.6rem;color:#94a3b8;margin-top:1px}
 
-    /* ── ALERT ── */
-    .alert-strip{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
-    .alert-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;font-size:.78rem}
-    .alert-row.red{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
-    .alert-row.amber{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
-    .alert-row.green{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
-    .alert-row.blue{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
-    .alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .alert-dot.red{background:#ef4444}
-    .alert-dot.amber{background:#f59e0b}
-    .alert-dot.green{background:#22c55e}
-    .alert-dot.blue{background:#3b82f6}
+
 
     /* ── HEATMAP ── */
     .hm-wrap{overflow-x:auto}
@@ -286,13 +275,7 @@ function renderAll(){
   const totalKeg = new Set(BEN_MON.map(r=>r.nama_kegiatan).filter(Boolean)).size;
   const totalPes = BEN_MON.reduce((s,r)=>s+num(r.total),0);
 
-  // ── ALERTS ───────────────────────────────────────────────
-  const alerts=[];
-  if(kritis>0) alerts.push(`<div class="alert-row red"><div class="alert-dot red"></div><strong>${kritis} anak kondisi kritis</strong> — skor Cantrill ≤ 3, perlu intervensi segera</div>`);
-  if(telat>0)  alerts.push(`<div class="alert-row amber"><div class="alert-dot amber"></div><strong>${telat} anak belum dikunjungi >30 hari</strong> — ${total?Math.round(telat/total*100):0}% dari total beneficiary</div>`);
-  if(tanpaObs>0) alerts.push(`<div class="alert-row amber"><div class="alert-dot amber"></div><strong>${tanpaObs} anak belum diobservasi</strong> — coverage observasi ${coverage}%</div>`);
-  if(totalStk>0) alerts.push(`<div class="alert-row blue"><div class="alert-dot blue"></div><strong>${totalStk} stakeholder terlibat</strong> dari ${totalKeg} kegiatan · ${totalPes} total peserta</div>`);
-  if(!alerts.length) alerts.push(`<div class="alert-row green"><div class="alert-dot green"></div>Semua indikator dalam kondisi baik — program berjalan normal</div>`);
+
 
   // ── LESSON LEARNT dari DataMonthly ───────────────────────
   const lessons = BEN_MON.filter(r=>r.lesson_learnt).slice(0,5);
@@ -309,7 +292,6 @@ function renderAll(){
 
     <!-- ══ TAB 1: RINGKASAN EKSEKUTIF ══ -->
     <div class="tab-pane active" id="tab-ringkasan">
-    <div class="alert-strip">${alerts.join('')}</div>
 
     <!-- ── KPI 3 SUMBER ── -->
     <div class="kpi-strip">

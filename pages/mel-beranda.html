@@ -7,38 +7,30 @@
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
     /* ── KPI ROW ── */
-    .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
-    .kpi-card{background:#fff;border:1px solid #e9eef6;border-radius:12px;padding:16px 18px;border-top:3px solid var(--kc,#F97316)}
+    .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+    @media(max-width:700px){.kpi-row{grid-template-columns:1fr 1fr}}
+    .kpi-card{background:#fff;border:1px solid #e9eef6;border-radius:12px;padding:16px 18px;border-top:3px solid var(--kc,#F97316);position:relative}
     .kpi-val{font-size:1.6rem;font-weight:800;line-height:1;font-family:'JetBrains Mono',monospace;color:var(--kc,#F97316)}
     .kpi-lbl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-top:5px}
     .kpi-sub{font-size:.67rem;color:#94a3b8;margin-top:2px}
+    /* tooltip L/P */
+    .kpi-tip{position:relative;display:inline-block;margin-left:6px;cursor:default}
+    .kpi-tip-icon{font-size:.6rem;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:99px;padding:1px 6px;color:#64748b;font-weight:700;user-select:none}
+    .kpi-tip-box{display:none;position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;font-size:.7rem;border-radius:8px;padding:7px 12px;white-space:nowrap;z-index:99;line-height:1.7;font-weight:400}
+    .kpi-tip-box::before{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:#1e293b}
+    .kpi-tip:hover .kpi-tip-box{display:block}
 
-    /* ── ALERT ── */
-    .alert-strip{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
-    .alert-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;font-size:.78rem}
-    .alert-row.red{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
-    .alert-row.amber{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
-    .alert-row.green{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
-    .alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .alert-dot.red{background:#ef4444}
-    .alert-dot.amber{background:#f59e0b}
-    .alert-dot.green{background:#22c55e}
+    /* ── SECTION LABEL ── */
+    .sec-lbl{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:10px}
 
-    /* ── OUTCOME CARDS ── */
-    .outcome-row{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:20px}
-    @media(max-width:1100px){.outcome-row{grid-template-columns:repeat(4,1fr)}}
-    @media(max-width:700px){.outcome-row{grid-template-columns:repeat(2,1fr)}}
-    .oc-card{background:#fff;border:1px solid #e9eef6;border-radius:12px;padding:14px 12px;cursor:pointer;transition:box-shadow .15s,transform .12s;text-decoration:none;display:block;border-top:3px solid var(--oc,#F97316)}
-    .oc-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-2px)}
-    .oc-pct{font-size:1.5rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--oc);line-height:1;margin:6px 0}
-    .oc-lbl{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--oc)}
-    .oc-sub{font-size:.64rem;color:#94a3b8;margin-top:4px}
-    .prog-track{height:5px;background:#f1f5f9;border-radius:3px;overflow:hidden;margin-top:8px}
-    .prog-fill{height:100%;border-radius:3px;background:var(--oc,#F97316)}
-
-    /* ── MAIN GRID ── */
-    .main-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-    @media(max-width:900px){.main-grid{grid-template-columns:1fr}}
+    /* ── OUTCOME + CHARTS ROW ── */
+    .oc-charts-row{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-bottom:20px;align-items:start}
+    @media(max-width:1000px){.oc-charts-row{grid-template-columns:1fr 1fr}}
+    @media(max-width:700px){.oc-charts-row{grid-template-columns:1fr}}
+    .chart-card{background:#fff;border:1px solid #e9eef6;border-radius:12px;padding:14px 16px}
+    .chart-card-title{font-size:.75rem;font-weight:700;color:#0f172a;margin-bottom:12px}
+    .chart-wrap{position:relative;height:200px}
+    .chart-wrap-tall{position:relative;height:240px}
 
     /* ── SHORTCUT ── */
     .shortcut-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
@@ -48,6 +40,10 @@
     .sc-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
     .sc-lbl{font-size:.8rem;font-weight:700;color:#0f172a}
     .sc-sub{font-size:.66rem;color:#94a3b8;margin-top:2px}
+
+    /* ── MAIN GRID ── */
+    .main-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+    @media(max-width:900px){.main-grid{grid-template-columns:1fr}}
 
     /* ── CARD ── */
     .mb-card{background:#fff;border:1px solid #e9eef6;border-radius:12px;overflow:hidden}
@@ -65,16 +61,12 @@
     .out-pill{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.64rem;font-weight:700;color:#fff}
     .tbl-wrap{overflow-x:auto}
 
-    /* ── BENEF KONDISI ── */
-    .kondisi-row{display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap}
-    .kondisi-stat{text-align:center;flex:1;min-width:60px}
-    .kondisi-val{font-size:1.2rem;font-weight:800;font-family:'JetBrains Mono',monospace}
-    .kondisi-lbl{font-size:.63rem;color:#94a3b8;font-weight:600;text-transform:uppercase;margin-top:3px}
+    /* ── KONDISI ANAK ── */
     .score-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.76rem}
     .score-lbl{min-width:100px;font-weight:600}
     .score-bar{flex:1;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden}
     .score-fill{height:100%;border-radius:3px}
-    .score-num{font-size:.71rem;font-weight:700;min-width:60px;text-align:right;font-family:'JetBrains Mono',monospace}
+    .score-pct{font-size:.71rem;font-weight:700;min-width:42px;text-align:right;font-family:'JetBrains Mono',monospace}
 
     /* ── LOADING ── */
     .mb-loading{display:flex;align-items:center;justify-content:center;height:200px;color:#94a3b8;font-size:.82rem;gap:10px}
@@ -97,7 +89,6 @@
       </div>
     </header>
     <div class="page">
-
       <div id="page-content">
         <div class="mb-loading"><div class="spin"></div> Memuat data...</div>
       </div>
@@ -109,27 +100,39 @@
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
 <script src="../js/api-ben.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 const OUT_CONF = [
-  {id:'O1',label:'Inklusi Anak',  pendek:'Wellbeing anak',        warna:'#F97316'},
-  {id:'O2',label:'Pengasuh',      pendek:'Kapasitas pengasuh',    warna:'#1E293B'},
-  {id:'O3',label:'CBR Worker',    pendek:'Kinerja pekerja',       warna:'#2563eb'},
-  {id:'O4',label:'Pihak Terlibat',pendek:'Jaringan stakeholder',  warna:'#16a34a'},
-  {id:'O5',label:'Kesehatan',     pendek:'Akses layanan',         warna:'#7c3aed'},
-  {id:'O6',label:'Pendidikan',    pendek:'Akses pendidikan',      warna:'#d97706'},
-  {id:'O7',label:'Penghidupan',   pendek:'Kemandirian ekonomi',   warna:'#0ea5e9'},
+  {id:'O1',label:'Inklusi Anak',    warna:'#F97316'},
+  {id:'O2',label:'Pengasuh',        warna:'#1E293B'},
+  {id:'O3',label:'CBR Worker',      warna:'#2563eb'},
+  {id:'O4',label:'Pihak Terlibat',  warna:'#16a34a'},
+  {id:'O5',label:'Kesehatan',       warna:'#7c3aed'},
+  {id:'O6',label:'Pendidikan',      warna:'#d97706'},
+  {id:'O7',label:'Penghidupan',     warna:'#0ea5e9'},
 ];
 
 let BEN_MON = [];
+let BEN_STK = [];
 let KOBO_D  = null;
+let _charts = [];
 
 function num(v){ return parseInt(v)||0; }
-
-// % capaian outcome dihitung di mel-itt.html berdasarkan data real INDIKATOR + CAPAIAN
-// Di beranda semua outcome default 0% sampai data ITT tersedia
+function pctColor(v){ return v>=80?'#16a34a':v>=50?'#2563eb':v>=25?'#d97706':'#dc2626'; }
 function calcITTpct(){ return {O1:0,O2:0,O3:0,O4:0,O5:0,O6:0,O7:0}; }
 
-function pctColor(v){ return v>=80?'#16a34a':v>=50?'#2563eb':v>=25?'#d97706':'#dc2626'; }
+function destroyCharts(){
+  _charts.forEach(c=>{try{c.destroy();}catch(e){}});
+  _charts=[];
+}
+
+function tipLP(l, p){
+  const t = l + p || 1;
+  return `<span class="kpi-tip">
+    <span class="kpi-tip-icon">L/P</span>
+    <div class="kpi-tip-box">Laki-laki: <strong>${l}</strong> (${Math.round(l/t*100)}%)<br>Perempuan: <strong>${p}</strong> (${Math.round(p/t*100)}%)</div>
+  </span>`;
+}
 
 function renderPage(d, scnId){
   if(!d) return;
@@ -138,49 +141,66 @@ function renderPage(d, scnId){
 }
 
 function buildUI(){
+  destroyCharts();
   const d      = KOBO_D;
   const anak   = d.anak||[];
-  const obs    = d.obs||[];
   const workers= d.workers||[];
   const total  = anak.length;
 
-  const spArr  = anak.filter(a=>a.sp!=null).map(a=>a.sp);
-  const avgSp  = spArr.length?(spArr.reduce((s,v)=>s+v,0)/spArr.length).toFixed(1):null;
-  const kritis = anak.filter(a=>a.sp!=null&&a.sp<=3).length;
-  const telat  = anak.filter(a=>a.hari>30).length;
-  const tanpaObs = anak.filter(a=>{const k=a.nama.toLowerCase();return!obs.some(o=>o.na&&o.na.toLowerCase()===k);}).length;
-  const coverage = total>0?Math.round((total-tanpaObs)/total*100):0;
-  const totalStk = 0; // akan diupdate saat BEN_MON loaded
-  const totalKeg = new Set(BEN_MON.map(r=>r.nama_kegiatan).filter(Boolean)).size;
+  // KPI data
+  const lkAnak = anak.filter(a=>a.gender==='L').length;
+  const prAnak = anak.filter(a=>a.gender==='P').length;
 
-  // ITT
+  const stkL   = BEN_STK.filter(r=>(r.jenis_kelamin||'').toLowerCase().includes('laki')).length;
+  const stkP   = BEN_STK.filter(r=>(r.jenis_kelamin||'').toLowerCase().includes('perempuan')).length;
+  const totalStk = BEN_STK.length;
+  const instSet  = new Set(BEN_STK.map(r=>(r.instansi||'').trim()).filter(Boolean));
+  const totalIns = instSet.size;
+
+  // Ragam
+  const ragamMap = {};
+  anak.forEach(a=>{ const k=a.ragam||'Lainnya'; ragamMap[k]=(ragamMap[k]||0)+1; });
+  const ragamLabels = Object.keys(ragamMap);
+  const ragamData   = ragamLabels.map(k=>ragamMap[k]);
+  const ragamColors = ['#F97316','#2563eb','#16a34a','#7c3aed','#d97706','#0ea5e9','#94a3b8'];
+
+  // Level
+  const levelOrder = ['Parah (dukungan penuh)','Sedang (dukungan reguler)','Rendah (sedikit dukungan)'];
+  const levelShort  = ['Parah','Sedang','Rendah'];
+  const levelColors = ['#dc2626','#d97706','#16a34a'];
+  const levelData   = levelOrder.map(l=>anak.filter(a=>(a.level||'').includes(l.split(' ')[0])).length);
+
+  // Outcome pct
   const pcts = calcITTpct();
 
-  // Alerts
-  const alerts=[];
-  if(kritis>0) alerts.push(`<div class="alert-row red"><div class="alert-dot red"></div><strong>${kritis} anak kondisi kritis</strong> — skor Cantrill ≤ 3, perlu intervensi segera</div>`);
-  if(telat>0)  alerts.push(`<div class="alert-row amber"><div class="alert-dot amber"></div><strong>${telat} anak belum dikunjungi >30 hari</strong> — ${total?Math.round(telat/total*100):0}% dari total beneficiary</div>`);
-  if(tanpaObs>0) alerts.push(`<div class="alert-row amber"><div class="alert-dot amber"></div><strong>${tanpaObs} anak belum diobservasi</strong> — coverage ${coverage}%</div>`);
-  if(!alerts.length) alerts.push(`<div class="alert-row green"><div class="alert-dot green"></div>Semua indikator dalam kondisi baik</div>`);
+  // Cantrill
+  const tanpaObs = anak.filter(a=>{const k=a.nama.toLowerCase();return!(d.obs||[]).some(o=>o.na&&o.na.toLowerCase()===k);}).length;
+  const coverage = total>0?Math.round((total-tanpaObs)/total*100):0;
 
-  // Aktivitas terbaru dari DataMonthly
-  const aktTerbaru = [...BEN_MON]
-    .sort((a,b)=>(b.tanggal||'').localeCompare(a.tanggal||''))
-    .slice(0,6);
+  // Aktivitas terbaru
+  const aktTerbaru = [...BEN_MON].sort((a,b)=>(b.tanggal||'').localeCompare(a.tanggal||'')).slice(0,6);
 
-  // Kondisi benef
-  const lk   = anak.filter(a=>a.gender==='L').length;
-  const pr   = anak.filter(a=>a.gender==='P').length;
-  const ep   = anak.filter(a=>a.ep).length;
-  const tr   = anak.filter(a=>a.tr).length;
-  const parah= anak.filter(a=>(a.level||'').includes('Parah')).length;
-
-  const base = '../pages/';
   document.getElementById('page-content').innerHTML = `
-    <!-- ALERT -->
-    <div class="alert-strip">${alerts.join('')}</div>
+    <!-- KPI -->
+    <div class="kpi-row">
+      <div class="kpi-card" style="--kc:#F97316">
+        <div class="kpi-val">${total}${tipLLP(lkAnak,prAnak)}</div>
+        <div class="kpi-lbl">Total Beneficiary</div>
+        <div class="kpi-sub">${d.meta?.scn||'—'}</div>
+      </div>
+      <div class="kpi-card" style="--kc:#2563eb">
+        <div class="kpi-val">${totalStk}${totalStk>0?tipLLP(stkL,stkP):''}</div>
+        <div class="kpi-lbl">Total Individu Stakeholder</div>
+        <div class="kpi-sub">dari BEN Uploader</div>
+      </div>
+      <div class="kpi-card" style="--kc:#16a34a">
+        <div class="kpi-val">${totalIns||'—'}</div>
+        <div class="kpi-lbl">Total Instansi Terlibat</div>
+        <div class="kpi-sub">${BEN_MON.length} kegiatan tercatat</div>
+      </div>
+    </div>
 
-    <!-- SHORTCUT NAVIGASI -->
+    <!-- SHORTCUT -->
     <div class="shortcut-row">
       ${sc('📈','#fff7ed','#F97316','ITT Tracker','Capaian indikator','mel-itt.html')}
       ${sc('🤝','#eff6ff','#2563eb','Data Stakeholder','Jaringan & keterlibatan','mel-stakeholder.html')}
@@ -188,34 +208,24 @@ function buildUI(){
       ${sc('🔍','#f0fdf4','#16a34a','Analisis & Trend','Insight mendalam','mel-analisis.html')}
     </div>
 
-    <!-- KPI -->
-    <div class="kpi-row">
-      ${kpi(total,'Total Beneficiary',d.meta?.scn||'—','#F97316')}
-      ${kpi(avgSp!=null?avgSp+'/10':'—','Avg Skor Anak','Cantrill Ladder',avgSp!=null?(avgSp>=7?'#16a34a':avgSp>=5?'#F97316':'#dc2626'):'#94a3b8')}
-      ${kpi(kritis,'Kondisi Kritis','skor ≤ 3',kritis>0?'#dc2626':'#16a34a')}
-      ${kpi(coverage+'%','Coverage Observasi',total-tanpaObs+' sudah diobservasi','#2563eb')}
-      ${kpi(workers.length,'CBR Worker',workers.reduce((s,w)=>s+w.kunjungan_bulan,0)+' kunjungan bulan ini','#1E293B')}
-      ${kpi(totalKeg||'—','Kegiatan',BEN_MON.length?BEN_MON.reduce((s,r)=>s+num(r.total),0)+' total peserta':'dari BEN Uploader','#7c3aed')}
+    <!-- OUTCOME + GRAFIK DISABILITAS -->
+    <div class="sec-lbl">Capaian 7 Outcome & Distribusi Disabilitas</div>
+    <div class="oc-charts-row">
+      <div class="chart-card">
+        <div class="chart-card-title">Capaian 7 Outcome <span style="font-weight:400;color:#94a3b8;font-size:.68rem">— klik untuk ke ITT Tracker</span></div>
+        <div class="chart-wrap-tall"><canvas id="ch-outcome"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Ragam Disabilitas</div>
+        <div class="chart-wrap"><canvas id="ch-ragam"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Level Disabilitas</div>
+        <div class="chart-wrap"><canvas id="ch-level"></canvas></div>
+      </div>
     </div>
 
-    <!-- 7 OUTCOME -->
-    <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:10px">
-      Capaian 7 Outcome — klik untuk ke ITT Tracker
-    </div>
-    <div class="outcome-row">
-      ${OUT_CONF.map(o=>{
-        const v=pcts[o.id]||0;
-        const pc=pctColor(v);
-        return `<a class="oc-card" href="mel-itt.html" style="--oc:${pc}">
-          <div class="oc-lbl">${o.label}</div>
-          <div class="oc-pct">${v}%</div>
-          <div class="prog-track"><div class="prog-fill" style="background:${pc};width:${v}%"></div></div>
-          <div class="oc-sub">${o.pendek}</div>
-        </a>`;
-      }).join('')}
-    </div>
-
-    <!-- MAIN GRID: Aktivitas + Kondisi Benef -->
+    <!-- MAIN GRID -->
     <div class="main-grid">
       <!-- Aktivitas Terbaru -->
       <div class="mb-card">
@@ -249,18 +259,14 @@ function buildUI(){
         </div>
       </div>
 
-      <!-- Kondisi Beneficiary -->
+      <!-- Kondisi Anak -->
       <div class="mb-card">
-        <div class="mb-card-head"><span class="mb-card-title">Kondisi Beneficiary</span><span class="mb-card-sub">${total} total</span></div>
+        <div class="mb-card-head">
+          <span class="mb-card-title">Kondisi Anak</span>
+          <span class="mb-card-sub">${total} total beneficiary</span>
+        </div>
         <div class="mb-card-body">
-          <div class="kondisi-row">
-            ${[['Laki-laki',lk,'#1d4ed8'],['Perempuan',pr,'#db2777'],['Epilepsi',ep,'#d97706'],['Pernah Terapi',tr,'#16a34a'],['Level Parah',parah,'#dc2626']].map(([l,v,c])=>`
-            <div class="kondisi-stat">
-              <div class="kondisi-val" style="color:${c}">${v}</div>
-              <div class="kondisi-lbl">${l}</div>
-            </div>`).join('')}
-          </div>
-          <div style="font-size:.67rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;margin-top:4px">Distribusi Skor Cantrill Anak</div>
+          <div style="font-size:.67rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Distribusi Skor Cantrill</div>
           ${[['Kritis (1–3)',anak.filter(a=>a.sp!=null&&a.sp<=3).length,'#dc2626'],
              ['Sedang (4–6)',anak.filter(a=>a.sp!=null&&a.sp>=4&&a.sp<=6).length,'#d97706'],
              ['Baik (7–10)', anak.filter(a=>a.sp!=null&&a.sp>=7).length,'#16a34a'],
@@ -269,26 +275,122 @@ function buildUI(){
             return `<div class="score-row">
               <span class="score-lbl" style="color:${c}">${l}</span>
               <div class="score-bar"><div class="score-fill" style="width:${pct}%;background:${c}"></div></div>
-              <span class="score-num" style="color:${c}">${n} (${pct}%)</span>
+              <span class="score-pct" style="color:${c}">${pct}%</span>
             </div>`;}).join('')}
+          <div style="font-size:.67rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px">Coverage Observasi</div>
+          <div class="score-row">
+            <span class="score-lbl" style="color:#2563eb">Sudah observasi</span>
+            <div class="score-bar"><div class="score-fill" style="width:${coverage}%;background:#2563eb"></div></div>
+            <span class="score-pct" style="color:#2563eb">${coverage}%</span>
+          </div>
+          <div class="score-row">
+            <span class="score-lbl" style="color:#94a3b8">Belum observasi</span>
+            <div class="score-bar"><div class="score-fill" style="width:${100-coverage}%;background:#e5e7eb"></div></div>
+            <span class="score-pct" style="color:#94a3b8">${100-coverage}%</span>
+          </div>
+          <div style="font-size:.67rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px">CBR Worker</div>
+          <div style="font-size:.82rem;color:#0f172a;font-weight:700">${workers.length} <span style="font-weight:400;color:#64748b">pekerja aktif</span></div>
         </div>
       </div>
     </div>
   `;
+
+  // ── CHART: Outcome ──
+  const ctxOC = document.getElementById('ch-outcome');
+  if(ctxOC){
+    const ocPcts = OUT_CONF.map(o=>pcts[o.id]||0);
+    const ocChart = new Chart(ctxOC, {
+      type:'bar',
+      data:{
+        labels: OUT_CONF.map(o=>o.label),
+        datasets:[{
+          data: ocPcts,
+          backgroundColor: OUT_CONF.map(o=>o.warna+'CC'),
+          borderColor:      OUT_CONF.map(o=>o.warna),
+          borderWidth:1.5,
+          borderRadius:6,
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw+'%'}}},
+        scales:{
+          y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f1f5f9'}},
+          x:{ticks:{font:{size:10}},grid:{display:false}}
+        },
+        onClick(e,el){if(el.length)window.location.href='mel-itt.html';}
+      }
+    });
+    _charts.push(ocChart);
+  }
+
+  // ── CHART: Ragam ──
+  const ctxRg = document.getElementById('ch-ragam');
+  if(ctxRg){
+    const rgChart = new Chart(ctxRg, {
+      type:'bar',
+      data:{
+        labels: ragamLabels.map(l=>l.length>12?l.slice(0,12)+'…':l),
+        datasets:[{
+          data: ragamData,
+          backgroundColor: ragamColors.slice(0,ragamLabels.length).map(c=>c+'CC'),
+          borderColor:      ragamColors.slice(0,ragamLabels.length),
+          borderWidth:1.5,
+          borderRadius:6,
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw+' anak'}}},
+        scales:{
+          y:{beginAtZero:true,ticks:{font:{size:10},stepSize:1},grid:{color:'#f1f5f9'}},
+          x:{ticks:{font:{size:9}},grid:{display:false}}
+        }
+      }
+    });
+    _charts.push(rgChart);
+  }
+
+  // ── CHART: Level ──
+  const ctxLv = document.getElementById('ch-level');
+  if(ctxLv){
+    const lvChart = new Chart(ctxLv, {
+      type:'bar',
+      data:{
+        labels: levelShort,
+        datasets:[{
+          data: levelData,
+          backgroundColor: levelColors.map(c=>c+'CC'),
+          borderColor:      levelColors,
+          borderWidth:1.5,
+          borderRadius:6,
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw+' anak'}}},
+        scales:{
+          y:{beginAtZero:true,ticks:{font:{size:10},stepSize:1},grid:{color:'#f1f5f9'}},
+          x:{ticks:{font:{size:11}},grid:{display:false}}
+        }
+      }
+    });
+    _charts.push(lvChart);
+  }
 }
 
+function tipLLP(l,p){
+  const t=l+p||1;
+  return `<span class="kpi-tip">
+    <span class="kpi-tip-icon">L/P</span>
+    <div class="kpi-tip-box">Laki-laki: <strong>${l}</strong> (${Math.round(l/t*100)}%)<br>Perempuan: <strong>${p}</strong> (${Math.round(p/t*100)}%)</div>
+  </span>`;
+}
 function sc(icon,bg,color,lbl,sub,href){
   return `<a class="sc-card" href="${href}">
     <div class="sc-icon" style="background:${bg};color:${color}">${icon}</div>
     <div><div class="sc-lbl">${lbl}</div><div class="sc-sub">${sub}</div></div>
   </a>`;
-}
-function kpi(val,lbl,sub,color){
-  return `<div class="kpi-card" style="--kc:${color}">
-    <div class="kpi-val">${val}</div>
-    <div class="kpi-lbl">${lbl}</div>
-    <div class="kpi-sub">${sub}</div>
-  </div>`;
 }
 function fmtTgl(v){
   if(!v)return '—';
@@ -311,12 +413,13 @@ if(SESSION){
   });
   AUTH.initSidebar('mel','m-beranda');
 
-  // Fetch paralel: KoboToolbox + DataMonthly BEN Uploader
   Promise.all([
     API.get(AUTH.getScnFilter()),
     API_BEN.get('monthly', AUTH.getScnFilter()),
-  ]).then(([koboData, monData])=>{
+    API_BEN.get('stakeholder', AUTH.getScnFilter()),
+  ]).then(([koboData, monData, stkData])=>{
     BEN_MON = monData||[];
+    BEN_STK = stkData||[];
     if(koboData){
       KOBO_D = koboData;
       buildUI();

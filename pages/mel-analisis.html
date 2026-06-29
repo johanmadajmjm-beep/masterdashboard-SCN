@@ -8,109 +8,112 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <style>
     /* ── LAYOUT ── */
-    .an-section { margin-bottom:24px; }
-    .an-section-title { font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--gray-400); margin-bottom:12px; padding-bottom:6px; border-bottom:2px solid var(--gray-100); }
-    .an-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-    .an-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
-    .an-grid-1 { display:grid; grid-template-columns:1fr; gap:16px; }
-    @media(max-width:900px){ .an-grid-2,.an-grid-3{grid-template-columns:1fr;} }
+    .an-section{margin-bottom:24px}
+    .an-section-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #f1f5f9;display:flex;align-items:center;gap:8px}
+    .an-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .an-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+    .an-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    @media(max-width:1100px){.an-grid-3{grid-template-columns:1fr 1fr}}
+    @media(max-width:900px){.an-grid-2,.an-grid-3,.an-grid-4{grid-template-columns:1fr}}
 
     /* ── CARD ── */
-    .an-card { background:#fff; border:1px solid var(--gray-200); border-radius:12px; overflow:hidden; }
-    .an-card-head { padding:14px 18px 10px; border-bottom:1px solid var(--gray-100); }
-    .an-card-title { font-size:.84rem; font-weight:700; color:var(--gray-900); }
-    .an-card-sub { font-size:.68rem; color:var(--gray-400); margin-top:2px; }
-    .an-card-body { padding:16px 18px; }
+    .an-card{background:#fff;border:1px solid #e9eef6;border-radius:12px;overflow:hidden}
+    .an-card-head{padding:13px 18px 10px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .an-card-title{font-size:.84rem;font-weight:700;color:#0f172a}
+    .an-card-sub{font-size:.67rem;color:#94a3b8}
+    .an-card-body{padding:16px 18px}
+    .an-card-body.no-pad{padding:0}
+
+    /* ── DATA SOURCE BADGE ── */
+    .src-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:.6rem;font-weight:700}
+    .src-kobo{background:#eff6ff;color:#1d4ed8}
+    .src-ben{background:#fff7ed;color:#c2410c}
+    .src-empty{background:#f1f5f9;color:#94a3b8}
 
     /* ── KPI STRIP ── */
-    .kpi-strip { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:20px; }
-    .kpi-tile { background:#fff; border:1px solid var(--gray-200); border-radius:10px; padding:14px 16px; display:flex; align-items:center; gap:12px; }
-    .kpi-tile-ico { width:38px; height:38px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.1rem; }
-    .kpi-tile-num { font-size:1.35rem; font-weight:800; line-height:1; font-family:'JetBrains Mono',monospace; }
-    .kpi-tile-lbl { font-size:.65rem; font-weight:700; color:var(--gray-400); text-transform:uppercase; letter-spacing:.05em; margin-top:2px; }
-    .kpi-tile-sub { font-size:.63rem; color:var(--gray-400); margin-top:1px; }
+    .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px}
+    .kpi-tile{background:#fff;border:1px solid #e9eef6;border-radius:10px;padding:13px 15px;display:flex;align-items:center;gap:11px}
+    .kpi-tile-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem}
+    .kpi-tile-num{font-size:1.25rem;font-weight:800;line-height:1;font-family:'JetBrains Mono',monospace}
+    .kpi-tile-lbl{font-size:.62rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+    .kpi-tile-sub{font-size:.6rem;color:#94a3b8;margin-top:1px}
 
-    /* ── ALERT BANNER ── */
-    .alert-strip { display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
-    .alert-row { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:9px; font-size:.78rem; }
-    .alert-row.red   { background:#fef2f2; border:1px solid #fecaca; color:#991b1b; }
-    .alert-row.amber { background:#fffbeb; border:1px solid #fde68a; color:#92400e; }
-    .alert-row.green { background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; }
-    .alert-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-    .alert-dot.red   { background:#ef4444; }
-    .alert-dot.amber { background:#f59e0b; }
-    .alert-dot.green { background:#22c55e; }
+    /* ── ALERT ── */
+    .alert-strip{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+    .alert-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;font-size:.78rem}
+    .alert-row.red{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+    .alert-row.amber{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+    .alert-row.green{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+    .alert-row.blue{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
+    .alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .alert-dot.red{background:#ef4444}
+    .alert-dot.amber{background:#f59e0b}
+    .alert-dot.green{background:#22c55e}
+    .alert-dot.blue{background:#3b82f6}
 
     /* ── HEATMAP ── */
-    .hm-wrap { overflow-x:auto; }
-    .hm-table { border-collapse:separate; border-spacing:3px; font-size:.68rem; width:100%; }
-    .hm-table th { padding:5px 8px; text-align:center; font-weight:700; color:var(--gray-500); white-space:nowrap; font-size:.65rem; }
-    .hm-table th.hm-scn-col { text-align:left; }
-    .hm-table td { height:34px; border-radius:6px; text-align:center; vertical-align:middle; font-weight:700; transition:transform .1s; cursor:default; font-size:.72rem; }
-    .hm-table td:hover { transform:scale(1.06); }
-    .hm-scn { background:none!important; color:var(--gray-700)!important; font-weight:700; text-align:left!important; width:120px; white-space:nowrap; padding:0 8px 0 0; }
+    .hm-wrap{overflow-x:auto}
+    .hm-table{border-collapse:separate;border-spacing:3px;font-size:.68rem;width:100%}
+    .hm-table th{padding:5px 8px;text-align:center;font-weight:700;color:#94a3b8;white-space:nowrap;font-size:.65rem}
+    .hm-table th.hm-scn-col{text-align:left}
+    .hm-table td{height:32px;border-radius:6px;text-align:center;vertical-align:middle;font-weight:700;transition:transform .1s;cursor:default;font-size:.72rem}
+    .hm-table td:hover{transform:scale(1.06)}
+    .hm-scn{background:none!important;color:#334155!important;font-weight:700;text-align:left!important;width:110px;white-space:nowrap;padding:0 8px 0 0}
 
-    /* ── RANKING ── */
-    .rank-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--gray-100); }
-    .rank-row:last-child { border-bottom:none; }
-    .rank-badge { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:800; flex-shrink:0; }
-    .rank-info { flex:1; min-width:0; }
-    .rank-name { font-weight:700; font-size:.8rem; color:var(--gray-900); }
-    .rank-prov { font-size:.67rem; color:var(--gray-400); }
-    .rank-bar-wrap { width:70px; }
-    .rank-pct { font-size:.9rem; font-weight:800; font-family:'JetBrains Mono',monospace; text-align:right; width:44px; }
+    /* ── RANK ── */
+    .rank-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f1f5f9}
+    .rank-row:last-child{border-bottom:none}
+    .rank-badge{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0}
+    .rank-info{flex:1;min-width:0}
+    .rank-name{font-weight:700;font-size:.8rem;color:#0f172a}
+    .rank-prov{font-size:.67rem;color:#94a3b8}
+    .prog-track{height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;margin-top:3px}
+    .prog-fill{height:100%;border-radius:3px}
+    .rank-pct{font-size:.9rem;font-weight:800;font-family:'JetBrains Mono',monospace;text-align:right;width:42px}
 
-    /* ── PROGRESS BAR ── */
-    .prog-track { height:6px; background:var(--gray-100); border-radius:3px; overflow:hidden; margin-top:3px; }
-    .prog-fill  { height:100%; border-radius:3px; }
+    /* ── ICF ── */
+    .icf-domain-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .icf-domain-label{font-size:.71rem;font-weight:600;color:#334155;width:155px;flex-shrink:0}
+    .icf-domain-bars{flex:1;display:flex;flex-direction:column;gap:3px}
+    .icf-bar-wrap{display:flex;align-items:center;gap:6px}
+    .icf-bar-track{flex:1;height:7px;background:#f1f5f9;border-radius:4px;overflow:hidden}
+    .icf-bar-fill{height:100%;border-radius:4px}
+    .icf-bar-label{font-size:.61rem;color:#94a3b8;width:55px;flex-shrink:0}
+    .icf-bar-num{font-size:.64rem;font-weight:700;width:26px;text-align:right;flex-shrink:0}
 
-    /* ── WELLBEING ── */
-    .wb-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .wb-item { background:var(--gray-50); border-radius:9px; padding:12px 14px; }
-    .wb-scn  { font-size:.7rem; font-weight:700; color:var(--gray-600); margin-bottom:6px; }
-    .wb-scores { display:flex; gap:10px; align-items:center; }
-    .wb-score-box { text-align:center; flex:1; }
-    .wb-score-val { font-size:1.3rem; font-weight:800; font-family:'JetBrains Mono',monospace; }
-    .wb-score-lbl { font-size:.6rem; color:var(--gray-400); font-weight:600; text-transform:uppercase; }
+    /* ── EMPTY STATE ── */
+    .empty-section{background:#f8fafc;border:1px dashed #e2e8f0;border-radius:10px;padding:24px;text-align:center;color:#94a3b8;font-size:.78rem}
+    .empty-section-icon{font-size:1.5rem;margin-bottom:6px}
 
-    /* ── ICF DOMAIN BAR ── */
-    .icf-domain-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-    .icf-domain-label { font-size:.72rem; font-weight:600; color:var(--gray-700); width:160px; flex-shrink:0; }
-    .icf-domain-bars { flex:1; display:flex; flex-direction:column; gap:3px; }
-    .icf-bar-wrap { display:flex; align-items:center; gap:6px; }
-    .icf-bar-track { flex:1; height:8px; background:var(--gray-100); border-radius:4px; overflow:hidden; }
-    .icf-bar-fill  { height:100%; border-radius:4px; }
-    .icf-bar-label { font-size:.62rem; color:var(--gray-400); width:55px; flex-shrink:0; }
-    .icf-bar-num   { font-size:.65rem; font-weight:700; width:28px; text-align:right; flex-shrink:0; }
+    /* ── SUMMARY ROW ── */
+    .summary-row{display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+    .summary-item{background:#f8fafc;border-radius:8px;padding:8px 14px;text-align:center;flex:1;min-width:80px}
+    .summary-val{font-size:1.1rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:#F97316}
+    .summary-lbl{font-size:.62rem;color:#94a3b8;font-weight:600;text-transform:uppercase;margin-top:2px}
 
-    /* ── WORKER PERFORMANCE ── */
-    .wk-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--gray-100); }
-    .wk-row:last-child { border-bottom:none; }
-    .wk-scn { font-size:.68rem; font-weight:600; color:var(--gray-400); width:90px; flex-shrink:0; }
-    .wk-name { flex:1; font-size:.78rem; font-weight:700; color:var(--gray-800); }
-    .wk-stats { display:flex; gap:14px; }
-    .wk-stat { text-align:center; }
-    .wk-stat-val { font-size:.88rem; font-weight:800; font-family:'JetBrains Mono',monospace; }
-    .wk-stat-lbl { font-size:.58rem; color:var(--gray-400); text-transform:uppercase; }
-
-    /* ── KONDISI KHUSUS ── */
-    .kondisi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-    .kondisi-item { background:var(--gray-50); border-radius:9px; padding:12px; text-align:center; }
-    .kondisi-scn  { font-size:.65rem; font-weight:700; color:var(--gray-500); margin-bottom:6px; }
-    .kondisi-bars { display:flex; gap:8px; justify-content:center; align-items:flex-end; }
-    .kondisi-bar-wrap { text-align:center; }
-    .kondisi-bar { width:20px; border-radius:3px 3px 0 0; margin:0 auto 2px; transition:height .3s; }
-    .kondisi-bar-lbl { font-size:.58rem; color:var(--gray-400); }
-    .kondisi-bar-val { font-size:.72rem; font-weight:700; }
+    /* ── TABLE ── */
+    .an-table{width:100%;border-collapse:collapse;font-size:.77rem}
+    .an-table th{padding:8px 12px;text-align:left;font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;background:#f8fafc;border-bottom:1px solid #e9eef6;white-space:nowrap}
+    .an-table td{padding:9px 12px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+    .an-table tr:last-child td{border-bottom:none}
+    .an-table tr:hover td{background:#fafbfd}
+    .an-pill{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.63rem;font-weight:700}
+    .tbl-wrap{overflow-x:auto}
 
     /* ── LOADING ── */
-    .an-loading { display:flex; align-items:center; justify-content:center; height:200px; color:var(--gray-400); font-size:.82rem; gap:10px; }
-    .spin { width:20px; height:20px; border:2px solid var(--gray-200); border-top-color:#F97316; border-radius:50%; animation:spin .7s linear infinite; }
-    @keyframes spin { to { transform:rotate(360deg); } }
+    .an-loading{display:flex;align-items:center;justify-content:center;height:200px;color:#94a3b8;font-size:.82rem;gap:10px}
+    .spin{width:20px;height:20px;border:2px solid #e2e8f0;border-top-color:#F97316;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ── LEGEND ── */
-    .hm-legend { display:flex; align-items:center; gap:8px; font-size:.63rem; color:var(--gray-500); }
-    .hm-legend-dot { width:12px; height:12px; border-radius:3px; display:inline-block; }
+    /* ── HM LEGEND ── */
+    .hm-legend{display:flex;align-items:center;gap:8px;font-size:.63rem;color:#94a3b8;margin-bottom:10px}
+    .hm-legend-dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+    /* ── LESSON LEARNT ── */
+    .lesson-item{border-left:3px solid #F97316;padding:10px 14px;margin-bottom:10px;background:#fff7ed;border-radius:0 8px 8px 0}
+    .lesson-keg{font-size:.7rem;font-weight:700;color:#92400e;margin-bottom:4px}
+    .lesson-scn{font-size:.63rem;color:#94a3b8;margin-bottom:6px}
+    .lesson-text{font-size:.75rem;color:#334155;line-height:1.65}
   </style>
 </head>
 <body>
@@ -123,17 +126,15 @@
       <div class="topbar-right">
         <span class="scn-badge" id="scn-badge" style="display:none">—</span>
         <span id="data-source-badge" style="display:none;font-size:.7rem;padding:3px 10px;border-radius:999px;font-weight:600"></span>
-        <span id="sync-time" style="display:none;font-size:.7rem;color:var(--gray-400)"></span>
+        <span id="sync-time" style="display:none;font-size:.7rem;color:#94a3b8"></span>
         <span class="topbar-date" id="topbar-date">—</span>
       </div>
     </header>
-
     <div class="page">
       <div class="page-header">
         <h1>Analisis & Trend</h1>
-        <p>Analisis komprehensif program CBR — wellbeing beneficiary, kinerja implementasi, temuan ICF, dan capaian ITT nasional.</p>
+        <p>Analisis komprehensif program CBR — 8 sumber data: beneficiary, observasi, perencanaan, diary, evaluasi, stakeholder, dan monitoring kegiatan.</p>
       </div>
-
       <div id="page-content">
         <div class="an-loading"><div class="spin"></div> Memuat data analisis...</div>
       </div>
@@ -144,526 +145,544 @@
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
+<script src="../js/api-ben.js"></script>
 <script>
+const SCN_IDS   = ['manggarai','banyuwangi','jember','situbondo','kupang','tts','palu','sigi'];
+const SCN_LABEL = ['Manggarai','Banyuwangi','Jember','Situbondo','Kupang','TTS','Palu','Sigi'];
+const PROV_MAP  = {manggarai:'NTT',kupang:'NTT',tts:'NTT',banyuwangi:'Jatim',jember:'Jatim',situbondo:'Jatim',palu:'Sulteng',sigi:'Sulteng'};
+const OUTCOMES  = ['O1','O2','O3','O4','O5','O6','O7'];
+const OUT_LBL   = {O1:'Inklusi Anak',O2:'Pengasuh',O3:'CBR Worker',O4:'Pihak Terlibat',O5:'Kesehatan',O6:'Pendidikan',O7:'Penghidupan'};
+const PALETTE   = ['#F97316','#1E293B','#EA6C00','#475569','#C05500','#94A3B8','#7C3600','#CBD5E1'];
 
-const SCN_IDS    = ['manggarai','banyuwangi','jember','situbondo','kupang','tts','palu','sigi'];
-const SCN_LABELS = ['Manggarai','Banyuwangi','Jember','Situbondo','Kupang','TTS','Palu','Sigi'];
-const SCN_COLORS = ['#F97316','#FB923C','#FDBA74','#1E293B','#475569','#94A3B8','#0ea5e9','#8b5cf6'];
-const PROV_MAP   = {manggarai:'NTT',kupang:'NTT',tts:'NTT',banyuwangi:'Jatim',jember:'Jatim',situbondo:'Jatim',palu:'Sulteng',sigi:'Sulteng'};
-const OUTCOMES   = ['O1','O2','O3','O4','O5','O6','O7'];
-const OUT_LABEL  = {O1:'Inklusi Anak',O2:'Pengasuh',O3:'CBR Worker',O4:'Pihak Terlibat',O5:'Kesehatan',O6:'Pendidikan',O7:'Penghidupan'};
-
-// Data per SCN yang sudah di-fetch
-const DATA = {};
-let TOTAL_SCN = 0;
+// ── STATE ────────────────────────────────────────────────────
+const KOBO  = {}; // data dari API.get() per SCN
+let BEN_STK = []; // DataStakeholder dari api-ben
+let BEN_MON = []; // DataMonthly dari api-ben
 
 // ── HELPERS ──────────────────────────────────────────────────
-function avg(arr){ return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
-function scColor(v){ return v>=7?'#16a34a':v>=5?'#F97316':v>=4?'#d97706':'#dc2626'; }
-function pctColor(v){ return v>=80?'#16a34a':v>=50?'#2563eb':v>=25?'#d97706':'#dc2626'; }
+function avg(arr){ return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0; }
+function num(v){ return parseInt(v)||0; }
 function pctBg(v){ return v>=80?'#dcfce7':v>=50?'#dbeafe':v>=25?'#fef3c7':'#fee2e2'; }
-function hmColor(v){ return v>=80?'#15803d':v>=50?'#1d4ed8':v>=25?'#b45309':'#b91c1c'; }
+function pctColor(v){ return v>=80?'#15803d':v>=50?'#1d4ed8':v>=25?'#b45309':'#b91c1c'; }
+function scColor(v){ return v>=7?'#16a34a':v>=5?'#F97316':v>=4?'#d97706':'#dc2626'; }
 
-function mkChart(id, type, data, options){
-  const el = document.getElementById(id);
-  if(!el) return null;
-  const ex = Chart.getChart(id);
-  if(ex) ex.destroy();
-  return new Chart(el.getContext('2d'), {type, data, options});
+function mkChart(id,type,data,opts){
+  const el=document.getElementById(id); if(!el)return null;
+  const ex=Chart.getChart(id); if(ex)ex.destroy();
+  return new Chart(el.getContext('2d'),{type,data,options:opts});
 }
-
-const CHART_DEFAULTS = {
-  responsive:true, maintainAspectRatio:false,
-  plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#d1d5db',padding:10,cornerRadius:8} },
-  scales:{ x:{grid:{display:false},ticks:{font:{size:10}}}, y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}} }
+const CD = {
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#d1d5db',padding:10,cornerRadius:8}},
+  scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}}}
 };
 
-// ── ICF ANALYSIS ──────────────────────────────────────────────
+// ── ICF ──────────────────────────────────────────────────────
 const THEMES_ICF = {
   struktur:[
-    {label:'Fungsi Mental & Saraf', keywords_pos:['mental baik','kognitif baik','paham instruksi','perkembangan baik'], keywords_neg:['gangguan mental','cerebral palsy','down syndrome','autisme','keterlambatan','hambatan intelektual','kognitif terganggu','hiperaktif']},
-    {label:'Fungsi Gerak & Motorik', keywords_pos:['bisa berjalan','gerak baik','motorik baik','berjalan normal'], keywords_neg:['tidak bisa berjalan','lumpuh','kaku','kursi roda','paraplegia','pincang','deformitas']},
-    {label:'Fungsi Indra', keywords_pos:['penglihatan baik','pendengaran baik','indra baik'], keywords_neg:['gangguan penglihatan','tidak bisa melihat','gangguan pendengaran','tuli','tunanetra','tunarungu']},
-    {label:'Fungsi Komunikasi', keywords_pos:['bicara lancar','komunikasi baik'], keywords_neg:['tidak bisa bicara','bicara tidak jelas','bisu','wicara']},
-    {label:'Kejang & Epilepsi', keywords_pos:['tidak ada kejang','terkontrol'], keywords_neg:['epilepsi','kejang','sering kejang']},
+    {label:'Mental & Saraf',keywords_pos:['mental baik','kognitif baik','paham instruksi'],keywords_neg:['gangguan mental','cerebral palsy','down syndrome','autisme','keterlambatan','kognitif terganggu']},
+    {label:'Gerak & Motorik',keywords_pos:['bisa berjalan','gerak baik','motorik baik'],keywords_neg:['tidak bisa berjalan','lumpuh','kaku','kursi roda','paraplegia','pincang']},
+    {label:'Fungsi Indra',keywords_pos:['penglihatan baik','pendengaran baik'],keywords_neg:['gangguan penglihatan','gangguan pendengaran','tuli','tunanetra','tunarungu']},
+    {label:'Komunikasi',keywords_pos:['bicara lancar','komunikasi baik'],keywords_neg:['tidak bisa bicara','bicara tidak jelas','bisu']},
+    {label:'Kejang & Epilepsi',keywords_pos:['tidak ada kejang','terkontrol'],keywords_neg:['epilepsi','kejang','sering kejang']},
   ],
   kegiatan:[
-    {label:'Pendidikan & Belajar', keywords_pos:['bersekolah','sekolah','belajar','slb','paud'], keywords_neg:['tidak sekolah','belum sekolah','putus sekolah']},
-    {label:'Mobilitas', keywords_pos:['bergerak mandiri','bisa berjalan','mobilitas baik'], keywords_neg:['tidak bisa berjalan','kursi roda','merangkak','digendong','mobilitas terbatas']},
-    {label:'Perawatan Diri', keywords_pos:['mandiri mandi','bisa mandi','mengurus diri'], keywords_neg:['bantuan total','disuapi','dimandikan','dipakaikan']},
-    {label:'Interaksi Sosial', keywords_pos:['bermain bersama','punya teman','bersosialisasi'], keywords_neg:['tidak punya teman','isolasi sosial','tidak mau bermain']},
-    {label:'Partisipasi Komunitas', keywords_pos:['ikut kegiatan','aktif di komunitas','kegiatan desa'], keywords_neg:['tidak ikut kegiatan','tidak keluar rumah','lebih banyak di rumah']},
+    {label:'Pendidikan & Belajar',keywords_pos:['bersekolah','sekolah','belajar','slb'],keywords_neg:['tidak sekolah','belum sekolah','putus sekolah']},
+    {label:'Mobilitas',keywords_pos:['bergerak mandiri','mobilitas baik'],keywords_neg:['tidak bisa berjalan','kursi roda','merangkak','digendong']},
+    {label:'Perawatan Diri',keywords_pos:['mandiri mandi','mengurus diri'],keywords_neg:['bantuan total','disuapi','dimandikan']},
+    {label:'Interaksi Sosial',keywords_pos:['bermain bersama','punya teman'],keywords_neg:['tidak punya teman','isolasi sosial']},
+    {label:'Partisipasi',keywords_pos:['ikut kegiatan','aktif di komunitas'],keywords_neg:['tidak ikut kegiatan','tidak keluar rumah']},
   ],
   lingkungan:[
-    {label:'Dukungan Keluarga', keywords_pos:['keluarga mendukung','keluarga sayang','keluarga peduli'], keywords_neg:['tidak mendukung','diabaikan','kurang perhatian']},
-    {label:'Akses Layanan Kesehatan', keywords_pos:['bpjs aktif','puskesmas dekat','mendapat layanan'], keywords_neg:['tidak punya bpjs','jauh dari puskesmas','akses sulit']},
-    {label:'Sikap Masyarakat', keywords_pos:['diterima masyarakat','lingkungan mendukung'], keywords_neg:['stigma','dikucilkan','tidak diterima','diskriminasi']},
-    {label:'Kondisi Ekonomi', keywords_pos:['ekonomi baik','penghasilan cukup'], keywords_neg:['ekonomi pas-pasan','keluarga miskin','tidak mampu','penghasilan rendah']},
-    {label:'Bantuan Pemerintah', keywords_pos:['pkh','kip','mendapat bantuan','bantuan sosial'], keywords_neg:['tidak menerima bantuan','belum dapat bantuan']},
+    {label:'Dukungan Keluarga',keywords_pos:['keluarga mendukung','keluarga peduli'],keywords_neg:['tidak mendukung','diabaikan','kurang perhatian']},
+    {label:'Akses Kesehatan',keywords_pos:['bpjs aktif','puskesmas dekat'],keywords_neg:['tidak punya bpjs','jauh dari puskesmas','akses sulit']},
+    {label:'Sikap Masyarakat',keywords_pos:['diterima masyarakat'],keywords_neg:['stigma','dikucilkan','diskriminasi']},
+    {label:'Kondisi Ekonomi',keywords_pos:['ekonomi baik','penghasilan cukup'],keywords_neg:['keluarga miskin','tidak mampu','penghasilan rendah']},
+    {label:'Bantuan Pemerintah',keywords_pos:['pkh','kip','bantuan sosial'],keywords_neg:['tidak menerima bantuan','belum dapat bantuan']},
   ]
 };
 
-function scoreICF(text, theme){
-  const t = (text||'').toLowerCase();
-  let pos=0, neg=0;
-  (theme.keywords_pos||[]).forEach(k=>{ if(t.includes(k)) pos++; });
-  (theme.keywords_neg||[]).forEach(k=>{ if(t.includes(k)) neg++; });
-  return {pos, neg};
+function scoreICF(text,theme){
+  const t=(text||'').toLowerCase();
+  let pos=0,neg=0;
+  theme.keywords_pos.forEach(k=>{if(t.includes(k))pos++;});
+  theme.keywords_neg.forEach(k=>{if(t.includes(k))neg++;});
+  return {pos,neg};
 }
-
-function analyzeICFDomain(obs, domainKey, fieldKey){
-  const result = {};
-  THEMES_ICF[domainKey].forEach(theme=>{
-    result[theme.label] = {pos:0, neg:0, total:0};
-  });
+function analyzeICF(obs,domainKey,fieldKey){
+  const res={};
+  THEMES_ICF[domainKey].forEach(th=>{res[th.label]={pos:0,neg:0};});
   obs.forEach(o=>{
-    const text = o[fieldKey]||'';
-    if(!text) return;
-    THEMES_ICF[domainKey].forEach(theme=>{
-      const s = scoreICF(text, theme);
-      result[theme.label].pos   += s.pos;
-      result[theme.label].neg   += s.neg;
-      result[theme.label].total += (s.pos+s.neg>0)?1:0;
+    const text=o[fieldKey]||'';
+    if(!text)return;
+    THEMES_ICF[domainKey].forEach(th=>{
+      const s=scoreICF(text,th);
+      res[th.label].pos+=s.pos;
+      res[th.label].neg+=s.neg;
     });
   });
-  return result;
+  return res;
 }
 
-// ── ITT CALC ──────────────────────────────────────────────────
-function calcITTpct(anak, obs){
-  const total    = anak.length || 1;
-  const punyaObs = anak.filter(a=>{
-    const k=a.nama.toLowerCase();
-    return obs.some(o=>o.na&&o.na.toLowerCase()===k);
-  }).length;
-  const terapi   = anak.filter(a=>a.tr).length;
-  const skorBaik = anak.filter(a=>a.sp!=null&&a.sp>=5).length;
-  const rawITT   = {
-    O1: Math.round((skorBaik/total)*100),
-    O2: Math.round((punyaObs/total)*100),
-    O3: Math.round((anak.filter(a=>a.cbr).length/total)*100),
-    O4: Math.min(100, Math.round((punyaObs/total)*120)),
-    O5: Math.round((anak.filter(a=>a.ob).length/total)*100),
-    O6: Math.round((anak.filter(a=>a.usia<=17).length/total)*100),
-    O7: Math.round((terapi/total)*100),
+function calcITTpct(anak,obs){
+  const t=anak.length||1;
+  const punyaObs=anak.filter(a=>{const k=a.nama.toLowerCase();return obs.some(o=>o.na&&o.na.toLowerCase()===k);}).length;
+  const terapi=anak.filter(a=>a.tr).length;
+  const skorBaik=anak.filter(a=>a.sp!=null&&a.sp>=5).length;
+  return {
+    O1:Math.round(skorBaik/t*100),
+    O2:Math.round(punyaObs/t*100),
+    O3:Math.round(anak.filter(a=>a.cbr).length/t*100),
+    O4:Math.min(100,Math.round(punyaObs/t*120)),
+    O5:Math.round(anak.filter(a=>a.ob).length/t*100),
+    O6:Math.round(anak.filter(a=>a.usia<=17).length/t*100),
+    O7:Math.round(terapi/t*100),
   };
-  return rawITT;
 }
 
 // ── MAIN RENDER ───────────────────────────────────────────────
 function renderPage(d, scnId){
-  // d dari API.get() — hanya dipakai untuk SCN yang tersedia
-  // Halaman ini selalu tampilkan semua SCN yang ada data
   if(!d) return;
-  const sid = scnId || 'manggarai';
-  DATA[sid] = d;
-  TOTAL_SCN = Object.keys(DATA).length;
+  const sid = scnId||'manggarai';
+  KOBO[sid] = d;
   renderAll();
 }
 
 function renderAll(){
-  const scns = Object.keys(DATA);
-  if(!scns.length) return;
+  const scns    = Object.keys(KOBO);
+  const allAnak = scns.flatMap(id=>KOBO[id].anak||[]);
+  const allObs  = scns.flatMap(id=>KOBO[id].obs||[]);
+  const allWork = scns.flatMap(id=>(KOBO[id].workers||[]).map(w=>({...w,scn:id})));
 
-  // Kumpulkan semua data
-  const allAnak = scns.flatMap(id=>DATA[id].anak);
-  const allObs  = scns.flatMap(id=>DATA[id].obs);
-  const allWork = scns.flatMap(id=>(DATA[id].workers||[]).map(w=>({...w,scn:id})));
+  // ── KPI agregasi semua sumber ─────────────────────────────
+  const total    = allAnak.length;
+  const kritis   = allAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
+  const telat    = allAnak.filter(a=>a.hari>30).length;
+  const tanpaObs = allAnak.filter(a=>{const k=a.nama.toLowerCase();return!allObs.some(o=>o.na&&o.na.toLowerCase()===k);}).length;
+  const coverage = total>0?Math.round((total-tanpaObs)/total*100):0;
+  const avgSp    = avg(allAnak.filter(a=>a.sp!=null).map(a=>a.sp)).toFixed(1);
+  const avgSa    = avg(allAnak.filter(a=>a.sa!=null).map(a=>a.sa)).toFixed(1);
+  const totalStk = BEN_STK.length;
+  const totalKeg = new Set(BEN_MON.map(r=>r.nama_kegiatan).filter(Boolean)).size;
+  const totalPes = BEN_MON.reduce((s,r)=>s+num(r.total),0);
 
-  document.getElementById('page-content').innerHTML = buildHTML(scns, allAnak, allObs, allWork);
+  // ── ALERTS ───────────────────────────────────────────────
+  const alerts=[];
+  if(kritis>0) alerts.push(`<div class="alert-row red"><div class="alert-dot red"></div><strong>${kritis} anak kondisi kritis</strong> — skor Cantrill ≤ 3, perlu intervensi segera</div>`);
+  if(telat>0)  alerts.push(`<div class="alert-row amber"><div class="alert-dot amber"></div><strong>${telat} anak belum dikunjungi >30 hari</strong> — ${total?Math.round(telat/total*100):0}% dari total beneficiary</div>`);
+  if(tanpaObs>0) alerts.push(`<div class="alert-row amber"><div class="alert-dot amber"></div><strong>${tanpaObs} anak belum diobservasi</strong> — coverage observasi ${coverage}%</div>`);
+  if(totalStk>0) alerts.push(`<div class="alert-row blue"><div class="alert-dot blue"></div><strong>${totalStk} stakeholder terlibat</strong> dari ${totalKeg} kegiatan · ${totalPes} total peserta</div>`);
+  if(!alerts.length) alerts.push(`<div class="alert-row green"><div class="alert-dot green"></div>Semua indikator dalam kondisi baik — program berjalan normal</div>`);
 
-  // Render semua charts setelah HTML ada di DOM
-  renderSection1(scns, allAnak);
-  renderSection2(scns, allAnak, allObs);
-  renderSection3(scns, allObs);
-  renderSection4(scns, allAnak, allObs);
-  renderSection5(scns, allAnak, allWork);
-}
+  // ── LESSON LEARNT dari DataMonthly ───────────────────────
+  const lessons = BEN_MON.filter(r=>r.lesson_learnt).slice(0,5);
 
-function buildHTML(scns, allAnak, allObs, allWork){
-  const total   = allAnak.length;
-  const kritis  = allAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
-  const telat   = allAnak.filter(a=>a.hari>30).length;
-  const tanpaObs= allAnak.filter(a=>{
-    const k=a.nama.toLowerCase();
-    return !allObs.some(o=>o.na&&o.na.toLowerCase()===k);
-  }).length;
-  const spArr   = allAnak.filter(a=>a.sp!=null).map(a=>a.sp);
-  const saArr   = allAnak.filter(a=>a.sa!=null).map(a=>a.sa);
-  const avgSp   = avg(spArr).toFixed(1);
-  const avgSa   = avg(saArr).toFixed(1);
-  const coverage= total>0?Math.round((total-tanpaObs)/total*100):0;
+  // ── EVAL MENENGAH (belum ada data → placeholder) ─────────
+  const hasEvalMen  = false; // update saat data tersedia
+  const hasDiary    = false;
+  const hasRencana  = false;
+  const hasEvalAkh  = false;
 
-  // Alert rows
-  const alerts = [];
-  if(kritis>0) alerts.push(`<div class="alert-row red"><div class="alert-dot red"></div><strong>${kritis} anak kondisi kritis</strong> &nbsp;— skor Cantrill ≤ 3, perlu intervensi segera</div>`);
-  if(telat>0)  alerts.push(`<div class="alert-row amber"><div class="alert-dot amber"></div><strong>${telat} anak belum dikunjungi &gt;30 hari</strong> &nbsp;— ${total?Math.round(telat/total*100):0}% dari total beneficiary</div>`);
-  if(tanpaObs>0) alerts.push(`<div class="alert-row amber"><div class="alert-dot amber"></div><strong>${tanpaObs} anak belum punya data observasi</strong> &nbsp;— ${coverage}% coverage observasi</div>`);
-  if(!alerts.length) alerts.push(`<div class="alert-row green"><div class="alert-dot green"></div>Tidak ada kondisi kritis — program berjalan baik</div>`);
+  document.getElementById('page-content').innerHTML = `
+    <div class="alert-strip">${alerts.join('')}</div>
 
-  return `
-  <!-- ALERT -->
-  <div class="alert-strip">${alerts.join('')}</div>
+    <!-- ── KPI 3 SUMBER ── -->
+    <div class="kpi-strip">
+      ${kpi('👶','#fff7ed','#F97316',total,'Total Beneficiary',scns.length+' SCN aktif')}
+      ${kpi('📊','#fff7ed','#EA6C00',avgSp+'/10','Avg Skor Anak','Cantrill Ladder')}
+      ${kpi('💚','#f0fdf4','#16a34a',avgSa+'/10','Avg Skor Pengasuh','Cantrill Ladder')}
+      ${kpi('📸','#eff6ff','#2563eb',coverage+'%','Coverage Observasi',total-tanpaObs+' sudah diobservasi')}
+      ${kpi('🚨','#fef2f2','#dc2626',kritis,'Kondisi Kritis','skor ≤ 3')}
+      ${kpi('👥','#fff7ed','#F97316',totalStk,'Total Stakeholder','dari BEN Uploader')}
+      ${kpi('📋','#f1f5f9','#475569',totalKeg,'Kegiatan','monitoring aktif')}
+      ${kpi('🎯','#f0fdf4','#16a34a',totalPes,'Total Peserta','lintas kegiatan')}
+    </div>
 
-  <!-- KPI STRIP -->
-  <div class="kpi-strip">
-    ${kpiTile('👶','Total Beneficiary',total,'dari '+scns.length+' SCN aktif','#F97316','rgba(249,115,22,.1)')}
-    ${kpiTile('📊','Avg Skor Anak',avgSp+'/10','Cantrill Ladder',scColor(parseFloat(avgSp)),'rgba(249,115,22,.08)')}
-    ${kpiTile('💚','Avg Skor Pengasuh',avgSa+'/10','Cantrill Ladder',scColor(parseFloat(avgSa)),'rgba(249,115,22,.08)')}
-    ${kpiTile('📸','Coverage Observasi',coverage+'%',total-tanpaObs+' sudah diobservasi','#2563eb','rgba(37,99,235,.08)')}
-    ${kpiTile('🚨','Kondisi Kritis',kritis,'skor ≤ 3',kritis>0?'#dc2626':'#16a34a','rgba(220,38,38,.08)')}
-    ${kpiTile('⏰','Belum Dikunjungi',telat,'>30 hari terakhir',telat>0?'#d97706':'#16a34a','rgba(217,119,6,.08)')}
-  </div>
-
-  <!-- BAGIAN 1: Capaian ITT -->
-  <div class="an-section">
-    <div class="an-section-title">📈 Capaian ITT — Perbandingan Antar SCN</div>
-    <div class="an-grid-2">
-      <div class="an-card">
-        <div class="an-card-head"><div class="an-card-title">Heatmap Capaian per Outcome</div><div class="an-card-sub">Warna = % capaian terhadap target Y1</div></div>
-        <div class="an-card-body">
-          <div class="hm-legend" style="margin-bottom:10px">
-            <span class="hm-legend-dot" style="background:#fee2e2"></span>&lt;25%
-            <span class="hm-legend-dot" style="background:#fef3c7;margin-left:6px"></span>25–49%
-            <span class="hm-legend-dot" style="background:#dbeafe;margin-left:6px"></span>50–79%
-            <span class="hm-legend-dot" style="background:#dcfce7;margin-left:6px"></span>≥80%
+    <!-- ── SEKSI 1: ITT ── -->
+    <div class="an-section">
+      <div class="an-section-title">📈 Capaian ITT — Perbandingan Antar SCN <span class="src-badge src-kobo">KoboToolbox</span></div>
+      <div class="an-grid-2">
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Heatmap Capaian per Outcome</span><span class="an-card-sub">% capaian terhadap target Y1</span></div>
+          <div class="an-card-body">
+            <div class="hm-legend">
+              <span class="hm-legend-dot" style="background:#fee2e2"></span>&lt;25%
+              <span class="hm-legend-dot" style="background:#fef3c7;margin-left:6px"></span>25–49%
+              <span class="hm-legend-dot" style="background:#dbeafe;margin-left:6px"></span>50–79%
+              <span class="hm-legend-dot" style="background:#dcfce7;margin-left:6px"></span>≥80%
+            </div>
+            <div class="hm-wrap"><table class="hm-table" id="hm-itt"></table></div>
           </div>
-          <div class="hm-wrap"><table class="hm-table" id="hm-itt"></table></div>
+        </div>
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Ranking SCN</span><span class="an-card-sub">Rata-rata capaian semua outcome</span></div>
+          <div class="an-card-body" id="ranking-list"></div>
         </div>
       </div>
-      <div class="an-card">
-        <div class="an-card-head"><div class="an-card-title">Ranking SCN</div><div class="an-card-sub">Rata-rata capaian semua outcome ITT</div></div>
-        <div class="an-card-body" id="ranking-list"></div>
-      </div>
     </div>
-  </div>
 
-  <!-- BAGIAN 2: Wellbeing -->
-  <div class="an-section">
-    <div class="an-section-title">💚 Wellbeing Beneficiary — Skor Cantrill</div>
-    <div class="an-grid-2">
-      <div class="an-card">
-        <div class="an-card-head"><div class="an-card-title">Skor Anak per SCN</div><div class="an-card-sub">Rata-rata Cantrill Ladder 1–10 (≥7 baik · ≤3 kritis)</div></div>
-        <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-sp-scn"></canvas></div>
+    <!-- ── SEKSI 2: WELLBEING ── -->
+    <div class="an-section">
+      <div class="an-section-title">💚 Wellbeing Beneficiary <span class="src-badge src-kobo">KoboToolbox · Data Awal</span></div>
+      <div class="an-grid-2" style="margin-bottom:16px">
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Skor Cantrill Anak per SCN</span><span class="an-card-sub">≥7 baik · ≤3 kritis</span></div>
+          <div class="an-card-body" style="height:200px;position:relative"><canvas id="chart-sp-scn"></canvas></div>
+        </div>
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Skor Cantrill Pengasuh per SCN</span></div>
+          <div class="an-card-body" style="height:200px;position:relative"><canvas id="chart-sa-scn"></canvas></div>
+        </div>
       </div>
-      <div class="an-card">
-        <div class="an-card-head"><div class="an-card-title">Skor Pengasuh per SCN</div><div class="an-card-sub">Rata-rata Cantrill Ladder 1–10</div></div>
-        <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-sa-scn"></canvas></div>
+      <div class="an-grid-3">
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Distribusi Skor Anak</span></div>
+          <div class="an-card-body" style="height:170px;position:relative"><canvas id="chart-sp-dist"></canvas></div>
+        </div>
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Kelompok Usia</span></div>
+          <div class="an-card-body" style="height:170px;position:relative"><canvas id="chart-usia"></canvas></div>
+        </div>
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Ragam Disabilitas</span></div>
+          <div class="an-card-body" style="height:170px;position:relative"><canvas id="chart-ragam"></canvas></div>
+        </div>
       </div>
     </div>
-    <div class="an-grid-3" style="margin-top:16px">
-      <div class="an-card">
-        <div class="an-card-head"><div class="an-card-title">Distribusi Skor Anak</div><div class="an-card-sub">Kritis (≤3) · Sedang (4–6) · Baik (≥7)</div></div>
-        <div class="an-card-body" style="height:180px;position:relative"><canvas id="chart-sp-dist"></canvas></div>
-      </div>
-      <div class="an-card">
-        <div class="an-card-head"><div class="an-card-title">Gender & Usia</div><div class="an-card-sub">Profil demografis semua beneficiary</div></div>
-        <div class="an-card-body" style="height:180px;position:relative"><canvas id="chart-usia"></canvas></div>
-      </div>
-      <div class="an-card">
-        <div class="an-card-head"><div class="an-card-title">Ragam & Level Disabilitas</div><div class="an-card-sub">Distribusi lintas SCN</div></div>
-        <div class="an-card-body" style="height:180px;position:relative"><canvas id="chart-ragam"></canvas></div>
-      </div>
-    </div>
-  </div>
 
-  <!-- BAGIAN 3: ICF -->
-  <div class="an-section">
-    <div class="an-section-title">🔬 Temuan ICF — Observasi Lapangan</div>
-    <div class="an-grid-3">
-      <div class="an-card">
-        <div class="an-card-head"><div class="an-card-title">Struktur & Fungsi Tubuh</div><div class="an-card-sub">Kondisi baik vs terganggu</div></div>
-        <div class="an-card-body" id="icf-struktur"></div>
-      </div>
-      <div class="an-card">
-        <div class="an-card-head"><div class="an-card-title">Kegiatan & Partisipasi</div><div class="an-card-sub">Mampu vs terbatas</div></div>
-        <div class="an-card-body" id="icf-kegiatan"></div>
-      </div>
-      <div class="an-card">
-        <div class="an-card-head"><div class="an-card-title">Faktor Lingkungan</div><div class="an-card-sub">Dukungan vs hambatan</div></div>
-        <div class="an-card-body" id="icf-lingkungan"></div>
+    <!-- ── SEKSI 3: ICF ── -->
+    <div class="an-section">
+      <div class="an-section-title">🔬 Temuan ICF — Observasi Lapangan <span class="src-badge src-kobo">KoboToolbox · Observasi</span></div>
+      <div class="an-grid-3">
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Struktur & Fungsi Tubuh</span><span class="an-card-sub">Baik vs Terganggu</span></div>
+          <div class="an-card-body" id="icf-struktur"></div>
+        </div>
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Kegiatan & Partisipasi</span><span class="an-card-sub">Mampu vs Terbatas</span></div>
+          <div class="an-card-body" id="icf-kegiatan"></div>
+        </div>
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Faktor Lingkungan</span><span class="an-card-sub">Dukungan vs Hambatan</span></div>
+          <div class="an-card-body" id="icf-lingkungan"></div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- BAGIAN 4: Implementasi -->
-  <div class="an-section">
-    <div class="an-section-title">⚙️ Kualitas Implementasi</div>
-    <div class="an-grid-2">
-      <div class="an-card">
-        <div class="an-card-head"><div class="an-card-title">Coverage Kunjungan per SCN</div><div class="an-card-sub">% anak dikunjungi bulan ini vs >30 hari belum dikunjungi</div></div>
-        <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-coverage"></canvas></div>
-      </div>
-      <div class="an-card">
-        <div class="an-card-head"><div class="an-card-title">Kondisi Khusus per SCN</div><div class="an-card-sub">Epilepsi (ep) · Sudah Pengobatan (ob) · Sudah Terapi (tr)</div></div>
-        <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-kondisi"></canvas></div>
+    <!-- ── SEKSI 4: IMPLEMENTASI ── -->
+    <div class="an-section">
+      <div class="an-section-title">⚙️ Kualitas Implementasi <span class="src-badge src-kobo">KoboToolbox · Data Awal + Observasi</span></div>
+      <div class="an-grid-2">
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Coverage Kunjungan per SCN</span></div>
+          <div class="an-card-body" style="height:200px;position:relative"><canvas id="chart-coverage"></canvas></div>
+        </div>
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Kondisi Khusus per SCN</span><span class="an-card-sub">Epilepsi · Pengobatan · Terapi</span></div>
+          <div class="an-card-body" style="height:200px;position:relative"><canvas id="chart-kondisi"></canvas></div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- BAGIAN 5: Worker -->
-  <div class="an-section">
-    <div class="an-section-title">👷 Kinerja CBR Worker</div>
-    <div class="an-grid-1">
+    <!-- ── SEKSI 5: CBR WORKER ── -->
+    <div class="an-section">
+      <div class="an-section-title">👷 Kinerja CBR Worker <span class="src-badge src-kobo">KoboToolbox · Observasi</span></div>
       <div class="an-card">
-        <div class="an-card-head"><div class="an-card-title">Perbandingan Kinerja Worker</div><div class="an-card-sub">Jumlah anak · kunjungan bulan ini · anak terlambat dikunjungi</div></div>
-        <div class="an-card-body" style="height:260px;position:relative"><canvas id="chart-worker"></canvas></div>
+        <div class="an-card-head"><span class="an-card-title">Perbandingan Kinerja Worker</span><span class="an-card-sub">Caseload · Kunjungan bulan ini · Terlambat</span></div>
+        <div class="an-card-body" style="height:240px;position:relative"><canvas id="chart-worker"></canvas></div>
       </div>
     </div>
-  </div>
+
+    <!-- ── SEKSI 6: STAKEHOLDER ── -->
+    <div class="an-section">
+      <div class="an-section-title">🤝 Jaringan Stakeholder <span class="src-badge src-ben">BEN Uploader · DataStakeholder</span></div>
+      ${totalStk > 0 ? `
+      <div class="an-grid-2">
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Distribusi per Kategori</span></div>
+          <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-stk-kat"></canvas></div>
+        </div>
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Stakeholder per SCN</span></div>
+          <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-stk-scn"></canvas></div>
+        </div>
+      </div>` : emptySection('Belum ada data stakeholder','Upload data melalui MEL SCN Tools')}
+    </div>
+
+    <!-- ── SEKSI 7: KEGIATAN ── -->
+    <div class="an-section">
+      <div class="an-section-title">📋 Monitoring Kegiatan <span class="src-badge src-ben">BEN Uploader · DataMonthly</span></div>
+      ${BEN_MON.length > 0 ? `
+      <div class="an-grid-2" style="margin-bottom:16px">
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Peserta per Kategori</span></div>
+          <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-mon-kat"></canvas></div>
+        </div>
+        <div class="an-card">
+          <div class="an-card-head"><span class="an-card-title">Distribusi Outcome Kegiatan</span></div>
+          <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-mon-out"></canvas></div>
+        </div>
+      </div>
+      ${lessons.length > 0 ? `
+      <div class="an-card">
+        <div class="an-card-head"><span class="an-card-title">Lesson Learnt Terkini</span><span class="an-card-sub">${lessons.length} kegiatan</span></div>
+        <div class="an-card-body">
+          ${lessons.map(r=>`
+          <div class="lesson-item">
+            <div class="lesson-keg">${r.nama_kegiatan||'—'}</div>
+            <div class="lesson-scn">${r.scn||''} · ${r.tanggal||''}</div>
+            <div class="lesson-text">${r.lesson_learnt}</div>
+          </div>`).join('')}
+        </div>
+      </div>` : ''}` : emptySection('Belum ada data monitoring kegiatan','Upload data melalui MEL SCN Tools')}
+    </div>
+
+    <!-- ── SEKSI 8: DATA BELUM TERSEDIA ── -->
+    <div class="an-section">
+      <div class="an-section-title">📁 Data Belum Tersedia <span class="src-badge src-kobo">KoboToolbox · 4 Form Lainnya</span></div>
+      <div class="an-grid-4">
+        ${placeholderCard('📝','Perencanaan','DataRencana','Kesulitan pengasuh, rencana intervensi per anak')}
+        ${placeholderCard('📔','Buku Harian','DataDiary','Frekuensi kunjungan, konsistensi pencatatan CBR worker')}
+        ${placeholderCard('📊','Evaluasi Menengah','DataEvalMenengah','Skor tujuan rata-rata, perubahan teridentifikasi')}
+        ${placeholderCard('🏁','Evaluasi Akhir','DataEvalAkhir','% tujuan tercapai, alasan kegagalan terbanyak')}
+      </div>
+    </div>
   `;
+
+  // Render semua charts
+  renderITT(scns, allAnak, allObs);
+  renderWellbeing(scns, allAnak);
+  renderICF(allObs);
+  renderImplementasi(scns, allAnak, allObs);
+  renderWorker(allWork);
+  if(totalStk>0) renderStakeholder();
+  if(BEN_MON.length>0) renderMonitoring();
 }
 
-function kpiTile(icon, label, value, sub, color, bg){
+function kpi(icon,bg,color,val,lbl,sub){
   return `<div class="kpi-tile">
     <div class="kpi-tile-ico" style="background:${bg};color:${color}">${icon}</div>
-    <div>
-      <div class="kpi-tile-num" style="color:${color}">${value}</div>
-      <div class="kpi-tile-lbl">${label}</div>
-      <div class="kpi-tile-sub">${sub}</div>
+    <div><div class="kpi-tile-num" style="color:${color}">${val}</div>
+    <div class="kpi-tile-lbl">${lbl}</div><div class="kpi-tile-sub">${sub}</div></div>
+  </div>`;
+}
+function emptySection(title,sub){
+  return `<div class="empty-section"><div class="empty-section-icon">📭</div><strong>${title}</strong><br><span style="font-size:.72rem">${sub}</span></div>`;
+}
+function placeholderCard(icon,title,sheet,desc){
+  return `<div class="an-card">
+    <div class="an-card-head"><span class="an-card-title">${title}</span><span class="src-badge src-empty">${sheet}</span></div>
+    <div class="an-card-body">
+      <div class="empty-section" style="padding:16px">
+        <div class="empty-section-icon">${icon}</div>
+        <div style="font-size:.73rem;color:#475569;font-weight:600;margin-bottom:4px">${title}</div>
+        <div style="font-size:.68rem;color:#94a3b8">${desc}</div>
+        <div style="margin-top:8px;font-size:.65rem;color:#cbd5e1">Menunggu data dari KoboToolbox</div>
+      </div>
     </div>
   </div>`;
 }
 
-// ── SECTION 1: ITT Heatmap + Ranking ─────────────────────────
-function renderSection1(scns, allAnak, allObs){
-  // Heatmap
-  const tbl = document.getElementById('hm-itt');
-  if(!tbl) return;
-  let html = '<thead><tr><th class="hm-scn-col">SCN</th>';
-  OUTCOMES.forEach(o=>{ html+=`<th>${OUT_LABEL[o]}</th>`; });
-  html += '<th>Avg</th></tr></thead><tbody>';
-
-  const rankData = [];
+// ── RENDER ITT ────────────────────────────────────────────────
+function renderITT(scns, allAnak, allObs){
+  const tbl=document.getElementById('hm-itt');
+  if(!tbl)return;
+  let html='<thead><tr><th class="hm-scn-col">SCN</th>';
+  OUTCOMES.forEach(o=>{html+=`<th>${OUT_LBL[o]}</th>`;});
+  html+='<th>Avg</th></tr></thead><tbody>';
+  const rankData=[];
   scns.forEach(id=>{
-    const d = DATA[id];
-    const pcts = calcITTpct(d.anak||[], d.obs||[]);
-    const avgP = Math.round(Object.values(pcts).reduce((a,b)=>a+b,0)/OUTCOMES.length);
-    rankData.push({id, label:SCN_LABELS[SCN_IDS.indexOf(id)]||id, prov:PROV_MAP[id]||'', avg:avgP, pcts});
-    html += `<tr><td class="hm-scn">${SCN_LABELS[SCN_IDS.indexOf(id)]||id}</td>`;
+    const d=KOBO[id];
+    const pcts=calcITTpct(d.anak||[],d.obs||[]);
+    const avgP=Math.round(Object.values(pcts).reduce((a,b)=>a+b,0)/OUTCOMES.length);
+    rankData.push({id,label:SCN_LABEL[SCN_IDS.indexOf(id)]||id,prov:PROV_MAP[id]||'',avg:avgP,pcts});
+    html+=`<tr><td class="hm-scn">${SCN_LABEL[SCN_IDS.indexOf(id)]||id}</td>`;
     OUTCOMES.forEach(o=>{
-      const v = pcts[o]||0;
-      html += `<td style="background:${pctBg(v)};color:${hmColor(v)}" title="${OUT_LABEL[o]}: ${v}%">${v}%</td>`;
+      const v=pcts[o]||0;
+      html+=`<td style="background:${pctBg(v)};color:${pctColor(v)}">${v}%</td>`;
     });
-    html += `<td style="background:${pctBg(avgP)};color:${hmColor(avgP)};font-weight:800">${avgP}%</td>`;
-    html += '</tr>';
+    html+=`<td style="background:${pctBg(avgP)};color:${pctColor(avgP)};font-weight:800">${avgP}%</td></tr>`;
   });
-  html += '</tbody>';
-  tbl.innerHTML = html;
-
-  // Ranking
+  tbl.innerHTML=html+'</tbody>';
   rankData.sort((a,b)=>b.avg-a.avg);
-  const rl = document.getElementById('ranking-list');
-  if(!rl) return;
-  const medals = ['🥇','🥈','🥉'];
-  rl.innerHTML = rankData.map((s,i)=>`
+  const rl=document.getElementById('ranking-list');
+  if(!rl)return;
+  const medals=['🥇','🥈','🥉'];
+  rl.innerHTML=rankData.map((s,i)=>`
     <div class="rank-row">
-      <div class="rank-badge" style="background:${i<3?'#fef3c7':'#f3f4f6'};color:${i<3?'#92400e':'#9ca3af'}">${medals[i]||i+1}</div>
-      <div class="rank-info">
-        <div class="rank-name">${s.label}</div>
-        <div class="rank-prov">${s.prov}</div>
-      </div>
-      <div class="rank-bar-wrap">
-        <div class="prog-track"><div class="prog-fill" style="width:${s.avg}%;background:${pctColor(s.avg)}"></div></div>
-      </div>
+      <div class="rank-badge" style="background:${i<3?'#fef3c7':'#f3f4f6'};color:${i<3?'#92400e':'#94a3b8'}">${medals[i]||i+1}</div>
+      <div class="rank-info"><div class="rank-name">${s.label}</div><div class="rank-prov">${s.prov}</div></div>
+      <div style="width:70px"><div class="prog-track"><div class="prog-fill" style="width:${s.avg}%;background:${pctColor(s.avg)}"></div></div></div>
       <div class="rank-pct" style="color:${pctColor(s.avg)}">${s.avg}%</div>
     </div>`).join('');
 }
 
-// ── SECTION 2: Wellbeing ──────────────────────────────────────
-function renderSection2(scns, allAnak){
-  const PAL = ['#F97316','#FB923C','#FDBA74','#FED7AA','#1E293B','#475569','#94A3B8','#CBD5E1'];
-
-  // Skor anak per SCN
-  const spLabels=[], spData=[], spColors=[];
-  scns.forEach((id,i)=>{
-    const arr = (DATA[id].anak||[]).filter(a=>a.sp!=null).map(a=>a.sp);
-    if(!arr.length) return;
-    const v = parseFloat(avg(arr).toFixed(1));
-    spLabels.push(SCN_LABELS[SCN_IDS.indexOf(id)]||id);
-    spData.push(v);
-    spColors.push(scColor(v)+'cc');
+// ── RENDER WELLBEING ──────────────────────────────────────────
+function renderWellbeing(scns, allAnak){
+  const spL=[],spD=[],spC=[],saL=[],saD=[],saC=[];
+  scns.forEach(id=>{
+    const lbl=SCN_LABEL[SCN_IDS.indexOf(id)]||id;
+    const spArr=(KOBO[id].anak||[]).filter(a=>a.sp!=null).map(a=>a.sp);
+    const saArr=(KOBO[id].anak||[]).filter(a=>a.sa!=null).map(a=>a.sa);
+    if(spArr.length){const v=parseFloat(avg(spArr).toFixed(1));spL.push(lbl);spD.push(v);spC.push(scColor(v)+'cc');}
+    if(saArr.length){const v=parseFloat(avg(saArr).toFixed(1));saL.push(lbl);saD.push(v);saC.push(scColor(v)+'cc');}
   });
-  mkChart('chart-sp-scn','bar',{
-    labels:spLabels,
-    datasets:[{label:'Avg Skor Anak',data:spData,backgroundColor:spColors,borderRadius:6,borderSkipped:false}]
-  },{...CHART_DEFAULTS,plugins:{...CHART_DEFAULTS.plugins,tooltip:{...CHART_DEFAULTS.plugins.tooltip,callbacks:{label:c=>' Skor: '+c.raw+'/10'}}},
-    scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:0,max:10,ticks:{callback:v=>v+'/10'}}}});
-
-  // Skor pengasuh per SCN
-  const saLabels=[], saData=[], saColors=[];
-  scns.forEach((id,i)=>{
-    const arr=(DATA[id].anak||[]).filter(a=>a.sa!=null).map(a=>a.sa);
-    if(!arr.length) return;
-    const v=parseFloat(avg(arr).toFixed(1));
-    saLabels.push(SCN_LABELS[SCN_IDS.indexOf(id)]||id);
-    saData.push(v);
-    saColors.push(scColor(v)+'cc');
-  });
-  mkChart('chart-sa-scn','bar',{
-    labels:saLabels,
-    datasets:[{label:'Avg Skor Pengasuh',data:saData,backgroundColor:saColors,borderRadius:6,borderSkipped:false}]
-  },{...CHART_DEFAULTS,plugins:{...CHART_DEFAULTS.plugins,tooltip:{...CHART_DEFAULTS.plugins.tooltip,callbacks:{label:c=>' Skor: '+c.raw+'/10'}}},
-    scales:{...CHART_DEFAULTS.scales,y:{...CHART_DEFAULTS.scales.y,min:0,max:10,ticks:{callback:v=>v+'/10'}}}});
-
-  // Distribusi skor anak
+  mkChart('chart-sp-scn','bar',{labels:spL,datasets:[{data:spD,backgroundColor:spC,borderRadius:6,borderSkipped:false}]},
+    {...CD,scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{...CD.scales.y,min:0,max:10,ticks:{callback:v=>v+'/10'}}}});
+  mkChart('chart-sa-scn','bar',{labels:saL,datasets:[{data:saD,backgroundColor:saC,borderRadius:6,borderSkipped:false}]},
+    {...CD,scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{...CD.scales.y,min:0,max:10,ticks:{callback:v=>v+'/10'}}}});
+  // Distribusi
   const kritis=allAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
   const sedang=allAnak.filter(a=>a.sp!=null&&a.sp>=4&&a.sp<=6).length;
-  const baik  =allAnak.filter(a=>a.sp!=null&&a.sp>=7).length;
-  const belumSp=allAnak.filter(a=>a.sp==null).length;
-  mkChart('chart-sp-dist','doughnut',{
-    labels:['Kritis (≤3)','Sedang (4–6)','Baik (≥7)','Belum Ada Skor'],
-    datasets:[{data:[kritis,sedang,baik,belumSp],backgroundColor:['#dc2626','#d97706','#16a34a','#e5e7eb'],borderColor:'#fff',borderWidth:2}]
-  },{responsive:true,maintainAspectRatio:false,cutout:'60%',
-    plugins:{legend:{position:'right',labels:{font:{size:10},padding:8}},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw} anak`}}}});
-
-  // Usia & Gender
+  const baik=allAnak.filter(a=>a.sp!=null&&a.sp>=7).length;
+  const belum=allAnak.filter(a=>a.sp==null).length;
+  mkChart('chart-sp-dist','doughnut',{labels:['Kritis','Sedang','Baik','Belum'],
+    datasets:[{data:[kritis,sedang,baik,belum],backgroundColor:['#dc2626','#d97706','#16a34a','#e5e7eb'],borderColor:'#fff',borderWidth:2}]},
+    {responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{font:{size:10},padding:8}}}});
+  // Usia
   const AGO=['0-5 th','6-12 th','13-17 th','18-24 th','25+ th'];
-  const PAL2=['#F97316','#FB923C','#FDBA74','#1E293B','#475569'];
-  const guCount={};
-  allAnak.forEach(a=>{ const g=a.gu||'?'; guCount[g]=(guCount[g]||0)+1; });
-  mkChart('chart-usia','bar',{
-    labels:AGO,
-    datasets:[{label:'Jumlah Anak',data:AGO.map(g=>guCount[g]||0),backgroundColor:PAL2,borderRadius:6,borderSkipped:false}]
-  },{...CHART_DEFAULTS,scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}}}});
-
-  // Ragam disabilitas
+  const guC={};allAnak.forEach(a=>{const g=a.gu||'?';guC[g]=(guC[g]||0)+1;});
+  mkChart('chart-usia','bar',{labels:AGO,datasets:[{data:AGO.map(g=>guC[g]||0),backgroundColor:['#F97316','#FB923C','#FDBA74','#1E293B','#475569'],borderRadius:6,borderSkipped:false}]},CD);
+  // Ragam
   const RC={'Fisik':'#F97316','Intelektual':'#1E293B','Sensorik (penglihatan)':'#FB923C','Sensorik (pendengaran dan bicara)':'#FDBA74','Ganda':'#475569','Lainnya':'#94A3B8'};
-  const ragamCount={};
-  allAnak.forEach(a=>{ const r=a.ragam||'Lainnya'; ragamCount[r]=(ragamCount[r]||0)+1; });
-  const ragamKeys=Object.keys(ragamCount).filter(k=>ragamCount[k]>0);
-  mkChart('chart-ragam','bar',{
-    labels:ragamKeys.map(k=>k.split(' ')[0]),
-    datasets:[{label:'Jumlah Anak',data:ragamKeys.map(k=>ragamCount[k]),backgroundColor:ragamKeys.map(k=>RC[k]||'#94A3B8'),borderRadius:6,borderSkipped:false}]
-  },{...CHART_DEFAULTS,scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}}}});
+  const rC={};allAnak.forEach(a=>{const r=a.ragam||'Lainnya';rC[r]=(rC[r]||0)+1;});
+  const rK=Object.keys(rC).filter(k=>rC[k]>0);
+  mkChart('chart-ragam','bar',{labels:rK.map(k=>k.split(' ')[0]),datasets:[{data:rK.map(k=>rC[k]),backgroundColor:rK.map(k=>RC[k]||'#94A3B8'),borderRadius:6,borderSkipped:false}]},CD);
 }
 
-// ── SECTION 3: ICF ────────────────────────────────────────────
-function renderSection3(scns, allObs){
-  const domains = [
-    {key:'struktur', fieldKey:'st', elId:'icf-struktur', posLabel:'Baik', negLabel:'Terganggu', posColor:'#16a34a', negColor:'#dc2626'},
-    {key:'kegiatan', fieldKey:'kg', elId:'icf-kegiatan', posLabel:'Mampu', negLabel:'Terbatas', posColor:'#2563eb', negColor:'#d97706'},
-    {key:'lingkungan',fieldKey:'lg', elId:'icf-lingkungan',posLabel:'Dukungan',negLabel:'Hambatan',posColor:'#7c3aed',negColor:'#b91c1c'},
-  ];
-  domains.forEach(dom=>{
-    const result = analyzeICFDomain(allObs, dom.key, dom.fieldKey);
-    const el = document.getElementById(dom.elId);
-    if(!el) return;
-    const themes = THEMES_ICF[dom.key];
-    const maxVal = Math.max(...themes.map(t=>(result[t.label]?.pos||0)+(result[t.label]?.neg||0)), 1);
-    el.innerHTML = themes.map(t=>{
-      const r = result[t.label]||{pos:0,neg:0};
-      const total = r.pos+r.neg||1;
-      const posW = Math.round(r.pos/total*100);
-      const negW = Math.round(r.neg/total*100);
+// ── RENDER ICF ────────────────────────────────────────────────
+function renderICF(allObs){
+  [{key:'struktur',fk:'st',el:'icf-struktur',posL:'Baik',negL:'Terganggu',posC:'#16a34a',negC:'#dc2626'},
+   {key:'kegiatan',fk:'kg',el:'icf-kegiatan',posL:'Mampu',negL:'Terbatas',posC:'#2563eb',negC:'#d97706'},
+   {key:'lingkungan',fk:'lg',el:'icf-lingkungan',posL:'Dukungan',negL:'Hambatan',posC:'#7c3aed',negC:'#b91c1c'},
+  ].forEach(dom=>{
+    const res=analyzeICF(allObs,dom.key,dom.fk);
+    const el=document.getElementById(dom.el);if(!el)return;
+    el.innerHTML=THEMES_ICF[dom.key].map(t=>{
+      const r=res[t.label]||{pos:0,neg:0};
+      const tot=r.pos+r.neg||1;
       return `<div class="icf-domain-row">
         <div class="icf-domain-label">${t.label}</div>
         <div class="icf-domain-bars">
-          <div class="icf-bar-wrap">
-            <div class="icf-bar-label" style="color:${dom.posColor}">${dom.posLabel}</div>
-            <div class="icf-bar-track"><div class="icf-bar-fill" style="width:${posW}%;background:${dom.posColor}"></div></div>
-            <div class="icf-bar-num" style="color:${dom.posColor}">${r.pos}</div>
-          </div>
-          <div class="icf-bar-wrap">
-            <div class="icf-bar-label" style="color:${dom.negColor}">${dom.negLabel}</div>
-            <div class="icf-bar-track"><div class="icf-bar-fill" style="width:${negW}%;background:${dom.negColor}"></div></div>
-            <div class="icf-bar-num" style="color:${dom.negColor}">${r.neg}</div>
-          </div>
-        </div>
-      </div>`;
+          <div class="icf-bar-wrap"><div class="icf-bar-label" style="color:${dom.posC}">${dom.posL}</div><div class="icf-bar-track"><div class="icf-bar-fill" style="width:${Math.round(r.pos/tot*100)}%;background:${dom.posC}"></div></div><div class="icf-bar-num" style="color:${dom.posC}">${r.pos}</div></div>
+          <div class="icf-bar-wrap"><div class="icf-bar-label" style="color:${dom.negC}">${dom.negL}</div><div class="icf-bar-track"><div class="icf-bar-fill" style="width:${Math.round(r.neg/tot*100)}%;background:${dom.negC}"></div></div><div class="icf-bar-num" style="color:${dom.negC}">${r.neg}</div></div>
+        </div></div>`;
     }).join('');
   });
 }
 
-// ── SECTION 4: Coverage + Kondisi Khusus ─────────────────────
-function renderSection4(scns, allAnak){
-  const labels=[], kunj=[], late=[], obs_cov=[];
+// ── RENDER IMPLEMENTASI ───────────────────────────────────────
+function renderImplementasi(scns, allAnak, allObs){
+  const labels=[],kunj=[],late=[],epD=[],obD=[],trD=[];
   scns.forEach(id=>{
-    const anak = DATA[id].anak||[];
-    const works = DATA[id].workers||[];
-    const lbl = SCN_LABELS[SCN_IDS.indexOf(id)]||id;
-    const total = anak.length||1;
-    const t_late = works.reduce((s,w)=>s+w.late,0);
-    const t_kunj = works.reduce((s,w)=>s+w.kunjungan_bulan,0);
-    const t_obs  = anak.filter(a=>{
-      const k=a.nama.toLowerCase();
-      return (DATA[id].obs||[]).some(o=>o.na&&o.na.toLowerCase()===k);
-    }).length;
-    labels.push(lbl);
-    kunj.push(t_kunj);
-    late.push(t_late);
-    obs_cov.push(Math.round(t_obs/total*100));
-  });
-
-  mkChart('chart-coverage','bar',{
-    labels,
-    datasets:[
-      {label:'Kunjungan Bulan Ini',data:kunj,backgroundColor:'#F97316cc',borderRadius:4},
-      {label:'Belum Dikunjungi >30 hari',data:late,backgroundColor:'#dc2626cc',borderRadius:4},
-    ]
-  },{...CHART_DEFAULTS,plugins:{...CHART_DEFAULTS.plugins,legend:{display:true,position:'top',labels:{font:{size:10}}}},
-    scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}}}});
-
-  // Kondisi Khusus (ep, ob, tr)
-  const epData=[], obData=[], trData=[];
-  scns.forEach(id=>{
-    const anak=DATA[id].anak||[];
+    const anak=KOBO[id].anak||[];
+    const works=KOBO[id].workers||[];
+    const lbl=SCN_LABEL[SCN_IDS.indexOf(id)]||id;
     const t=anak.length||1;
-    epData.push(Math.round(anak.filter(a=>a.ep).length/t*100));
-    obData.push(Math.round(anak.filter(a=>a.ob).length/t*100));
-    trData.push(Math.round(anak.filter(a=>a.tr).length/t*100));
+    labels.push(lbl);
+    kunj.push(works.reduce((s,w)=>s+w.kunjungan_bulan,0));
+    late.push(works.reduce((s,w)=>s+w.late,0));
+    epD.push(Math.round(anak.filter(a=>a.ep).length/t*100));
+    obD.push(Math.round(anak.filter(a=>a.ob).length/t*100));
+    trD.push(Math.round(anak.filter(a=>a.tr).length/t*100));
   });
-
-  mkChart('chart-kondisi','bar',{
-    labels,
-    datasets:[
-      {label:'Epilepsi (%)',data:epData,backgroundColor:'#dc2626cc',borderRadius:4},
-      {label:'Pengobatan (%)',data:obData,backgroundColor:'#2563ebcc',borderRadius:4},
-      {label:'Pernah Terapi (%)',data:trData,backgroundColor:'#16a34acc',borderRadius:4},
-    ]
-  },{...CHART_DEFAULTS,plugins:{...CHART_DEFAULTS.plugins,legend:{display:true,position:'top',labels:{font:{size:10}}}},
-    scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f3f4f6'},ticks:{callback:v=>v+'%',font:{size:10}},min:0,max:100}}});
+  mkChart('chart-coverage','bar',{labels,datasets:[
+    {label:'Kunjungan Bulan Ini',data:kunj,backgroundColor:'#F97316cc',borderRadius:4},
+    {label:'Belum Dikunjungi >30 hari',data:late,backgroundColor:'#dc2626cc',borderRadius:4},
+  ]},{...CD,plugins:{...CD.plugins,legend:{display:true,position:'top',labels:{font:{size:10}}}}});
+  mkChart('chart-kondisi','bar',{labels,datasets:[
+    {label:'Epilepsi (%)',data:epD,backgroundColor:'#dc2626cc',borderRadius:4},
+    {label:'Pengobatan (%)',data:obD,backgroundColor:'#2563ebcc',borderRadius:4},
+    {label:'Terapi (%)',data:trD,backgroundColor:'#16a34acc',borderRadius:4},
+  ]},{...CD,plugins:{...CD.plugins,legend:{display:true,position:'top',labels:{font:{size:10}}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{...CD.scales.y,min:0,max:100,ticks:{callback:v=>v+'%'}}}});
 }
 
-// ── SECTION 5: Worker ─────────────────────────────────────────
-function renderSection5(scns, allAnak, allWork){
-  const labels=[], anakData=[], kunjData=[], lateData=[];
+// ── RENDER WORKER ─────────────────────────────────────────────
+function renderWorker(allWork){
+  const labels=[],anakD=[],kunjD=[],lateD=[];
   allWork.forEach(w=>{
-    const scnLabel = SCN_LABELS[SCN_IDS.indexOf(w.scn)]||w.scn;
-    labels.push(w.nama.split(' ').slice(-1)[0]+' ('+scnLabel+')');
-    anakData.push(w.anak);
-    kunjData.push(w.kunjungan_bulan);
-    lateData.push(w.late);
+    labels.push(w.nama.split(' ').slice(-1)[0]+' ('+(SCN_LABEL[SCN_IDS.indexOf(w.scn)]||w.scn)+')');
+    anakD.push(w.anak);kunjD.push(w.kunjungan_bulan);lateD.push(w.late);
   });
-
-  mkChart('chart-worker','bar',{
-    labels,
-    datasets:[
-      {label:'Jumlah Anak',data:anakData,backgroundColor:'#F97316cc',borderRadius:4},
-      {label:'Kunjungan Bulan Ini',data:kunjData,backgroundColor:'#1E293Bcc',borderRadius:4},
-      {label:'Anak Terlambat',data:lateData,backgroundColor:'#dc2626cc',borderRadius:4},
-    ]
-  },{...CHART_DEFAULTS,plugins:{...CHART_DEFAULTS.plugins,legend:{display:true,position:'top',labels:{font:{size:10}}}},
-    scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:30}},y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}}}});
+  mkChart('chart-worker','bar',{labels,datasets:[
+    {label:'Caseload',data:anakD,backgroundColor:'#F97316cc',borderRadius:4},
+    {label:'Kunjungan',data:kunjD,backgroundColor:'#1E293Bcc',borderRadius:4},
+    {label:'Terlambat',data:lateD,backgroundColor:'#dc2626cc',borderRadius:4},
+  ]},{...CD,plugins:{...CD.plugins,legend:{display:true,position:'top',labels:{font:{size:10}}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:30}},y:{...CD.scales.y}}});
 }
 
-// ── INIT ──────────────────────────────────────────────────────
+// ── RENDER STAKEHOLDER ────────────────────────────────────────
+function renderStakeholder(){
+  const katC={};
+  BEN_STK.forEach(r=>{const k=r.kategori||'Lainnya';katC[k]=(katC[k]||0)+1;});
+  const katE=Object.entries(katC).sort((a,b)=>b[1]-a[1]);
+  mkChart('chart-stk-kat','bar',{
+    labels:katE.map(([k])=>k.split(' ').slice(-1)[0]),
+    datasets:[{data:katE.map(([,v])=>v),backgroundColor:katE.map((_,i)=>PALETTE[i%PALETTE.length]),borderRadius:5,borderSkipped:false}]
+  },{...CD,indexAxis:'y',scales:{x:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}});
+
+  const scnC={};
+  BEN_STK.forEach(r=>{const s=r.scn||'?';scnC[s]=(scnC[s]||0)+1;});
+  const scnE=Object.entries(scnC).sort((a,b)=>b[1]-a[1]);
+  const maxV=scnE[0]?.[1]||1;
+  mkChart('chart-stk-scn','bar',{
+    labels:scnE.map(([k])=>SCN_LABEL[SCN_IDS.indexOf(k)]||k),
+    datasets:[{data:scnE.map(([,v])=>v),backgroundColor:scnE.map(([,v])=>{const r=v/maxV;return r>0.8?'#F97316':r>0.5?'#EA6C00':r>0.3?'#C05500':'#94A3B8';}),borderRadius:5,borderSkipped:false}]
+  },{...CD,scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}}}});
+}
+
+// ── RENDER MONITORING ─────────────────────────────────────────
+function renderMonitoring(){
+  const pesKat=[
+    {l:'CBR Worker',v:BEN_MON.reduce((s,r)=>s+num(r.cbr),0)},
+    {l:'Guru',v:BEN_MON.reduce((s,r)=>s+num(r.guru),0)},
+    {l:'Pengasuh',v:BEN_MON.reduce((s,r)=>s+num(r.pengasuh),0)},
+    {l:'Nakes',v:BEN_MON.reduce((s,r)=>s+num(r.nakes),0)},
+    {l:'Staff Mitra',v:BEN_MON.reduce((s,r)=>s+num(r.staff),0)},
+    {l:'Pemerintah',v:BEN_MON.reduce((s,r)=>s+num(r.pemerintah),0)},
+    {l:'Lainnya',v:BEN_MON.reduce((s,r)=>s+num(r.lainnya),0)},
+  ].filter(k=>k.v>0).sort((a,b)=>b.v-a.v);
+  mkChart('chart-mon-kat','bar',{
+    labels:pesKat.map(k=>k.l),
+    datasets:[{data:pesKat.map(k=>k.v),backgroundColor:pesKat.map((_,i)=>PALETTE[i%PALETTE.length]),borderRadius:5,borderSkipped:false}]
+  },{...CD,indexAxis:'y',scales:{x:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}});
+
+  const outC={};
+  BEN_MON.forEach(r=>{const o=r.outcome||'Lainnya';outC[o]=(outC[o]||0)+1;});
+  const outE=Object.entries(outC).sort((a,b)=>b[1]-a[1]);
+  const outTotal=outE.reduce((s,[,v])=>s+v,0);
+  mkChart('chart-mon-out','doughnut',{
+    labels:outE.map(([k,v])=>`${k} (${Math.round(v/outTotal*100)}%)`),
+    datasets:[{data:outE.map(([,v])=>v),backgroundColor:outE.map((_,i)=>PALETTE[i%PALETTE.length]),borderColor:'#fff',borderWidth:3}]
+  },{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{font:{size:10},padding:10,usePointStyle:true}}}});
+}
+
+// ── INIT ─────────────────────────────────────────────────────
 buildSidebar();
 const SESSION = AUTH.requireAuth('../index.html');
 if(SESSION){
   if(!AUTH.isSuperAdmin()){
     window.location.href='mel-beranda.html';
   } else {
-    AUTH.applySession({
-      onScnSwitch: function(scnId){
-        // Analisis selalu nasional — tidak berubah saat SCN switch
-      }
-    });
+    AUTH.applySession({onScnSwitch:function(scnId){}});
     AUTH.initSidebar('mel','m-analisis');
-    // Fetch data SCN yang tersedia (saat ini hanya manggarai)
-    API.get('manggarai').then(d=>{
-      if(d) renderPage(d,'manggarai');
-      else document.getElementById('page-content').innerHTML='<div class="an-loading">Tidak ada data tersedia</div>';
+
+    // Fetch semua sumber data paralel
+    Promise.all([
+      API.get('manggarai'),
+      API_BEN.get('stakeholder', null),
+      API_BEN.get('monthly', null),
+    ]).then(([koboData, stkData, monData])=>{
+      BEN_STK = stkData||[];
+      BEN_MON = monData||[];
+      if(koboData){
+        KOBO['manggarai'] = koboData;
+        renderAll();
+      } else {
+        document.getElementById('page-content').innerHTML='<div class="an-loading">Tidak ada data tersedia</div>';
+      }
     });
   }
 }

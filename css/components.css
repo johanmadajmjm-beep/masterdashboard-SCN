@@ -903,8 +903,8 @@ select:hover, input:hover { border-color: #D1D5DB; }
 }
 
 /* Tab pertama mepet kiri, tab terakhir mepet kanan */
-.bottom-nav-tab:first-child { align-items: flex-start; padding-left: 14px; }
-.bottom-nav-tab:last-child  { align-items: flex-end;   padding-right: 14px; }
+.bottom-nav-tab:first-child { align-items: flex-start; padding-left: 20px; }
+.bottom-nav-tab:last-child  { align-items: flex-end;   padding-right: 20px; }
 .bottom-nav-tab:not(:first-child):not(:last-child) { align-items: center; }
 
 /* Active indicator bar */

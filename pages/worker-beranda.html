@@ -38,7 +38,7 @@
     /* KPI ROW */
     .kpi-row {
       display: grid;
-      grid-template-columns: repeat(8,1fr);
+      grid-template-columns: repeat(auto-fit,minmax(110px,1fr));
       gap: 8px;
       margin-bottom: 12px;
     }
@@ -713,6 +713,13 @@ function renderSkor(){
   mk('c-skor-usia','bar',{labels:AGO,datasets:[{data:auAvg,backgroundColor:PAL,borderRadius:4,borderSkipped:false}]},{...BO,scales:{...BO.scales,y:{...BO.scales.y,suggestedMax:10}},layout:{padding:{top:16}}});
   renderKW('kw-anak-naik','kw-anka-naik-ct',a.map(x=>({txt:x.nka,src:x.nama+' ('+x.cbr+')'})),'#059669',window.KAT_ANAK,a.length);
   renderKW('kw-anak-turun','kw-anak-turun-ct',a.map(x=>({txt:x.tka,src:x.nama+' ('+x.cbr+')'})),'#dc2626',window.KAT_ANAK,a.length);
+  // ── sidebar faktor ringkasan (top 4 frasa singkat) ──
+  var naikR=a.filter(function(x){return x.nka&&x.nka.length>10;}).slice(0,4).map(function(x){return x.nka.substring(0,70).replace(/["'\*]/g,'').replace(/\n/g,' ').trim();});
+  var turunR=a.filter(function(x){return x.tka&&x.tka.length>10;}).slice(0,4).map(function(x){return x.tka.substring(0,70).replace(/["'\*]/g,'').replace(/\n/g,' ').trim();});
+  var elN=document.getElementById('faktor-naik-list');
+  var elT=document.getElementById('faktor-turun-list');
+  if(elN) elN.innerHTML=naikR.length?naikR.map(function(t){return '<li>'+t+'</li>';}).join(''):'<li style="color:#9ca3af">Belum ada data</li>';
+  if(elT) elT.innerHTML=turunR.length?turunR.map(function(t){return '<li>'+t+'</li>';}).join(''):'<li style="color:#9ca3af">Belum ada data</li>';
 }
 
 function renderPengasuh(){

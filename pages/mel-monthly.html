@@ -7,64 +7,71 @@
   <link rel="stylesheet" href="../css/components.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <style>
-    /* ── KPI CARDS ── */
+    /* ── KPI ── */
     .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
     @media(max-width:900px){.kpi-row{grid-template-columns:1fr 1fr}}
-    .kpi-card{background:#fff;border:1px solid #e9eef6;border-radius:14px;padding:20px 22px;display:flex;align-items:center;gap:16px}
-    .kpi-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.4rem}
-    .kpi-info{}
-    .kpi-val{font-size:1.7rem;font-weight:800;line-height:1;font-family:'JetBrains Mono',monospace}
-    .kpi-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-top:5px}
-    .kpi-sub{font-size:.7rem;color:#94a3b8;margin-top:2px}
+    .kpi-card{background:#fff;border:1px solid #e9eef6;border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:14px}
+    .kpi-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3rem}
+    .kpi-val{font-size:1.6rem;font-weight:800;line-height:1;font-family:'JetBrains Mono',monospace}
+    .kpi-lbl{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-top:5px}
+    .kpi-sub{font-size:.68rem;color:#94a3b8;margin-top:2px}
 
     /* ── CHARTS ROW ── */
     .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
     @media(max-width:900px){.charts-row{grid-template-columns:1fr}}
     .mm-card{background:#fff;border:1px solid #e9eef6;border-radius:14px;overflow:hidden}
-    .mm-card-head{padding:14px 20px 12px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
-    .mm-card-title{font-size:.88rem;font-weight:700;color:#0f172a}
-    .mm-card-body{padding:16px 20px}
+    .mm-card-head{padding:13px 18px 11px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
+    .mm-card-title{font-size:.86rem;font-weight:700;color:#0f172a}
+    .mm-card-body{padding:16px 18px}
 
-    /* ── TABLE SECTION ── */
-    .section-row{display:grid;grid-template-columns:1fr 420px;gap:16px;margin-bottom:16px}
-    @media(max-width:1100px){.section-row{grid-template-columns:1fr}}
-    .sec-label{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:12px}
-    .tbl-wrap{overflow-x:auto}
-    .mm-table{width:100%;border-collapse:collapse;font-size:.78rem}
-    .mm-table th{padding:9px 14px;text-align:left;font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;background:#f8fafc;border-bottom:1px solid #e9eef6;white-space:nowrap}
-    .mm-table td{padding:11px 14px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
-    .mm-table tr:last-child td{border-bottom:none}
-    .mm-table tr:hover td{background:#fafbfd}
-    .keg-name-cell{display:flex;align-items:flex-start;gap:10px}
-    .scn-dot{width:32px;height:32px;border-radius:8px;background:#F97316;color:#fff;font-size:.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:.02em}
-    .keg-name-text{font-weight:600;color:#0f172a;line-height:1.4;font-size:.78rem}
-    .mm-outcome-pill{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.64rem;font-weight:700}
-    .num-l{color:#1d4ed8;font-weight:700}
-    .num-p{color:#db2777;font-weight:700}
-    .num-t{font-weight:800}
-    .more-btn{background:none;border:none;cursor:pointer;color:#94a3b8;font-size:1.1rem;padding:2px 6px;border-radius:4px}
-    .more-btn:hover{background:#f1f5f9;color:#475569}
+    /* ── MASTER-DETAIL LAYOUT ── */
+    .md-row{display:grid;grid-template-columns:1fr 2fr;gap:16px;align-items:start}
+    @media(max-width:1000px){.md-row{grid-template-columns:1fr}}
+    .sec-label{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:10px}
 
-    /* ── NARASI ── */
-    .narasi-outer{display:flex;flex-direction:column;gap:12px}
-    .narasi-item{border:1px solid #e9eef6;border-radius:12px;overflow:hidden}
-    .narasi-header{padding:12px 16px;background:#fafbfd;display:flex;align-items:center;gap:10px;cursor:pointer;border-bottom:1px solid #e9eef6}
-    .narasi-toggle{color:#F97316;font-size:.9rem;transition:transform .2s}
-    .narasi-toggle.open{transform:rotate(0deg)}
-    .narasi-toggle.closed{transform:rotate(-90deg)}
-    .narasi-title-text{font-size:.8rem;font-weight:700;color:#0f172a;flex:1;line-height:1.4}
-    .narasi-scn-badge{padding:2px 8px;background:#eff6ff;color:#1d4ed8;border-radius:6px;font-size:.62rem;font-weight:700;flex-shrink:0}
-    .narasi-date{font-size:.67rem;color:#94a3b8;flex-shrink:0}
-    .narasi-body{padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .narasi-field{display:flex;gap:10px}
-    .narasi-field-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.9rem}
-    .narasi-field-content{}
-    .narasi-field-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;margin-bottom:3px}
-    .narasi-field-val{font-size:.74rem;color:#334155;line-height:1.65}
+    /* ── KEGIATAN LIST (kiri 1/3) ── */
+    .keg-list{width:100%}
+    .keg-list-item{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;transition:background .12s}
+    .keg-list-item:last-child{border-bottom:none}
+    .keg-list-item:hover{background:#fafbfd}
+    .keg-list-item.active{background:#fff7ed;border-left:3px solid #F97316}
+    .keg-list-item:not(.active){border-left:3px solid transparent}
+    .scn-dot{width:30px;height:30px;border-radius:8px;color:#fff;font-size:.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .keg-list-name{font-size:.76rem;font-weight:600;color:#0f172a;line-height:1.4;margin-bottom:3px}
+    .keg-list-meta{font-size:.66rem;color:#94a3b8}
+
+    /* ── DETAIL PANEL (kanan 2/3) ── */
+    .detail-panel{background:#fff;border:1px solid #e9eef6;border-radius:14px;overflow:hidden;min-height:400px}
+    .detail-header{padding:16px 20px;background:#fff7ed;border-bottom:1px solid #fed7aa}
+    .detail-title{font-size:.9rem;font-weight:700;color:#0f172a;margin-bottom:6px;line-height:1.4}
+    .detail-meta{display:flex;gap:10px;flex-wrap:wrap}
+    .detail-meta-item{font-size:.69rem;color:#92400e;display:flex;align-items:center;gap:4px}
+    .detail-body{padding:18px 20px}
+
+    /* Stats row di detail */
+    .detail-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+    .detail-stat{background:#f8fafc;border-radius:10px;padding:10px 12px;text-align:center}
+    .detail-stat-val{font-size:1.2rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:#0f172a}
+    .detail-stat-lbl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;margin-top:3px}
+
+    /* Narasi fields */
+    .narasi-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .narasi-field{border:1px solid #e9eef6;border-radius:10px;overflow:hidden}
+    .narasi-field-head{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f8fafc;border-bottom:1px solid #e9eef6}
+    .narasi-field-icon{font-size:.9rem}
+    .narasi-field-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#475569}
+    .narasi-field-body{padding:12px 14px;font-size:.76rem;color:#334155;line-height:1.7;min-height:80px}
+    .narasi-empty{font-size:.75rem;color:#cbd5e1;font-style:italic}
+
+    /* Peserta breakdown di detail */
+    .peserta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+    .peserta-item{background:#f8fafc;border-radius:8px;padding:8px 10px;text-align:center}
+    .peserta-item-val{font-size:1rem;font-weight:800;color:#F97316}
+    .peserta-item-lbl{font-size:.6rem;color:#94a3b8;font-weight:600;text-transform:uppercase;margin-top:2px}
 
     /* ── TOPBAR EXTRAS ── */
-    .topbar-filter-scn{padding:6px 14px;border:1px solid #e9eef6;border-radius:8px;font-size:.78rem;font-family:var(--font-body);background:#fff;color:#0f172a;cursor:pointer;min-width:160px}
-    .btn-export{display:flex;align-items:center;gap:6px;padding:7px 16px;background:#fff;border:1px solid #e9eef6;border-radius:8px;font-size:.76rem;font-weight:600;color:#475569;cursor:pointer;white-space:nowrap}
+    .topbar-filter-scn{padding:6px 12px;border:1px solid #e9eef6;border-radius:8px;font-size:.76rem;font-family:var(--font-body);background:#fff;color:#0f172a;cursor:pointer;min-width:140px}
+    .btn-export{display:flex;align-items:center;gap:6px;padding:6px 14px;background:#fff;border:1px solid #e9eef6;border-radius:8px;font-size:.74rem;font-weight:600;color:#475569;cursor:pointer;white-space:nowrap}
     .btn-export:hover{background:#f8fafc}
 
     /* ── MISC ── */
@@ -72,8 +79,11 @@
     .spin{width:20px;height:20px;border:2px solid #e2e8f0;border-top-color:#F97316;border-radius:50%;animation:spin .7s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
     .empty-state{text-align:center;padding:48px;color:#94a3b8;font-size:.82rem}
-    .chart-canvas-wrap{position:relative;height:240px}
-    .bar-chart-wrap{position:relative;height:260px}
+    .bar-chart-wrap{position:relative;height:250px}
+    .donut-chart-wrap{position:relative;height:250px}
+    .tbl-wrap{overflow-x:auto}
+    .outcome-pill{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.64rem;font-weight:700}
+    .detail-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:#cbd5e1;font-size:.8rem;gap:8px}
   </style>
 </head>
 <body>
@@ -119,18 +129,16 @@
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
 <script>
-const GAS_BEN   = 'https://script.google.com/macros/s/AKfycbzY4CfLPnW-Q9lTyvfkbkEgmPeVdNVLeVm7zLBxHAX4xquocm06BoKvt-y8sZMatGBA/exec';
-const SCN_LABEL = {manggarai:'MGR',banyuwangi:'BWI',jember:'JBR',situbondo:'STB',kupang:'KPG',tts:'TTS',palu:'PLU',sigi:'SGI'};
-const SCN_FULL  = {manggarai:'SCN Manggarai',banyuwangi:'SCN Banyuwangi',jember:'SCN Jember',situbondo:'SCN Situbondo',kupang:'SCN Kupang',tts:'SCN TTS',palu:'SCN Palu',sigi:'SCN Sigi'};
-const SCN_COLOR = {manggarai:'#F97316',banyuwangi:'#1d4ed8',jember:'#16a34a',situbondo:'#7c3aed',kupang:'#0ea5e9',tts:'#d97706',palu:'#db2777',sigi:'#475569'};
-const OUT_COLOR = {'O1':'#F97316','O2':'#1E293B','O3':'#2563eb','O4':'#16a34a','O5':'#7c3aed','O6':'#0ea5e9','O7':'#d97706'};
-const NARASI_ICON = {tangible:'📋',rtl:'🎯',evaluasi:'📊',lesson:'💡'};
+const GAS_BEN  = 'https://script.google.com/macros/s/AKfycbzY4CfLPnW-Q9lTyvfkbkEgmPeVdNVLeVm7zLBxHAX4xquocm06BoKvt-y8sZMatGBA/exec';
+const SCN_LBL  = {manggarai:'MGR',banyuwangi:'BWI',jember:'JBR',situbondo:'STB',kupang:'KPG',tts:'TTS',palu:'PLU',sigi:'SGI'};
+const SCN_FULL = {manggarai:'SCN Manggarai',banyuwangi:'SCN Banyuwangi',jember:'SCN Jember',situbondo:'SCN Situbondo',kupang:'SCN Kupang',tts:'SCN TTS',palu:'SCN Palu',sigi:'SCN Sigi'};
+const OUT_LBL  = {'O1':'Outcome 1','O2':'Outcome 2','O3':'Outcome 3','O4':'Outcome 4','O5':'Outcome 5','O6':'Outcome 6','O7':'Outcome 7'};
 
-let ALL_DATA     = [];
-let FILTERED     = [];
-let ACTIVE_SCN   = null;
-let chartPeserta = null;
-let chartOutcome = null;
+let ALL_DATA    = [];
+let ACTIVE_SCN  = null;
+let ACTIVE_IDX  = 0;
+let chartPes    = null;
+let chartOut    = null;
 
 // ── HELPERS ──────────────────────────────────────────────────
 function num(v){ return parseInt(v)||0; }
@@ -138,71 +146,65 @@ function num(v){ return parseInt(v)||0; }
 function fmtTgl(v){
   if(!v) return '—';
   const s = String(v);
-  // ISO datetime → format pendek
   if(s.includes('T')){
     const d = new Date(s);
     if(!isNaN(d)) return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
   }
-  // DD/MM/YYYY
   if(s.match(/^\d{2}\/\d{2}\/\d{4}$/)) return s;
-  // YYYY-MM-DD
   if(s.match(/^\d{4}-\d{2}-\d{2}$/)){
-    const [y,m,d] = s.split('-');
-    const names = ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
-    return `${d} ${names[parseInt(m)]} ${y}`;
+    const [y,m,d]=s.split('-');
+    const mn=['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+    return `${d} ${mn[+m]} ${y}`;
   }
   return s;
 }
 
-function destroyChart(c){ if(c){ try{ c.destroy(); }catch(e){} } return null; }
+function destroyChart(c){ if(c){try{c.destroy();}catch(e){}} return null; }
 
-// ── FETCH ────────────────────────────────────────────────────
+// Oranye monokromatik — makin banyak makin gelap (dari terang ke gelap)
+function monoOrange(n){
+  const stops=['#FDBA74','#FB923C','#F97316','#EA6C00','#C05500','#9A4400','#7C3600'];
+  return Array.from({length:n},(_,i)=>stops[Math.min(i,stops.length-1)]);
+}
+
+// ── FETCH ─────────────────────────────────────────────────────
 async function fetchMonthly(scnId){
-  const url = scnId
-    ? `${GAS_BEN}?sheet=monthly&scn=${scnId}`
-    : `${GAS_BEN}?sheet=monthly`;
-  try{
-    const r = await fetch(url);
-    const j = await r.json();
-    return j.data||[];
-  }catch(e){ console.warn('[Monthly]',e.message); return []; }
+  const url = scnId ? `${GAS_BEN}?sheet=monthly&scn=${scnId}` : `${GAS_BEN}?sheet=monthly`;
+  try{ const r=await fetch(url); const j=await r.json(); return j.data||[]; }
+  catch(e){ console.warn('[Monthly]',e.message); return []; }
 }
 
 // ── FILTER CHANGE ─────────────────────────────────────────────
 async function onSCNFilterChange(scnId){
   ACTIVE_SCN = scnId||null;
-  document.getElementById('page-content').innerHTML = '<div class="mm-loading"><div class="spin"></div> Memuat data...</div>';
+  document.getElementById('page-content').innerHTML='<div class="mm-loading"><div class="spin"></div> Memuat data...</div>';
   ALL_DATA = await fetchMonthly(ACTIVE_SCN);
-  FILTERED = ALL_DATA;
+  ACTIVE_IDX = 0;
   if(!ALL_DATA.length){
-    document.getElementById('page-content').innerHTML = '<div class="empty-state">Belum ada data monitoring untuk SCN ini.<br>Upload data melalui MEL SCN Tools terlebih dahulu.</div>';
+    document.getElementById('page-content').innerHTML='<div class="empty-state">Belum ada data monitoring untuk SCN ini.<br>Upload data melalui MEL SCN Tools terlebih dahulu.</div>';
     return;
   }
   buildUI();
 }
 
-// ── RENDER ───────────────────────────────────────────────────
+// ── RENDER PAGE ───────────────────────────────────────────────
 async function renderPage(d, scnId){
   ACTIVE_SCN = scnId||null;
-  // Sinkronkan dropdown dengan filter sidebar
   const sel = document.getElementById('scn-filter-select');
   if(sel) sel.value = ACTIVE_SCN||'';
-  document.getElementById('page-content').innerHTML = '<div class="mm-loading"><div class="spin"></div> Memuat data monitoring...</div>';
+  document.getElementById('page-content').innerHTML='<div class="mm-loading"><div class="spin"></div> Memuat data monitoring...</div>';
   ALL_DATA = await fetchMonthly(ACTIVE_SCN);
-  FILTERED = ALL_DATA;
+  ACTIVE_IDX = 0;
   if(!ALL_DATA.length){
-    document.getElementById('page-content').innerHTML = '<div class="empty-state">Belum ada data monitoring.<br>Upload data melalui MEL SCN Tools terlebih dahulu.</div>';
+    document.getElementById('page-content').innerHTML='<div class="empty-state">Belum ada data monitoring.<br>Upload data melalui MEL SCN Tools terlebih dahulu.</div>';
     return;
   }
   buildUI();
 }
 
+// ── BUILD UI ──────────────────────────────────────────────────
 function buildUI(){
-  const data = FILTERED;
-  const scns = [...new Set(data.map(r=>r.scn).filter(Boolean))];
-  const multiSCN = scns.length > 1;
-
-  // Aggregasi
+  const data = ALL_DATA;
   const totalKeg  = data.length;
   const totalL    = data.reduce((s,r)=>s+num(r.laki),0);
   const totalP    = data.reduce((s,r)=>s+num(r.perempuan),0);
@@ -212,29 +214,26 @@ function buildUI(){
   const totalDisab= data.reduce((s,r)=>s+num(r.disab),0);
 
   const pesKat = [
-    {lbl:'CBR Worker',   val:data.reduce((s,r)=>s+num(r.cbr),0),       color:'#F97316'},
-    {lbl:'Guru',         val:data.reduce((s,r)=>s+num(r.guru),0),       color:'#1d4ed8'},
-    {lbl:'Pengasuh/Ortu',val:data.reduce((s,r)=>s+num(r.pengasuh),0),   color:'#16a34a'},
-    {lbl:'Nakes',        val:data.reduce((s,r)=>s+num(r.nakes),0),      color:'#7c3aed'},
-    {lbl:'Staff Mitra',  val:data.reduce((s,r)=>s+num(r.staff),0),      color:'#0ea5e9'},
-    {lbl:'Pemerintah',   val:data.reduce((s,r)=>s+num(r.pemerintah),0), color:'#d97706'},
-    {lbl:'Lainnya',      val:data.reduce((s,r)=>s+num(r.lainnya),0),    color:'#94a3b8'},
+    {lbl:'CBR Worker',    val:data.reduce((s,r)=>s+num(r.cbr),0)},
+    {lbl:'Guru',          val:data.reduce((s,r)=>s+num(r.guru),0)},
+    {lbl:'Pengasuh/Ortu', val:data.reduce((s,r)=>s+num(r.pengasuh),0)},
+    {lbl:'Nakes',         val:data.reduce((s,r)=>s+num(r.nakes),0)},
+    {lbl:'Staff Mitra',   val:data.reduce((s,r)=>s+num(r.staff),0)},
+    {lbl:'Pemerintah',    val:data.reduce((s,r)=>s+num(r.pemerintah),0)},
+    {lbl:'Lainnya',       val:data.reduce((s,r)=>s+num(r.lainnya),0)},
   ];
 
   const outCount = {};
   data.forEach(r=>{ const o=r.outcome||'Lainnya'; outCount[o]=(outCount[o]||0)+1; });
 
-  // Injeksi HTML
   document.getElementById('page-content').innerHTML = `
-    <!-- KPI -->
     <div class="kpi-row">
-      ${kpiCard('📋','#fff7ed','#F97316',totalKeg,'Total Kegiatan',scns.length+' SCN aktif')}
-      ${kpiCard('👥','#eff6ff','#1d4ed8',totalPes,'Total Peserta',totalL+'L / '+totalP+'P')}
-      ${kpiCard('👤','#dbeafe','#2563eb',totalU25+' / '+totalU26,'Usia ≤25 / ≥26','disagregasi usia peserta')}
-      ${kpiCard('♿','#f5f3ff','#7c3aed',totalDisab,'Peserta Disabilitas',Math.round(totalDisab/Math.max(totalPes,1)*100)+'% dari total')}
+      ${kpiCard('📋','#fff7ed','#F97316',totalKeg,'Total Kegiatan',data.length>0?[...new Set(data.map(r=>r.scn).filter(Boolean))].length+' SCN aktif':'')}
+      ${kpiCard('👥','#f1f5f9','#1E293B',totalPes,'Total Peserta',totalL+'L / '+totalP+'P')}
+      ${kpiCard('👤','#fff7ed','#EA6C00',totalU25+' / '+totalU26,'Usia ≤25 / ≥26','disagregasi usia peserta')}
+      ${kpiCard('♿','#f1f5f9','#475569',totalDisab,'Peserta Disabilitas',Math.round(totalDisab/Math.max(totalPes,1)*100)+'% dari total')}
     </div>
 
-    <!-- CHARTS -->
     <div class="charts-row">
       <div class="mm-card">
         <div class="mm-card-head"><span class="mm-card-title">Peserta per Kategori</span></div>
@@ -242,85 +241,61 @@ function buildUI(){
       </div>
       <div class="mm-card">
         <div class="mm-card-head"><span class="mm-card-title">Distribusi Outcome</span></div>
-        <div class="mm-card-body"><div class="chart-canvas-wrap"><canvas id="chart-outcome"></canvas></div></div>
+        <div class="mm-card-body"><div class="donut-chart-wrap"><canvas id="chart-outcome"></canvas></div></div>
       </div>
     </div>
 
-    <!-- TABLE + NARASI -->
-    <div class="section-row">
-      <!-- TABEL -->
+    <div class="md-row">
+      <!-- KIRI: list kegiatan 1/3 -->
       <div>
-        <div class="sec-label">Daftar Kegiatan</div>
+        <div class="sec-label">Daftar Kegiatan <span style="font-weight:400;color:#cbd5e1">${totalKeg} kegiatan</span></div>
         <div class="mm-card">
-          <div class="mm-card-head">
-            <span class="mm-card-title">Semua Kegiatan</span>
-            <span style="font-size:.72rem;color:#94a3b8" id="keg-count">${totalKeg} kegiatan</span>
-          </div>
-          <div style="padding:0">
-            <div class="tbl-wrap">
-              <table class="mm-table">
-                <thead><tr>
-                  <th>Nama Kegiatan</th><th>Tanggal</th><th>Lokasi</th>
-                  <th>Outcome</th><th style="text-align:center">L</th>
-                  <th style="text-align:center">P</th><th style="text-align:center">Total</th>
-                  <th>Pelaksana</th><th></th>
-                </tr></thead>
-                <tbody id="keg-body"></tbody>
-              </table>
-            </div>
-          </div>
+          <div class="keg-list" id="keg-list"></div>
         </div>
       </div>
-
-      <!-- NARASI -->
+      <!-- KANAN: detail narasi 2/3 -->
       <div>
-        <div class="sec-label">Narasi & Pembelajaran</div>
-        <div class="narasi-outer" id="narasi-list"></div>
+        <div class="sec-label">Narasi &amp; Pembelajaran</div>
+        <div class="detail-panel" id="detail-panel">
+          <div class="detail-placeholder">
+            <span style="font-size:2rem">📋</span>
+            Pilih kegiatan di sebelah kiri
+          </div>
+        </div>
       </div>
     </div>
   `;
 
-  // Render charts
   renderChartPeserta(pesKat);
   renderChartOutcome(outCount);
-
-  // Render tabel & narasi
-  renderTable(data, multiSCN);
-  renderNarasi(data);
+  renderKegList(data);
+  // Default: tampilkan detail kegiatan pertama
+  if(data.length) renderDetail(0);
 }
 
-function kpiCard(icon, bg, color, val, lbl, sub){
-  return `<div class="kpi-card">
-    <div class="kpi-icon" style="background:${bg};color:${color}">${icon}</div>
-    <div class="kpi-info">
-      <div class="kpi-val" style="color:${color}">${val}</div>
-      <div class="kpi-lbl">${lbl}</div>
-      <div class="kpi-sub">${sub}</div>
-    </div>
-  </div>`;
-}
-
+// ── CHARTS ───────────────────────────────────────────────────
 function renderChartPeserta(pesKat){
   const el = document.getElementById('chart-peserta');
   if(!el) return;
-  chartPeserta = destroyChart(chartPeserta);
-  chartPeserta = new Chart(el.getContext('2d'),{
+  chartPes = destroyChart(chartPes);
+  const sorted = [...pesKat].sort((a,b)=>b.val-a.val);
+  const colors = monoOrange(sorted.length);
+  chartPes = new Chart(el.getContext('2d'),{
     type:'bar',
     data:{
-      labels: pesKat.map(k=>k.lbl),
+      labels: sorted.map(k=>k.lbl),
       datasets:[{
         label:'Peserta',
-        data: pesKat.map(k=>k.val),
-        backgroundColor: pesKat.map(k=>k.color+'cc'),
-        borderRadius:6, borderSkipped:false
+        data: sorted.map(k=>k.val),
+        backgroundColor: colors,
+        borderRadius:5, borderSkipped:false
       }]
     },
     options:{
-      indexAxis:'y',
-      responsive:true, maintainAspectRatio:false,
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.raw} orang`}} },
       scales:{
-        x:{grid:{color:'#f1f5f9'},ticks:{font:{size:10}}},
+        x:{grid:{color:'#f1f5f9'},ticks:{font:{size:10}},beginAtZero:true},
         y:{grid:{display:false},ticks:{font:{size:11}}}
       }
     }
@@ -330,151 +305,155 @@ function renderChartPeserta(pesKat){
 function renderChartOutcome(outCount){
   const el = document.getElementById('chart-outcome');
   if(!el) return;
-  chartOutcome = destroyChart(chartOutcome);
+  chartOut = destroyChart(chartOut);
   const keys = Object.keys(outCount);
   const vals = Object.values(outCount);
   const total = vals.reduce((a,b)=>a+b,0);
-  chartOutcome = new Chart(el.getContext('2d'),{
+  // Monokromatik: oranye → hitam
+  const palette = ['#F97316','#1E293B','#EA6C00','#475569','#C05500','#94A3B8','#7C3600'];
+  chartOut = new Chart(el.getContext('2d'),{
     type:'doughnut',
     data:{
-      labels: keys.map(k=>{
-        const pct = Math.round(outCount[k]/total*100);
-        return `${k} (${pct}%)`;
-      }),
+      labels: keys.map(k=>`${OUT_LBL[k]||k} (${Math.round(outCount[k]/total*100)}%)`),
       datasets:[{
         data: vals,
-        backgroundColor: keys.map(k=>OUT_COLOR[k]||'#94a3b8'),
+        backgroundColor: keys.map((_,i)=>palette[i%palette.length]),
         borderColor:'#fff', borderWidth:3
       }]
     },
     options:{
-      responsive:true, maintainAspectRatio:false, cutout:'62%',
+      responsive:true, maintainAspectRatio:false, cutout:'60%',
       plugins:{
-        legend:{ position:'right', labels:{ font:{size:11}, padding:12, usePointStyle:true } },
-        tooltip:{ callbacks:{ label:c=>` ${c.label}: ${c.raw} kegiatan` } }
+        legend:{ position:'right', labels:{ font:{size:10}, padding:10, usePointStyle:true } },
+        tooltip:{ callbacks:{ label:c=>` ${c.raw} kegiatan` } }
       }
     }
   });
 }
 
-function renderTable(rows, showScn){
-  document.getElementById('keg-count').textContent = rows.length+' kegiatan';
-  document.getElementById('keg-body').innerHTML = rows.map((r,i)=>{
-    const scn    = r.scn||'';
-    const color  = SCN_COLOR[scn]||'#F97316';
-    const badge  = SCN_LABEL[scn]||scn.toUpperCase().slice(0,3);
-    const outC   = OUT_COLOR[r.outcome]||'#64748b';
-    return `<tr>
-      <td>
-        <div class="keg-name-cell">
-          <div class="scn-dot" style="background:${color}">${badge}</div>
-          <span class="keg-name-text">${r.nama_kegiatan||'—'}</span>
-        </div>
-      </td>
-      <td style="white-space:nowrap;color:#64748b;font-size:.74rem">${fmtTgl(r.tanggal)}</td>
-      <td style="color:#64748b;font-size:.74rem;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.lokasi||'—'}</td>
-      <td><span class="mm-outcome-pill" style="background:${outC}18;color:${outC}">${r.outcome||'—'}</span></td>
-      <td style="text-align:center" class="num-l">${num(r.laki)}</td>
-      <td style="text-align:center" class="num-p">${num(r.perempuan)}</td>
-      <td style="text-align:center" class="num-t">${num(r.total)}</td>
-      <td style="color:#64748b;font-size:.72rem">${r.pelaksana||'—'}</td>
-      <td><button class="more-btn" onclick="showDetail(${i})">⋮</button></td>
-    </tr>`;
-  }).join('')||'<tr><td colspan="9" style="text-align:center;color:#94a3b8;padding:24px">Tidak ada data</td></tr>';
-}
-
-function renderNarasi(rows){
-  const el = document.getElementById('narasi-list');
-  if(!el) return;
-  const withNarasi = rows.filter(r=>r.tangible_output||r.follow_up||r.evaluasi||r.lesson_learnt);
-  if(!withNarasi.length){
-    el.innerHTML = '<div style="color:#94a3b8;font-size:.78rem;padding:12px 0">Belum ada narasi kegiatan.</div>';
-    return;
-  }
-  el.innerHTML = withNarasi.map((r,i)=>{
+// ── KEG LIST ─────────────────────────────────────────────────
+function renderKegList(data){
+  document.getElementById('keg-list').innerHTML = data.map((r,i)=>{
     const scn   = r.scn||'';
-    const color = SCN_COLOR[scn]||'#F97316';
-    const fields = [
-      r.tangible_output ? {icon:'📋',bg:'#fff7ed',lbl:'Tangible Output',val:r.tangible_output} : null,
-      r.follow_up       ? {icon:'🎯',bg:'#eff6ff',lbl:'Rencana Tindak Lanjut',val:r.follow_up} : null,
-      r.evaluasi        ? {icon:'📊',bg:'#f0fdf4',lbl:'Evaluasi',val:r.evaluasi} : null,
-      r.lesson_learnt   ? {icon:'💡',bg:'#fefce8',lbl:'Lesson Learnt',val:r.lesson_learnt} : null,
-    ].filter(Boolean);
+    // warna dot per SCN: oranye untuk manggarai, hitam untuk lainnya
+    const dotBg = scn==='manggarai'?'#F97316':scn?'#1E293B':'#94a3b8';
+    const badge = SCN_LBL[scn]||scn.toUpperCase().slice(0,3)||'—';
     return `
-    <div class="narasi-item">
-      <div class="narasi-header" onclick="toggleNarasi(${i})">
-        <span class="narasi-toggle open" id="ntoggle-${i}">▾</span>
-        <span class="narasi-title-text">${r.nama_kegiatan||'Kegiatan'}</span>
-        ${scn ? `<span class="narasi-scn-badge" style="background:${color}18;color:${color}">${SCN_LABEL[scn]||scn}</span>` : ''}
-        <span class="narasi-date">${fmtTgl(r.tanggal)}</span>
-      </div>
-      <div class="narasi-body" id="nbody-${i}">
-        ${fields.map(f=>`
-        <div class="narasi-field">
-          <div class="narasi-field-icon" style="background:${f.bg}">${f.icon}</div>
-          <div class="narasi-field-content">
-            <div class="narasi-field-label">${f.lbl}</div>
-            <div class="narasi-field-val">${f.val}</div>
-          </div>
-        </div>`).join('')}
+    <div class="keg-list-item${i===0?' active':''}" id="keg-item-${i}" onclick="selectKeg(${i})">
+      <div class="scn-dot" style="background:${dotBg}">${badge}</div>
+      <div>
+        <div class="keg-list-name">${r.nama_kegiatan||'(tanpa judul)'}</div>
+        <div class="keg-list-meta">${fmtTgl(r.tanggal)} · ${r.lokasi||'—'}</div>
       </div>
     </div>`;
   }).join('');
 }
 
-function toggleNarasi(i){
-  const body   = document.getElementById('nbody-'+i);
-  const toggle = document.getElementById('ntoggle-'+i);
-  if(!body||!toggle) return;
-  const open = body.style.display!=='none';
-  body.style.display   = open ? 'none' : 'grid';
-  toggle.textContent   = open ? '▸' : '▾';
-  toggle.className     = 'narasi-toggle '+(open?'closed':'open');
+// ── SELECT KEG ───────────────────────────────────────────────
+function selectKeg(i){
+  // Update active state
+  document.querySelectorAll('.keg-list-item').forEach(el=>el.classList.remove('active'));
+  const item = document.getElementById('keg-item-'+i);
+  if(item) item.classList.add('active');
+  ACTIVE_IDX = i;
+  renderDetail(i);
 }
 
-function showDetail(i){
-  const r = FILTERED[i];
-  if(!r) return;
-  alert([
-    'DETAIL KEGIATAN',
-    '─────────────────────────',
-    'Nama: '+r.nama_kegiatan,
-    'Tanggal: '+fmtTgl(r.tanggal),
-    'Lokasi: '+(r.lokasi||'—'),
-    'Outcome: '+(r.outcome||'—'),
-    'Pelaksana: '+(r.pelaksana||'—'),
-    '',
-    'PESERTA',
-    'Laki-laki: '+num(r.laki)+' | Perempuan: '+num(r.perempuan)+' | Total: '+num(r.total),
-    'Usia ≤25: '+num(r.u25)+' | Usia ≥26: '+num(r.u26),
-    'Disabilitas: '+num(r.disab)+' | Non: '+num(r.non_disab),
-    '',
-    'INSTITUSI',
-    'Guru: '+num(r.guru)+' | Pengasuh: '+num(r.pengasuh)+' | CBR: '+num(r.cbr),
-    'Nakes: '+num(r.nakes)+' | Staff: '+num(r.staff)+' | Pemerintah: '+num(r.pemerintah),
-    'Lainnya: '+num(r.lainnya)+' | Total Institusi: '+num(r.total_inst),
-  ].join('\n'));
+// ── DETAIL PANEL ─────────────────────────────────────────────
+function renderDetail(i){
+  const r = ALL_DATA[i];
+  if(!r){ document.getElementById('detail-panel').innerHTML='<div class="detail-placeholder"><span style="font-size:2rem">📋</span>Pilih kegiatan di sebelah kiri</div>'; return; }
+
+  const scn    = r.scn||'';
+  const dotBg  = scn==='manggarai'?'#F97316':scn?'#1E293B':'#94a3b8';
+  const badge  = SCN_LBL[scn]||scn.toUpperCase().slice(0,3)||'—';
+  const outC   = r.outcome==='O1'?'#F97316':r.outcome?'#1E293B':'#94a3b8';
+
+  const narasiFields = [
+    {icon:'📋', bg:'#fff7ed', lbl:'Tangible Output',        val:r.tangible_output},
+    {icon:'🎯', bg:'#f1f5f9', lbl:'Rencana Tindak Lanjut',  val:r.follow_up},
+    {icon:'📊', bg:'#f8fafc', lbl:'Evaluasi',               val:r.evaluasi},
+    {icon:'💡', bg:'#fffbeb', lbl:'Lesson Learnt',           val:r.lesson_learnt},
+    {icon:'✅', bg:'#f0fdf4', lbl:'Capaian / Temuan',        val:r.capaian},
+  ].filter(f=>f.val);
+
+  document.getElementById('detail-panel').innerHTML = `
+    <div class="detail-header">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div class="scn-dot" style="background:${dotBg};width:28px;height:28px;font-size:.58rem">${badge}</div>
+        <span class="outcome-pill" style="background:${outC}18;color:${outC}">${r.outcome||'—'}</span>
+        <span style="font-size:.7rem;color:#92400e">${fmtTgl(r.tanggal)}</span>
+        <span style="font-size:.7rem;color:#92400e;margin-left:auto">📍 ${r.lokasi||'—'}</span>
+      </div>
+      <div class="detail-title">${r.nama_kegiatan||'—'}</div>
+      <div style="font-size:.72rem;color:#92400e;margin-top:4px">Pelaksana: ${r.pelaksana||'—'}</div>
+    </div>
+    <div class="detail-body">
+      <!-- Statistik peserta -->
+      <div style="font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:8px">Statistik Peserta</div>
+      <div class="detail-stats" style="margin-bottom:18px">
+        <div class="detail-stat"><div class="detail-stat-val" style="color:#1d4ed8">${num(r.laki)}</div><div class="detail-stat-lbl">Laki-laki</div></div>
+        <div class="detail-stat"><div class="detail-stat-val" style="color:#db2777">${num(r.perempuan)}</div><div class="detail-stat-lbl">Perempuan</div></div>
+        <div class="detail-stat"><div class="detail-stat-val" style="color:#F97316">${num(r.total)}</div><div class="detail-stat-lbl">Total</div></div>
+        <div class="detail-stat"><div class="detail-stat-val" style="color:#7c3aed">${num(r.disab)}</div><div class="detail-stat-lbl">Disabilitas</div></div>
+      </div>
+      <div class="peserta-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+        <div class="peserta-item"><div class="peserta-item-val">${num(r.u25)}</div><div class="peserta-item-lbl">Usia ≤25</div></div>
+        <div class="peserta-item"><div class="peserta-item-val">${num(r.u26)}</div><div class="peserta-item-lbl">Usia ≥26</div></div>
+        <div class="peserta-item"><div class="peserta-item-val">${num(r.oypmk)}</div><div class="peserta-item-lbl">OYPMK</div></div>
+        <div class="peserta-item"><div class="peserta-item-val">${num(r.total_inst)}</div><div class="peserta-item-lbl">Institusi</div></div>
+      </div>
+      <div class="peserta-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+        <div class="peserta-item"><div class="peserta-item-val">${num(r.guru)}</div><div class="peserta-item-lbl">Guru</div></div>
+        <div class="peserta-item"><div class="peserta-item-val">${num(r.pengasuh)}</div><div class="peserta-item-lbl">Pengasuh</div></div>
+        <div class="peserta-item"><div class="peserta-item-val">${num(r.nakes)}</div><div class="peserta-item-lbl">Nakes</div></div>
+        <div class="peserta-item"><div class="peserta-item-val">${num(r.pemerintah)}</div><div class="peserta-item-lbl">Pemerintah</div></div>
+      </div>
+
+      <!-- Narasi -->
+      ${narasiFields.length ? `
+      <div style="font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:10px">Narasi & Pembelajaran</div>
+      <div class="narasi-grid">
+        ${narasiFields.map(f=>`
+        <div class="narasi-field">
+          <div class="narasi-field-head" style="background:${f.bg}">
+            <span class="narasi-field-icon">${f.icon}</span>
+            <span class="narasi-field-label">${f.lbl}</span>
+          </div>
+          <div class="narasi-field-body">${f.val}</div>
+        </div>`).join('')}
+      </div>` : '<div class="narasi-empty">Belum ada narasi untuk kegiatan ini.</div>'}
+    </div>
+  `;
 }
 
+// ── EXPORT ───────────────────────────────────────────────────
 function exportLaporan(){
-  const rows = FILTERED;
-  if(!rows.length){ alert('Tidak ada data untuk diekspor.'); return; }
-  const headers = ['SCN','Nama Kegiatan','Tanggal','Lokasi','Outcome','Pelaksana','Laki','Perempuan','Total','≤25','≥26','Disabilitas','Tangible Output','RTL','Evaluasi','Lesson Learnt'];
-  const csv = [headers.join(','),
-    ...rows.map(r=>[
-      r.scn, '"'+(r.nama_kegiatan||'').replace(/"/g,'""')+'"',
-      fmtTgl(r.tanggal), '"'+(r.lokasi||'')+'"', r.outcome, '"'+(r.pelaksana||'')+'"',
-      num(r.laki), num(r.perempuan), num(r.total), num(r.u25), num(r.u26), num(r.disab),
-      '"'+(r.tangible_output||'').replace(/"/g,'""')+'"',
-      '"'+(r.follow_up||'').replace(/"/g,'""')+'"',
-      '"'+(r.evaluasi||'').replace(/"/g,'""')+'"',
-      '"'+(r.lesson_learnt||'').replace(/"/g,'""')+'"',
-    ].join(','))
-  ].join('\n');
+  const rows = ALL_DATA;
+  if(!rows.length){ alert('Tidak ada data.'); return; }
+  const hdr = ['SCN','Nama Kegiatan','Tanggal','Lokasi','Outcome','Pelaksana','L','P','Total','≤25','≥26','Disab','Guru','Pengasuh','Nakes','Pemerintah','Tangible Output','RTL','Evaluasi','Lesson Learnt','Capaian'];
+  const csv = [hdr.join(','), ...rows.map(r=>[
+    r.scn,'"'+(r.nama_kegiatan||'').replace(/"/g,'""')+'"',fmtTgl(r.tanggal),
+    '"'+(r.lokasi||'')+'"',r.outcome,'"'+(r.pelaksana||'')+'"',
+    num(r.laki),num(r.perempuan),num(r.total),num(r.u25),num(r.u26),num(r.disab),
+    num(r.guru),num(r.pengasuh),num(r.nakes),num(r.pemerintah),
+    '"'+(r.tangible_output||'').replace(/"/g,'""')+'"',
+    '"'+(r.follow_up||'').replace(/"/g,'""')+'"',
+    '"'+(r.evaluasi||'').replace(/"/g,'""')+'"',
+    '"'+(r.lesson_learnt||'').replace(/"/g,'""')+'"',
+    '"'+(r.capaian||'').replace(/"/g,'""')+'"',
+  ].join(','))].join('\n');
   const a = document.createElement('a');
   a.href = 'data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
-  a.download = 'monthly-monitoring-'+(ACTIVE_SCN||'all')+'-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.download = 'monthly-'+(ACTIVE_SCN||'all')+'-'+new Date().toISOString().slice(0,10)+'.csv';
   a.click();
+}
+
+function kpiCard(icon,bg,color,val,lbl,sub){
+  return `<div class="kpi-card">
+    <div class="kpi-icon" style="background:${bg};color:${color}">${icon}</div>
+    <div><div class="kpi-val" style="color:${color}">${val}</div><div class="kpi-lbl">${lbl}</div><div class="kpi-sub">${sub}</div></div>
+  </div>`;
 }
 
 // ── INIT ─────────────────────────────────────────────────────

@@ -247,6 +247,13 @@ function closeSidebar() {
 
 // ── INIT SIDEBAR — set active page & buka group ───────────
 function initSidebar(group, pageId, scnLabel) {
+  // Simpan pageId untuk dipakai bottom nav
+  window.__currentPageId = pageId;
+
+  // Build + inject bottom nav (mobile only)
+  buildBottomNav();
+  setBottomNavActive(pageId);
+
   // Set active nav item
   document.querySelectorAll('.nav-sub-item').forEach(a => {
     a.classList.toggle('active', a.dataset.page === pageId);
@@ -308,4 +315,293 @@ if (window.AUTH && AUTH.applySession) {
     }
     if (_origApply) _origApply(opts);
   };
+}
+
+// ============================================================
+//  MOBILE BOTTOM NAV — injected hanya di viewport < 768px
+//  Dipanggil otomatis dari initSidebar()
+// ============================================================
+
+function buildBottomNav() {
+  // Cek apakah mobile
+  if (window.innerWidth >= 768) return;
+
+  const base     = window.location.pathname.includes('/pages/') ? '..' : '.';
+  const session  = AUTH.getSession  ? AUTH.getSession()   : null;
+  const isAdmin  = AUTH.isSuperAdmin ? AUTH.isSuperAdmin() : false;
+  const scnId    = AUTH.getScnFilter ? AUTH.getScnFilter() : null;
+
+  const ICONS = {
+    home    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+    list    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`,
+    obs     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+    plan    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+    diary   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
+    eval    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+    worker  : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c0-3.3 2.7-6 7-6 1.5 0 2.9.4 4 1"/><path d="M13 15c1-.6 2.5-1 4-1 4.3 0 7 2.7 7 6"/></svg>`,
+    benef   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+    chart   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+    camera  : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
+    map     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>`,
+    more    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>`,
+    scn     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>`,
+    logout  : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
+    itt     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+    stake   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+    monthly : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+    story   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`,
+    star    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+    trend   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
+    rtl     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+    activity: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  };
+
+  // Define 5 tab groups untuk bottom nav
+  const GROUPS = [
+    {
+      id    : 'worker',
+      label : 'Worker',
+      icon  : ICONS.worker,
+      pages : ['w-beranda','w-anak','w-obs','w-plan','w-diary','w-eval','w-activity'],
+      items : [
+        { page:'w-beranda',  label:'Beranda',     icon:ICONS.home,     href:`${base}/pages/worker-beranda.html` },
+        { page:'w-anak',     label:'Profil Anak', icon:ICONS.list,     href:`${base}/pages/worker-anak.html` },
+        { page:'w-obs',      label:'Observasi',   icon:ICONS.obs,      href:`${base}/pages/worker-obs.html` },
+        { page:'w-plan',     label:'Perencanaan', icon:ICONS.plan,     href:`${base}/pages/worker-plan.html` },
+        { page:'w-diary',    label:'Buku Harian', icon:ICONS.diary,    href:`${base}/pages/worker-diary.html` },
+        { page:'w-eval',     label:'Evaluasi',    icon:ICONS.eval,     href:`${base}/pages/worker-eval.html` },
+        { page:'w-activity', label:'Aktivitas',   icon:ICONS.activity, href:`${base}/pages/worker-aktivitas.html` },
+      ],
+    },
+    {
+      id    : 'coord',
+      label : 'Koordinator',
+      icon  : ICONS.benef,
+      pages : ['c-beranda','c-worker','c-benef','c-rtl','c-pihak'],
+      items : [
+        { page:'c-beranda', label:'Beranda',    icon:ICONS.home,  href:`${base}/pages/coord-beranda.html` },
+        { page:'c-worker',  label:'Worker',     icon:ICONS.worker,href:`${base}/pages/coord-worker.html` },
+        { page:'c-benef',   label:'Beneficiary',icon:ICONS.benef, href:`${base}/pages/coord-benef.html` },
+        { page:'c-rtl',     label:'RTL',        icon:ICONS.rtl,   href:`${base}/pages/coord-rtl.html` },
+        { page:'c-pihak',   label:'Pihak',      icon:ICONS.stake, href:`${base}/pages/coord-pihak.html` },
+      ],
+    },
+    {
+      id    : 'mel',
+      label : 'MEL',
+      icon  : ICONS.chart,
+      pages : ['m-beranda','m-itt','m-stake','m-monthly','m-story','m-sukses','m-analisis'],
+      items : [
+        { page:'m-beranda', label:'Beranda',     icon:ICONS.home,    href:`${base}/pages/mel-beranda.html` },
+        { page:'m-itt',     label:'ITT',         icon:ICONS.itt,     href:`${base}/pages/mel-itt.html` },
+        { page:'m-stake',   label:'Stakeholder', icon:ICONS.stake,   href:`${base}/pages/mel-stakeholder.html` },
+        { page:'m-monthly', label:'Monthly',     icon:ICONS.monthly, href:`${base}/pages/mel-monthly.html` },
+        { page:'m-story',   label:'Cerita',      icon:ICONS.story,   href:`${base}/pages/mel-cerita.html` },
+        { page:'m-sukses',  label:'Sukses',      icon:ICONS.star,    href:`${base}/pages/mel-sukses.html` },
+        ...(isAdmin ? [{ page:'m-analisis', label:'Analisis', icon:ICONS.trend, href:`${base}/pages/mel-analisis.html` }] : []),
+      ],
+    },
+    {
+      id    : 'media',
+      label : 'Galeri/Peta',
+      icon  : ICONS.camera,
+      pages : ['g-galeri','p-peta'],
+      items : [
+        { page:'g-galeri', label:'Galeri Foto', icon:ICONS.camera, href:`${base}/pages/mel-galeri.html` },
+        { page:'p-peta',   label:'Peta',        icon:ICONS.map,    href:`${base}/pages/peta.html` },
+      ],
+    },
+    {
+      id    : 'more',
+      label : 'Lainnya',
+      icon  : ICONS.more,
+      pages : [],
+      items : [], // special: tampilkan menu akun & logout
+    },
+  ];
+
+  // SCN list
+  const SCN_LIST = [
+    { id:'',           label:'Semua SCN' },
+    { id:'manggarai',  label:'Manggarai' },
+    { id:'kupang',     label:'Kupang' },
+    { id:'tts',        label:'TTS' },
+    { id:'banyuwangi', label:'Banyuwangi' },
+    { id:'jember',     label:'Jember' },
+    { id:'situbondo',  label:'Situbondo' },
+    { id:'palu',       label:'Palu' },
+    { id:'sigi',       label:'Sigi' },
+  ];
+
+  // ── Build HTML ──────────────────────────────────────────
+
+  // SCN Sheet (admin only)
+  const scnSheetHtml = isAdmin ? `
+  <div class="scn-sheet" id="scn-sheet">
+    <div class="scn-sheet-header">
+      <span class="scn-sheet-title">Pilih SCN</span>
+      <button class="scn-sheet-close" onclick="closeSCNSheet()">✕</button>
+    </div>
+    ${SCN_LIST.map(s => `
+    <div class="scn-sheet-option ${scnId === s.id || (!scnId && !s.id) ? 'active' : ''}"
+         onclick="selectSCNMobile('${s.id}','${s.label}')">
+      <span class="dot"></span>${s.label}
+    </div>`).join('')}
+  </div>
+  <div class="bottom-subnav-overlay" id="scn-overlay" onclick="closeSCNSheet()"></div>` : '';
+
+  // Sub-nav panel (1 panel, kontennya diganti saat tab diklik)
+  const subNavHtml = `
+  <div class="bottom-subnav" id="bottom-subnav">
+    <div class="bottom-subnav-header">
+      <span class="bottom-subnav-title" id="subnav-title">Menu</span>
+      <button class="bottom-subnav-close" onclick="closeSubNav()">✕</button>
+    </div>
+    <div class="bottom-subnav-items" id="subnav-items"></div>
+  </div>
+  <div class="bottom-subnav-overlay" id="subnav-overlay" onclick="closeSubNav()"></div>`;
+
+  // Bottom nav tabs
+  const tabsHtml = GROUPS.map(g => `
+    <button class="bottom-nav-tab" data-group="${g.id}" onclick="openSubNav('${g.id}')">
+      ${g.icon}
+      <span>${g.label}</span>
+    </button>`).join('');
+
+  const bottomNavHtml = `
+  <nav class="bottom-nav" id="bottom-nav">
+    <div class="bottom-nav-items">${tabsHtml}</div>
+  </nav>`;
+
+  // Mobile SCN button (inject ke topbar-right)
+  const scnLabel = scnId ? ('SCN ' + scnId.charAt(0).toUpperCase() + scnId.slice(1)) : 'Semua SCN';
+  const mobileSCNBtn = isAdmin ? `
+  <button class="mobile-scn-btn" id="mobile-scn-btn" onclick="openSCNSheet()">
+    ${ICONS.scn} <span id="mobile-scn-label">${scnLabel}</span>
+  </button>` : '';
+
+  // ── Inject ke DOM ───────────────────────────────────────
+  document.body.insertAdjacentHTML('beforeend', scnSheetHtml + subNavHtml + bottomNavHtml);
+
+  // Inject mobile SCN btn ke topbar-right
+  const topbarRight = document.querySelector('.topbar-right');
+  if (topbarRight && isAdmin) {
+    topbarRight.insertAdjacentHTML('afterbegin', mobileSCNBtn);
+  }
+
+  // Store groups di window untuk akses fungsi lain
+  window.__bottomNavGroups = GROUPS;
+}
+
+// ── Set active state bottom nav dari initSidebar ──────────
+function setBottomNavActive(pageId) {
+  if (window.innerWidth >= 768) return;
+  const groups = window.__bottomNavGroups || [];
+
+  // Reset semua tab
+  document.querySelectorAll('.bottom-nav-tab').forEach(t => t.classList.remove('active'));
+
+  // Set active tab berdasarkan pageId
+  groups.forEach(g => {
+    if (g.pages.includes(pageId)) {
+      const tab = document.querySelector(`.bottom-nav-tab[data-group="${g.id}"]`);
+      if (tab) tab.classList.add('active');
+    }
+  });
+}
+
+// ── Open sub nav panel ───────────────────────────────────
+function openSubNav(groupId) {
+  const groups  = window.__bottomNavGroups || [];
+  const group   = groups.find(g => g.id === groupId);
+  const panel   = document.getElementById('bottom-subnav');
+  const overlay = document.getElementById('subnav-overlay');
+  const title   = document.getElementById('subnav-title');
+  const items   = document.getElementById('subnav-items');
+
+  if (!group || !panel) return;
+
+  // "Lainnya" tab: tampilkan info akun + logout
+  if (groupId === 'more') {
+    const session = AUTH.getSession ? AUTH.getSession() : null;
+    const base    = window.location.pathname.includes('/pages/') ? '..' : '.';
+    const uname   = session ? (session.label || session.username || '—') : '—';
+    const urole   = session ? (session.role || '—') : '—';
+    title.textContent = 'Lainnya';
+    items.innerHTML = `
+      <div style="padding:14px 24px 10px; border-bottom:1px solid rgba(255,255,255,.06); margin-bottom:8px;">
+        <div style="font-size:.82rem; font-weight:600; color:rgba(255,255,255,.85);">${uname}</div>
+        <div style="font-size:.68rem; color:rgba(255,255,255,.35); margin-top:2px;">${urole}</div>
+      </div>
+      <div class="bottom-subnav-item" onclick="AUTH.logout('${base}/index.html')" style="color:#f87171;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Keluar
+      </div>`;
+    panel.classList.add('show');
+    overlay.classList.add('show');
+    document.querySelectorAll('.bottom-nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.bottom-nav-tab[data-group="more"]`).classList.add('active');
+    return;
+  }
+
+  // Cek current page
+  const currentPage = window.__currentPageId || '';
+  title.textContent = group.label;
+  items.innerHTML   = group.items.map(item => `
+    <a class="bottom-subnav-item ${item.page === currentPage ? 'active' : ''}"
+       href="${item.href}" data-page="${item.page}">
+      ${item.icon} ${item.label}
+    </a>`).join('');
+
+  panel.classList.add('show');
+  overlay.classList.add('show');
+
+  // Set active tab
+  document.querySelectorAll('.bottom-nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.bottom-nav-tab[data-group="${groupId}"]`).classList.add('active');
+}
+
+function closeSubNav() {
+  const panel   = document.getElementById('bottom-subnav');
+  const overlay = document.getElementById('subnav-overlay');
+  if (panel)   panel.classList.remove('show');
+  if (overlay) overlay.classList.remove('show');
+}
+
+// ── SCN Sheet (mobile admin) ─────────────────────────────
+function openSCNSheet() {
+  closeSubNav();
+  const sheet   = document.getElementById('scn-sheet');
+  const overlay = document.getElementById('scn-overlay');
+  if (sheet)   sheet.classList.add('show');
+  if (overlay) overlay.classList.add('show');
+}
+function closeSCNSheet() {
+  const sheet   = document.getElementById('scn-sheet');
+  const overlay = document.getElementById('scn-overlay');
+  if (sheet)   sheet.classList.remove('show');
+  if (overlay) overlay.classList.remove('show');
+}
+function selectSCNMobile(scnId, scnLabel) {
+  if (AUTH.setScnFilter) AUTH.setScnFilter(scnId || null);
+
+  // Update label
+  const btn = document.getElementById('mobile-scn-label');
+  if (btn) btn.textContent = scnLabel;
+
+  // Update active state di sheet
+  document.querySelectorAll('.scn-sheet-option').forEach(o => o.classList.remove('active'));
+  const target = Array.from(document.querySelectorAll('.scn-sheet-option'))
+    .find(o => o.textContent.trim() === scnLabel);
+  if (target) target.classList.add('active');
+
+  closeSCNSheet();
+
+  // Clear cache dan trigger
+  if (window.API && API.clearCache) API.clearCache(scnId || null);
+  if (typeof window.__onScnSwitch === 'function') {
+    window.__onScnSwitch(scnId || null);
+  } else {
+    location.reload();
+  }
 }

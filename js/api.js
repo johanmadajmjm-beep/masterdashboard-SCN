@@ -147,6 +147,7 @@ const API = (() => {
         scn_id : r.scn || '',
         irp    : 'Aktif',
         hari   : 999,
+        _tema  : r._tema || null,
       };
     }).filter(a => a.nama && a.nama !== '—');
   }
@@ -387,23 +388,43 @@ const API = (() => {
     };
   }
 
+  // ── TEMA DARI SERVER (Apps Script + Gemini) ──────────────
+  // Tema sudah dianalisis Gemini di Apps Script dan dilampirkan
+  // ke setiap row sebagai field _tema saat doGet dipanggil
+  // Format _tema: { nka:[{kategori,sub}], tka:[...], nkp:[...], tkp:[...] }
+
+  function getTema(anak, field) {
+    // Bangun lookup dari _tema yang sudah ada di data
+    // field: 'nka' | 'tka' | 'nkp' | 'tkp'
+    const result = {};
+    (anak||[]).forEach(function(a) {
+      if (a._tema && a._tema[field]) {
+        result[a.nama] = a._tema[field];
+      }
+    });
+    return result;
+  }
+
+  function hasTema(anak) {
+    return (anak||[]).some(function(a) { return a._tema && Object.keys(a._tema).length > 0; });
+  }
+
   // ── BACKGROUND REFRESH: cek data baru tanpa block render ─
   async function _refreshIfNew(scnId, cachedLastSync) {
     try {
       const serverLastSync = await fetchLastSync(scnId);
-      if (!serverLastSync || serverLastSync === cachedLastSync) return; // tidak ada data baru
-      // Ada data baru — fetch ulang dan update cache
+      if (!serverLastSync || serverLastSync === cachedLastSync) return;
+      // Ada data baru — fetch ulang
       const [rawAwal, rawObs] = await Promise.all([
         fetchSheet(scnId, 'DataAwal', serverLastSync),
         fetchSheet(scnId, 'DataObs',  serverLastSync),
       ]);
       if (!rawAwal || !rawAwal.length) return;
-      // Re-render halaman aktif dengan data baru
       const result = buildResult(scnId, rawAwal, rawObs || []);
       if (window.renderPage) renderPage(result, scnId);
       console.log('[API] Data baru terdeteksi, halaman di-refresh otomatis');
     } catch(e) {
-      // Gagal refresh background — tidak masalah, tetap pakai cache
+      // Gagal refresh background — tidak masalah
     }
   }
 
@@ -479,6 +500,6 @@ const API = (() => {
     };
   }
 
-  return { get, setBadge, clearCache, ENDPOINTS };
+  return { get, getTema, hasTema, setBadge, clearCache, ENDPOINTS };
 
 })();

@@ -24,29 +24,35 @@
     .mm-card-title{font-size:.86rem;font-weight:700;color:#0f172a}
     .mm-card-body{padding:16px 18px}
 
-    /* ── MASTER-DETAIL LAYOUT ── */
-    .md-row{display:grid;grid-template-columns:1fr 2fr;gap:16px;align-items:start}
-    @media(max-width:1000px){.md-row{grid-template-columns:1fr}}
+    /* ── MASTER-DETAIL LAYOUT (worker-anak pattern) ── */
     .sec-label{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:10px}
 
-    /* ── KEGIATAN LIST (kiri 1/3) ── */
-    .keg-list{width:100%}
-    .keg-list-item{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;transition:background .12s}
+    .ld-wrap{display:flex;flex:1;overflow:hidden;background:#fff;border:1px solid #e9eef6;border-radius:14px}
+    .ld-list{width:100%;min-width:0;flex-shrink:0;border-right:1px solid #e9eef6;display:flex;flex-direction:column;overflow:hidden;transition:width .25s ease}
+    .ld-wrap.detail-open .ld-list{width:320px;min-width:320px}
+    .ld-items{flex:1;overflow-y:auto}
+    .ld-items::-webkit-scrollbar{width:4px}
+    .ld-items::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:2px}
+    .ld-detail{flex:1;overflow-y:auto;background:#f8fafc;display:none}
+    .ld-wrap.detail-open .ld-detail{display:block}
+    .ld-detail::-webkit-scrollbar{width:5px}
+    .ld-detail::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:3px}
+
+    /* ── KEGIATAN LIST ── */
+    .keg-list-item{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;transition:background .12s;border-left:3px solid transparent}
     .keg-list-item:last-child{border-bottom:none}
-    .keg-list-item:hover{background:#fafbfd}
+    .keg-list-item:hover{background:#fff7ed}
     .keg-list-item.active{background:#fff7ed;border-left:3px solid #F97316}
-    .keg-list-item:not(.active){border-left:3px solid transparent}
     .scn-dot{width:30px;height:30px;border-radius:8px;color:#fff;font-size:.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
     .keg-list-name{font-size:.76rem;font-weight:600;color:#0f172a;line-height:1.4;margin-bottom:3px}
     .keg-list-meta{font-size:.66rem;color:#94a3b8}
 
-    /* ── DETAIL PANEL (kanan 2/3) ── */
-    .detail-panel{background:#fff;border:1px solid #e9eef6;border-radius:14px;overflow:hidden;min-height:400px}
+    /* ── DETAIL PANEL ── */
     .detail-header{padding:16px 20px;background:#fff7ed;border-bottom:1px solid #fed7aa}
     .detail-title{font-size:.9rem;font-weight:700;color:#0f172a;margin-bottom:6px;line-height:1.4}
-    .detail-meta{display:flex;gap:10px;flex-wrap:wrap}
-    .detail-meta-item{font-size:.69rem;color:#92400e;display:flex;align-items:center;gap:4px}
     .detail-body{padding:18px 20px}
+    .det-back{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid #e9eef6;border-radius:8px;background:#fff;color:#64748b;font-size:.73rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:14px}
+    .det-back:hover{background:#f1f5f9;color:#0f172a}
 
     /* Stats row di detail */
     .detail-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
@@ -245,32 +251,21 @@ function buildUI(){
       </div>
     </div>
 
-    <div class="md-row">
-      <!-- KIRI: list kegiatan 1/3 -->
-      <div>
-        <div class="sec-label">Daftar Kegiatan <span style="font-weight:400;color:#cbd5e1">${totalKeg} kegiatan</span></div>
-        <div class="mm-card">
-          <div class="keg-list" id="keg-list"></div>
-        </div>
+    <div class="sec-label">Daftar Kegiatan <span style="font-weight:400;color:#cbd5e1">${totalKeg} kegiatan</span></div>
+    <div class="ld-wrap" id="ld-wrap" style="min-height:480px">
+      <!-- KIRI: list kegiatan -->
+      <div class="ld-list">
+        <div class="ld-items" id="keg-list"></div>
       </div>
-      <!-- KANAN: detail narasi 2/3 -->
-      <div>
-        <div class="sec-label">Narasi &amp; Pembelajaran</div>
-        <div class="detail-panel" id="detail-panel">
-          <div class="detail-placeholder">
-            <span style="font-size:2rem">📋</span>
-            Pilih kegiatan di sebelah kiri
-          </div>
-        </div>
-      </div>
+      <!-- KANAN: detail panel -->
+      <div class="ld-detail" id="detail-panel"></div>
     </div>
   `;
 
   renderChartPeserta(pesKat);
   renderChartOutcome(outCount);
   renderKegList(data);
-  // Default: tampilkan detail kegiatan pertama
-  if(data.length) renderDetail(0);
+  // Default: list full width, detail terbuka saat klik
 }
 
 // ── CHARTS ───────────────────────────────────────────────────
@@ -339,7 +334,7 @@ function renderKegList(data){
     const dotBg = scn==='manggarai'?'#F97316':scn?'#1E293B':'#94a3b8';
     const badge = SCN_LBL[scn]||scn.toUpperCase().slice(0,3)||'—';
     return `
-    <div class="keg-list-item${i===0?' active':''}" id="keg-item-${i}" onclick="selectKeg(${i})">
+    <div class="keg-list-item" id="keg-item-${i}" onclick="selectKeg(${i})">
       <div class="scn-dot" style="background:${dotBg}">${badge}</div>
       <div>
         <div class="keg-list-name">${r.nama_kegiatan||'(tanpa judul)'}</div>
@@ -362,7 +357,9 @@ function selectKeg(i){
 // ── DETAIL PANEL ─────────────────────────────────────────────
 function renderDetail(i){
   const r = ALL_DATA[i];
-  if(!r){ document.getElementById('detail-panel').innerHTML='<div class="detail-placeholder"><span style="font-size:2rem">📋</span>Pilih kegiatan di sebelah kiri</div>'; return; }
+  if(!r){ closeDetail(); return; }
+  // Buka panel
+  document.getElementById('ld-wrap').classList.add('detail-open');
 
   const scn    = r.scn||'';
   const dotBg  = scn==='manggarai'?'#F97316':scn?'#1E293B':'#94a3b8';
@@ -379,6 +376,10 @@ function renderDetail(i){
 
   document.getElementById('detail-panel').innerHTML = `
     <div class="detail-header">
+      <button class="det-back" onclick="closeDetail()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Kembali
+      </button>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
         <div class="scn-dot" style="background:${dotBg};width:28px;height:28px;font-size:.58rem">${badge}</div>
         <span class="outcome-pill" style="background:${outC}18;color:${outC}">${r.outcome||'—'}</span>
@@ -425,6 +426,13 @@ function renderDetail(i){
       </div>` : '<div class="narasi-empty">Belum ada narasi untuk kegiatan ini.</div>'}
     </div>
   `;
+}
+
+// ── CLOSE DETAIL ─────────────────────────────────────────────
+function closeDetail(){
+  document.getElementById('ld-wrap').classList.remove('detail-open');
+  document.querySelectorAll('.keg-list-item').forEach(el=>el.classList.remove('active'));
+  ACTIVE_IDX = -1;
 }
 
 // ── EXPORT ───────────────────────────────────────────────────

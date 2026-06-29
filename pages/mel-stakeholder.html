@@ -109,6 +109,21 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     .empty-state{text-align:center;padding:48px;color:#94a3b8;font-size:.82rem}
     .sec-label{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:10px}
+
+    /* ── TAB PANEL ── */
+    .tab-bar{display:flex;gap:0;border-bottom:2px solid #e9eef6;margin-bottom:20px}
+    .tab-btn{padding:10px 20px;font-size:.8rem;font-weight:600;color:#64748b;background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;font-family:inherit;white-space:nowrap}
+    .tab-btn:hover{color:#F97316}
+    .tab-btn.active{color:#F97316;border-bottom-color:#F97316}
+    .tab-pane{display:none}
+    .tab-pane.active{display:block}
+
+    /* ── BENEF TABLE ── */
+    .benef-filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:0}
+    .benef-search{padding:7px 12px;border:1px solid #e9eef6;border-radius:8px;font-size:.76rem;font-family:inherit;background:#fff;min-width:200px;outline:none}
+    .benef-search:focus{border-color:#F97316;box-shadow:0 0 0 3px rgba(249,115,22,.1)}
+    .benef-select{padding:7px 12px;border:1px solid #e9eef6;border-radius:8px;font-size:.75rem;font-family:inherit;background:#fff;cursor:pointer;outline:none}
+    .benef-select:focus{border-color:#F97316}
   </style>
 </head>
 <body>
@@ -127,6 +142,11 @@
       <div class="page-header">
         <h1>Data Stakeholder</h1>
         <p>Kelola dan pantau seluruh stakeholder program CBR di seluruh SCN.</p>
+      </div>
+      <div class="tab-bar" id="tab-bar" style="display:none">
+        <button class="tab-btn active" onclick="switchTab('stakeholder')">📊 Stakeholder</button>
+        <button class="tab-btn" onclick="switchTab('kategori')">📋 Ringkasan per Kategori</button>
+        <button class="tab-btn" onclick="switchTab('benef')">👥 Benef Stakeholder</button>
       </div>
       <div id="page-content">
         <div class="sk-loading"><div class="spin"></div> Memuat data stakeholder...</div>
@@ -261,8 +281,11 @@ function buildUI(){
   KAT_LIST.forEach(k=>{ kegTotal[k]=kegRows.reduce((s,r)=>s+(r[k]||0),0); });
   kegTotal.total = kegRows.reduce((s,r)=>s+r.total,0);
 
+  // Tampilkan tab bar
+  document.getElementById('tab-bar').style.display='flex';
   // Inject HTML
   document.getElementById('page-content').innerHTML = `
+    <div class="tab-pane active" id="tab-stakeholder">
     <!-- KPI -->
     <div class="kpi-row">
       ${kpiCard('👥','#fff7ed','#F97316',total,'Total Individu','seluruh SCN')}
@@ -377,40 +400,76 @@ function buildUI(){
       </div>
     </div>
 
-    <!-- TABEL KEGIATAN FULL WIDTH -->
-    <div class="sec-label">Ringkasan Kegiatan per Kategori</div>
-    <div class="sk-card">
-      <div class="sk-card-head"><span class="sk-card-title">Keterlibatan Stakeholder per Kegiatan</span><span class="sk-card-sub">${kegRows.length} kegiatan</span></div>
-      <div class="keg-table-wrap">
-        <table class="keg-table">
-          <thead>
-            <tr>
-              <th style="min-width:200px">Nama Kegiatan</th>
-              ${KAT_LIST.map(k=>`<th>${k.split(' ').slice(-1)[0]}</th>`).join('')}
-              <th>Total</th>
-            </tr>
-            <tr style="background:#f8fafc">
-              <th style="font-size:.6rem;font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">Kategori</th>
-              ${KAT_LIST.map(k=>`<th style="font-size:.6rem;font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">${k}</th>`).join('')}
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            ${kegRows.map(r=>`
-            <tr>
-              <td>${r.nama}</td>
-              ${KAT_LIST.map(k=>`<td>${r[k]||0}</td>`).join('')}
-              <td style="font-weight:800;color:#F97316">${r.total}</td>
-            </tr>`).join('')}
-            <tr class="keg-total-row">
-              <td>TOTAL</td>
-              ${KAT_LIST.map(k=>`<td>${kegTotal[k]||0}</td>`).join('')}
-              <td>${kegTotal.total}</td>
-            </tr>
-          </tbody>
-        </table>
+
+    </div><!-- /tab-stakeholder -->
+
+    <!-- TAB 2: Ringkasan per Kategori -->
+    <div class="tab-pane" id="tab-kategori">
+      <div class="sec-label">Ringkasan Kegiatan per Kategori</div>
+      <div class="sk-card">
+        <div class="sk-card-head"><span class="sk-card-title">Keterlibatan Stakeholder per Kegiatan</span><span class="sk-card-sub" id="keg-count-tab">${kegRows.length} kegiatan</span></div>
+        <div class="keg-table-wrap">
+          <table class="keg-table">
+            <thead>
+              <tr>
+                <th style="min-width:200px">Nama Kegiatan</th>
+                ${KAT_LIST.map(k=>`<th>${k.split(' ').slice(-1)[0]}</th>`).join('')}
+                <th>Total</th>
+              </tr>
+              <tr style="background:#f8fafc">
+                <th style="font-size:.6rem;font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">Kategori</th>
+                ${KAT_LIST.map(k=>`<th style="font-size:.6rem;font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">${k}</th>`).join('')}
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${kegRows.map(r=>`
+              <tr>
+                <td>${r.nama}</td>
+                ${KAT_LIST.map(k=>`<td>${r[k]||0}</td>`).join('')}
+                <td style="font-weight:800;color:#F97316">${r.total}</td>
+              </tr>`).join('')}
+              <tr class="keg-total-row">
+                <td>TOTAL</td>
+                ${KAT_LIST.map(k=>`<td>${kegTotal[k]||0}</td>`).join('')}
+                <td>${kegTotal.total}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </div><!-- /tab-kategori -->
+
+    <!-- TAB 3: Benef Stakeholder -->
+    <div class="tab-pane" id="tab-benef">
+      <div class="sk-card">
+        <div class="sk-card-head">
+          <span class="sk-card-title">Daftar Individu Stakeholder</span>
+          <div class="benef-filter-row">
+            <input class="benef-search" id="benef-search" placeholder="Cari nama..." oninput="onBenefFilter()"/>
+            <select class="benef-select" id="benef-kat" onchange="onBenefFilter()">
+              <option value="">Semua Kategori</option>
+              ${KAT_LIST.map(k=>`<option value="${k}">${k}</option>`).join('')}
+            </select>
+            <select class="benef-select" id="benef-scn" onchange="onBenefFilter()">
+              <option value="">Semua SCN</option>
+              ${Object.entries(SCN_FULL).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}
+            </select>
+            <button class="btn-reset" onclick="resetBenefFilter()">↺ Reset</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="sk-table">
+            <thead><tr>
+              <th>No</th><th>Nama Benef</th><th>J/K</th><th>Kategori</th>
+              <th>Instansi/Lembaga</th><th>SCN</th><th>Kegiatan yang Diikuti</th><th style="text-align:center">∑ Keg</th>
+            </tr></thead>
+            <tbody id="benef-body"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="benef-pagination"></div>
+      </div>
+    </div><!-- /tab-benef -->
   `;
 
   // Render charts
@@ -421,6 +480,9 @@ function buildUI(){
   // Render tabel instansi
   TBL_PAGE=1; TBL_SEARCH=''; TBL_KAT=''; TBL_SCN='';
   renderTable();
+  // Siapkan data benef (lazy render)
+  BENEF_INIT=false;
+  buildBenefData();
 }
 
 // ── CHARTS ───────────────────────────────────────────────────
@@ -564,6 +626,106 @@ function kpiCard(icon,bg,color,val,lbl,sub){
     <div class="kpi-icon" style="background:${bg};color:${color}">${icon}</div>
     <div><div class="kpi-val" style="color:${color}">${val}</div><div class="kpi-lbl">${lbl}</div><div class="kpi-sub">${sub}</div></div>
   </div>`;
+}
+
+// ── TAB SWITCH ───────────────────────────────────────────────
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    const tabs=['stakeholder','kategori','benef'];
+    b.classList.toggle('active', tabs[i]===tab);
+  });
+  document.querySelectorAll('.tab-pane').forEach(p=>{
+    p.classList.toggle('active', p.id==='tab-'+tab);
+  });
+  if(tab==='benef' && !BENEF_INIT){
+    BENEF_INIT=true;
+    renderBenefTable();
+  }
+}
+
+// ── BENEF TABLE ───────────────────────────────────────────────
+let BENEF_DATA   = [];
+let BENEF_PAGE   = 1;
+let BENEF_SIZE   = 20;
+let BENEF_SEARCH = '';
+let BENEF_KAT    = '';
+let BENEF_SCN    = '';
+let BENEF_INIT   = false;
+
+function buildBenefData(){
+  // Satu baris per individu dari ALL_DATA raw
+  BENEF_DATA = ALL_DATA.map(r=>({
+    nama     : r.nama||'—',
+    jk       : r.jenis_kelamin||'—',
+    kategori : r.kategori||'—',
+    instansi : r.instansi||'—',
+    scn      : r.scn||'',
+    kegiatan : r.nama_kegiatan||'—',
+    jumlah   : num(r.jumlah_kegiatan)||1,
+  }));
+}
+
+function onBenefFilter(){
+  BENEF_SEARCH = (document.getElementById('benef-search')?.value||'').toLowerCase();
+  BENEF_KAT    = document.getElementById('benef-kat')?.value||'';
+  BENEF_SCN    = document.getElementById('benef-scn')?.value||'';
+  BENEF_PAGE   = 1;
+  renderBenefTable();
+}
+
+function resetBenefFilter(){
+  BENEF_SEARCH=''; BENEF_KAT=''; BENEF_SCN=''; BENEF_PAGE=1;
+  if(document.getElementById('benef-search')) document.getElementById('benef-search').value='';
+  if(document.getElementById('benef-kat'))    document.getElementById('benef-kat').value='';
+  if(document.getElementById('benef-scn'))    document.getElementById('benef-scn').value='';
+  renderBenefTable();
+}
+
+function renderBenefTable(){
+  let rows = BENEF_DATA;
+  if(BENEF_SEARCH) rows=rows.filter(r=>r.nama.toLowerCase().includes(BENEF_SEARCH)||r.instansi.toLowerCase().includes(BENEF_SEARCH));
+  if(BENEF_KAT)    rows=rows.filter(r=>r.kategori===BENEF_KAT);
+  if(BENEF_SCN)    rows=rows.filter(r=>r.scn===BENEF_SCN);
+
+  const total   = rows.length;
+  const pages   = Math.ceil(total/BENEF_SIZE)||1;
+  const start   = (BENEF_PAGE-1)*BENEF_SIZE;
+  const pageRows= rows.slice(start,start+BENEF_SIZE);
+
+  const body = document.getElementById('benef-body');
+  if(!body) return;
+  body.innerHTML = pageRows.map((r,i)=>`
+    <tr>
+      <td style="color:#94a3b8">${start+i+1}</td>
+      <td style="font-weight:600">${r.nama}</td>
+      <td style="text-align:center">${r.jk}</td>
+      <td><span class="sk-pill sk-pill-kat">${r.kategori}</span></td>
+      <td style="color:#475569">${r.instansi}</td>
+      <td><span class="sk-pill sk-pill-scn">${SCN_FULL[r.scn]||r.scn||'—'}</span></td>
+      <td style="color:#475569;font-size:.73rem;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.kegiatan}">${r.kegiatan}</td>
+      <td style="text-align:center;font-weight:700;font-family:monospace;color:#F97316">${r.jumlah}</td>
+    </tr>`).join('')||'<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:20px">Tidak ada data</td></tr>';
+
+  // Pagination
+  const pg = document.getElementById('benef-pagination');
+  if(!pg) return;
+  let html=`<span class="pg-info">Menampilkan ${start+1}–${Math.min(start+BENEF_SIZE,total)} dari ${total} data</span>`;
+  html+=`<button class="pg-btn" onclick="goBenefPage(${BENEF_PAGE-1})" ${BENEF_PAGE<=1?'disabled':''}>‹</button>`;
+  const maxBtn=5,half=Math.floor(maxBtn/2);
+  let s=Math.max(1,BENEF_PAGE-half),e=Math.min(pages,s+maxBtn-1);
+  if(e-s<maxBtn-1) s=Math.max(1,e-maxBtn+1);
+  for(let p=s;p<=e;p++) html+=`<button class="pg-btn${p===BENEF_PAGE?' active':''}" onclick="goBenefPage(${p})">${p}</button>`;
+  html+=`<button class="pg-btn" onclick="goBenefPage(${BENEF_PAGE+1})" ${BENEF_PAGE>=pages?'disabled':''}>›</button>`;
+  html+=`<select class="pg-size" onchange="BENEF_SIZE=+this.value;BENEF_PAGE=1;renderBenefTable()">
+    ${[20,50,100].map(n=>`<option value="${n}"${BENEF_SIZE===n?' selected':''}>${n} / halaman</option>`).join('')}
+  </select>`;
+  pg.innerHTML = html;
+}
+
+function goBenefPage(p){
+  const pages=Math.ceil(BENEF_DATA.length/BENEF_SIZE)||1;
+  BENEF_PAGE=Math.max(1,Math.min(p,pages));
+  renderBenefTable();
 }
 
 // ── INIT ─────────────────────────────────────────────────────

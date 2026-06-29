@@ -441,18 +441,18 @@
             <div class="card-body"><div class="ch h170"><canvas id="c-skor-usia"></canvas></div></div>
           </div>
         </div>
-        <div class="sdiv">Analisis Keyword — Faktor Naik &amp; Turun Tangga Anak</div>
+        <div class="sdiv">Analisis keyword — faktor naik &amp; turun tangga anak</div>
         <div class="grid-2">
           <div class="card">
             <div class="card-head">
-              <span class="card-title" style="color:#059669">⬆ Faktor Naik Tangga</span>
+              <span class="card-title" style="color:#059669">⬆ Faktor naik tangga</span>
               <span class="kw-badge" id="kw-anka-naik-ct"></span>
             </div>
             <div class="card-body" id="kw-anak-naik"></div>
           </div>
           <div class="card">
             <div class="card-head">
-              <span class="card-title" style="color:#DC2626">⬇ Faktor Turun Tangga</span>
+              <span class="card-title" style="color:#DC2626">⬇ Faktor turun tangga</span>
               <span class="kw-badge" id="kw-anak-turun-ct"></span>
             </div>
             <div class="card-body" id="kw-anak-turun"></div>
@@ -473,18 +473,18 @@
             <div class="card-body"><div id="c-sp-worker-hbar" class="hchart-wrap"></div></div>
           </div>
         </div>
-        <div class="sdiv">Analisis Keyword — Faktor Naik &amp; Turun Tangga Pengasuh</div>
+        <div class="sdiv">Analisis keyword — faktor naik &amp; turun tangga pengasuh</div>
         <div class="grid-2">
           <div class="card">
             <div class="card-head">
-              <span class="card-title" style="color:#059669">⬆ Faktor Naik Tangga</span>
+              <span class="card-title" style="color:#059669">⬆ Faktor naik tangga</span>
               <span class="kw-badge" id="kw-peng-naik-ct"></span>
             </div>
             <div class="card-body" id="kw-peng-naik"></div>
           </div>
           <div class="card">
             <div class="card-head">
-              <span class="card-title" style="color:#DC2626">⬇ Faktor Turun Tangga</span>
+              <span class="card-title" style="color:#DC2626">⬇ Faktor turun tangga</span>
               <span class="kw-badge" id="kw-peng-turun-ct"></span>
             </div>
             <div class="card-body" id="kw-peng-turun"></div>
@@ -659,10 +659,7 @@ function renderAnak(){
   ].filter(Boolean).join('')||`<div class="alert-item"><div class="alert-main" style="color:#059669">✓ Tidak ada kondisi kritis</div></div>`;
 
   // FAKTOR
-  const naikR=a.filter(x=>x.nka&&x.nka.length>10).slice(0,4).map(x=>x.nka.substring(0,65).replace(/["']/g,'').trim());
-  const turunR=a.filter(x=>x.tka&&x.tka.length>10).slice(0,4).map(x=>x.tka.substring(0,65).replace(/["']/g,'').trim());
-  document.getElementById('faktor-naik-list').innerHTML=naikR.length?naikR.map(t=>`<li>${t}</li>`).join(''):'<li style="color:#9ca3af">Belum ada data</li>';
-  document.getElementById('faktor-turun-list').innerHTML=turunR.length?turunR.map(t=>`<li>${t}</li>`).join(''):'<li style="color:#9ca3af">Belum ada data</li>';
+
 
   // INSIGHT
   const rt=RO.reduce((a,b)=>(rc[a]||0)>=(rc[b]||0)?a:b,RO[0]);
@@ -714,8 +711,8 @@ function renderSkor(){
     </div>`).join('');
   const auAvg=AGO.map(x=>+avg(a.filter(y=>y.gu===x).map(y=>y.sp).filter(v=>v!=null)).toFixed(1));
   mk('c-skor-usia','bar',{labels:AGO,datasets:[{data:auAvg,backgroundColor:PAL,borderRadius:4,borderSkipped:false}]},{...BO,scales:{...BO.scales,y:{...BO.scales.y,suggestedMax:10}},layout:{padding:{top:16}}});
-  renderKW('kw-anak-naik',  'kw-anka-naik-ct',  a.map(x=>({txt:x.nka,src:x.nama+' ('+x.cbr+')'})), '#059669', window.KAT_ANAK, a.length);
-  renderKW('kw-anak-turun', 'kw-anak-turun-ct', a.map(x=>({txt:x.tka,src:x.nama+' ('+x.cbr+')'})), '#dc2626', window.KAT_ANAK, a.length);
+  renderKW('kw-anak-naik','kw-anka-naik-ct',a.map(x=>({txt:x.nka,src:x.nama+' ('+x.cbr+')'})),'#059669',window.KAT_ANAK,a.length);
+  renderKW('kw-anak-turun','kw-anak-turun-ct',a.map(x=>({txt:x.tka,src:x.nama+' ('+x.cbr+')'})),'#dc2626',window.KAT_ANAK,a.length);
 }
 
 function renderPengasuh(){
@@ -741,123 +738,100 @@ function renderPengasuh(){
         </div>
       </div>`).join('');
   })();
-  renderKW('kw-peng-naik',  'kw-peng-naik-ct',  a.map(x=>({txt:x.nkp,src:(x.np||'—')+' ('+x.cbr+')'})), '#059669', window.KAT_PENGASUH, a.length);
-  renderKW('kw-peng-turun', 'kw-peng-turun-ct', a.map(x=>({txt:x.tkp,src:(x.np||'—')+' ('+x.cbr+')'})), '#dc2626', window.KAT_PENGASUH, a.length);
+  renderKW('kw-peng-naik','kw-peng-naik-ct',a.map(x=>({txt:x.nkp,src:(x.np||'—')+' ('+x.cbr+')'})),'#059669',window.KAT_PENGASUH,a.length);
+  renderKW('kw-peng-turun','kw-peng-turun-ct',a.map(x=>({txt:x.tkp,src:(x.np||'—')+' ('+x.cbr+')'})),'#dc2626',window.KAT_PENGASUH,a.length);
 }
 
-buildSidebar();
-const SESSION=AUTH.requireAuth('../index.html');
-if(SESSION){
-  AUTH.applySession({onScnSwitch:as
 // ── DOMAIN KEYWORD ENGINE ────────────────────────────────────────
 (function(){
-
-  // ── KATEGORI ANAK (nka = naik, tka = turun) ──────────────────
-  const KAT_ANAK = [
-    // ADL
-    {label:'Mandi / kebersihan diri',   kw:['mandi','cebok','kebersihan diri','bersih diri','lap badan']},
-    {label:'Makan / nutrisi / gizi',    kw:['makan','minum','nutrisi','gizi','susu','makanan']},
-    {label:'Berpakaian',                kw:['pakaian','baju','kancing','berpakaian','ganti baju','pake baju']},
-    {label:'Berjalan / mobilitas',      kw:['berjalan','berdiri','duduk','kursi roda','mobilitas','bergerak','jalan','pindah']},
-    {label:'Kemandirian',               kw:['mandiri','kemandirian','sendiri','tanpa bantuan']},
-    // Sosial & Tumbuh Kembang
-    {label:'Sekolah / pendidikan',      kw:['sekolah','belajar','pendidikan','inklusi','slb','les','kelas']},
-    {label:'Komunikasi / bicara',       kw:['berbicara','komunikasi','bicara','berkata','bahasa','ngomong','bersuara']},
-    {label:'Sosialisasi / percaya diri',kw:['sosialisasi','percaya diri','bersosialisasi','bergaul','teman','bermain','interaksi']},
-    // Dukungan & Hambatan
-    {label:'Dukungan keluarga',         kw:['keluarga','orang tua','ibu','bapak','saudara','kakak','adik','ayah']},
-    {label:'Layanan kesehatan / terapi',kw:['puskesmas','dokter','bidan','posyandu','terapi','fisioterapi','terapis','rehabilitasi']},
-    {label:'Bantuan pemerintah / BPJS', kw:['bpjs','bantuan','pemerintah','desa','pkh','sembako','kdd','subsidi']},
-    {label:'Pendampingan CBR / program',kw:['pendampingan','cbr','program ben','ben','petugas','pendamping']},
-    {label:'Sakit / kondisi medis',     kw:['sakit','penyakit','epilepsi','kejang','demam','nyeri','kaku','infeksi']},
-    {label:'Stigma / isolasi',          kw:['stigma','dikurung','isolasi','dikucilkan','malu','pandang sebelah','diabaikan','disingkirkan']},
-    {label:'Ekonomi / kemiskinan',      kw:['ekonomi','biaya','uang','penghasilan','panen','modal','miskin','keuangan','nafkah']},
+  var KAT_ANAK = [
+    {label:'Mandi / kebersihan diri',    kw:['mandi','cebok','kebersihan diri','bersih diri','lap badan']},
+    {label:'Makan / nutrisi / gizi',     kw:['makan','minum','nutrisi','gizi','susu','makanan']},
+    {label:'Berpakaian',                 kw:['pakaian','baju','kancing','berpakaian','ganti baju','pake baju']},
+    {label:'Berjalan / mobilitas',       kw:['berjalan','berdiri','duduk','kursi roda','mobilitas','bergerak','jalan','pindah']},
+    {label:'Kemandirian',                kw:['mandiri','kemandirian','sendiri','tanpa bantuan']},
+    {label:'Sekolah / pendidikan',       kw:['sekolah','belajar','pendidikan','inklusi','slb','les','kelas']},
+    {label:'Komunikasi / bicara',        kw:['berbicara','komunikasi','bicara','berkata','bahasa','ngomong','bersuara']},
+    {label:'Sosialisasi / percaya diri', kw:['sosialisasi','percaya diri','bersosialisasi','bergaul','teman','bermain','interaksi']},
+    {label:'Dukungan keluarga',          kw:['keluarga','orang tua','ibu','bapak','saudara','kakak','adik','ayah']},
+    {label:'Layanan kesehatan / terapi', kw:['puskesmas','dokter','bidan','posyandu','terapi','fisioterapi','terapis','rehabilitasi']},
+    {label:'Bantuan pemerintah / BPJS',  kw:['bpjs','bantuan','pemerintah','desa','pkh','sembako','kdd','subsidi']},
+    {label:'Pendampingan CBR / program', kw:['pendampingan','cbr','program ben','ben','petugas','pendamping']},
+    {label:'Sakit / kondisi medis',      kw:['sakit','penyakit','epilepsi','kejang','demam','nyeri','kaku','infeksi']},
+    {label:'Stigma / isolasi',           kw:['stigma','dikurung','isolasi','dikucilkan','malu','pandang sebelah','diabaikan','disingkirkan']},
+    {label:'Ekonomi / kemiskinan',       kw:['ekonomi','biaya','uang','penghasilan','panen','modal','miskin','keuangan','nafkah']},
   ];
-
-  // ── KATEGORI PENGASUH (nkp = naik, tkp = turun) ──────────────
-  const KAT_PENGASUH = [
-    // Beban Pengasuhan
-    {label:'Sakit / kelelahan pengasuh',    kw:['sakit','kelelahan','lelah','kelelahan fisik','kelelahan mental','jatuh sakit','tidak sehat','capek']},
-    {label:'Ekonomi / penghasilan',         kw:['ekonomi','biaya','uang','penghasilan','panen','modal','miskin','keuangan','nafkah','pendapatan','hasil']},
-    {label:'Kemandirian anak',              kw:['mandiri','sendiri','kemandirian','tanpa bantuan','mandi sendiri','makan sendiri']},
-    {label:'Pembagian beban / jaringan',    kw:['jaringan','berbagi','bergantian','dibantu','ada yang bantu','jaga anak','pendukung','dukungan']},
-    // Dukungan Sosial & Program
-    {label:'Dukungan keluarga besar',       kw:['keluarga','suami','istri','saudara','kakak','adik','orang tua','ayah','ibu']},
-    {label:'Bantuan pemerintah / sembako',  kw:['bpjs','bantuan','pemerintah','desa','pkh','sembako','kdd','subsidi','program']},
-    {label:'Pendampingan CBR / program',    kw:['pendampingan','cbr','program ben','ben','petugas','pendamping']},
-    {label:'Layanan kesehatan / terapi',    kw:['puskesmas','dokter','bidan','posyandu','terapi','fisioterapi','terapis']},
-    // Tumbuh Kembang Anak (dampak ke pengasuh)
-    {label:'Sekolah / pendidikan anak',     kw:['sekolah','belajar','pendidikan','inklusi','slb']},
-    {label:'Mandi / perawatan diri anak',   kw:['mandi','cebok','kebersihan','bersih','lap badan']},
-    {label:'Komunikasi / interaksi anak',   kw:['berbicara','komunikasi','bicara','berkata','bahasa','ngomong']},
-    {label:'Sosialisasi anak',              kw:['sosialisasi','percaya diri','bergaul','teman','bermain','interaksi']},
-    // Hambatan Psikososial
-    {label:'Stigma / isolasi sosial',       kw:['stigma','dikurung','isolasi','dikucilkan','malu','diabaikan','pandang sebelah']},
+  var KAT_PENGASUH = [
+    {label:'Sakit / kelelahan pengasuh',   kw:['sakit','kelelahan','lelah','kelelahan fisik','kelelahan mental','jatuh sakit','tidak sehat','capek']},
+    {label:'Ekonomi / penghasilan',        kw:['ekonomi','biaya','uang','penghasilan','panen','modal','miskin','keuangan','nafkah','pendapatan','hasil']},
+    {label:'Kemandirian anak',             kw:['mandiri','sendiri','kemandirian','tanpa bantuan','mandi sendiri','makan sendiri']},
+    {label:'Pembagian beban / jaringan',   kw:['jaringan','berbagi','bergantian','dibantu','ada yang bantu','jaga anak','pendukung','dukungan']},
+    {label:'Dukungan keluarga besar',      kw:['keluarga','suami','istri','saudara','kakak','adik','orang tua','ayah','ibu']},
+    {label:'Bantuan pemerintah / sembako', kw:['bpjs','bantuan','pemerintah','desa','pkh','sembako','kdd','subsidi','program']},
+    {label:'Pendampingan CBR / program',   kw:['pendampingan','cbr','program ben','ben','petugas','pendamping']},
+    {label:'Layanan kesehatan / terapi',   kw:['puskesmas','dokter','bidan','posyandu','terapi','fisioterapi','terapis']},
+    {label:'Sekolah / pendidikan anak',    kw:['sekolah','belajar','pendidikan','inklusi','slb']},
+    {label:'Mandi / perawatan diri anak',  kw:['mandi','cebok','kebersihan','bersih','lap badan']},
+    {label:'Komunikasi / interaksi anak',  kw:['berbicara','komunikasi','bicara','berkata','bahasa','ngomong']},
+    {label:'Sosialisasi anak',             kw:['sosialisasi','percaya diri','bergaul','teman','bermain','interaksi']},
+    {label:'Stigma / isolasi sosial',      kw:['stigma','dikurung','isolasi','dikucilkan','malu','diabaikan','pandang sebelah']},
   ];
-
-  function countByCategory(entries, categories, total){
-    return categories.map(cat => {
-      const matched = [];
-      entries.forEach(({txt, src}) => {
-        if(!txt || txt.length < 5) return;
-        const t = txt.toLowerCase();
-        if(cat.kw.some(kw => t.includes(kw))) {
-          matched.push({txt, src});
-        }
-      });
-      return {
-        label: cat.label,
-        count: matched.length,
-        pct: total > 0 ? Math.round(matched.length / total * 100) : 0,
-        examples: matched.slice(0, 3)
-      };
-    }).filter(r => r.count > 0)
-      .sort((a, b) => b.count - a.count);
-  }
+  window.KAT_ANAK     = KAT_ANAK;
+  window.KAT_PENGASUH = KAT_PENGASUH;
 
   window.renderKW = function(elId, ctId, entries, color, categories, total){
-    const el = document.getElementById(elId);
-    const ct = document.getElementById(ctId);
+    var el = document.getElementById(elId);
+    var ct = document.getElementById(ctId);
     if(!el) return;
-    const valid = entries.filter(e => e && e.txt && e.txt.length > 5);
+    var valid = entries.filter(function(e){ return e && e.txt && e.txt.length > 5; });
     if(ct) ct.textContent = valid.length + ' narasi';
     if(!valid.length){
       el.innerHTML = '<div class="kw-empty">Belum ada data narasi.</div>';
       return;
     }
-    const results = countByCategory(valid, categories, total);
+    var results = categories.map(function(cat){
+      var matched = [];
+      valid.forEach(function(e){
+        var t = e.txt.toLowerCase();
+        if(cat.kw.some(function(kw){ return t.indexOf(kw) !== -1; })){
+          matched.push(e);
+        }
+      });
+      return { label: cat.label, count: matched.length,
+               pct: total > 0 ? Math.round(matched.length / total * 100) : 0,
+               examples: matched.slice(0,3) };
+    }).filter(function(r){ return r.count > 0; })
+      .sort(function(a,b){ return b.count - a.count; });
     if(!results.length){
-      el.innerHTML = '<div class="kw-empty">Narasi tersedia tapi tidak ada tema yang terdeteksi.</div>';
+      el.innerHTML = '<div class="kw-empty">Belum ada tema terdeteksi dari narasi yang ada.</div>';
       return;
     }
-    const maxCount = results[0].count;
-    el.innerHTML = results.map((r, i) => {
-      const barPct = Math.round(r.count / maxCount * 100);
-      const tooltips = r.examples.map(e =>
-        `<div class="kw-tt-q">"${e.txt.substring(0,110)}${e.txt.length>110?'…':''}"</div><div class="kw-tt-s">— ${e.src}</div>`
-      ).join('<hr style="border:none;border-top:0.5px solid rgba(255,255,255,.15);margin:5px 0">');
-      return `<div class="kw-item" style="cursor:default">
-        <span class="kw-rank">${i+1}</span>
-        <span class="kw-name">${r.label}</span>
-        <div class="kw-track"><div class="kw-fill" style="width:${barPct}%;background:${color}"></div></div>
-        <span class="kw-num" style="color:${color}">${r.count} anak</span>
-        <span class="kw-pct">${r.pct}%</span>
-        ${tooltips ? `<div class="kw-tt">${tooltips}</div>` : ''}
-      </div>`;
-    }).join('');
-  };
-
-  // Expose categories so renderSkor/renderPengasuh can pass them
-  window.KAT_ANAK    = KAT_ANAK;
-  window.KAT_PENGASUH = KAT_PENGASUH;
-
-})();ass="kw-bar-fill" style="width:${pct}%;background:${color}80"></div></div>
-        <span class="kw-freq">${r.count}×</span>
-        <div class="kw-tt">${tooltipHTML}</div>
-      </div>`;
+    var maxCount = results[0].count;
+    el.innerHTML = results.map(function(r, i){
+      var barPct = Math.round(r.count / maxCount * 100);
+      var ttHTML = r.examples.map(function(e){
+        var q = e.txt.substring(0,110) + (e.txt.length > 110 ? '...' : '');
+        return '<div class="kw-tt-q">"' + q + '"</div><div class="kw-tt-s">— ' + e.src + '</div>';
+      }).join('<hr style="border:none;border-top:0.5px solid rgba(255,255,255,.15);margin:5px 0">');
+      return '<div class="kw-item">' +
+        '<span class="kw-rank">' + (i+1) + '</span>' +
+        '<span class="kw-name">' + r.label + '</span>' +
+        '<div class="kw-track"><div class="kw-fill" style="width:' + barPct + '%;background:' + color + '"></div></div>' +
+        '<span class="kw-num" style="color:' + color + '">' + r.count + ' anak</span>' +
+        '<span class="kw-pct">' + r.pct + '%</span>' +
+        (ttHTML ? '<div class="kw-tt">' + ttHTML + '</div>' : '') +
+        '</div>';
     }).join('');
   };
 })();
+
+buildSidebar();
+const SESSION=AUTH.requireAuth('../index.html');
+if(SESSION){
+  AUTH.applySession({onScnSwitch:async function(scnId){const d=await API.get(scnId);if(window.renderPage)renderPage(d,scnId);}});
+  AUTH.initSidebar('worker','w-beranda');
+  API.get(AUTH.getScnFilter()).then(d=>renderPage(d,AUTH.getScnFilter()));
+}
 </script>
 </body>
 </html>

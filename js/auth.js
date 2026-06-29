@@ -1,62 +1,153 @@
-// auth.js — Platform MEL NLR Indonesia v2
+// ============================================================
+//  auth.js — MEL NLR Indonesia v3 (Secure)
+//  Autentikasi via GAS 3 Auth Service
+//  Tidak ada password di client — semua verifikasi di server
+// ============================================================
+
 const AUTH = (() => {
-  const USERS = [
-    { username:'admin',      password:'adminmel123',   role:'superadmin', scn_id:null,          scn_label:'Semua SCN'              },
-    { username:'manggarai',  password:'mgr2026',       role:'scn',        scn_id:'manggarai',   scn_label:'SCN Manggarai'          },
-    { username:'banyuwangi', password:'bwi2026',       role:'scn',        scn_id:'banyuwangi',  scn_label:'SCN Banyuwangi'         },
-    { username:'jember',     password:'jbr2026',       role:'scn',        scn_id:'jember',      scn_label:'SCN Jember'             },
-    { username:'situbondo',  password:'sbd2026',       role:'scn',        scn_id:'situbondo',   scn_label:'SCN Situbondo'          },
-    { username:'kupang',     password:'kpg2026',       role:'scn',        scn_id:'kupang',      scn_label:'SCN Kupang'             },
-    { username:'tts',        password:'tts2026',       role:'scn',        scn_id:'tts',         scn_label:'SCN Timor Tengah Selatan'},
-    { username:'palu',       password:'plu2026',       role:'scn',        scn_id:'palu',        scn_label:'SCN Palu'               },
-    { username:'sigi',       password:'sgi2026',       role:'scn',        scn_id:'sigi',        scn_label:'SCN Sigi'               },
-  ];
 
+  // ── GAS AUTH SERVICE URL ──────────────────────────────────
+  // Ganti dengan URL GAS 3 setelah di-deploy
+  const AUTH_GAS_URL = 'https://script.google.com/macros/s/AKfycbx0NMoCXdNAfuA5ShnHYOF_c8FC9fOeXZPR88EKnFZ5imoQxrVR63FqL4qaKW3AkwPE/exec';
+
+  // ── SCN LIST (tidak sensitif, boleh di client) ────────────
   const SCN_LIST = [
-    { id:'manggarai',  label:'SCN Manggarai'           },
-    { id:'banyuwangi', label:'SCN Banyuwangi'          },
-    { id:'jember',     label:'SCN Jember'              },
-    { id:'situbondo',  label:'SCN Situbondo'           },
-    { id:'kupang',     label:'SCN Kupang'              },
-    { id:'tts',        label:'SCN Timor Tengah Selatan'},
-    { id:'palu',       label:'SCN Palu'                },
-    { id:'sigi',       label:'SCN Sigi'                },
+    { id:'manggarai',  label:'SCN Manggarai'            },
+    { id:'banyuwangi', label:'SCN Banyuwangi'           },
+    { id:'jember',     label:'SCN Jember'               },
+    { id:'situbondo',  label:'SCN Situbondo'            },
+    { id:'kupang',     label:'SCN Kupang'               },
+    { id:'tts',        label:'SCN Timor Tengah Selatan' },
+    { id:'palu',       label:'SCN Palu'                 },
+    { id:'sigi',       label:'SCN Sigi'                 },
   ];
 
-  const KEY     = 'mel_v2_session';
-  const SCN_KEY = 'mel_v2_active_scn';
+  const KEY     = 'mel_v3_session';
+  const SCN_KEY = 'mel_v3_active_scn';
 
-  function login(username, password) {
-    const u = USERS.find(u => u.username === username.trim().toLowerCase() && u.password === password);
-    if (!u) return { ok: false, message: 'Username atau password salah.' };
-    const s = { username: u.username, role: u.role, scn_id: u.scn_id, scn_label: u.scn_label, loggedAt: Date.now() };
-    localStorage.setItem(KEY, JSON.stringify(s));
-    localStorage.removeItem(SCN_KEY);
-    return { ok: true, session: s };
+  // ── SHA-256 HASH (Web Crypto API, built-in browser) ───────
+  async function sha256(message) {
+    const msgBuffer  = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray  = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  function logout() {
+  // ── LOGIN ─────────────────────────────────────────────────
+  // Kirim hash password ke GAS — password asli tidak pernah disimpan
+  async function login(username, password) {
+    if (!username || !password) {
+      return { ok: false, message: 'Username dan password wajib diisi.' };
+    }
+
+    let passwordHash;
+    try {
+      passwordHash = await sha256(password.trim());
+    } catch(e) {
+      return { ok: false, message: 'Browser tidak mendukung enkripsi. Gunakan browser modern.' };
+    }
+
+    try {
+      const resp = await fetch(AUTH_GAS_URL, {
+        method : 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body   : JSON.stringify({
+          action      : 'login',
+          username    : username.trim().toLowerCase(),
+          passwordHash: passwordHash,
+        }),
+      });
+
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const result = await resp.json();
+
+      if (!result.ok) return { ok: false, message: result.message || 'Login gagal.' };
+
+      // Simpan session ke localStorage (token saja, bukan password)
+      const session = {
+        token    : result.token,
+        username : result.username,
+        role     : result.role,
+        scn_id   : result.scn_id   || null,
+        scn_label: result.scn_label|| 'Semua SCN',
+        expiredAt: result.expiredAt,
+        loggedAt : Date.now(),
+      };
+      localStorage.setItem(KEY, JSON.stringify(session));
+      localStorage.removeItem(SCN_KEY);
+
+      return { ok: true, session };
+
+    } catch(e) {
+      return { ok: false, message: 'Tidak dapat terhubung ke server. Cek koneksi internet.' };
+    }
+  }
+
+  // ── LOGOUT ────────────────────────────────────────────────
+  async function logout() {
+    const s = getSession();
+    if (s && s.token) {
+      // Beritahu GAS untuk hapus token (fire & forget)
+      fetch(AUTH_GAS_URL, {
+        method : 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body   : JSON.stringify({ action: 'logout', token: s.token }),
+      }).catch(() => {});
+    }
     localStorage.removeItem(KEY);
     localStorage.removeItem(SCN_KEY);
     window.location.href = '../index.html';
   }
 
+  // ── GET SESSION (dari localStorage) ──────────────────────
   function getSession() {
     try {
       const s = JSON.parse(localStorage.getItem(KEY));
-      if (!s) return null;
-      if (Date.now() - s.loggedAt > 8 * 3600 * 1000) { logout(); return null; }
+      if (!s || !s.token) return null;
+      // Cek expired berdasarkan expiredAt dari server
+      if (s.expiredAt && new Date(s.expiredAt) < new Date()) {
+        localStorage.removeItem(KEY);
+        return null;
+      }
       return s;
     } catch { return null; }
   }
 
+  // ── REQUIRE AUTH ──────────────────────────────────────────
   function requireAuth(redirectTo = '../index.html') {
     const s = getSession();
     if (!s) { window.location.href = redirectTo; return null; }
     return s;
   }
 
-  function isSuperAdmin() { const s = getSession(); return s && s.role === 'superadmin'; }
+  // ── VERIFY TOKEN KE SERVER (opsional, untuk halaman sensitif) ──
+  async function verifyToken() {
+    const s = getSession();
+    if (!s) return false;
+    try {
+      const resp = await fetch(AUTH_GAS_URL, {
+        method : 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body   : JSON.stringify({ action: 'verify', token: s.token }),
+      });
+      const result = await resp.json();
+      return result.ok === true;
+    } catch(e) {
+      // Jika tidak bisa reach server, fallback ke local check
+      return getSession() !== null;
+    }
+  }
+
+  // ── GET TOKEN (untuk dikirim ke GAS data endpoint) ────────
+  function getToken() {
+    const s = getSession();
+    return s ? s.token : null;
+  }
+
+  function isSuperAdmin() {
+    const s = getSession();
+    return s && s.role === 'superadmin';
+  }
 
   function getScnFilter() {
     const s = getSession();
@@ -81,7 +172,6 @@ const AUTH = (() => {
   function applySession(opts = {}) {
     const s = getSession();
     if (!s) return;
-    // Simpan onScnSwitch ke window agar sidebar.js juga bisa memanggilnya
     if (opts.onScnSwitch) window.__onScnSwitch = opts.onScnSwitch;
     const q = sel => document.querySelector(sel);
     if (q('#user-av'))     q('#user-av').textContent    = s.username.charAt(0).toUpperCase();
@@ -101,7 +191,6 @@ const AUTH = (() => {
       sel.innerHTML = `<option value="">— Semua SCN —</option>` +
         SCN_LIST.map(x => `<option value="${x.id}">${x.label}</option>`).join('');
       sel.value = currentScn || '';
-      // Bug 2 Fix: langsung trigger onScnSwitch tanpa perlu refresh
       sel.addEventListener('change', () => {
         const scnId = sel.value || null;
         setScnFilter(scnId);
@@ -118,22 +207,14 @@ const AUTH = (() => {
   }
 
   function initSidebar(activeGroup, activePage) {
-    // Set active nav item
     document.querySelectorAll('.nav-sub-item').forEach(item => {
       item.classList.toggle('active', item.dataset.page === activePage);
     });
-
-    // Bug 1 Fix: default semua grup collapsed, buka hanya grup aktif
     document.querySelectorAll('.nav-group').forEach(g => {
       const hasActive = g.querySelector('.nav-sub-item.active');
-      if (hasActive) {
-        g.classList.remove('collapsed');
-      } else {
-        g.classList.add('collapsed');
-      }
+      if (hasActive) g.classList.remove('collapsed');
+      else g.classList.add('collapsed');
     });
-
-    // Fallback: sistem lama pakai data-group + sub-* jika masih ada
     document.querySelectorAll('.nav-group-header').forEach(h => {
       const groupId = h.dataset.group;
       const sub     = document.getElementById('sub-' + groupId);
@@ -145,25 +226,21 @@ const AUTH = (() => {
         if (!isOpen) { h.classList.add('open'); sub.classList.add('open'); }
       });
     });
-
-    // Bug 3 Fix: preload data di background agar cache terisi sebelum user navigasi
     setTimeout(() => {
       if (window.API) {
         const scnId = getScnFilter();
         API.get(scnId).catch(() => {});
       }
     }, 300);
-
-    // Mobile bottom nav
     window.__currentPageId = activePage;
     if (typeof buildBottomNav === 'function') buildBottomNav();
     if (typeof setBottomNavActive === 'function') setBottomNavActive(activePage);
   }
 
   return {
-    login, logout, getSession, requireAuth,
-    isSuperAdmin, getScnFilter, setScnFilter,
-    applySession, updateScnBadge, initSidebar,
-    SCN_LIST, USERS
+    login, logout, getSession, requireAuth, verifyToken,
+    getToken, isSuperAdmin, getScnFilter, setScnFilter,
+    applySession, updateScnBadge, initSidebar, SCN_LIST,
   };
+
 })();

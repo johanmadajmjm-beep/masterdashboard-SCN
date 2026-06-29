@@ -128,21 +128,9 @@ let KOBO_D  = null;
 
 function num(v){ return parseInt(v)||0; }
 
-function calcITTpct(anak, obs){
-  const t = anak.length||1;
-  const punyaObs = anak.filter(a=>{const k=a.nama.toLowerCase();return obs.some(o=>o.na&&o.na.toLowerCase()===k);}).length;
-  const terapi   = anak.filter(a=>a.tr).length;
-  const skorBaik = anak.filter(a=>a.sp!=null&&a.sp>=5).length;
-  return {
-    O1:Math.round(skorBaik/t*100),
-    O2:Math.round(punyaObs/t*100),
-    O3:Math.round(anak.filter(a=>a.cbr).length/t*100),
-    O4:Math.min(100,Math.round(punyaObs/t*120)),
-    O5:Math.round(anak.filter(a=>a.ob).length/t*100),
-    O6:Math.round(anak.filter(a=>a.usia<=17).length/t*100),
-    O7:Math.round(terapi/t*100),
-  };
-}
+// % capaian outcome dihitung di mel-itt.html berdasarkan data real INDIKATOR + CAPAIAN
+// Di beranda semua outcome default 0% sampai data ITT tersedia
+function calcITTpct(){ return {O1:0,O2:0,O3:0,O4:0,O5:0,O6:0,O7:0}; }
 
 function pctColor(v){ return v>=80?'#16a34a':v>=50?'#2563eb':v>=25?'#d97706':'#dc2626'; }
 
@@ -169,7 +157,7 @@ function buildUI(){
   const totalKeg = new Set(BEN_MON.map(r=>r.nama_kegiatan).filter(Boolean)).size;
 
   // ITT
-  const pcts = calcITTpct(anak, obs);
+  const pcts = calcITTpct();
 
   // Alerts
   const alerts=[];

@@ -851,9 +851,9 @@ select:hover, input:hover { border-color: #D1D5DB; }
   z-index        : 200;
   background     : var(--sb-bg);
   border-top     : 1px solid rgba(255,255,255,.08);
-  height         : 72px;
+  height         : 80px;
   box-shadow     : 0 -4px 20px rgba(0,0,0,.25);
-  padding        : 0 4px;
+  padding        : 0 8px;
   padding-bottom : env(safe-area-inset-bottom, 0px);
 }
 
@@ -861,10 +861,9 @@ select:hover, input:hover { border-color: #D1D5DB; }
 .bottom-nav-items {
   display         : flex;
   align-items     : center;
-  justify-content : space-around;
+  justify-content : space-between;
   height          : 100%;
-  max-width       : 600px;
-  margin          : 0 auto;
+  padding         : 0 12px;
 }
 
 /* Each nav tab */
@@ -874,12 +873,13 @@ select:hover, input:hover { border-color: #D1D5DB; }
   align-items     : center;
   justify-content : center;
   gap             : 5px;
-  flex            : 1;
+  flex            : 0 0 auto;
+  min-width       : 52px;
   height          : 100%;
   color           : rgba(255,255,255,.4);
   cursor          : pointer;
   transition      : color .15s;
-  padding         : 8px 2px;
+  padding         : 8px 10px;
   border-radius   : 0;
   background      : none;
   border          : none;
@@ -914,11 +914,19 @@ select:hover, input:hover { border-color: #D1D5DB; }
   border-radius: 0 0 3px 3px;
 }
 
+/* Logout tab — merah */
+.bottom-nav-logout {
+  color : #f87171 !important;
+}
+.bottom-nav-logout:active {
+  background : rgba(239,68,68,.1);
+}
+
 /* Sub-menu panel (slide up dari bawah) */
 .bottom-subnav {
   display        : none;
   position       : fixed;
-  bottom         : 72px;
+  bottom         : 80px;
   left           : 0;
   right          : 0;
   z-index        : 199;
@@ -992,7 +1000,7 @@ select:hover, input:hover { border-color: #D1D5DB; }
   display    : none;
   position   : fixed;
   inset      : 0;
-  bottom     : 72px;
+  bottom     : 80px;
   background : rgba(0,0,0,.4);
   z-index    : 198;
   backdrop-filter: blur(2px);
@@ -1020,7 +1028,7 @@ select:hover, input:hover { border-color: #D1D5DB; }
 .scn-sheet {
   display        : none;
   position       : fixed;
-  bottom         : 72px;
+  bottom         : 80px;
   left           : 0;
   right          : 0;
   z-index        : 210;
@@ -1063,7 +1071,7 @@ select:hover, input:hover { border-color: #D1D5DB; }
 
 /* Body padding bawah saat mobile (biar konten tidak ketutup bottom nav) */
 @media (max-width: 767px) {
-  body { padding-bottom: 72px; }
+  body { padding-bottom: 80px; }
 
   /* Sidebar tidak tampil di mobile */
   .sidebar { display:none !important; }
@@ -1079,7 +1087,7 @@ select:hover, input:hover { border-color: #D1D5DB; }
 
   /* Page padding */
   .page {
-    height     : calc(100vh - 60px - 72px); /* topbar + bottom nav */
+    height     : calc(100vh - 60px - 80px); /* topbar + bottom nav */
     padding    : 14px 14px;
   }
 

@@ -846,7 +846,7 @@ function switchNarasi(col, dir){
           if(!subs[kat]) subs[kat] = {};
           if(sub) subs[kat][sub] = (subs[kat][sub]||0) + 1;
           if(!examples[kat]) examples[kat] = [];
-          var txt = (a[field]||'').split('\n').join(' ').split('*').join('').trim();
+          var txt = String(a[field]||'').split('\n').join(' ').split('*').join('').trim();
           if(examples[kat].length < 3 && txt.length > 5){
             examples[kat].push({txt:txt, src:(a.nama||'—')+' ('+(a.cbr||'—')+')'});
           }
@@ -872,10 +872,10 @@ function switchNarasi(col, dir){
       results = categories.map(function(cat){
         var matched = [];
         anak.forEach(function(a){
-          var txt = (a[field]||'').toLowerCase();
+          var txt = String(a[field]||'').toLowerCase();
           if(cat.kw.some(function(kw){ return txt.indexOf(kw)!==-1; })){
             matched.push({
-              txt: (a[field]||'').split('\n').join(' ').split('*').join('').trim(),
+              txt: String(a[field]||'').split('\n').join(' ').split('*').join('').trim(),
               src: (a.nama||'—')+' ('+(a.cbr||'—')+')',
             });
           }

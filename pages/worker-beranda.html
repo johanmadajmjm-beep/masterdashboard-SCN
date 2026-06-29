@@ -43,6 +43,7 @@
       margin-bottom: 12px;
     }
     .kpi-box {
+      min-width: 0;
       background: white;
       border: 1px solid #e5e7eb;
       border-left: 3px solid var(--kc,#F97316);
@@ -63,13 +64,37 @@
     .kpi-lbl { font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#9ca3af; margin:4px 0 2px; }
     .kpi-sub { font-size:.6rem; color:#9ca3af; }
 
-    /* MAIN LAYOUT */
-    .main-layout {
+    /* PROFIL PANEL — 5 kolom */
+    .profil-5col {
       display: grid;
-      grid-template-columns: 1fr 260px;
-      gap: 10px;
-      align-items: start;
+      grid-template-columns: 200px 1fr 1fr 1fr 1fr;
+      gap: 0;
     }
+    @media(max-width:1100px){ .profil-5col { grid-template-columns: 200px 1fr 1fr; } }
+    @media(max-width:700px){  .profil-5col { grid-template-columns: 1fr 1fr; } }
+
+    /* NARASI 2-KOLOM */
+    /* NARASI TABLE */
+    .narasi-wrap { background:white; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; margin-bottom:10px; }
+    .narasi-table { display:grid; grid-template-columns:1fr 1fr; }
+    .narasi-col { min-width:0; }
+    .narasi-col:first-child { border-right:1px solid #f3f4f6; }
+    .narasi-head { padding:9px 14px; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; justify-content:space-between; background:#fafafa; }
+    .narasi-title { font-size:.75rem; font-weight:700; color:#111827; }
+    .narasi-tabs { display:flex; gap:3px; }
+    .narasi-tab { font-size:1rem; line-height:1; padding:3px 7px; border-radius:6px; border:1px solid #e5e7eb; background:white; cursor:pointer; color:#9ca3af; transition:.12s; }
+    .narasi-tab.active-up { background:#f0fdf4; border-color:#059669; color:#059669; }
+    .narasi-tab.active-dn { background:#fef2f2; border-color:#dc2626; color:#dc2626; }
+    .narasi-body { height:300px; overflow-y:auto; padding:8px 12px; }
+    .narasi-body::-webkit-scrollbar { width:4px; }
+    .narasi-body::-webkit-scrollbar-thumb { background:#e5e7eb; border-radius:2px; }
+    .nitem { position:relative; border-left:3px solid #e5e7eb; padding:6px 8px; margin-bottom:6px; font-size:.68rem; color:#374151; line-height:1.6; font-style:italic; cursor:default; }
+    .nitem.up { border-color:#059669; }
+    .nitem.dn { border-color:#dc2626; }
+    .nitem:hover .nitem-tt { display:block; }
+    .nitem-tt { display:none; position:absolute; bottom:calc(100% + 4px); left:0; background:#1e293b; color:#fff; font-size:.62rem; border-radius:7px; padding:6px 10px; white-space:nowrap; z-index:20; font-style:normal; }
+    .nitem-tt::after { content:''; position:absolute; top:100%; left:12px; border:4px solid transparent; border-top-color:#1e293b; }
+    .narasi-empty { font-size:.7rem; color:#9ca3af; padding:20px; text-align:center; }
 
     /* PROFIL SEKSI HEADER */
     .seksi-title {
@@ -137,20 +162,7 @@
     .slay-num { font-size:1.1rem; font-weight:800; color:#111827; line-height:1; }
     .slay-pct { font-size:.6rem; color:#9ca3af; }
 
-    /* JK + USIA PANEL */
-    .jk-panel {
-      background: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      overflow: hidden;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      margin-bottom: 10px;
-      align-items: stretch;
-    }
-    .jk-col { padding: 12px 14px; border-right: 1px solid #f3f4f6; }
-    .jk-col:last-child { border-right: none; }
-    .jk-title { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#9ca3af; margin-bottom:8px; }
+
 
     /* INSIGHT */
     .insight {
@@ -166,8 +178,7 @@
     .insight-t { font-size:.68rem; font-weight:700; color:#d4500a; margin-bottom:4px; }
     .insight-b { font-size:.68rem; color:#374151; line-height:1.6; }
 
-    /* RIGHT COL */
-    .right-col { display:flex; flex-direction:column; gap:7px; min-width:0; }
+
 
     /* ALERT CARD */
     .alert-card { background:white; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; }
@@ -311,98 +322,84 @@
         <!-- KPI -->
         <div class="kpi-row" id="kpi-anak"></div>
 
-        <!-- MAIN LAYOUT -->
-        <div class="main-layout">
-
-          <!-- KIRI -->
-          <div>
-            <div class="seksi-title">Profil Anak Dampingan</div>
-
-            <!-- PROFIL 3 PANEL -->
-            <div class="profil-panel">
-              <div class="profil-3col">
-                <!-- LEVEL -->
-                <div class="pcol">
-                  <div class="pcol-title">Level Disabilitas</div>
-                  <div class="donut-wrap">
-                    <canvas id="c-level"></canvas>
-                    <div class="donut-center">
-                      <div class="donut-num" id="donut-total">—</div>
-                      <div class="donut-lbl">Anak</div>
-                    </div>
-                  </div>
-                  <div class="donut-legend" id="level-legend"></div>
-                </div>
-                <!-- RAGAM -->
-                <div class="pcol">
-                  <div class="pcol-title">Ragam Disabilitas</div>
-                  <div id="ragam-hbar"></div>
-                </div>
-                <!-- STATUS -->
-                <div class="pcol">
-                  <div class="pcol-title">Status Layanan</div>
-                  <div id="status-layanan"></div>
+        <!-- PROFIL PANEL 5 KOLOM -->
+        <div class="seksi-title">Profil Anak Dampingan</div>
+        <div class="profil-panel" style="margin-bottom:10px">
+          <div class="profil-5col">
+            <div class="pcol">
+              <div class="pcol-title">Level Disabilitas</div>
+              <div class="donut-wrap">
+                <canvas id="c-level"></canvas>
+                <div class="donut-center">
+                  <div class="donut-num" id="donut-total">—</div>
+                  <div class="donut-lbl">Anak</div>
                 </div>
               </div>
+              <div class="donut-legend" id="level-legend"></div>
             </div>
-
-            <!-- JK + USIA -->
-            <div class="jk-panel">
-              <div class="jk-col">
-                <div class="jk-title">Jenis Kelamin</div>
-                <div class="ch" style="height:150px"><canvas id="c-jk"></canvas></div>
-              </div>
-              <div class="jk-col">
-                <div class="jk-title">Kelompok Usia</div>
-                <div class="ch" style="height:150px"><canvas id="c-usia"></canvas></div>
-              </div>
+            <div class="pcol">
+              <div class="pcol-title">Ragam Disabilitas</div>
+              <div id="ragam-hbar"></div>
             </div>
-
-            <!-- INSIGHT -->
-            <div class="insight" id="insight-box" style="display:none">
-              <div class="insight-ico">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#d4500a" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              </div>
-              <div>
-                <div class="insight-t">Intisari Kondisi Anak Dampingan</div>
-                <div class="insight-b" id="insight-text">Memuat...</div>
-              </div>
+            <div class="pcol">
+              <div class="pcol-title">Status Layanan</div>
+              <div id="status-layanan"></div>
+            </div>
+            <div class="pcol">
+              <div class="pcol-title">Jenis Kelamin</div>
+              <div class="ch" style="height:150px"><canvas id="c-jk"></canvas></div>
+            </div>
+            <div class="pcol">
+              <div class="pcol-title">Kelompok Usia</div>
+              <div class="ch" style="height:150px"><canvas id="c-usia"></canvas></div>
             </div>
           </div>
+        </div>
 
-          <!-- KANAN -->
-          <div class="right-col">
+        <!-- ALERT PERLU PERHATIAN -->
+        <div class="alert-card" style="margin-bottom:10px">
+          <div class="alert-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Perlu Perhatian
+          </div>
+          <div id="alert-items"></div>
+          <a href="worker-anak.html" class="alert-link">Lihat detail →</a>
+        </div>
 
-            <!-- PERLU PERHATIAN -->
-            <div class="alert-card">
-              <div class="alert-head">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                Perlu Perhatian
+        <!-- NARASI TABEL: ANAK | PENGASUH -->
+        <div class="narasi-wrap">
+          <div class="narasi-table">
+            <div class="narasi-col">
+              <div class="narasi-head">
+                <span class="narasi-title">Anak</span>
+                <div class="narasi-tabs">
+                  <button class="narasi-tab active-up" id="ntab-anak-naik" onclick="switchNarasi('anak','naik')" title="Naik tangga">⬆</button>
+                  <button class="narasi-tab" id="ntab-anak-turun" onclick="switchNarasi('anak','turun')" title="Turun tangga">⬇</button>
+                </div>
               </div>
-              <div id="alert-items"></div>
-              <a href="worker-anak.html" class="alert-link">Lihat detail →</a>
+              <div class="narasi-body" id="narasi-anak"></div>
             </div>
-
-            <!-- FAKTOR NAIK -->
-            <div class="fcard">
-              <div class="fcard-head up">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
-                Faktor yang Membantu Anak Naik
+            <div class="narasi-col">
+              <div class="narasi-head">
+                <span class="narasi-title">Pengasuh</span>
+                <div class="narasi-tabs">
+                  <button class="narasi-tab active-up" id="ntab-peng-naik" onclick="switchNarasi('peng','naik')" title="Naik tangga">⬆</button>
+                  <button class="narasi-tab" id="ntab-peng-turun" onclick="switchNarasi('peng','turun')" title="Turun tangga">⬇</button>
+                </div>
               </div>
-              <ul class="fcard-list" id="faktor-naik-list"></ul>
-              <a href="#" onclick="switchTab('skor',document.querySelector('[data-tab=skor]'));return false;" class="fcard-link">Lihat detail →</a>
+              <div class="narasi-body" id="narasi-peng"></div>
             </div>
+          </div>
+        </div>
 
-            <!-- FAKTOR TURUN -->
-            <div class="fcard">
-              <div class="fcard-head dn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                Faktor yang Menyulitkan Anak
-              </div>
-              <ul class="fcard-list" id="faktor-turun-list"></ul>
-              <a href="#" onclick="switchTab('skor',document.querySelector('[data-tab=skor]'));return false;" class="fcard-link">Lihat detail →</a>
-            </div>
-
+        <!-- INSIGHT -->
+        <div class="insight" id="insight-box" style="display:none">
+          <div class="insight-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#d4500a" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div>
+            <div class="insight-t">Intisari Kondisi Anak Dampingan</div>
+            <div class="insight-b" id="insight-text">Memuat...</div>
           </div>
         </div>
       </div>
@@ -658,8 +655,11 @@ function renderAnak(){
     tanpa>0?`<div class="alert-item"><div class="alert-dot blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="alert-main">${tanpa} anak belum ada observasi</div><div class="alert-sub">Belum pernah dikunjungi</div></div></div>`:'',
   ].filter(Boolean).join('')||`<div class="alert-item"><div class="alert-main" style="color:#059669">✓ Tidak ada kondisi kritis</div></div>`;
 
-  // FAKTOR
-
+  // NARASI — render default naik tangga
+  var _narasi = {anak: ALL, peng: ALL};
+  window._narasi = _narasi;
+  renderNarasi('anak','naik');
+  renderNarasi('peng','naik');
 
   // INSIGHT
   const rt=RO.reduce((a,b)=>(rc[a]||0)>=(rc[b]||0)?a:b,RO[0]);
@@ -714,12 +714,7 @@ function renderSkor(){
   renderKW('kw-anak-naik','kw-anka-naik-ct',a.map(x=>({txt:x.nka,src:x.nama+' ('+x.cbr+')'})),'#059669',window.KAT_ANAK,a.length);
   renderKW('kw-anak-turun','kw-anak-turun-ct',a.map(x=>({txt:x.tka,src:x.nama+' ('+x.cbr+')'})),'#dc2626',window.KAT_ANAK,a.length);
   // ── sidebar faktor ringkasan (top 4 frasa singkat) ──
-  var naikR=a.filter(function(x){return x.nka&&x.nka.length>10;}).slice(0,4).map(function(x){return x.nka.substring(0,70).replace(/["'\*]/g,'').replace(/\n/g,' ').trim();});
-  var turunR=a.filter(function(x){return x.tka&&x.tka.length>10;}).slice(0,4).map(function(x){return x.tka.substring(0,70).replace(/["'\*]/g,'').replace(/\n/g,' ').trim();});
-  var elN=document.getElementById('faktor-naik-list');
-  var elT=document.getElementById('faktor-turun-list');
-  if(elN) elN.innerHTML=naikR.length?naikR.map(function(t){return '<li>'+t+'</li>';}).join(''):'<li style="color:#9ca3af">Belum ada data</li>';
-  if(elT) elT.innerHTML=turunR.length?turunR.map(function(t){return '<li>'+t+'</li>';}).join(''):'<li style="color:#9ca3af">Belum ada data</li>';
+
 }
 
 function renderPengasuh(){
@@ -748,6 +743,52 @@ function renderPengasuh(){
   renderKW('kw-peng-naik','kw-peng-naik-ct',a.map(x=>({txt:x.nkp,src:(x.np||'—')+' ('+x.cbr+')'})),'#059669',window.KAT_PENGASUH,a.length);
   renderKW('kw-peng-turun','kw-peng-turun-ct',a.map(x=>({txt:x.tkp,src:(x.np||'—')+' ('+x.cbr+')'})),'#dc2626',window.KAT_PENGASUH,a.length);
 }
+
+// ── NARASI ENGINE ────────────────────────────────────────────────
+function renderNarasi(col, dir){
+  var field = col === 'anak'
+    ? (dir === 'naik' ? 'nka' : 'tka')
+    : (dir === 'naik' ? 'nkp' : 'tkp');
+  var nameField = col === 'anak' ? 'nama' : 'np';
+  var elId   = 'narasi-' + col;
+  var color  = dir === 'naik' ? '#059669' : '#dc2626';
+  var cls    = dir === 'naik' ? 'up' : 'dn';
+
+  var entries = ALL.filter(function(x){ return x[field] && x[field].length > 5; });
+  var el = document.getElementById(elId);
+  if(!el) return;
+
+  if(!entries.length){
+    el.innerHTML = '<div class="narasi-empty">Belum ada data narasi.</div>';
+    return;
+  }
+
+  el.innerHTML = entries.map(function(x){
+    var txt = (x[field]||'').split('\n').join(' ').split('*').join('').trim();
+    var name = (x[nameField]||'—') + ' (' + (x.cbr||'—') + ')';
+    return '<div class="nitem ' + cls + '">' +
+      txt +
+      '<div class="nitem-tt">' + name + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function switchNarasi(col, dir){
+  renderNarasi(col, dir);
+  // Update tab styles
+  var tabs = {
+    'anak-naik' : document.getElementById('ntab-anak-naik'),
+    'anak-turun': document.getElementById('ntab-anak-turun'),
+    'peng-naik' : document.getElementById('ntab-peng-naik'),
+    'peng-turun': document.getElementById('ntab-peng-turun'),
+  };
+  // Reset both tabs for this col
+  var upTab = tabs[col+'-naik'];
+  var dnTab = tabs[col+'-turun'];
+  if(upTab){ upTab.className = 'narasi-tab' + (dir==='naik'?' active-up':''); }
+  if(dnTab){ dnTab.className = 'narasi-tab' + (dir==='turun'?' active-dn':''); }
+}
+
 
 // ── DOMAIN KEYWORD ENGINE ────────────────────────────────────────
 (function(){

@@ -134,8 +134,8 @@
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
+<script src="../js/api-ben.js"></script>
 <script>
-const GAS_BEN  = 'https://script.google.com/macros/s/AKfycbzY4CfLPnW-Q9lTyvfkbkEgmPeVdNVLeVm7zLBxHAX4xquocm06BoKvt-y8sZMatGBA/exec';
 const SCN_LBL  = {manggarai:'MGR',banyuwangi:'BWI',jember:'JBR',situbondo:'STB',kupang:'KPG',tts:'TTS',palu:'PLU',sigi:'SGI'};
 const SCN_FULL = {manggarai:'SCN Manggarai',banyuwangi:'SCN Banyuwangi',jember:'SCN Jember',situbondo:'SCN Situbondo',kupang:'SCN Kupang',tts:'SCN TTS',palu:'SCN Palu',sigi:'SCN Sigi'};
 const OUT_LBL  = {'O1':'Outcome 1','O2':'Outcome 2','O3':'Outcome 3','O4':'Outcome 4','O5':'Outcome 5','O6':'Outcome 6','O7':'Outcome 7'};
@@ -175,9 +175,7 @@ function monoOrange(n){
 
 // ── FETCH ─────────────────────────────────────────────────────
 async function fetchMonthly(scnId){
-  const url = scnId ? `${GAS_BEN}?sheet=monthly&scn=${scnId}` : `${GAS_BEN}?sheet=monthly`;
-  try{ const r=await fetch(url); const j=await r.json(); return j.data||[]; }
-  catch(e){ console.warn('[Monthly]',e.message); return []; }
+  return await API_BEN.get('monthly', scnId||null);
 }
 
 // ── FILTER CHANGE ─────────────────────────────────────────────
@@ -476,6 +474,10 @@ if(SESSION){
     }
   });
   AUTH.initSidebar('mel','m-monthly');
+  // Daftarkan callback untuk background refresh otomatis
+  window.renderPageBEN = function(sheet, data){
+    if(sheet === 'monthly'){ ALL_DATA = data; ACTIVE_IDX = 0; buildUI(); }
+  };
   renderPage(null, AUTH.getScnFilter());
 }
 </script>

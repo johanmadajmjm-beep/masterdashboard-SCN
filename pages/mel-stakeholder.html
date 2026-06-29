@@ -138,8 +138,8 @@
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
+<script src="../js/api-ben.js"></script>
 <script>
-const GAS_BEN  = 'https://script.google.com/macros/s/AKfycbzY4CfLPnW-Q9lTyvfkbkEgmPeVdNVLeVm7zLBxHAX4xquocm06BoKvt-y8sZMatGBA/exec';
 const SCN_FULL = {manggarai:'Manggarai',banyuwangi:'Banyuwangi',jember:'Jember',situbondo:'Situbondo',kupang:'Kupang',tts:'TTS',palu:'Palu',sigi:'Sigi'};
 const KAT_LIST = ['Anak dan Remaja Disabilitas','CBR Worker','Pengasuh Orang Tua','Nakes','Guru','Staff Mitra','Pemangku Kepentingan','Anak dan Remaja Non Disabilitas'];
 // Monokromatik: oranye + hitam/abu
@@ -170,9 +170,7 @@ function destroyChart(c){ if(c){try{c.destroy();}catch(e){}} return null; }
 
 // ── FETCH ─────────────────────────────────────────────────────
 async function fetchStakeholder(scnId){
-  const url = scnId ? `${GAS_BEN}?sheet=stakeholder&scn=${scnId}` : `${GAS_BEN}?sheet=stakeholder`;
-  try{ const r=await fetch(url); const j=await r.json(); return j.data||[]; }
-  catch(e){ console.warn('[Stakeholder]',e.message); return []; }
+  return await API_BEN.get('stakeholder', scnId||null);
 }
 
 // ── RENDER PAGE ───────────────────────────────────────────────
@@ -188,6 +186,10 @@ async function renderPage(d, scnId){
 }
 
 // ── BUILD UI ──────────────────────────────────────────────────
+function buildUI_withData(data){
+  ALL_DATA = data;
+  buildUI();
+}
 function buildUI(){
   const data = ALL_DATA;
   const total = data.length;
@@ -569,9 +571,16 @@ buildSidebar();
 const SESSION = AUTH.requireAuth('../index.html');
 if(SESSION){
   AUTH.applySession({
-    onScnSwitch: function(scnId){ renderPage(null, scnId); }
+    onScnSwitch: function(scnId){
+      API_BEN.clearCache(scnId);
+      renderPage(null, scnId);
+    }
   });
   AUTH.initSidebar('mel','m-stake');
+  // Daftarkan callback untuk background refresh otomatis
+  window.renderPageBEN = function(sheet, data){
+    if(sheet === 'stakeholder') buildUI_withData(data);
+  };
   renderPage(null, AUTH.getScnFilter());
 }
 </script>

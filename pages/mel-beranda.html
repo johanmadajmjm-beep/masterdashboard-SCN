@@ -435,8 +435,20 @@ const SESSION = AUTH.requireAuth('../index.html');
 if(SESSION){
   AUTH.applySession({
     onScnSwitch: async function(scnId){
-      const d = await API.get(scnId);
-      if(d){ KOBO_D=d; buildUI(); }
+      const page = document.querySelector('.page');
+      if(page){ page.style.opacity='0.4'; page.style.pointerEvents='none'; }
+      try {
+        const [d, monData, stkData] = await Promise.all([
+          API.get(scnId),
+          API_BEN.get('monthly', scnId),
+          API_BEN.get('stakeholder', scnId),
+        ]);
+        BEN_MON = monData||[];
+        BEN_STK = stkData||[];
+        if(d){ KOBO_D=d; buildUI(); }
+      } finally {
+        if(page){ page.style.opacity=''; page.style.pointerEvents=''; }
+      }
     }
   });
   AUTH.initSidebar('mel','m-beranda');

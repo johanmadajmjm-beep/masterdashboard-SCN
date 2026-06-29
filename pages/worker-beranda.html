@@ -985,8 +985,23 @@ buildSidebar();
 const SESSION=AUTH.requireAuth('../index.html');
 if(SESSION){
   AUTH.applySession({onScnSwitch:async function(scnId){
-    const d = await API.get(scnId);
-    if(window.renderPage) renderPage(d,scnId);
+    // Tampilkan loading state
+    const page = document.querySelector('.page');
+    if(page){
+      page.style.opacity='0.4';
+      page.style.pointerEvents='none';
+    }
+    const badge = document.getElementById('scn-badge');
+    if(badge) badge.textContent = 'Memuat...';
+    try {
+      const d = await API.get(scnId);
+      if(window.renderPage) renderPage(d, scnId);
+    } finally {
+      if(page){
+        page.style.opacity='';
+        page.style.pointerEvents='';
+      }
+    }
   }});
   AUTH.initSidebar('worker','w-beranda');
   API.get(AUTH.getScnFilter()).then(function(d){ renderPage(d,AUTH.getScnFilter()); });

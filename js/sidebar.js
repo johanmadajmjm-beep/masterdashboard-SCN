@@ -411,13 +411,7 @@ function buildBottomNav() {
         { page:'p-peta',   label:'Peta',        icon:ICONS.map,    href:`${base}/pages/peta.html` },
       ],
     },
-    {
-      id    : 'more',
-      label : 'Lainnya',
-      icon  : ICONS.more,
-      pages : [],
-      items : [], // special: tampilkan menu akun & logout
-    },
+
   ];
 
   // SCN list
@@ -462,11 +456,17 @@ function buildBottomNav() {
   <div class="bottom-subnav-overlay" id="subnav-overlay" onclick="closeSubNav()"></div>`;
 
   // Bottom nav tabs
+  const logoutIcon = ICONS.logout;
+  const logoutBase = base;
   const tabsHtml = GROUPS.map(g => `
     <button class="bottom-nav-tab" data-group="${g.id}" onclick="openSubNav('${g.id}')">
       ${g.icon}
       <span>${g.label}</span>
-    </button>`).join('');
+    </button>`).join('') + `
+    <button class="bottom-nav-tab bottom-nav-logout" onclick="AUTH.logout('${logoutBase}/index.html')">
+      ${logoutIcon}
+      <span>Keluar</span>
+    </button>`;
 
   const bottomNavHtml = `
   <nav class="bottom-nav" id="bottom-nav">

@@ -119,44 +119,69 @@
 
   <script src="js/auth.js"></script>
   <script>
+    // Kalau sudah login dan session masih valid, langsung redirect
     (function(){ const s=AUTH.getSession(); if(s) window.location.href='pages/worker-beranda.html'; })();
 
-    const uEl=document.getElementById('username');
-    const pEl=document.getElementById('password');
-    const btn=document.getElementById('btn-login');
-    const errMsg=document.getElementById('error-msg');
-    const errTxt=document.getElementById('error-text');
-    const spinner=document.getElementById('spinner');
-    const loginIco=document.getElementById('login-icon');
+    const uEl     = document.getElementById('username');
+    const pEl     = document.getElementById('password');
+    const btn     = document.getElementById('btn-login');
+    const errMsg  = document.getElementById('error-msg');
+    const errTxt  = document.getElementById('error-text');
+    const spinner = document.getElementById('spinner');
+    const loginIco= document.getElementById('login-icon');
 
-    document.getElementById('toggle-pw').addEventListener('click',()=>{
-      pEl.type = pEl.type==='password' ? 'text' : 'password';
+    document.getElementById('toggle-pw').addEventListener('click', () => {
+      pEl.type = pEl.type === 'password' ? 'text' : 'password';
     });
 
-    function showErr(m){ errTxt.textContent=m; errMsg.classList.add('show'); }
+    function showErr(m){ errTxt.textContent = m; errMsg.classList.add('show'); }
     function hideErr(){ errMsg.classList.remove('show'); }
 
-    function doLogin(){
+    function setLoading(state) {
+      btn.disabled             = state;
+      btn.classList.toggle('loading', state);
+      spinner.style.display    = state ? 'block' : 'none';
+      loginIco.style.display   = state ? 'none'  : 'block';
+    }
+
+    // ── LOGIN ASYNC — kirim ke GAS 3 ─────────────────────────
+    async function doLogin() {
       hideErr();
-      const u=uEl.value.trim(), p=pEl.value;
-      if(!u||!p){ showErr('Username dan password wajib diisi.'); return; }
-      btn.classList.add('loading');
-      spinner.style.display='block';
-      loginIco.style.display='none';
-      setTimeout(()=>{
-        const r=AUTH.login(u,p);
-        btn.classList.remove('loading');
-        spinner.style.display='none';
-        loginIco.style.display='block';
-        if(r.ok){ window.location.href='pages/worker-beranda.html'; }
-        else{ showErr(r.message); pEl.value=''; pEl.focus(); }
-      }, 400);
+      const u = uEl.value.trim();
+      const p = pEl.value;
+      if (!u || !p) { showErr('Username dan password wajib diisi.'); return; }
+
+      setLoading(true);
+
+      try {
+        const result = await AUTH.login(u, p);
+
+        if (!result.ok) {
+          showErr(result.message || 'Username atau password salah.');
+          pEl.value = '';
+          pEl.focus();
+          setLoading(false);
+          return;
+        }
+
+        // Berhasil — redirect sesuai role
+        const role = result.session ? result.session.role : result.role;
+        if (role === 'superadmin') {
+          window.location.href = 'pages/mel-beranda.html';
+        } else {
+          window.location.href = 'pages/worker-beranda.html';
+        }
+
+      } catch(e) {
+        showErr('Tidak dapat terhubung ke server. Cek koneksi internet.');
+        setLoading(false);
+      }
     }
 
     btn.addEventListener('click', doLogin);
-    [uEl,pEl].forEach(el=>{
-      el.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-      el.addEventListener('input', hideErr);
+    [uEl, pEl].forEach(el => {
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+      el.addEventListener('input',   hideErr);
     });
   </script>
 </body>

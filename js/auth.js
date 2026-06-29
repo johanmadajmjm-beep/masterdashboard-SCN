@@ -153,6 +153,11 @@ const AUTH = (() => {
         API.get(scnId).catch(() => {});
       }
     }, 300);
+
+    // Mobile bottom nav
+    window.__currentPageId = activePage;
+    if (typeof buildBottomNav === 'function') buildBottomNav();
+    if (typeof setBottomNavActive === 'function') setBottomNavActive(activePage);
   }
 
   return {

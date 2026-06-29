@@ -264,6 +264,11 @@
     .kw-fill{height:100%;border-radius:3px;transition:width .5s ease}
     .kw-num{font-size:.68rem;font-weight:700;font-family:monospace;min-width:60px;text-align:right;flex-shrink:0}
     .kw-pct{font-size:.6rem;color:#9ca3af;min-width:36px;text-align:right;flex-shrink:0}
+    .kw-main{flex:1;min-width:0}
+    .kw-top{display:flex;align-items:center;gap:7px}
+    .kw-subs{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;padding-left:0}
+    .kw-sub-item{font-size:.6rem;background:#f8fafc;border:0.5px solid #e5e7eb;border-radius:99px;padding:1px 7px;color:#374151;white-space:nowrap}
+    .kw-sub-n{color:#9ca3af;font-size:.58rem}
     .kw-item:hover .kw-tt{display:block}
     .kw-tt{display:none;position:absolute;bottom:calc(100% + 5px);left:0;background:#1e293b;color:#fff;font-size:.65rem;border-radius:8px;padding:8px 11px;min-width:240px;max-width:320px;z-index:30;line-height:1.65;font-weight:400;pointer-events:none}
     .kw-tt::after{content:'';position:absolute;top:100%;left:14px;border:5px solid transparent;border-top-color:#1e293b}
@@ -558,6 +563,7 @@ function switchTab(id,btn){
 }
 
 function renderPage(d,scnId){
+  window._lastRenderArgs = [d,scnId];
   if(!d||!d.anak)return;
   ALL=d.anak;
   renderAnak();
@@ -711,8 +717,8 @@ function renderSkor(){
     </div>`).join('');
   const auAvg=AGO.map(x=>+avg(a.filter(y=>y.gu===x).map(y=>y.sp).filter(v=>v!=null)).toFixed(1));
   mk('c-skor-usia','bar',{labels:AGO,datasets:[{data:auAvg,backgroundColor:PAL,borderRadius:4,borderSkipped:false}]},{...BO,scales:{...BO.scales,y:{...BO.scales.y,suggestedMax:10}},layout:{padding:{top:16}}});
-  renderKW('kw-anak-naik','kw-anka-naik-ct',a.map(x=>({txt:x.nka,src:x.nama+' ('+x.cbr+')'})),'#059669',window.KAT_ANAK,a.length);
-  renderKW('kw-anak-turun','kw-anak-turun-ct',a.map(x=>({txt:x.tka,src:x.nama+' ('+x.cbr+')'})),'#dc2626',window.KAT_ANAK,a.length);
+  renderKW('kw-anak-naik','kw-anka-naik-ct',a,'nka','#059669',window.KAT_ANAK);
+  renderKW('kw-anak-turun','kw-anak-turun-ct',a,'tka','#dc2626',window.KAT_ANAK);
   // ── sidebar faktor ringkasan (top 4 frasa singkat) ──
 
 }
@@ -740,8 +746,8 @@ function renderPengasuh(){
         </div>
       </div>`).join('');
   })();
-  renderKW('kw-peng-naik','kw-peng-naik-ct',a.map(x=>({txt:x.nkp,src:(x.np||'—')+' ('+x.cbr+')'})),'#059669',window.KAT_PENGASUH,a.length);
-  renderKW('kw-peng-turun','kw-peng-turun-ct',a.map(x=>({txt:x.tkp,src:(x.np||'—')+' ('+x.cbr+')'})),'#dc2626',window.KAT_PENGASUH,a.length);
+  renderKW('kw-peng-naik','kw-peng-naik-ct',a,'nkp','#059669',window.KAT_PENGASUH);
+  renderKW('kw-peng-turun','kw-peng-turun-ct',a,'tkp','#dc2626',window.KAT_PENGASUH);
 }
 
 // ── NARASI ENGINE ────────────────────────────────────────────────
@@ -790,84 +796,132 @@ function switchNarasi(col, dir){
 }
 
 
-// ── DOMAIN KEYWORD ENGINE ────────────────────────────────────────
+// ── KEYWORD + TEMA ENGINE ────────────────────────────────────────
 (function(){
+
+  // Fallback keyword categories
   var KAT_ANAK = [
-    {label:'Mandi / kebersihan diri',    kw:['mandi','cebok','kebersihan diri','bersih diri','lap badan']},
-    {label:'Makan / nutrisi / gizi',     kw:['makan','minum','nutrisi','gizi','susu','makanan']},
-    {label:'Berpakaian',                 kw:['pakaian','baju','kancing','berpakaian','ganti baju','pake baju']},
-    {label:'Berjalan / mobilitas',       kw:['berjalan','berdiri','duduk','kursi roda','mobilitas','bergerak','jalan','pindah']},
-    {label:'Kemandirian',                kw:['mandiri','kemandirian','sendiri','tanpa bantuan']},
-    {label:'Sekolah / pendidikan',       kw:['sekolah','belajar','pendidikan','inklusi','slb','les','kelas']},
-    {label:'Komunikasi / bicara',        kw:['berbicara','komunikasi','bicara','berkata','bahasa','ngomong','bersuara']},
-    {label:'Sosialisasi / percaya diri', kw:['sosialisasi','percaya diri','bersosialisasi','bergaul','teman','bermain','interaksi']},
-    {label:'Dukungan keluarga',          kw:['keluarga','orang tua','ibu','bapak','saudara','kakak','adik','ayah']},
-    {label:'Layanan kesehatan / terapi', kw:['puskesmas','dokter','bidan','posyandu','terapi','fisioterapi','terapis','rehabilitasi']},
-    {label:'Bantuan pemerintah / BPJS',  kw:['bpjs','bantuan','pemerintah','desa','pkh','sembako','kdd','subsidi']},
-    {label:'Pendampingan CBR / program', kw:['pendampingan','cbr','program ben','ben','petugas','pendamping']},
-    {label:'Sakit / kondisi medis',      kw:['sakit','penyakit','epilepsi','kejang','demam','nyeri','kaku','infeksi']},
-    {label:'Stigma / isolasi',           kw:['stigma','dikurung','isolasi','dikucilkan','malu','pandang sebelah','diabaikan','disingkirkan']},
-    {label:'Ekonomi / kemiskinan',       kw:['ekonomi','biaya','uang','penghasilan','panen','modal','miskin','keuangan','nafkah']},
+    {label:'Kesejahteraan & kemandirian anak', kw:['mandiri','mandi','cebok','makan','berpakaian','berjalan','berdiri']},
+    {label:'Akses pendidikan',                 kw:['sekolah','belajar','pendidikan','inklusi','slb']},
+    {label:'Akses layanan kesehatan',          kw:['terapi','puskesmas','bpjs','dokter','fisioterapi','obat']},
+    {label:'Komunikasi & sosialisasi',         kw:['bicara','komunikasi','sosialisasi','bergaul','teman','stigma','dikurung']},
+    {label:'Dukungan keluarga & jaringan',     kw:['keluarga','orang tua','ibu','bapak','kdd','dpo','gereja','komunitas']},
+    {label:'Kondisi ekonomi keluarga',         kw:['ekonomi','biaya','uang','penghasilan','panen','pkh','sembako','modal']},
+    {label:'Pendampingan CBR & program',       kw:['pendampingan','cbr','program ben','ben','pendamping','irp']},
   ];
   var KAT_PENGASUH = [
-    {label:'Sakit / kelelahan pengasuh',   kw:['sakit','kelelahan','lelah','kelelahan fisik','kelelahan mental','jatuh sakit','tidak sehat','capek']},
-    {label:'Ekonomi / penghasilan',        kw:['ekonomi','biaya','uang','penghasilan','panen','modal','miskin','keuangan','nafkah','pendapatan','hasil']},
-    {label:'Kemandirian anak',             kw:['mandiri','sendiri','kemandirian','tanpa bantuan','mandi sendiri','makan sendiri']},
-    {label:'Pembagian beban / jaringan',   kw:['jaringan','berbagi','bergantian','dibantu','ada yang bantu','jaga anak','pendukung','dukungan']},
-    {label:'Dukungan keluarga besar',      kw:['keluarga','suami','istri','saudara','kakak','adik','orang tua','ayah','ibu']},
-    {label:'Bantuan pemerintah / sembako', kw:['bpjs','bantuan','pemerintah','desa','pkh','sembako','kdd','subsidi','program']},
-    {label:'Pendampingan CBR / program',   kw:['pendampingan','cbr','program ben','ben','petugas','pendamping']},
-    {label:'Layanan kesehatan / terapi',   kw:['puskesmas','dokter','bidan','posyandu','terapi','fisioterapi','terapis']},
-    {label:'Sekolah / pendidikan anak',    kw:['sekolah','belajar','pendidikan','inklusi','slb']},
-    {label:'Mandi / perawatan diri anak',  kw:['mandi','cebok','kebersihan','bersih','lap badan']},
-    {label:'Komunikasi / interaksi anak',  kw:['berbicara','komunikasi','bicara','berkata','bahasa','ngomong']},
-    {label:'Sosialisasi anak',             kw:['sosialisasi','percaya diri','bergaul','teman','bermain','interaksi']},
-    {label:'Stigma / isolasi sosial',      kw:['stigma','dikurung','isolasi','dikucilkan','malu','diabaikan','pandang sebelah']},
+    {label:'Kesehatan & kondisi pengasuh',  kw:['sakit','kelelahan','lelah','istirahat','beban','stres','burnout']},
+    {label:'Ekonomi & penghidupan pengasuh',kw:['ekonomi','biaya','uang','penghasilan','panen','pkh','sembako']},
+    {label:'Kemajuan & kemandirian anak',   kw:['mandiri','mandi sendiri','makan sendiri','anak membaik','kemajuan']},
+    {label:'Dukungan sosial & jaringan',    kw:['keluarga','saudara','tetangga','komunitas','gereja','kelompok']},
+    {label:'Akses layanan untuk anak',      kw:['terapi','bpjs','dokter','puskesmas','alat bantu','layanan']},
+    {label:'Pendampingan CBR & program',    kw:['pendampingan','cbr','program','pelatihan','irp','panduan']},
   ];
   window.KAT_ANAK     = KAT_ANAK;
   window.KAT_PENGASUH = KAT_PENGASUH;
 
-  window.renderKW = function(elId, ctId, entries, color, categories, total){
+  window.renderKW = function(elId, ctId, anak, field, color, categories){
     var el = document.getElementById(elId);
     var ct = document.getElementById(ctId);
     if(!el) return;
-    var valid = entries.filter(function(e){ return e && e.txt && e.txt.length > 5; });
-    if(ct) ct.textContent = valid.length + ' narasi';
-    if(!valid.length){
-      el.innerHTML = '<div class="kw-empty">Belum ada data narasi.</div>';
-      return;
-    }
-    var results = categories.map(function(cat){
-      var matched = [];
-      valid.forEach(function(e){
-        var t = e.txt.toLowerCase();
-        if(cat.kw.some(function(kw){ return t.indexOf(kw) !== -1; })){
-          matched.push(e);
-        }
+
+    var total    = anak.length;
+    var useTema  = API.hasTema && API.hasTema(anak);
+    if(ct) ct.textContent = total + ' narasi' + (useTema ? ' · AI' : ' · keyword');
+
+    var results;
+
+    if(useTema){
+      // ── MODE AI: baca _tema dari data (dikirim Apps Script) ──
+      var temaLookup = API.getTema(anak, field);
+      var freq = {}, subs = {}, examples = {};
+
+      anak.forEach(function(a){
+        var temas = temaLookup[a.nama] || [];
+        temas.forEach(function(t){
+          var kat = t.kategori || '';
+          var sub = t.sub || '';
+          if(!kat) return;
+          freq[kat] = (freq[kat]||0) + 1;
+          if(!subs[kat]) subs[kat] = {};
+          if(sub) subs[kat][sub] = (subs[kat][sub]||0) + 1;
+          if(!examples[kat]) examples[kat] = [];
+          var txt = (a[field]||'').split('\n').join(' ').split('*').join('').trim();
+          if(examples[kat].length < 3 && txt.length > 5){
+            examples[kat].push({txt:txt, src:(a.nama||'—')+' ('+(a.cbr||'—')+')'});
+          }
+        });
       });
-      return { label: cat.label, count: matched.length,
-               pct: total > 0 ? Math.round(matched.length / total * 100) : 0,
-               examples: matched.slice(0,3) };
-    }).filter(function(r){ return r.count > 0; })
-      .sort(function(a,b){ return b.count - a.count; });
+
+      results = categories.map(function(cat){
+        var subArr = subs[cat.label]
+          ? Object.entries(subs[cat.label]).sort(function(a,b){return b[1]-a[1];}).slice(0,4)
+          : [];
+        return {
+          label: cat.label,
+          count: freq[cat.label]||0,
+          pct: total>0 ? Math.round((freq[cat.label]||0)/total*100) : 0,
+          subs: subArr,
+          examples: examples[cat.label]||[],
+        };
+      }).filter(function(r){ return r.count>0; })
+        .sort(function(a,b){ return b.count-a.count; });
+
+    } else {
+      // ── MODE KEYWORD FALLBACK ─────────────────────────────
+      results = categories.map(function(cat){
+        var matched = [];
+        anak.forEach(function(a){
+          var txt = (a[field]||'').toLowerCase();
+          if(cat.kw.some(function(kw){ return txt.indexOf(kw)!==-1; })){
+            matched.push({
+              txt: (a[field]||'').split('\n').join(' ').split('*').join('').trim(),
+              src: (a.nama||'—')+' ('+(a.cbr||'—')+')',
+            });
+          }
+        });
+        return {
+          label: cat.label,
+          count: matched.length,
+          pct: total>0 ? Math.round(matched.length/total*100) : 0,
+          subs: [],
+          examples: matched.slice(0,3),
+        };
+      }).filter(function(r){ return r.count>0; })
+        .sort(function(a,b){ return b.count-a.count; });
+    }
+
     if(!results.length){
-      el.innerHTML = '<div class="kw-empty">Belum ada tema terdeteksi dari narasi yang ada.</div>';
+      el.innerHTML='<div class="kw-empty">Belum ada tema terdeteksi.</div>';
       return;
     }
+
     var maxCount = results[0].count;
-    el.innerHTML = results.map(function(r, i){
-      var barPct = Math.round(r.count / maxCount * 100);
+    el.innerHTML = results.map(function(r,i){
+      var barPct = Math.round(r.count/maxCount*100);
+      // Sub-frasa spesifik (mode AI)
+      var subHTML = r.subs.length
+        ? '<div class="kw-subs">'+r.subs.map(function(s){
+            return '<span class="kw-sub-item">'+s[0]+' <span class="kw-sub-n">'+s[1]+'×</span></span>';
+          }).join('')+'</div>'
+        : '';
+      // Tooltip kutipan
       var ttHTML = r.examples.map(function(e){
-        var q = e.txt.substring(0,110) + (e.txt.length > 110 ? '...' : '');
-        return '<div class="kw-tt-q">"' + q + '"</div><div class="kw-tt-s">— ' + e.src + '</div>';
+        var q = e.txt.substring(0,110)+(e.txt.length>110?'...':'');
+        return '<div class="kw-tt-q">"'+q+'"</div><div class="kw-tt-s">— '+e.src+'</div>';
       }).join('<hr style="border:none;border-top:0.5px solid rgba(255,255,255,.15);margin:5px 0">');
-      return '<div class="kw-item">' +
-        '<span class="kw-rank">' + (i+1) + '</span>' +
-        '<span class="kw-name">' + r.label + '</span>' +
-        '<div class="kw-track"><div class="kw-fill" style="width:' + barPct + '%;background:' + color + '"></div></div>' +
-        '<span class="kw-num" style="color:' + color + '">' + r.count + ' anak</span>' +
-        '<span class="kw-pct">' + r.pct + '%</span>' +
-        (ttHTML ? '<div class="kw-tt">' + ttHTML + '</div>' : '') +
+      return '<div class="kw-item">'+
+        '<span class="kw-rank">'+(i+1)+'</span>'+
+        '<div class="kw-main">'+
+          '<div class="kw-top">'+
+            '<span class="kw-name">'+r.label+'</span>'+
+            '<div class="kw-track"><div class="kw-fill" style="width:'+barPct+'%;background:'+color+'"></div></div>'+
+            '<span class="kw-num" style="color:'+color+'">'+r.count+' anak</span>'+
+            '<span class="kw-pct">'+r.pct+'%</span>'+
+          '</div>'+
+          subHTML+
+        '</div>'+
+        (ttHTML?'<div class="kw-tt">'+ttHTML+'</div>':'')+
         '</div>';
     }).join('');
   };
@@ -876,9 +930,12 @@ function switchNarasi(col, dir){
 buildSidebar();
 const SESSION=AUTH.requireAuth('../index.html');
 if(SESSION){
-  AUTH.applySession({onScnSwitch:async function(scnId){const d=await API.get(scnId);if(window.renderPage)renderPage(d,scnId);}});
+  AUTH.applySession({onScnSwitch:async function(scnId){
+    const d = await API.get(scnId);
+    if(window.renderPage) renderPage(d,scnId);
+  }});
   AUTH.initSidebar('worker','w-beranda');
-  API.get(AUTH.getScnFilter()).then(d=>renderPage(d,AUTH.getScnFilter()));
+  API.get(AUTH.getScnFilter()).then(function(d){ renderPage(d,AUTH.getScnFilter()); });
 }
 </script>
 </body>

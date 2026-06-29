@@ -172,7 +172,7 @@ function buildSidebar() {
 
   <!-- Footer -->
   <div class="sidebar-footer">
-    <button class="sidebar-logout" onclick="AUTH.logout('${base}/index.html')">
+    <button class="sidebar-logout" onclick="confirmLogout('${base}')">
       ${ICONS.logout} <span>Keluar</span>
     </button>
   </div>
@@ -463,7 +463,7 @@ function buildBottomNav() {
       ${g.icon}
       <span>${g.label}</span>
     </button>`).join('') + `
-    <button class="bottom-nav-tab bottom-nav-logout" onclick="AUTH.logout('${logoutBase}/index.html')">
+    <button class="bottom-nav-tab bottom-nav-logout" onclick="confirmLogout('${logoutBase}')">
       ${logoutIcon}
       <span>Keluar</span>
     </button>`;
@@ -604,4 +604,43 @@ function selectSCNMobile(scnId, scnLabel) {
   } else {
     location.reload();
   }
+}
+
+// ── LOGOUT DENGAN KONFIRMASI ─────────────────────────────
+function confirmLogout(base) {
+  const sheet = document.createElement('div');
+  sheet.id = 'logout-confirm-sheet';
+  sheet.innerHTML = `
+    <div style="
+      position:fixed; inset:0; z-index:999;
+      background:rgba(0,0,0,.5); backdrop-filter:blur(3px);
+      display:flex; align-items:flex-end;
+    " onclick="this.remove()">
+      <div onclick="event.stopPropagation()" style="
+        width:100%; background:#1F2937;
+        border-radius:20px 20px 0 0;
+        padding:24px 24px 36px;
+        box-shadow:0 -8px 32px rgba(0,0,0,.4);
+      ">
+        <div style="
+          width:40px; height:4px; background:rgba(255,255,255,.2);
+          border-radius:2px; margin:0 auto 20px;
+        "></div>
+        <div style="font-size:1rem; font-weight:700; color:white; margin-bottom:6px;">Keluar dari aplikasi?</div>
+        <div style="font-size:.78rem; color:rgba(255,255,255,.45); margin-bottom:24px;">Kamu harus login kembali untuk mengakses dashboard.</div>
+        <button onclick="AUTH.logout('${base}/index.html')" style="
+          width:100%; padding:14px; border-radius:12px;
+          background:#EF4444; border:none; color:white;
+          font-size:.88rem; font-weight:700; cursor:pointer;
+          font-family:var(--font); margin-bottom:10px;
+        ">Ya, Keluar</button>
+        <button onclick="document.getElementById('logout-confirm-sheet').remove()" style="
+          width:100%; padding:14px; border-radius:12px;
+          background:rgba(255,255,255,.08); border:none; color:rgba(255,255,255,.7);
+          font-size:.88rem; font-weight:600; cursor:pointer;
+          font-family:var(--font);
+        ">Batal</button>
+      </div>
+    </div>`;
+  document.body.appendChild(sheet);
 }

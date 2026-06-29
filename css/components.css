@@ -853,7 +853,7 @@ select:hover, input:hover { border-color: #D1D5DB; }
   border-top     : 1px solid rgba(255,255,255,.08);
   height         : 80px;
   box-shadow     : 0 -4px 20px rgba(0,0,0,.25);
-  padding        : 0 8px;
+  padding        : 0;
   padding-bottom : env(safe-area-inset-bottom, 0px);
 }
 
@@ -863,7 +863,8 @@ select:hover, input:hover { border-color: #D1D5DB; }
   align-items     : center;
   justify-content : space-between;
   height          : 100%;
-  padding         : 0 12px;
+  width           : 100%;
+  padding         : 0;
 }
 
 /* Each nav tab */
@@ -873,13 +874,12 @@ select:hover, input:hover { border-color: #D1D5DB; }
   align-items     : center;
   justify-content : center;
   gap             : 5px;
-  flex            : 0 0 auto;
-  min-width       : 52px;
+  flex            : 1;
   height          : 100%;
   color           : rgba(255,255,255,.4);
   cursor          : pointer;
   transition      : color .15s;
-  padding         : 8px 10px;
+  padding         : 8px 0;
   border-radius   : 0;
   background      : none;
   border          : none;
@@ -901,6 +901,11 @@ select:hover, input:hover { border-color: #D1D5DB; }
   line-height : 1;
   letter-spacing: .02em;
 }
+
+/* Tab pertama mepet kiri, tab terakhir mepet kanan */
+.bottom-nav-tab:first-child { align-items: flex-start; padding-left: 14px; }
+.bottom-nav-tab:last-child  { align-items: flex-end;   padding-right: 14px; }
+.bottom-nav-tab:not(:first-child):not(:last-child) { align-items: center; }
 
 /* Active indicator bar */
 .bottom-nav-tab.active::before {

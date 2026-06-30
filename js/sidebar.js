@@ -667,14 +667,12 @@ function confirmLogout(base) {
 
   // Tangkap AbortError yang sengaja dilempar browser saat transisi
   // dilewati (mis. user klik link lain sebelum transisi selesai).
-  // Ini perilaku normal sesuai spec — tanpa .catch() ini, console
-  // menampilkan "Uncaught (in promise) AbortError: Transition was
-  // skipped" walau navigasi & data tetap berjalan normal.
+  // Listener 'pagereveal' didaftarkan lebih awal lewat inline <script>
+  // di <head> tiap halaman (supaya tidak telat dari event-nya);
+  // 'pageswap' aman didaftarkan di sini karena baru terjadi saat user
+  // klik link, jauh setelah sidebar.js selesai dimuat.
   if (supportsViewTransition) {
     window.addEventListener('pageswap', (e) => {
-      if (e.viewTransition) e.viewTransition.ready.catch(() => {});
-    });
-    window.addEventListener('pagereveal', (e) => {
       if (e.viewTransition) e.viewTransition.ready.catch(() => {});
     });
   }

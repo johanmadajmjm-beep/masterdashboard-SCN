@@ -394,14 +394,20 @@ function buildBottomNav() {
       ],
     },
     {
-      id    : 'media',
-      label : 'Galeri/Peta',
+      id    : 'galeri',
+      label : 'Galeri',
       icon  : ICONS.camera,
-      pages : ['g-galeri','p-peta'],
-      items : [
-        { page:'g-galeri', label:'Galeri Foto', icon:ICONS.camera, href:`${base}/pages/mel-galeri.html` },
-        { page:'p-peta',   label:'Peta',        icon:ICONS.map,    href:`${base}/pages/peta.html` },
-      ],
+      pages : ['g-galeri'],
+      direct: true,
+      href  : `${base}/pages/mel-galeri.html`,
+    },
+    {
+      id    : 'peta',
+      label : 'Peta',
+      icon  : ICONS.map,
+      pages : ['p-peta'],
+      direct: true,
+      href  : `${base}/pages/peta.html`,
     },
 
   ];
@@ -450,11 +456,16 @@ function buildBottomNav() {
   // Bottom nav tabs
   const logoutIcon = ICONS.logout;
   const logoutBase = base;
-  const tabsHtml = GROUPS.map(g => `
-    <button class="bottom-nav-tab" data-group="${g.id}" onclick="openSubNav('${g.id}')">
-      ${g.icon}
-      <span>${g.label}</span>
-    </button>`).join('') + `
+  const tabsHtml = GROUPS.map(g => g.direct
+    ? `<button class="bottom-nav-tab" data-group="${g.id}" onclick="window.location.href='${g.href}'">
+        ${g.icon}
+        <span>${g.label}</span>
+      </button>`
+    : `<button class="bottom-nav-tab" data-group="${g.id}" onclick="openSubNav('${g.id}')">
+        ${g.icon}
+        <span>${g.label}</span>
+      </button>`
+  ).join('') + `
     <button class="bottom-nav-tab bottom-nav-logout" onclick="confirmLogout('${logoutBase}')">
       ${logoutIcon}
       <span>Keluar</span>

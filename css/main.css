@@ -1,5 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
+/* Font Inter di-import sekali saja lewat components.css (selalu dimuat
+   bareng main.css di semua halaman) — duplikat di sini dihapus karena
+   menambah satu request render-blocking yang memperparah flash putih
+   saat pindah halaman. */
 
 /* ============================================================
    DESIGN TOKENS — NLR Indonesia Brand System

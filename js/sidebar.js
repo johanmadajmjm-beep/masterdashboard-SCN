@@ -662,6 +662,7 @@ function confirmLogout(base) {
 (function() {
   function initPageTransition() {
     // Fade in saat halaman baru dimuat
+    document.body.style.background = '#F8FAFC';
     document.body.style.opacity = '0';
     document.body.style.transform = 'translateY(6px)';
     document.body.style.transition = 'opacity .25s ease, transform .25s ease';
@@ -682,6 +683,7 @@ function confirmLogout(base) {
       e.preventDefault();
 
       // Fade out lalu navigasi
+      document.body.style.background = '#F8FAFC';
       document.body.style.opacity = '0';
       document.body.style.transform = 'translateY(-4px)';
       document.body.style.transition = 'opacity .18s ease, transform .18s ease';

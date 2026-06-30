@@ -6,7 +6,7 @@
 
 const API_BEN = (() => {
 
-  const GAS_URL  = 'https://script.google.com/macros/s/AKfycbySgjqTdWKZHAfk7kvalzBCXZBULfBYq7DnuylvIPXRhR9uc5II9dTbWLOvvtc8FZw2/exec';
+  const GAS_URL  = 'https://script.google.com/macros/s/AKfycbxWrb2nr17kfArE-Y5bSETWycZj7TRr5ksDNA3W7NsFrP9P0KeKOX_M6WsP3mpWutdW/exec';
   const SS_PREFIX = 'ben_api_';
 
   // ── SESSION STORAGE ───────────────────────────────────────

@@ -50,6 +50,7 @@ const API_BEN = (() => {
 
   // ── FETCH SHEET DARI SERVER ───────────────────────────────
   async function fetchFromServer(sheet, scnId){
+    const token = (typeof AUTH !== 'undefined' && AUTH.getToken) ? AUTH.getToken() || '' : '';
     const url = scnId
       ? `${GAS_URL}?sheet=${sheet}&scn=${scnId}&token=${token}`
       : `${GAS_URL}?sheet=${sheet}&token=${token}`;

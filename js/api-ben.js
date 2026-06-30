@@ -6,7 +6,7 @@
 
 const API_BEN = (() => {
 
-  const GAS_URL  = 'https://script.google.com/macros/s/AKfycbzY4CfLPnW-Q9lTyvfkbkEgmPeVdNVLeVm7zLBxHAX4xquocm06BoKvt-y8sZMatGBA/exec';
+  const GAS_URL  = 'https://script.google.com/macros/s/AKfycbySgjqTdWKZHAfk7kvalzBCXZBULfBYq7DnuylvIPXRhR9uc5II9dTbWLOvvtc8FZw2/exec';
   const SS_PREFIX = 'ben_api_';
 
   // ── SESSION STORAGE ───────────────────────────────────────
@@ -38,7 +38,7 @@ const API_BEN = (() => {
   // ── FETCH LAST SYNC (ringan) ──────────────────────────────
   async function fetchLastSync(){
     try{
-      const r = await fetch(`${GAS_URL}?sheet=meta`);
+      const r = await fetch(`${GAS_URL}?sheet=meta&token=${(typeof AUTH!=='undefined'&&AUTH.getToken)?AUTH.getToken()||'':''}`);
       if(!r.ok) return null;
       const j = await r.json();
       return j.lastSync||null;
@@ -51,8 +51,8 @@ const API_BEN = (() => {
   // ── FETCH SHEET DARI SERVER ───────────────────────────────
   async function fetchFromServer(sheet, scnId){
     const url = scnId
-      ? `${GAS_URL}?sheet=${sheet}&scn=${scnId}`
-      : `${GAS_URL}?sheet=${sheet}`;
+      ? `${GAS_URL}?sheet=${sheet}&scn=${scnId}&token=${token}`
+      : `${GAS_URL}?sheet=${sheet}&token=${token}`;
     try{
       const r = await fetch(url);
       if(!r.ok) throw new Error('HTTP '+r.status);

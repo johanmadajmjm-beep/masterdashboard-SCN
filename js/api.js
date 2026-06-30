@@ -9,7 +9,7 @@ const API = (() => {
 
   // ── ENDPOINT PER SCN ──────────────────────────────────────
   const ENDPOINTS = {
-    manggarai  : 'https://script.google.com/macros/s/AKfycbweCtdLE7MW0hYk_a6ILUUjPkR7BSDXg_wRGtolHYk_ThL8Gjw0hmPWNcCbeM4_AmdQ/exec',
+    manggarai  : 'https://script.google.com/macros/s/AKfycbx9jmqhOFmIywMzftoUASILY3Xlq7yqMCBqdx_J_wwjaqXFt-vHSd2eR8OVwovT_qlk/exec',
     // SCN lain ditambah saat Apps Script mereka siap:
     // kupang     : 'https://script.google.com/macros/s/xxx/exec',
     // banyuwangi : 'https://script.google.com/macros/s/xxx/exec',
@@ -61,7 +61,7 @@ const API = (() => {
     const url = ENDPOINTS[scnId];
     if (!url) return null;
     try {
-      const resp = await fetch(`${url}?sheet=meta&scn=${scnId}`);
+      const resp = await fetch(`${url}?sheet=meta&scn=${scnId}&token=${AUTH.getToken()||''}`);
       if (!resp.ok) return null;
       const json = await resp.json();
       return json.lastSync || null;
@@ -76,7 +76,7 @@ const API = (() => {
     const url = ENDPOINTS[scnId];
     if (!url) return null;
     try {
-      const resp = await fetch(`${url}?sheet=${sheetName}&scn=${scnId}`);
+      const resp = await fetch(`${url}?sheet=${sheetName}&scn=${scnId}&token=${AUTH.getToken()||''}`);
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const json = await resp.json();
       return json;

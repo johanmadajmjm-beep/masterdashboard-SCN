@@ -303,7 +303,8 @@
     const url = API.ENDPOINTS[scnId || 'manggarai'];
     if (!url) return [];
     try {
-      const resp = await fetch(`${url}?sheet=FotoObs${scnId ? '&scn=' + scnId : ''}`);
+      const token = (typeof AUTH !== 'undefined' && AUTH.getToken) ? AUTH.getToken() || '' : '';
+      const resp = await fetch(`${url}?sheet=FotoObs${scnId ? '&scn=' + scnId : ''}&token=${token}`);
       const json = await resp.json();
       return json.data || json || [];
     } catch (e) {

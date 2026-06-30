@@ -613,29 +613,37 @@ function confirmLogout(base) {
   sheet.innerHTML = `
     <div style="
       position:fixed; inset:0; z-index:999;
-      background:rgba(0,0,0,.5); backdrop-filter:blur(3px);
-      display:flex; align-items:flex-end;
+      background:rgba(0,0,0,.5); backdrop-filter:blur(4px);
+      display:flex; align-items:center; justify-content:center;
     " onclick="this.remove()">
       <div onclick="event.stopPropagation()" style="
-        width:100%; background:#1F2937;
-        border-radius:20px 20px 0 0;
-        padding:24px 24px 36px;
-        box-shadow:0 -8px 32px rgba(0,0,0,.4);
+        width:100%; max-width:360px; background:#1F2937;
+        border-radius:16px; padding:28px 24px;
+        box-shadow:0 20px 60px rgba(0,0,0,.5);
+        margin:0 16px;
       ">
         <div style="
-          width:40px; height:4px; background:rgba(255,255,255,.2);
-          border-radius:2px; margin:0 auto 20px;
-        "></div>
-        <div style="font-size:1rem; font-weight:700; color:white; margin-bottom:6px;">Keluar dari aplikasi?</div>
-        <div style="font-size:.78rem; color:rgba(255,255,255,.45); margin-bottom:24px;">Kamu harus login kembali untuk mengakses dashboard.</div>
+          width:48px; height:48px; border-radius:50%;
+          background:rgba(239,68,68,.15);
+          display:flex; align-items:center; justify-content:center;
+          margin:0 auto 16px;
+        ">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </div>
+        <div style="font-size:1rem; font-weight:700; color:white; text-align:center; margin-bottom:8px;">Keluar dari aplikasi?</div>
+        <div style="font-size:.78rem; color:rgba(255,255,255,.45); text-align:center; margin-bottom:24px; line-height:1.5;">Kamu harus login kembali untuk mengakses dashboard.</div>
         <button onclick="AUTH.logout('${base}/index.html')" style="
-          width:100%; padding:14px; border-radius:12px;
+          width:100%; padding:12px; border-radius:10px;
           background:#EF4444; border:none; color:white;
           font-size:.88rem; font-weight:700; cursor:pointer;
-          font-family:var(--font); margin-bottom:10px;
+          font-family:var(--font); margin-bottom:8px;
         ">Ya, Keluar</button>
         <button onclick="document.getElementById('logout-confirm-sheet').remove()" style="
-          width:100%; padding:14px; border-radius:12px;
+          width:100%; padding:12px; border-radius:10px;
           background:rgba(255,255,255,.08); border:none; color:rgba(255,255,255,.7);
           font-size:.88rem; font-weight:600; cursor:pointer;
           font-family:var(--font);

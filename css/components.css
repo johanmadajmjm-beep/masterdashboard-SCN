@@ -7,6 +7,18 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
+/* Opt-in native cross-document View Transition (Chrome/Edge 126+, Safari 18.2+).
+   Browser tanpa dukungan otomatis fallback ke navigasi biasa — aman, tidak ada
+   yang rusak. Logic deteksi & skip fade-out manual ada di sidebar.js. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: .2s;
+}
+
 /* ============================================================
    DESIGN TOKENS
    ============================================================ */

@@ -111,27 +111,19 @@ function buildSidebar() {
     </div>
 
     <!-- GALERI -->
-    <div class="nav-group">
-      <div class="nav-group-header" onclick="toggleGroup(this)">
+    <div class="nav-direct">
+      <a class="nav-direct-item" data-page="g-galeri" href="${base}/pages/mel-galeri.html">
         <span class="nav-group-icon">${ICONS.camera}</span>
-        <span class="nav-group-label">Galeri Foto</span>
-        <span class="nav-group-chevron">${ICONS.chevron}</span>
-      </div>
-      <div class="nav-group-items">
-        <a class="nav-sub-item" data-page="g-galeri" href="${base}/pages/mel-galeri.html">${ICONS.camera} Semua Foto</a>
-      </div>
+        <span class="nav-direct-label">Galeri Foto</span>
+      </a>
     </div>
 
     <!-- PETA -->
-    <div class="nav-group">
-      <div class="nav-group-header" onclick="toggleGroup(this)">
+    <div class="nav-direct">
+      <a class="nav-direct-item" data-page="p-peta" href="${base}/pages/peta.html">
         <span class="nav-group-icon">${ICONS.map}</span>
-        <span class="nav-group-label">Peta</span>
-        <span class="nav-group-chevron">${ICONS.chevron}</span>
-      </div>
-      <div class="nav-group-items">
-        <a class="nav-sub-item" data-page="p-peta" href="${base}/pages/peta.html">${ICONS.map} Sebaran Beneficiary</a>
-      </div>
+        <span class="nav-direct-label">Peta</span>
+      </a>
     </div>`;
 
   const userName = session ? (session.label || session.username || '—') : '—';
@@ -254,8 +246,8 @@ function initSidebar(group, pageId, scnLabel) {
   buildBottomNav();
   setBottomNavActive(pageId);
 
-  // Set active nav item
-  document.querySelectorAll('.nav-sub-item').forEach(a => {
+  // Set active nav item (termasuk nav-direct-item)
+  document.querySelectorAll('.nav-sub-item, .nav-direct-item').forEach(a => {
     a.classList.toggle('active', a.dataset.page === pageId);
   });
 
@@ -652,3 +644,46 @@ function confirmLogout(base) {
     </div>`;
   document.body.appendChild(sheet);
 }
+
+// ── PAGE TRANSITION ──────────────────────────────────────────
+// Intercept semua klik nav-sub-item dan tambahkan fade out
+// sebelum browser pindah halaman
+(function() {
+  function initPageTransition() {
+    // Fade in saat halaman baru dimuat
+    document.body.style.opacity = '0';
+    document.body.style.transform = 'translateY(6px)';
+    document.body.style.transition = 'opacity .25s ease, transform .25s ease';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.body.style.opacity = '1';
+        document.body.style.transform = 'translateY(0)';
+      });
+    });
+
+    // Intercept klik semua link navigasi
+    document.addEventListener('click', function(e) {
+      const link = e.target.closest('a.nav-sub-item, a.bottom-subnav-item');
+      if (!link) return;
+      const href = link.getAttribute('href');
+      if (!href || href === '#' || href.startsWith('javascript')) return;
+
+      e.preventDefault();
+
+      // Fade out lalu navigasi
+      document.body.style.opacity = '0';
+      document.body.style.transform = 'translateY(-4px)';
+      document.body.style.transition = 'opacity .18s ease, transform .18s ease';
+
+      setTimeout(() => {
+        window.location.href = href;
+      }, 180);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPageTransition);
+  } else {
+    initPageTransition();
+  }
+})();

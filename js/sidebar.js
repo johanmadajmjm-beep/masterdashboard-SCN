@@ -658,20 +658,30 @@ function confirmLogout(base) {
 
 // ── PAGE TRANSITION ──────────────────────────────────────────
 // Intercept semua klik nav-sub-item dan tambahkan fade out
-// sebelum browser pindah halaman
+// sebelum browser pindah halaman.
+// Browser yang sudah dukung native View Transition (lihat @view-transition
+// di components.css) akan melewati fade manual ini sepenuhnya — supaya
+// tidak dobel animasi dan flash putih ditangani native oleh browser.
 (function() {
+  const supportsViewTransition = 'startViewTransition' in document;
+
   function initPageTransition() {
-    // Fade in saat halaman baru dimuat
-    document.body.style.background = '#F8FAFC';
-    document.body.style.opacity = '0';
-    document.body.style.transform = 'translateY(6px)';
-    document.body.style.transition = 'opacity .25s ease, transform .25s ease';
-    requestAnimationFrame(() => {
+    if (supportsViewTransition) {
+      // Native transition yang urus animasi; cukup pastikan background benar.
+      document.body.style.background = '#F8FAFC';
+    } else {
+      // Fade in saat halaman baru dimuat (fallback browser lama)
+      document.body.style.background = '#F8FAFC';
+      document.body.style.opacity = '0';
+      document.body.style.transform = 'translateY(6px)';
+      document.body.style.transition = 'opacity .25s ease, transform .25s ease';
       requestAnimationFrame(() => {
-        document.body.style.opacity = '1';
-        document.body.style.transform = 'translateY(0)';
+        requestAnimationFrame(() => {
+          document.body.style.opacity = '1';
+          document.body.style.transform = 'translateY(0)';
+        });
       });
-    });
+    }
 
     // Intercept klik semua link navigasi
     document.addEventListener('click', function(e) {
@@ -680,9 +690,15 @@ function confirmLogout(base) {
       const href = link.getAttribute('href');
       if (!href || href === '#' || href.startsWith('javascript')) return;
 
+      if (supportsViewTransition) {
+        // Jangan preventDefault — biarkan ini jadi navigasi link asli
+        // supaya browser memicu native cross-document view transition.
+        return;
+      }
+
       e.preventDefault();
 
-      // Fade out lalu navigasi
+      // Fade out lalu navigasi (fallback browser lama)
       document.body.style.background = '#F8FAFC';
       document.body.style.opacity = '0';
       document.body.style.transform = 'translateY(-4px)';

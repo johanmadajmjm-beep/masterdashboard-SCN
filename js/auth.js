@@ -8,7 +8,7 @@ const AUTH = (() => {
 
   // ── GAS AUTH SERVICE URL ──────────────────────────────────
   // Ganti dengan URL GAS 3 setelah di-deploy
-  const AUTH_GAS_URL = 'https://script.google.com/macros/s/AKfycbx0NMoCXdNAfuA5ShnHYOF_c8FC9fOeXZPR88EKnFZ5imoQxrVR63FqL4qaKW3AkwPE/exec';
+  const AUTH_GAS_URL = 'https://script.google.com/macros/s/AKfycby77yzpLyhlyfTf5duCrV0iQ6m9E7Pk2_0wRwnRKvGDZXPwK_brQVLQMe9Qe1DdOH0h/exec';
 
   // ── SCN LIST (tidak sensitif, boleh di client) ────────────
   const SCN_LIST = [

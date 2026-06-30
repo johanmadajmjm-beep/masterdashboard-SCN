@@ -328,7 +328,7 @@ input, select, textarea { font-family: var(--font); }
   align-items    : center;
   gap            : 8px;
   padding        : 8px 16px 6px;
-  color          : rgba(255,255,255,.4);
+  color          : rgba(255,255,255,.25);
   font-size      : .6rem;
   font-weight    : 700;
   text-transform : uppercase;
@@ -339,7 +339,7 @@ input, select, textarea { font-family: var(--font); }
   margin-bottom  : 2px;
   cursor         : pointer;
 }
-.nav-direct-item:hover { color:rgba(255,255,255,.7); }
+.nav-direct-item:hover { color:rgba(255,255,255,.5); }
 .nav-direct-item.active {
   color          : var(--orange);
 }

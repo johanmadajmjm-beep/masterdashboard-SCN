@@ -665,6 +665,20 @@ function confirmLogout(base) {
 (function() {
   const supportsViewTransition = 'startViewTransition' in document;
 
+  // Tangkap AbortError yang sengaja dilempar browser saat transisi
+  // dilewati (mis. user klik link lain sebelum transisi selesai).
+  // Ini perilaku normal sesuai spec — tanpa .catch() ini, console
+  // menampilkan "Uncaught (in promise) AbortError: Transition was
+  // skipped" walau navigasi & data tetap berjalan normal.
+  if (supportsViewTransition) {
+    window.addEventListener('pageswap', (e) => {
+      if (e.viewTransition) e.viewTransition.ready.catch(() => {});
+    });
+    window.addEventListener('pagereveal', (e) => {
+      if (e.viewTransition) e.viewTransition.ready.catch(() => {});
+    });
+  }
+
   function initPageTransition() {
     if (supportsViewTransition) {
       // Native transition yang urus animasi; cukup pastikan background benar.

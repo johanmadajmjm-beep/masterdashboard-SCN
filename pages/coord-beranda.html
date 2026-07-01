@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <style>html,body{background:#F8FAFC}</style><script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+  <style>html,body{background:#0d1117}</style><script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>CBR Coordinator — Beranda | MEL NLR</title>
@@ -11,6 +11,14 @@
   <link rel="stylesheet" href="../css/main.css"/>
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
+    .page { background: #0d1117 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji" !important; }
+    .topbar { background: #0d1117 !important; border-bottom-color: #30363d !important; }
+    .topbar-breadcrumb { color: #7d8590 !important; }
+    .topbar-breadcrumb .current { color: #f0f6fc !important; }
+    .topbar-menu-btn { color: #c9d1d9 !important; }
+    .scn-badge { background:#161b22 !important; border-color:#30363d !important; color:#c9d1d9 !important; }
+    .topbar-date { color:#7d8590 !important; }
+
     /* ══════════════════════════════════════════
        COORD BERANDA — ENTERPRISE DASHBOARD
     ══════════════════════════════════════════ */
@@ -28,22 +36,22 @@
       font-size  : 1.15rem;
       font-weight: 700;
       line-height: 1.2;
-      color      : #1F2937;
+      color      : #e6edf3;
       margin     : 0 0 2px;
     }
     .page-header--compact p {
       font-size: .72rem;
-      color    : #6b7280;
+      color    : #8b949e;
       margin   : 0;
     }
     .header-freshness {
       text-align : right;
       font-size  : .62rem;
-      color      : #9ca3af;
+      color      : #7d8590;
       white-space: nowrap;
       line-height: 1.6;
     }
-    .header-freshness strong { color:#6b7280; font-weight:600; }
+    .header-freshness strong { color:#8b949e; font-weight:600; }
 
     /* ── KPI ROW ── */
     .kpi-8 {
@@ -53,8 +61,8 @@
       margin-bottom: 10px;
     }
     .kpi-box {
-      background   : white;
-      border       : 1px solid #e5e7eb;
+      background   : #161b22;
+      border       : 1px solid #30363d;
       border-radius: 10px;
       padding: 8px 10px;
       position     : relative;
@@ -83,8 +91,8 @@
     .kpi-icon svg { width:15px; height:15px; }
     .kpi-body { flex:1; min-width:0; }
     .kpi-v { font-size: 1.2rem; font-weight:800; color:var(--kc,#F97316); line-height:1; }
-    .kpi-l { font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#9ca3af; margin:4px 0 2px; }
-    .kpi-s { font-size:.61rem; color:#9ca3af; }
+    .kpi-l { font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#7d8590; margin:4px 0 2px; }
+    .kpi-s { font-size:.61rem; color:#7d8590; }
 
     /* ── MAIN 2-COL LAYOUT ── */
     .coord-row {
@@ -92,6 +100,7 @@
       gap: 10px;
       margin-bottom: 10px;
     }
+    .coord-row.col-1     { grid-template-columns: 1fr; }
     .coord-row.col-2     { grid-template-columns: 1fr 1fr; }
     .coord-row.col-6-4   { grid-template-columns: 3fr 2fr; }
     .coord-row.col-3     { grid-template-columns: 1fr 1fr 1fr; }
@@ -99,8 +108,8 @@
 
     /* ── PANEL ── */
     .panel {
-      background   : white;
-      border       : 1px solid #e5e7eb;
+      background   : #161b22;
+      border       : 1px solid #30363d;
       border-radius: 12px;
       overflow     : hidden;
     }
@@ -109,13 +118,13 @@
       align-items    : center;
       justify-content: space-between;
       padding        : 12px 16px;
-      border-bottom  : 1px solid #f3f4f6;
+      border-bottom  : 1px solid #21262d;
       gap: 6px;
     }
     .panel-title {
       font-size  : .8rem;
       font-weight: 700;
-      color      : #111827;
+      color      : #f0f6fc;
     }
     .panel-body { padding: 12px; }
     .panel-body.no-pad { padding:0; }
@@ -139,43 +148,43 @@
       align-items  : center;
       gap          : 10px;
       padding      : 7px 0;
-      border-bottom: 1px solid #f9fafb;
+      border-bottom: 1px solid #1c2128;
       font-size    : .75rem;
     }
     .skor-bar-row:last-child { border-bottom:none; }
     .skor-label { min-width:90px; font-weight:600; }
-    .prog-wrap  { flex:1; height:8px; background:#f3f4f6; border-radius:99px; overflow:hidden; }
+    .prog-wrap  { flex:1; height:8px; background:#21262d; border-radius:99px; overflow:hidden; }
     .prog-fill  { height:100%; border-radius:99px; transition:width .4s ease; }
-    .skor-num   { font-size:.72rem; font-weight:700; min-width:60px; text-align:right; color:#6b7280; }
+    .skor-num   { font-size:.72rem; font-weight:700; min-width:60px; text-align:right; color:#8b949e; }
 
     /* ── TABEL PERHATIAN ── */
     .tbl-perhatian { width:100%; border-collapse:collapse; font-size:.75rem; }
     .tbl-perhatian thead th {
-      background    : #f9fafb;
-      color         : #9ca3af;
+      background    : #1c2128;
+      color         : #7d8590;
       font-size     : .62rem;
       font-weight   : 700;
       text-transform: uppercase;
       letter-spacing: .07em;
       padding       : 8px 12px;
       text-align    : left;
-      border-bottom : 1px solid #e5e7eb;
+      border-bottom : 1px solid #30363d;
     }
-    .tbl-perhatian tbody tr { border-bottom:1px solid #f9fafb; }
+    .tbl-perhatian tbody tr { border-bottom:1px solid #1c2128; }
     .tbl-perhatian tbody tr:last-child { border-bottom:none; }
-    .tbl-perhatian tbody tr:hover { background:#fafafa; }
+    .tbl-perhatian tbody tr:hover { background:#0d1117; }
     .tbl-perhatian tbody td { padding:8px 12px; vertical-align:middle; }
     .avatar-sm {
       width          : 26px;
       height         : 26px;
       border-radius  : 50%;
-      background     : #f3f4f6;
+      background     : #21262d;
       display        : inline-flex;
       align-items    : center;
       justify-content: center;
       font-size      : .6rem;
       font-weight    : 700;
-      color          : #6b7280;
+      color          : #8b949e;
       margin-right   : 6px;
       vertical-align : middle;
       flex-shrink    : 0;
@@ -187,28 +196,28 @@
       border-radius: 4px;
       white-space  : nowrap;
     }
-    .alasan-text { font-size:.68rem; color:#6b7280; }
+    .alasan-text { font-size:.68rem; color:#8b949e; }
 
     /* ── WORKER TABLE ── */
     .tbl-worker { width:100%; border-collapse:collapse; font-size:.74rem; }
     .tbl-worker thead th {
-      background    : #f9fafb;
-      color         : #9ca3af;
+      background    : #1c2128;
+      color         : #7d8590;
       font-size     : .6rem;
       font-weight   : 700;
       text-transform: uppercase;
       letter-spacing: .07em;
       padding       : 8px 10px;
       text-align    : left;
-      border-bottom : 1px solid #e5e7eb;
+      border-bottom : 1px solid #30363d;
     }
     .tbl-worker thead th.right { text-align:center; }
-    .tbl-worker tbody tr { border-bottom:1px solid #f9fafb; }
+    .tbl-worker tbody tr { border-bottom:1px solid #1c2128; }
     .tbl-worker tbody tr:last-child { border-bottom:none; }
-    .tbl-worker tbody tr:hover { background:#fafafa; }
+    .tbl-worker tbody tr:hover { background:#0d1117; }
     .tbl-worker tbody td { padding:7px 10px; vertical-align:middle; }
     .tbl-worker tbody td.center { text-align:center; }
-    .mini-prog-wrap { height:5px; background:#f3f4f6; border-radius:99px; overflow:hidden; margin-top:3px; }
+    .mini-prog-wrap { height:5px; background:#21262d; border-radius:99px; overflow:hidden; margin-top:3px; }
     .mini-prog-fill { height:100%; border-radius:99px; }
 
     /* ── ICF DOMAINS ── */
@@ -218,7 +227,7 @@
       gap: 9px;
     }
     .icf-domain {
-      background   : #f9fafb;
+      background   : #1c2128;
       border-radius: 10px;
       padding: 8px 10px;
       border-left  : 3px solid var(--dc, #1a6fd4);
@@ -242,8 +251,8 @@
     .icf-domain-icon svg { width:13px; height:13px; }
     .icf-domain-label { font-size:.68rem; font-weight:700; color:var(--dc,#1a6fd4); text-transform:uppercase; letter-spacing:.05em; }
     .icf-pct { font-size: .9rem; font-weight:800; color:var(--dc,#1a6fd4); line-height:1; }
-    .icf-sub { font-size:.62rem; color:#9ca3af; margin-top:2px; }
-    .icf-prog-wrap { height:6px; background:#e5e7eb; border-radius:99px; overflow:hidden; margin:8px 0 4px; }
+    .icf-sub { font-size:.62rem; color:#7d8590; margin-top:2px; }
+    .icf-prog-wrap { height:6px; background:#30363d; border-radius:99px; overflow:hidden; margin:8px 0 4px; }
     .icf-prog-fill { height:100%; border-radius:99px; background:var(--dc,#1a6fd4); }
 
     /* ── DISTRIBUSI DONUT ── */
@@ -261,59 +270,52 @@
       text-align: center;
       pointer-events:none;
     }
-    .donut-center-num   { font-size: 1.2rem; font-weight:800; color:#111827; line-height:1; }
-    .donut-center-label { font-size:.55rem; color:#9ca3af; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+    .donut-center-num   { font-size: 1.2rem; font-weight:800; color:#f0f6fc; line-height:1; }
+    .donut-center-label { font-size:.55rem; color:#7d8590; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
     .dist-legend { list-style:none; padding:0; margin:0; }
     .dist-legend li {
       display      : flex;
       align-items  : center;
       justify-content: space-between;
       padding      : 5px 0;
-      border-bottom: 1px solid #f9fafb;
+      border-bottom: 1px solid #1c2128;
       font-size    : .72rem;
     }
     .dist-legend li:last-child { border-bottom:none; }
     .dist-legend-label { display:flex; align-items:center; gap:7px; }
     .dist-dot { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
-    .dist-num { font-weight:700; color:#111827; }
-    .dist-pct { font-size:.65rem; color:#9ca3af; margin-left:4px; }
+    .dist-num { font-weight:700; color:#f0f6fc; }
+    .dist-pct { font-size:.65rem; color:#7d8590; margin-left:4px; }
 
-    /* ── INTISARI BOX ── */
-    .intisari-box {
-      background   : #fff9f5;
-      border       : 1px solid rgba(212,80,10,.15);
-      border-left  : 4px solid #d4500a;
-      border-radius: 10px;
-      padding: 10px 12px;
-    }
+    /* ── INTISARI (plain, tanpa box — dipindah ke insight-rail) ── */
     .intisari-head {
       display      : flex;
       align-items  : center;
       gap: 6px;
-      margin-bottom: 10px;
-      font-size    : .75rem;
+      margin-bottom: 8px;
+      font-size    : .76rem;
       font-weight  : 700;
-      color        : #d4500a;
+      color        : #f0f6fc;
     }
-    .intisari-head svg { width:15px; height:15px; }
+    .intisari-head svg { width:14px; height:14px; }
     .intisari-list { list-style:none; padding:0; margin:0; }
     .intisari-list li {
       display      : flex;
       align-items  : flex-start;
       gap: 6px;
-      padding      : 5px 0;
-      border-bottom: 1px solid rgba(212,80,10,.08);
+      padding      : 6px 0;
+      border-bottom: 1px solid #21262d;
       font-size    : .72rem;
-      color        : #374151;
+      color        : #c9d1d9;
       line-height  : 1.5;
     }
     .intisari-list li:last-child { border-bottom:none; }
-    .intisari-check { color:#059669; font-weight:700; flex-shrink:0; }
+    .intisari-check { color:#3fb950; font-weight:700; flex-shrink:0; }
     .intisari-link {
       display    : block;
       font-size  : .65rem;
       font-weight: 700;
-      color      : #d4500a;
+      color      : #F97316;
       margin-top : 10px;
       text-decoration: none;
     }
@@ -338,12 +340,14 @@
       <div class="topbar-right">
         <span class="scn-badge" id="scn-badge">—</span>
         <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
-        <span id="sync-time" style="font-size:.65rem;color:#9ca3af;display:none"></span>
+        <span id="sync-time" style="font-size:.65rem;color:#7d8590;display:none"></span>
         <span class="topbar-date" id="topbar-date">—</span>
       </div>
     </header>
 
     <div class="page">
+     <div class="page-with-rail">
+     <div class="page-with-rail-main">
 
       <!-- PAGE HEADER -->
       <div class="page-header--compact">
@@ -435,7 +439,7 @@
                 <tbody id="tbl-perhatian"></tbody>
               </table>
             </div>
-            <a href="coord-benef.html" style="display:block;text-align:center;font-size:.68rem;font-weight:700;color:#d4500a;padding:10px;border-top:1px solid #f3f4f6;text-decoration:none">Lihat semua →</a>
+            <a href="coord-benef.html" style="display:block;text-align:center;font-size:.68rem;font-weight:700;color:#d4500a;padding:10px;border-top:1px solid #21262d;text-decoration:none">Lihat semua →</a>
           </div>
         </div>
 
@@ -466,8 +470,8 @@
 
       </div>
 
-      <!-- ROW 3: ICF + Intisari -->
-      <div class="coord-row col-2">
+      <!-- ROW 3: ICF -->
+      <div class="coord-row col-1">
 
         <!-- ICF Ringkasan Domain -->
         <div class="panel">
@@ -480,24 +484,22 @@
           </div>
         </div>
 
-        <!-- Intisari Hari Ini -->
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-title">Intisari Hari Ini</span>
-          </div>
-          <div class="panel-body">
-            <div class="intisari-box">
-              <div class="intisari-head">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                Ringkasan Program
-              </div>
-              <ul class="intisari-list" id="intisari-list"></ul>
-              <a href="mel-beranda.html" class="intisari-link">Lihat laporan lengkap →</a>
-            </div>
-          </div>
-        </div>
-
       </div>
+
+     </div>
+
+     <aside class="insight-rail">
+      <div>
+        <div class="intisari-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Intisari Hari Ini
+        </div>
+        <ul class="intisari-list" id="intisari-list"></ul>
+        <a href="mel-beranda.html" class="intisari-link">Lihat laporan lengkap →</a>
+      </div>
+     </aside>
+
+     </div>
 
     </div><!-- /.page -->
   </div><!-- /.main -->
@@ -511,7 +513,7 @@ const RAGAM_COLOR = {
   'Sensorik (penglihatan)'             : '#d97706',
   'Sensorik (pendengaran dan bicara)'  : '#7c3aed',
   'Ganda'                              : '#dc2626',
-  'Lainnya'                            : '#6b7280',
+  'Lainnya'                            : '#8b949e',
 };
 const LEVEL_COLOR = {
   'Parah (dukungan penuh)'   : '#dc2626',
@@ -546,10 +548,10 @@ function mkDonut(id, labels, data, colors){
   const el = document.getElementById(id); if(!el) return;
   CHARTS[id] = new Chart(el,{
     type:'doughnut',
-    data:{ labels, datasets:[{ data, backgroundColor:colors, borderColor:'#F8FAFC', borderWidth:2, hoverOffset:4 }]},
+    data:{ labels, datasets:[{ data, backgroundColor:colors, borderColor:'#0d1117', borderWidth:2, hoverOffset:4 }]},
     options:{
       responsive:true, maintainAspectRatio:false, cutout:'65%',
-      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'} }
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#30363d',titleColor:'#f0f6fc',bodyColor:'#c9d1d9'} }
     }
   });
 }
@@ -603,7 +605,7 @@ function renderPage(d, scnId){
     {l:'Rendah (4–5)', n:anak.filter(a=>a.sp!=null&&a.sp>=4&&a.sp<=5).length, c:'#d97706'},
     {l:'Sedang (6–7)', n:anak.filter(a=>a.sp!=null&&a.sp>=6&&a.sp<=7).length, c:'#f59e0b'},
     {l:'Baik (8–10)',  n:anak.filter(a=>a.sp!=null&&a.sp>=8).length,           c:'#16a34a'},
-    {l:'Belum diisi',  n:anak.filter(a=>a.sp==null).length,                    c:'#9ca3af'},
+    {l:'Belum diisi',  n:anak.filter(a=>a.sp==null).length,                    c:'#7d8590'},
   ];
   const maxSkor = Math.max(...skorGroups.map(g=>g.n),1);
   document.getElementById('skor-dist-coord').innerHTML = skorGroups.map(g=>`
@@ -642,9 +644,9 @@ function renderPage(d, scnId){
               <strong style="font-size:.74rem">${a.nama||'—'}</strong>
             </div>
           </td>
-          <td style="font-size:.68rem;color:#6b7280">${a.cbr||'—'}</td>
+          <td style="font-size:.68rem;color:#8b949e">${a.cbr||'—'}</td>
           <td class="center">
-            <span style="font-size:.85rem;font-weight:800;color:${a.sp!=null?sc(a.sp):'#9ca3af'}">${a.sp!=null?a.sp:'—'}</span>
+            <span style="font-size:.85rem;font-weight:800;color:${a.sp!=null?sc(a.sp):'#7d8590'}">${a.sp!=null?a.sp:'—'}</span>
           </td>
           <td>
             <span class="level-badge" style="background:${lbc.bg};color:${lbc.c}">
@@ -654,7 +656,7 @@ function renderPage(d, scnId){
           <td class="alasan-text">${alasanFor(a)}</td>
         </tr>`;
       }).join('')
-    : '<tr><td colspan="5" style="text-align:center;padding:20px;color:#9ca3af;font-size:.75rem">Tidak ada anak perlu perhatian</td></tr>';
+    : '<tr><td colspan="5" style="text-align:center;padding:20px;color:#7d8590;font-size:.75rem">Tidak ada anak perlu perhatian</td></tr>';
 
   // ── WORKER TABLE ──
   document.getElementById('badge-worker-count').textContent = workers.length+' petugas';
@@ -674,9 +676,9 @@ function renderPage(d, scnId){
           <div class="mini-prog-wrap"><div class="mini-prog-fill" style="width:${pct}%;background:${pctCol}"></div></div>
         </div>
       </td>
-      <td class="center" style="font-weight:700;color:${myAvg!=='—'?sc(parseFloat(myAvg)):'#9ca3af'}">${myAvg}</td>
-      <td class="center" style="color:${myKritis>0?'#dc2626':'#9ca3af'};font-weight:${myKritis>0?700:400}">${myKritis}</td>
-      <td class="center" style="color:${w.late>0?'#dc2626':'#9ca3af'};font-weight:${w.late>0?700:400}">${w.late}</td>
+      <td class="center" style="font-weight:700;color:${myAvg!=='—'?sc(parseFloat(myAvg)):'#7d8590'}">${myAvg}</td>
+      <td class="center" style="color:${myKritis>0?'#dc2626':'#7d8590'};font-weight:${myKritis>0?700:400}">${myKritis}</td>
+      <td class="center" style="color:${w.late>0?'#dc2626':'#7d8590'};font-weight:${w.late>0?700:400}">${w.late}</td>
     </tr>`;
   }).join('');
 
@@ -706,7 +708,7 @@ function renderPage(d, scnId){
       </div>
       <div style="display:flex;align-items:baseline;gap:6px">
         <span class="icf-pct">${pct}%</span>
-        <span style="font-size:.65rem;color:#9ca3af">baik</span>
+        <span style="font-size:.65rem;color:#7d8590">baik</span>
       </div>
       <div class="icf-prog-wrap"><div class="icf-prog-fill" style="width:${pct}%;background:${dom.c}"></div></div>
       <div class="icf-sub">${vals.length} observasi · ${pos} positif · ${neg} perlu perhatian</div>
@@ -719,13 +721,13 @@ function renderPage(d, scnId){
   const ragamKeys   = Object.keys(ragamCnt).sort((a,b)=>ragamCnt[b]-ragamCnt[a]);
   const ragamLabels = ragamKeys;
   const ragamData   = ragamKeys.map(r=>ragamCnt[r]);
-  const ragamColors = ragamKeys.map(r=>RAGAM_COLOR[r]||'#9ca3af');
+  const ragamColors = ragamKeys.map(r=>RAGAM_COLOR[r]||'#7d8590');
   document.getElementById('ragam-total').textContent = total;
   mkDonut('c-ragam-donut', ragamLabels, ragamData, ragamColors);
   document.getElementById('ragam-legend').innerHTML = ragamKeys.map(r=>`
     <li>
       <span class="dist-legend-label">
-        <span class="dist-dot" style="background:${RAGAM_COLOR[r]||'#9ca3af'}"></span>
+        <span class="dist-dot" style="background:${RAGAM_COLOR[r]||'#7d8590'}"></span>
         ${r.replace('Sensorik ','S.')}
       </span>
       <span>

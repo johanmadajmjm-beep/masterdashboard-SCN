@@ -683,14 +683,17 @@ function confirmLogout(base) {
       document.body.style.background = '#F8FAFC';
     } else {
       // Fade in saat halaman baru dimuat (fallback browser lama)
+      // Catatan: JANGAN pakai transform di body — transform pada body akan
+      // membuat body jadi containing block baru untuk semua elemen
+      // position:fixed di dalamnya (termasuk .bottom-nav), sehingga bottom-nav
+      // nempel ke bawah KONTEN (bisa di luar layar) alih-alih ke bawah VIEWPORT.
+      // Ini bug nyata di HP yang browsernya belum dukung View Transition API.
       document.body.style.background = '#F8FAFC';
       document.body.style.opacity = '0';
-      document.body.style.transform = 'translateY(6px)';
-      document.body.style.transition = 'opacity .25s ease, transform .25s ease';
+      document.body.style.transition = 'opacity .25s ease';
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           document.body.style.opacity = '1';
-          document.body.style.transform = 'translateY(0)';
         });
       });
     }
@@ -710,11 +713,12 @@ function confirmLogout(base) {
 
       e.preventDefault();
 
-      // Fade out lalu navigasi (fallback browser lama)
+      // Fade out lalu navigasi (fallback browser lama) — tanpa transform,
+      // lihat catatan di initPageTransition() soal kenapa transform di body
+      // berbahaya untuk elemen position:fixed seperti .bottom-nav.
       document.body.style.background = '#F8FAFC';
       document.body.style.opacity = '0';
-      document.body.style.transform = 'translateY(-4px)';
-      document.body.style.transition = 'opacity .18s ease, transform .18s ease';
+      document.body.style.transition = 'opacity .18s ease';
 
       setTimeout(() => {
         window.location.href = href;

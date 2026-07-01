@@ -107,7 +107,18 @@ body {
   -webkit-font-smoothing  : antialiased;
   display                 : flex;
   flex-direction          : row;
-  min-height              : 100vh;
+  /* PENTING: height (bukan min-height) supaya .app/.main/.page bisa benar-benar
+     dibatasi setinggi layar dan scroll TERJADI DI DALAM .page, bukan di body.
+     Kalau ini cuma min-height, pada halaman berkonten sangat panjang (mis. ITT
+     Tracker dengan puluhan indikator) seluruh dokumen ikut membesar mengikuti
+     konten alih-alih dibatasi — akibatnya .bottom-nav (position:fixed) yang
+     technically tetap "benar" relatif viewport, jadi terasa "hilang" karena
+     jaraknya ke konten yang sudah discroll jadi sangat jauh & rawan kena bug
+     transform (lihat catatan di bawah). 100dvh dipakai kalau browser dukung,
+     supaya toolbar address bar HP yang muncul/hilang tidak bikin layout kedip. */
+  height                  : 100vh;
+  height                  : 100dvh;
+  overflow                : hidden;
 }
 
 a { text-decoration: none; color: inherit; }
@@ -122,6 +133,9 @@ input, select, textarea { font-family: var(--font); }
   flex-direction : row;
   flex           : 1;
   min-width      : 0;
+  min-height     : 0; /* penting: flex item butuh min-height:0 supaya bisa
+                         benar-benar dibatasi tinggi parent, bukan ikut
+                         membesar mengikuti konten anaknya */
   background     : transparent;
 }
 
@@ -130,9 +144,9 @@ input, select, textarea { font-family: var(--font); }
   flex-direction : column;
   flex           : 1;
   min-width      : 0;
+  min-height     : 0; /* sama seperti .app di atas */
   margin-left    : 0 !important;
   background     : var(--bg-page);
-  min-height     : 100vh;
 }
 
 /* ============================================================

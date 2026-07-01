@@ -1151,10 +1151,7 @@ body.layout-topnav { flex-direction: column; }
 
 .topnav {
   display         : flex;
-  align-items     : center;
-  gap             : 4px;
-  height          : 52px;
-  padding         : 0 16px;
+  flex-direction  : column;
   background      : #0d1117;
   border-bottom   : 1px solid #30363d;
   flex-shrink     : 0;
@@ -1162,27 +1159,33 @@ body.layout-topnav { flex-direction: column; }
   top             : 0;
   z-index         : 200;
 }
+.topnav-strip {
+  display         : flex;
+  align-items     : center;
+  justify-content : space-between;
+  height          : 44px;
+  padding         : 0 16px;
+  border-bottom   : 1px solid #21262d;
+}
 .topnav-brand {
   display     : flex;
   align-items : center;
   gap         : 8px;
-  margin-right: 18px;
-  flex-shrink : 0;
 }
 .topnav-logo {
-  width           : 26px;
-  height          : 26px;
+  width           : 24px;
+  height          : 24px;
   border-radius   : 6px;
   background      : var(--orange);
   display         : flex;
   align-items     : center;
   justify-content : center;
-  font-size       : .62rem;
+  font-size       : .6rem;
   font-weight     : 800;
   color           : #1a0d03;
 }
 .topnav-brand-name { font-size:.74rem; color:#7d8590; white-space:nowrap; }
-.topnav-tabs { display:flex; align-items:center; gap:2px; flex:1; overflow-x:auto; height:100%; }
+.topnav-tabs { display:flex; align-items:center; gap:2px; height:40px; padding:0 12px; overflow-x:auto; }
 .topnav-tab {
   display         : flex;
   align-items     : center;
@@ -1255,7 +1258,7 @@ body.layout-topnav { flex-direction: column; }
   font-weight   : 600;
 }
 
-body.layout-topnav .page { height: calc(100vh - 60px - 52px); }
+body.layout-topnav .page { height: calc(100vh - 60px - 84px); }
 
 .insight-rail {
   width         : 190px;

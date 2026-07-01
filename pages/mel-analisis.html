@@ -694,7 +694,7 @@ function switchTab(tab){
 }
 
 // ── INIT ─────────────────────────────────────────────────────
-buildSidebar();
+buildTopNav('mel', 'm-analisis');
 const SESSION = AUTH.requireAuth('../index.html');
 if(SESSION){
   if(!AUTH.isSuperAdmin()){

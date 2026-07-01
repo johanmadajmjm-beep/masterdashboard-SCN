@@ -631,7 +631,7 @@ function renderPage(d, scnId) {
 }
 
 // ── INIT ─────────────────────────────────────────────────
-buildSidebar();
+buildTopNav('mel', 'm-itt');
 const SESSION = AUTH.requireAuth('../index.html');
 if (SESSION) {
   AUTH.applySession({

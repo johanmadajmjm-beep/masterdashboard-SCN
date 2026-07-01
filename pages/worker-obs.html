@@ -483,7 +483,7 @@ function switchTab(id,btn){
 }
 
 // ── INIT ───────────────────────────────────────────────────
-buildSidebar();
+buildTopNav('worker', 'w-obs');
 const SESSION=AUTH.requireAuth('../index.html');
 if(SESSION){
   AUTH.applySession({

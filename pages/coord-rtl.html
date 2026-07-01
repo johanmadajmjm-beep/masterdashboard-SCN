@@ -684,7 +684,7 @@ function clearDetail(){ showEmpty(); }
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
 <script>
-buildSidebar();
+buildTopNav('coord', 'c-rtl');
 const SESSION=AUTH.requireAuth('../index.html');
 if(SESSION){
   AUTH.applySession({onScnSwitch:async function(scnId){const d=await API.get(scnId);if(window.renderPage)renderPage(d,scnId);}});

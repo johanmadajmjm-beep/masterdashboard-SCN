@@ -342,6 +342,8 @@
 
       <!-- TAB 1 -->
       <div class="tpane active" id="tab-anak">
+       <div class="page-with-rail">
+        <div class="page-with-rail-main">
 
         <!-- KPI -->
         <div class="kpi-row" id="kpi-anak"></div>
@@ -380,16 +382,6 @@
           </div>
         </div>
 
-        <!-- ALERT PERLU PERHATIAN -->
-        <div class="alert-card" style="margin-bottom:10px">
-          <div class="alert-head">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            Perlu Perhatian
-          </div>
-          <div id="alert-items"></div>
-          <a href="worker-anak.html" class="alert-link">Lihat detail →</a>
-        </div>
-
         <!-- NARASI TABEL: ANAK | PENGASUH -->
         <div class="narasi-wrap">
           <div class="narasi-table">
@@ -416,16 +408,27 @@
           </div>
         </div>
 
-        <!-- INSIGHT -->
-        <div class="insight" id="insight-box" style="display:none">
-          <div class="insight-ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#d4500a" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          </div>
-          <div>
-            <div class="insight-t">Intisari Kondisi Anak Dampingan</div>
-            <div class="insight-b" id="insight-text">Memuat...</div>
-          </div>
         </div>
+
+        <!-- INSIGHT RAIL: cuma Perlu Perhatian + Intisari -->
+        <aside class="insight-rail">
+          <div>
+            <div class="insight-card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Perlu Perhatian</div>
+            <div class="insight-card-body" id="alert-items"></div>
+            <a href="worker-anak.html" class="alert-link">Lihat detail →</a>
+          </div>
+          <div class="insight" id="insight-box" style="display:none">
+            <div class="insight-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#d4500a" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>
+              <div class="insight-t">Intisari Kondisi Anak Dampingan</div>
+              <div class="insight-b" id="insight-text">Memuat...</div>
+            </div>
+          </div>
+        </aside>
+
+       </div>
       </div>
 
       <!-- TAB 2 -->
@@ -982,7 +985,7 @@ function switchNarasi(col, dir){
   };
 })();
 
-buildSidebar();
+buildTopNav('worker', 'w-beranda');
 const SESSION=AUTH.requireAuth('../index.html');
 if(SESSION){
   AUTH.applySession({onScnSwitch:async function(scnId){

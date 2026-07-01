@@ -1219,6 +1219,41 @@ body.layout-topnav { flex-direction: column; }
   font-family   : var(--font);
   cursor        : pointer;
 }
+.topnav-profile { position: relative; }
+.topnav-profile-menu {
+  display        : none;
+  position        : absolute;
+  top             : calc(100% + 8px);
+  right           : 0;
+  min-width       : 170px;
+  background      : #161b22;
+  border          : 1px solid #30363d;
+  border-radius   : 8px;
+  padding         : 10px 0;
+  box-shadow      : 0 8px 24px rgba(0,0,0,.4);
+  z-index         : 300;
+}
+.topnav-profile-menu.open { display: block; }
+.topnav-profile-name { font-size:.78rem; font-weight:600; color:#f0f6fc; padding:2px 14px; }
+.topnav-profile-role { font-size:.68rem; color:#7d8590; padding:2px 14px 8px; }
+.topnav-profile-divider { height:1px; background:#30363d; margin:4px 0; }
+.topnav-profile-logout {
+  display       : flex;
+  align-items   : center;
+  gap           : 8px;
+  width         : 100%;
+  background    : none;
+  border        : none;
+  color         : #f85149;
+  font-size     : .76rem;
+  font-family   : inherit;
+  padding       : 8px 14px;
+  cursor        : pointer;
+  text-align    : left;
+}
+.topnav-profile-logout svg { width:14px; height:14px; flex-shrink:0; }
+.topnav-profile-logout:hover { background: rgba(248,81,73,.1); }
+
 .topnav-avatar {
   width           : 26px;
   height          : 26px;

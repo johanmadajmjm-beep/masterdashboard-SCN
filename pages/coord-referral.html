@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="id"><head>
-  <style>html,body{background:#0d1117}</style><script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+  <style>html,body{background:#F8FAFC}</style><script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
@@ -8,34 +8,6 @@
   <link rel="stylesheet" href="../css/main.css"/>
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
-    .page, .page * { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji" !important; }
-    .topbar { background: #0d1117 !important; border-bottom-color: #30363d !important; }
-    .topbar-breadcrumb { color: #7d8590 !important; }
-    .topbar-breadcrumb .current { color: #f0f6fc !important; }
-    .scn-badge { background:#161b22 !important; border-color:#30363d !important; color:#c9d1d9 !important; }
-    .topbar-date { color:#7d8590 !important; }
-    .page {
-      background       : #0d1117;
-      --bg-card         : #161b22;
-      --text-primary    : #f0f6fc;
-      --text-muted      : #7d8590;
-      --text-secondary  : #c9d1d9;
-      --border          : #30363d;
-      --border-light    : #21262d;
-      --bg-hover        : #1c2128;
-      --white           : #161b22;
-      --ink-100         : #30363d;
-      --ink-200         : #4d535b;
-      --ink-300         : #7d8590;
-      --ink-400         : #8b949e;
-      --surface         : #161b22;
-      --radius-sm       : 6px;
-      --radius-md       : 8px;
-      --font-mono       : 'JetBrains Mono', monospace;
-    }
-    .page th { background: #1c2128 !important; }
-    .page tbody tr:nth-child(even) td { background: #161b22 !important; }
-    .page tbody tr:hover td { background: #1c2128 !important; }
     .kpi-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
     .kpi-box{background:var(--white);border:1px solid var(--ink-100);border-radius:var(--radius-md);padding:14px;border-top:3px solid var(--kc,var(--nlr-500))}
     .kpi-box .kv{font-family:var(--font-mono);font-size:1.6rem;font-weight:700;color:var(--kc);line-height:1}
@@ -169,7 +141,7 @@ function renderPage(d, scnId) {
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
 <script>
-  buildTopNav('coord', 'c-referral');
+  buildSidebar();
   const SESSION = AUTH.requireAuth('../index.html');
   if (SESSION) {
     AUTH.applySession({

@@ -477,7 +477,7 @@
   document.getElementById('flt-nama').addEventListener('input', applyFilter);
 
   // ── INIT ───────────────────────────────────────────────────
-  buildTopNav('galeri', 'g-galeri');
+  buildSidebar();
   const SESSION = AUTH.requireAuth('../index.html');
   if (SESSION) {
     AUTH.applySession({

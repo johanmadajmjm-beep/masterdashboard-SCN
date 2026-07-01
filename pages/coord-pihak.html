@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id"><head><style>html,body{background:#0d1117}</style><script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+<html lang="id"><head><style>html,body{background:#F8FAFC}</style><script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>CBR Coordinator — Pihak Terlibat | MEL NLR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -7,86 +7,78 @@
 <link rel="stylesheet" href="../css/main.css"/>
 <link rel="stylesheet" href="../css/components.css"/>
 <style>
-.ph-wrap, .ph-wrap * { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"; }
-.topbar { background: #0d1117 !important; border-bottom-color: #30363d !important; }
-.topbar-breadcrumb { color: #7d8590 !important; }
-.topbar-breadcrumb .current { color: #f0f6fc !important; }
-.topbar-menu-btn { color: #c9d1d9 !important; }
-.scn-badge { background:#161b22 !important; border-color:#30363d !important; color:#c9d1d9 !important; }
-.topbar-date { color:#7d8590 !important; }
-
 /* ── LAYOUT ── */
-.ph-wrap{display:flex;gap:0;height:calc(100vh - 60px - 84px);overflow:hidden}
+.ph-wrap{display:flex;gap:0;height:calc(100vh - 60px);overflow:hidden}
 
 /* ── LIST PANEL ── */
-.ld-list{width:100%;min-width:0;flex-shrink:0;background:#161b22;border-right:1px solid #30363d;display:flex;flex-direction:column;overflow:hidden;transition:width .2s}
+.ld-list{width:100%;min-width:0;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden;transition:width .2s}
 .ph-wrap.detail-open .ld-list{width:300px;min-width:300px}
-.ld-list-header{padding:12px 14px;border-bottom:1px solid #30363d;flex-shrink:0}
-.ld-search{width:100%;padding:7px 10px;border:1px solid #30363d;border-radius:8px;font-size:.75rem;font-family:inherit;background:#1c2128;outline:none;transition:.15s}
-.ld-search:focus{border-color:#F97316;background:#161b22;box-shadow:0 0 0 3px rgba(249,115,22,.08)}
-.ld-select{padding:5px 8px;border:1px solid #30363d;border-radius:6px;font-size:.72rem;font-family:inherit;background:#1c2128;outline:none;width:100%}
+.ld-list-header{padding:12px 14px;border-bottom:1px solid #E5E7EB;flex-shrink:0}
+.ld-search{width:100%;padding:7px 10px;border:1px solid #E5E7EB;border-radius:8px;font-size:.75rem;font-family:inherit;background:#F9FAFB;outline:none;transition:.15s}
+.ld-search:focus{border-color:#F97316;background:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.08)}
+.ld-select{padding:5px 8px;border:1px solid #E5E7EB;border-radius:6px;font-size:.72rem;font-family:inherit;background:#F9FAFB;outline:none;width:100%}
 .ld-select:focus{border-color:#F97316}
 .ld-items{flex:1;overflow-y:auto}
 .ld-items::-webkit-scrollbar{width:4px}
-.ld-items::-webkit-scrollbar-thumb{background:#30363d;border-radius:2px}
+.ld-items::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:2px}
 
 /* ── GROUP HEADER di list ── */
-.ld-group-header{padding:6px 14px 4px;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;background:#1c2128;border-bottom:1px solid #21262d;position:sticky;top:0;z-index:2}
+.ld-group-header{padding:6px 14px 4px;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;background:#F9FAFB;border-bottom:1px solid #F3F4F6;position:sticky;top:0;z-index:2}
 
 /* ── LIST ITEM ── */
-.ld-item{padding:9px 14px;border-bottom:1px solid #1c2128;cursor:pointer;transition:background .1s;border-left:3px solid transparent;display:flex;align-items:center;gap:9px}
-.ld-item:hover{background:rgba(249,115,22,.12)}
-.ld-item.active{background:rgba(249,115,22,.12);border-left-color:#F97316}
+.ld-item{padding:9px 14px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .1s;border-left:3px solid transparent;display:flex;align-items:center;gap:9px}
+.ld-item:hover{background:#FFF7ED}
+.ld-item.active{background:#FFF7ED;border-left-color:#F97316}
 .ld-item-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .ld-item-body{flex:1;min-width:0}
-.ld-item-name{font-size:.78rem;font-weight:600;color:#e6edf3;margin-bottom:1px}
-.ld-item-sub{font-size:.63rem;color:#7d8590}
-.ld-item-badge{font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:999px;background:#21262d;color:#8b949e;flex-shrink:0}
+.ld-item-name{font-size:.78rem;font-weight:600;color:#1F2937;margin-bottom:1px}
+.ld-item-sub{font-size:.63rem;color:#9CA3AF}
+.ld-item-badge{font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:999px;background:#F3F4F6;color:#6B7280;flex-shrink:0}
 
 /* ── DETAIL PANEL ── */
-.ld-detail{flex:1;overflow-y:auto;background:#0d1117;display:none}
+.ld-detail{flex:1;overflow-y:auto;background:#F8FAFC;display:none}
 .ld-detail::-webkit-scrollbar{width:5px}
-.ld-detail::-webkit-scrollbar-thumb{background:#30363d;border-radius:3px}
+.ld-detail::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
 .ph-wrap.detail-open .ld-detail{display:block}
 .det-inner{padding:18px}
 
 /* back button */
-.det-back{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #30363d;border-radius:8px;background:#161b22;color:#8b949e;font-size:.75rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:14px}
-.det-back:hover{background:#1c2128;color:#e6edf3}
+.det-back{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#6B7280;font-size:.75rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:14px}
+.det-back:hover{background:#F9FAFB;color:#1F2937}
 .det-back svg{width:14px;height:14px}
 
 /* header pihak */
 .det-pihak-hdr{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
 .det-pihak-avatar{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.det-pihak-name{font-size:1.05rem;font-weight:800;color:#e6edf3;margin-bottom:4px}
+.det-pihak-name{font-size:1.05rem;font-weight:800;color:#1F2937;margin-bottom:4px}
 .det-pihak-kat{font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:999px;display:inline-block;margin-bottom:8px}
-.det-pihak-desc{font-size:.76rem;color:#8b949e;line-height:1.6}
+.det-pihak-desc{font-size:.76rem;color:#6B7280;line-height:1.6}
 
 /* stat strip */
 .det-stat-strip{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.det-stat{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:8px 14px;text-align:center;flex:1;min-width:80px}
+.det-stat{background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:8px 14px;text-align:center;flex:1;min-width:80px}
 .det-stat-val{font-size:1.2rem;font-weight:800;color:#F97316;font-family:'JetBrains Mono',monospace;line-height:1}
-.det-stat-lbl{font-size:.58rem;color:#7d8590;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.det-stat-lbl{font-size:.58rem;color:#9CA3AF;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
 
 /* section */
-.det-section{background:#161b22;border:1px solid #30363d;border-radius:10px;margin-bottom:10px;overflow:hidden}
-.det-section-head{padding:9px 13px;border-bottom:1px solid #21262d;font-size:.72rem;font-weight:700;color:#e6edf3;display:flex;align-items:center;gap:6px}
+.det-section{background:#fff;border:1px solid #E5E7EB;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.det-section-head{padding:9px 13px;border-bottom:1px solid #F3F4F6;font-size:.72rem;font-weight:700;color:#1F2937;display:flex;align-items:center;gap:6px}
 .det-section-body{padding:10px 13px}
 
 /* peran per domain */
-.peran-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #1c2128;align-items:flex-start}
+.peran-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #F9FAFB;align-items:flex-start}
 .peran-item:last-child{border-bottom:none}
 .peran-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
-.peran-domain{font-size:.65rem;font-weight:700;color:#7d8590;min-width:90px;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em}
-.peran-aksi{font-size:.75rem;color:#c9d1d9;line-height:1.55}
+.peran-domain{font-size:.65rem;font-weight:700;color:#9CA3AF;min-width:90px;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em}
+.peran-aksi{font-size:.75rem;color:#374151;line-height:1.55}
 
 /* anak list dalam detail */
 .anak-chip-wrap{display:flex;flex-wrap:wrap;gap:5px;padding:10px 13px}
-.anak-chip{font-size:.68rem;font-weight:600;padding:3px 10px;border-radius:999px;background:rgba(249,115,22,.12);color:#F97316;border:1px solid rgba(249,115,22,.3);cursor:default}
-.anak-chip.no-data{background:#21262d;color:#7d8590;border-color:#30363d}
+.anak-chip{font-size:.68rem;font-weight:600;padding:3px 10px;border-radius:999px;background:#FFF7ED;color:#EA6C0A;border:1px solid #FED7AA;cursor:default}
+.anak-chip.no-data{background:#F3F4F6;color:#9CA3AF;border-color:#E5E7EB}
 
 /* empty */
-.ph-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#7d8590;gap:10px;padding:40px}
+.ph-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px}
 .ph-empty svg{width:44px;height:44px;opacity:.25}
 .ph-empty p{font-size:.8rem;text-align:center}
 /* Card grid views */
@@ -95,22 +87,22 @@
 .grid-md{grid-template-columns:1fr 1fr 1fr}
 .grid-sm{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
 .lst-wrap-ph{flex:1;overflow-y:auto}
-.item-card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:10px 12px;cursor:pointer;transition:box-shadow .15s}
+.item-card{background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:10px 12px;cursor:pointer;transition:box-shadow .15s}
 .item-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.item-card.active{border-color:#F97316;background:rgba(249,115,22,.12)}
-.item-card-name{font-size:.78rem;font-weight:700;color:#e6edf3;margin-bottom:3px}
-.item-card-sub{font-size:.64rem;color:#7d8590;line-height:1.4}
+.item-card.active{border-color:#F97316;background:#FFF7ED}
+.item-card-name{font-size:.78rem;font-weight:700;color:#1F2937;margin-bottom:3px}
+.item-card-sub{font-size:.64rem;color:#9CA3AF;line-height:1.4}
 .grid-sm .item-card-sub{display:none}
-.lst-item-ph{display:flex;align-items:center;gap:8px;padding:6px 14px;border-bottom:1px solid #21262d;cursor:pointer;transition:background .1s}
-.lst-item-ph:hover{background:rgba(249,115,22,.12)}
-.lst-item-ph.active{background:rgba(249,115,22,.12);border-left:3px solid #F97316;padding-left:11px}
-.lst-item-ph-name{font-size:.74rem;font-weight:600;color:#e6edf3;flex:1}
-.lst-item-ph-right{font-size:.68rem;color:#7d8590}
+.lst-item-ph{display:flex;align-items:center;gap:8px;padding:6px 14px;border-bottom:1px solid #F3F4F6;cursor:pointer;transition:background .1s}
+.lst-item-ph:hover{background:#FFF7ED}
+.lst-item-ph.active{background:#FFF7ED;border-left:3px solid #F97316;padding-left:11px}
+.lst-item-ph-name{font-size:.74rem;font-weight:600;color:#1F2937;flex:1}
+.lst-item-ph-right{font-size:.68rem;color:#9CA3AF}
 /* View modes */
 .view-modes{display:flex;gap:3px}
-.vmode{width:26px;height:26px;border:1px solid #30363d;border-radius:5px;background:#161b22;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#7d8590;transition:.12s}
-.vmode:hover{background:#1c2128;color:#8b949e}
-.vmode.active{background:rgba(249,115,22,.12);border-color:#F97316;color:#F97316}
+.vmode{width:26px;height:26px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9CA3AF;transition:.12s}
+.vmode:hover{background:#F9FAFB;color:#6B7280}
+.vmode.active{background:#FFF7ED;border-color:#F97316;color:#F97316}
 .vmode svg{width:11px;height:11px}
 .mode-md .ld-item{padding:7px 14px}
 .mode-md .ld-item-name{font-size:.75rem}
@@ -142,7 +134,7 @@
   <div class="ld-list">
     <div class="ld-list-header">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:.8rem;font-weight:700;color:#e6edf3">Pihak Terlibat</span>
+        <span style="font-size:.8rem;font-weight:700;color:#1F2937">Pihak Terlibat</span>
         <div class="view-modes">
           <button class="vmode active" id="vm-xl" onclick="setView('xl')" title="Normal">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -162,7 +154,7 @@
       <div style="margin-top:6px">
         <select class="ld-select" id="flt-kat"><option value="">Semua Kategori</option></select>
       </div>
-      <div style="font-size:.67rem;color:#7d8590;margin-top:6px" id="ld-count">—</div>
+      <div style="font-size:.67rem;color:#9CA3AF;margin-top:6px" id="ld-count">—</div>
     </div>
     <div class="card-grid-wrap grid-xl" id="view-xl"></div>
     <div class="card-grid-wrap grid-md" id="view-md" style="display:none"></div>
@@ -446,7 +438,7 @@ function renderList(){
 
   let html='';
   Object.entries(groups).forEach(([kat,items])=>{
-    const cfg=KATEGORI_CFG[kat]||{color:'#8b949e',bg:'rgba(107,114,128,.1)'};
+    const cfg=KATEGORI_CFG[kat]||{color:'#6B7280',bg:'rgba(107,114,128,.1)'};
     html+=`<div class="ld-group-header" style="color:${cfg.color}">${cfg.emoji} ${KAT_LABEL[kat]||kat}</div>`;
     items.forEach(a=>{
       const jumlahAnak=(AKTOR_ANAK_MAP[a.key]||[]).length;
@@ -463,7 +455,7 @@ function renderList(){
     });
   });
 
-  const empty='<div style="text-align:center;padding:32px;color:#7d8590;font-size:.78rem;grid-column:1/-1">Tidak ada data</div>';
+  const empty='<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem;grid-column:1/-1">Tidak ada data</div>';
   // Build card & list from AKTOR_DATA filtered list
   const filteredList = AKTOR_DATA.filter(a=>{
     const q2=(document.getElementById('flt-search').value||'').toLowerCase();
@@ -471,14 +463,14 @@ function renderList(){
     return (!q2||a.label.toLowerCase().includes(q2))&&(!kat2||a.kat===kat2);
   });
   const cardHTML=filteredList.map((a,i)=>{
-    const cfg=KATEGORI_CFG[a.kat]||{color:'#7d8590',bg:'#21262d'};
+    const cfg=KATEGORI_CFG[a.kat]||{color:'#9CA3AF',bg:'#F3F4F6'};
     return `<div class="item-card" data-key="${a.key}">
       <div class="item-card-name"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${cfg.color};margin-right:5px;vertical-align:middle"></span>${a.label}</div>
       <div class="item-card-sub">${KAT_LABEL[a.kat]||a.kat}</div>
     </div>`;
   }).join('');
   const lstHTML2=filteredList.map(a=>{
-    const cfg=KATEGORI_CFG[a.kat]||{color:'#7d8590'};
+    const cfg=KATEGORI_CFG[a.kat]||{color:'#9CA3AF'};
     return `<div class="lst-item-ph" data-key="${a.key}">
       <div style="width:7px;height:7px;border-radius:50%;background:${cfg.color};flex-shrink:0"></div>
       <span class="lst-item-ph-name">${a.label}</span>
@@ -486,7 +478,7 @@ function renderList(){
     </div>`;
   }).join('');
   ['xl','md','sm'].forEach(v=>{document.getElementById('view-'+v).innerHTML=filteredList.length?cardHTML:empty;});
-  document.getElementById('view-lst').innerHTML=filteredList.length?lstHTML2:'<div style="text-align:center;padding:32px;color:#7d8590;font-size:.78rem">Tidak ada data</div>';
+  document.getElementById('view-lst').innerHTML=filteredList.length?lstHTML2:'<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem">Tidak ada data</div>';
   document.querySelectorAll('.item-card,.lst-item-ph').forEach(el=>{
     el.onclick=()=>showDetail(el,el.dataset.key);
   });
@@ -501,7 +493,7 @@ function showDetail(el,key){
 
   const aktor=AKTOR_DATA.find(a=>a.key===key);
   if(!aktor)return;
-  const cfg=KATEGORI_CFG[aktor.kat]||{color:'#8b949e',bg:'rgba(107,114,128,.1)',emoji:'•',desc:''};
+  const cfg=KATEGORI_CFG[aktor.kat]||{color:'#6B7280',bg:'rgba(107,114,128,.1)',emoji:'•',desc:''};
   const anakList=AKTOR_ANAK_MAP[key]||[];
   const katLabel=KAT_LABEL[aktor.kat]||aktor.kat;
 
@@ -524,13 +516,13 @@ function showDetail(el,key){
     });
     anakHtml=Object.entries(byCbr).map(([cbr,names])=>`
       <div style="margin-bottom:12px">
-        <div style="font-size:.63rem;font-weight:700;color:#8b949e;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">👤 ${cbr}</div>
+        <div style="font-size:.63rem;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">👤 ${cbr}</div>
         <div class="anak-chip-wrap" style="padding:0;gap:4px;display:flex;flex-wrap:wrap">
           ${names.map(n=>`<span class="anak-chip">${n}</span>`).join('')}
         </div>
       </div>`).join('');
   } else {
-    anakHtml='<div style="padding:10px;font-size:.76rem;color:#7d8590">Belum ada anak yang membutuhkan keterlibatan pihak ini berdasarkan data saat ini.</div>';
+    anakHtml='<div style="padding:10px;font-size:.76rem;color:#9CA3AF">Belum ada anak yang membutuhkan keterlibatan pihak ini berdasarkan data saat ini.</div>';
   }
 
   document.getElementById('ld-detail').innerHTML=`
@@ -594,7 +586,7 @@ function clearDetail(){
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
 <script>
-buildTopNav('coord', 'c-pihak');
+buildSidebar();
 const SESSION=AUTH.requireAuth('../index.html');
 if(SESSION){
   AUTH.applySession({onScnSwitch:async function(scnId){const d=await API.get(scnId);if(window.renderPage)renderPage(d,scnId);}});

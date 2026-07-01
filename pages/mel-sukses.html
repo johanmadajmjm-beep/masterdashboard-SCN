@@ -80,7 +80,7 @@ function renderPage(d,scnId){
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
 <script>
-buildTopNav('mel', 'm-sukses');
+buildSidebar();
 const SESSION=AUTH.requireAuth('../index.html');
 if(SESSION){
   AUTH.applySession({onScnSwitch:async function(scnId){const d=await API.get(scnId);if(window.renderPage)renderPage(d,scnId);}});

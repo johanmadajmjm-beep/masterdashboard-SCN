@@ -829,11 +829,11 @@ function buildTopNav(activeGroup, activePage) {
   <div class="topnav-strip">
     <div class="topnav-brand">
       <div class="topnav-logo">NLR</div>
-      <span class="topnav-brand-name">MEL NLR Indonesia</span>
+      <span class="topnav-brand-name">NLR Indonesia</span>
     </div>
     <div class="topnav-right">
       ${scnSwitcherHtml}
-      <div class="topnav-avatar" title="${userName}">${userName.charAt(0).toUpperCase()}</div>
+      <div class="topnav-avatar" title="${userName} — klik untuk keluar" onclick="confirmLogout('${base}')">${userName.charAt(0).toUpperCase()}</div>
     </div>
   </div>
   <div class="topnav-tabs">${tabsHtml}</div>

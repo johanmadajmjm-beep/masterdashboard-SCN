@@ -50,6 +50,7 @@
     .sc-card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer;text-decoration:none;transition:box-shadow .15s,transform .12s}
     .sc-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-2px)}
     .sc-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+    .sc-icon svg{width:20px;height:20px}
     .sc-lbl{font-size:.8rem;font-weight:700;color:#f0f6fc}
     .sc-sub{font-size:.66rem;color:#7d8590;margin-top:2px}
 
@@ -231,10 +232,10 @@ function buildUI(){
 
     <!-- SHORTCUT -->
     <div class="shortcut-row">
-      ${sc('📈','#fff7ed','#F97316','ITT Tracker','Capaian indikator','mel-itt.html')}
-      ${sc('🤝','#eff6ff','#2563eb','Data Stakeholder','Jaringan & keterlibatan','mel-stakeholder.html')}
-      ${sc('📋','#21262d','#CBD5E1','Monthly Monitoring','Kegiatan & peserta','mel-monthly.html')}
-      ${sc('🔍','#f0fdf4','#16a34a','Analisis & Trend','Insight mendalam','mel-analisis.html')}
+      ${sc('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>','#fff7ed','#F97316','ITT Tracker','Capaian indikator','mel-itt.html')}
+      ${sc('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>','#eff6ff','#2563eb','Data Stakeholder','Jaringan & keterlibatan','mel-stakeholder.html')}
+      ${sc('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg>','#21262d','#CBD5E1','Monthly Monitoring','Kegiatan & peserta','mel-monthly.html')}
+      ${sc('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>','#f0fdf4','#16a34a','Analisis & Trend','Insight mendalam','mel-analisis.html')}
     </div>
 
     <!-- OUTCOME + GRAFIK DISABILITAS -->
@@ -274,12 +275,12 @@ function buildUI(){
                 ${aktTerbaru.length ? aktTerbaru.map(r=>{
                   const outC = {'O1':'#F97316','O2':'#E8C468','O3':'#2563eb','O4':'#16a34a','O5':'#7c3aed','O6':'#d97706','O7':'#0ea5e9'}[r.outcome]||'#7d8590';
                   return `<tr>
-                    <td style="font-weight:600;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.nama_kegiatan||'—'}</td>
+                    <td style="font-weight:600;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#f0f6fc">${r.nama_kegiatan||'—'}</td>
                     <td style="white-space:nowrap;color:#8b949e;font-size:.73rem">${fmtTgl(r.tanggal)}</td>
                     <td><span class="out-pill" style="background:${outC}">${r.outcome||'—'}</span></td>
                     <td style="text-align:center;color:#1d4ed8;font-weight:700">${num(r.laki)}</td>
                     <td style="text-align:center;color:#db2777;font-weight:700">${num(r.perempuan)}</td>
-                    <td style="text-align:center;font-weight:800">${num(r.total)}</td>
+                    <td style="text-align:center;font-weight:800;color:#f0f6fc">${num(r.total)}</td>
                   </tr>`;
                 }).join('') : '<tr><td colspan="6" style="text-align:center;color:#7d8590;padding:20px">Belum ada data aktivitas.<br><small>Upload via MEL SCN Tools</small></td></tr>'}
               </tbody>
@@ -450,6 +451,16 @@ function buildUI(){
     });
     _charts.push(lvChart);
   }
+
+  // Fix: setelah navigasi via View Transition, Chart.js kadang membaca
+  // lebar container sebelum layout benar-benar selesai (masih transisi),
+  // jadi chart tampil sempit sampai di-refresh manual. Paksa resize
+  // setelah layout settle.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      _charts.forEach(c => { try { c.resize(); } catch(e) {} });
+    });
+  });
 }
 
 function tipLLP(l,p){

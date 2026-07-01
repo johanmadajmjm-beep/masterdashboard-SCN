@@ -317,6 +317,9 @@ if (window.AUTH && AUTH.applySession) {
 function buildBottomNav() {
   // Cek apakah mobile
   if (window.innerWidth >= 768) return;
+  // Layout topnav baru sudah punya navigasi mobile sendiri (tab atas +
+  // ctx-sidebar horizontal) — skip bottom-nav lama supaya tidak dobel.
+  if (document.body.classList.contains('layout-topnav')) return;
 
   const base     = window.location.pathname.includes('/pages/') ? '..' : '.';
   const session  = AUTH.getSession  ? AUTH.getSession()   : null;
@@ -728,3 +731,137 @@ function confirmLogout(base) {
     initPageTransition();
   }
 })();
+
+// ============================================================
+//  PROTOTYPE — buildTopNav()
+//  Layout alternatif: tab grup di atas (ala GitHub) + sidebar
+//  kontekstual berisi sub-menu grup aktif di kiri.
+//  Terpisah total dari buildSidebar() — tidak mengubah fungsi
+//  lama sama sekali. Dipakai khusus untuk uji coba di satu
+//  halaman (mel-beranda.html) sebelum diputuskan apa akan
+//  diterapkan ke seluruh halaman.
+// ============================================================
+function buildTopNav(activeGroup, activePage) {
+  const base = window.location.pathname.includes('/pages/') ? '..' : '.';
+
+  const I = {
+    home    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+    list    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`,
+    obs     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+    plan    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+    diary   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
+    eval    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+    activity: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+    worker  : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c0-3.3 2.7-6 7-6 1.5 0 2.9.4 4 1"/><path d="M13 15c1-.6 2.5-1 4-1 4.3 0 7 2.7 7 6"/></svg>`,
+    benef   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+    rtl     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+    chart   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+    itt     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+    stake   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+    monthly : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>`,
+    story   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`,
+    star    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+    trend   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
+    camera  : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
+    map     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>`,
+  };
+
+  const session = AUTH.getSession ? AUTH.getSession() : null;
+  const isAdmin = AUTH.isSuperAdmin ? AUTH.isSuperAdmin() : false;
+  const userName = session ? (session.label || session.username || '—') : '—';
+  const scnId = AUTH.getScnFilter ? AUTH.getScnFilter() : null;
+
+  const SCN_LIST = [
+    { id:'manggarai',  label:'SCN Manggarai' },
+    { id:'kupang',     label:'SCN Kupang' },
+    { id:'tts',        label:'SCN Timor Tengah Selatan' },
+    { id:'banyuwangi', label:'SCN Banyuwangi' },
+    { id:'jember',     label:'SCN Jember' },
+    { id:'situbondo',  label:'SCN Situbondo' },
+    { id:'palu',       label:'SCN Palu' },
+    { id:'sigi',       label:'SCN Sigi' },
+  ];
+
+  const GROUPS = [
+    { id:'worker', label:'CBR Worker', icon:I.worker, items:[
+      { id:'w-beranda',  label:'Beranda',        icon:I.home,     href:`${base}/pages/worker-beranda.html` },
+      { id:'w-anak',     label:'Profil Anak',    icon:I.list,     href:`${base}/pages/worker-anak.html` },
+      { id:'w-obs',      label:'Observasi',      icon:I.obs,      href:`${base}/pages/worker-obs.html` },
+      { id:'w-plan',     label:'Perencanaan',    icon:I.plan,     href:`${base}/pages/worker-plan.html` },
+      { id:'w-diary',    label:'Buku Harian',    icon:I.diary,    href:`${base}/pages/worker-diary.html` },
+      { id:'w-eval',     label:'Evaluasi Akhir', icon:I.eval,     href:`${base}/pages/worker-eval.html` },
+      { id:'w-activity', label:'Aktivitas',      icon:I.activity, href:`${base}/pages/worker-aktivitas.html` },
+    ]},
+    { id:'coord', label:'CBR Coordinator', icon:I.benef, items:[
+      { id:'c-beranda', label:'Beranda',        icon:I.home,  href:`${base}/pages/coord-beranda.html` },
+      { id:'c-worker',  label:'Profil Worker',  icon:I.worker,href:`${base}/pages/coord-worker.html` },
+      { id:'c-benef',   label:'Beneficiary',    icon:I.benef, href:`${base}/pages/coord-benef.html` },
+      { id:'c-rtl',     label:'RTL',            icon:I.rtl,   href:`${base}/pages/coord-rtl.html` },
+      { id:'c-pihak',   label:'Pihak Terlibat', icon:I.stake, href:`${base}/pages/coord-pihak.html` },
+    ]},
+    { id:'mel', label:'MEL', icon:I.chart, items:[
+      { id:'m-beranda', label:'Beranda',            icon:I.home,    href:`${base}/pages/mel-beranda.html` },
+      { id:'m-itt',     label:'ITT',                icon:I.itt,     href:`${base}/pages/mel-itt.html` },
+      { id:'m-stake',   label:'Data Stakeholder',   icon:I.stake,   href:`${base}/pages/mel-stakeholder.html` },
+      { id:'m-monthly', label:'Monthly Monitoring', icon:I.monthly, href:`${base}/pages/mel-monthly.html` },
+      { id:'m-story',   label:'Cerita Perubahan',   icon:I.story,   href:`${base}/pages/mel-cerita.html` },
+      { id:'m-sukses',  label:'Cerita Sukses',      icon:I.star,    href:`${base}/pages/mel-sukses.html` },
+      ...(isAdmin ? [{ id:'m-analisis', label:'Analisis & Trend', icon:I.trend, href:`${base}/pages/mel-analisis.html` }] : []),
+    ]},
+    { id:'galeri', label:'Galeri Foto', icon:I.camera, items:null, href:`${base}/pages/mel-galeri.html` },
+    { id:'peta',   label:'Peta',        icon:I.map,    items:null, href:`${base}/pages/peta.html` },
+  ];
+
+  const scnSwitcherHtml = isAdmin ? `
+    <select id="topnav-scn-select" class="topnav-scn-select">
+      <option value="">Semua SCN</option>
+      ${SCN_LIST.map(s => `<option value="${s.id}" ${scnId === s.id ? 'selected' : ''}>${s.label}</option>`).join('')}
+    </select>` : '';
+
+  const tabsHtml = GROUPS.map(g => {
+    const isActive = g.id === activeGroup;
+    const href = g.items ? g.items[0].href : g.href;
+    return `<a class="topnav-tab${isActive ? ' active' : ''}" href="${href}">${g.icon}<span>${g.label}</span></a>`;
+  }).join('');
+
+  const topnavHtml = `
+<div class="topnav">
+  <div class="topnav-brand">
+    <div class="topnav-logo">NLR</div>
+    <span class="topnav-brand-name">MEL NLR Indonesia</span>
+  </div>
+  <div class="topnav-tabs">${tabsHtml}</div>
+  <div class="topnav-right">
+    ${scnSwitcherHtml}
+    <div class="topnav-avatar" title="${userName}">${userName.charAt(0).toUpperCase()}</div>
+  </div>
+</div>`;
+
+  const activeGroupData = GROUPS.find(g => g.id === activeGroup);
+  const ctxSidebarHtml = (activeGroupData && activeGroupData.items) ? `
+<aside class="ctx-sidebar">
+  ${activeGroupData.items.map(it => `<a class="ctx-sidebar-item${it.id === activePage ? ' active' : ''}" href="${it.href}">${it.icon}<span>${it.label}</span></a>`).join('')}
+</aside>` : '';
+
+  document.body.classList.add('layout-topnav');
+  document.body.insertAdjacentHTML('afterbegin', topnavHtml);
+
+  const app = document.querySelector('.app');
+  if (app) {
+    const row = document.createElement('div');
+    row.className = 'topnav-row';
+    app.parentNode.insertBefore(row, app);
+    if (ctxSidebarHtml) row.insertAdjacentHTML('beforeend', ctxSidebarHtml);
+    row.appendChild(app);
+  }
+
+  if (isAdmin) {
+    const sel = document.getElementById('topnav-scn-select');
+    if (sel) sel.addEventListener('change', function() {
+      if (AUTH.setScnFilter) AUTH.setScnFilter(this.value || null);
+      if (window.API && API.clearCache) API.clearCache(this.value || null);
+      if (typeof window.__onScnSwitch === 'function') window.__onScnSwitch(this.value || null);
+      else location.reload();
+    });
+  }
+}

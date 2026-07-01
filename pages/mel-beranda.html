@@ -39,10 +39,10 @@
     .oc-charts-row{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-bottom:20px;align-items:start}
     @media(max-width:1000px){.oc-charts-row{grid-template-columns:1fr 1fr}}
     @media(max-width:700px){.oc-charts-row{grid-template-columns:1fr}}
-    .chart-card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:14px 16px}
+    .chart-card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:14px 16px;min-width:0}
     .chart-card-title{font-size:.75rem;font-weight:700;color:#f0f6fc;margin-bottom:12px}
-    .chart-wrap{position:relative;height:200px}
-    .chart-wrap-tall{position:relative;height:240px}
+    .chart-wrap{position:relative;height:200px;min-width:0;overflow:hidden}
+    .chart-wrap-tall{position:relative;height:240px;min-width:0;overflow:hidden}
 
     /* ── SHORTCUT ── */
     .shortcut-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}

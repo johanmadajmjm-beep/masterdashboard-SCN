@@ -19,6 +19,9 @@
     .scn-badge { background:#161b22 !important; border-color:#30363d !important; color:#c9d1d9 !important; }
     .topbar-date { color:#7d8590 !important; }
 
+    .page tbody tr:nth-child(even) td { background: #161b22 !important; }
+    .page tbody tr:hover td { background: #1c2128 !important; }
+
     /* ══════════════════════════════════════════
        COORD BERANDA — ENTERPRISE DASHBOARD
     ══════════════════════════════════════════ */
@@ -220,41 +223,6 @@
     .mini-prog-wrap { height:5px; background:#21262d; border-radius:99px; overflow:hidden; margin-top:3px; }
     .mini-prog-fill { height:100%; border-radius:99px; }
 
-    /* ── ICF DOMAINS ── */
-    .icf-grid {
-      display              : grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 9px;
-    }
-    .icf-domain {
-      background   : #1c2128;
-      border-radius: 10px;
-      padding: 8px 10px;
-      border-left  : 3px solid var(--dc, #1a6fd4);
-    }
-    .icf-domain-head {
-      display      : flex;
-      align-items  : center;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-    .icf-domain-icon {
-      width          : 26px;
-      height         : 26px;
-      border-radius  : 6px;
-      background     : var(--di, rgba(26,111,212,.1));
-      display        : flex;
-      align-items    : center;
-      justify-content: center;
-      flex-shrink    : 0;
-    }
-    .icf-domain-icon svg { width:13px; height:13px; }
-    .icf-domain-label { font-size:.68rem; font-weight:700; color:var(--dc,#1a6fd4); text-transform:uppercase; letter-spacing:.05em; }
-    .icf-pct { font-size: .9rem; font-weight:800; color:var(--dc,#1a6fd4); line-height:1; }
-    .icf-sub { font-size:.62rem; color:#7d8590; margin-top:2px; }
-    .icf-prog-wrap { height:6px; background:#30363d; border-radius:99px; overflow:hidden; margin:8px 0 4px; }
-    .icf-prog-fill { height:100%; border-radius:99px; background:var(--dc,#1a6fd4); }
-
     /* ── DISTRIBUSI DONUT ── */
     .dist-row {
       display      : grid;
@@ -322,7 +290,6 @@
 
     /* ── RESPONSIVE ── */
     @media(max-width:900px){
-      .icf-grid { grid-template-columns:1fr; }
       .dist-row { grid-template-columns:1fr; }
     }
   </style>
@@ -470,22 +437,6 @@
 
       </div>
 
-      <!-- ROW 3: ICF -->
-      <div class="coord-row col-1">
-
-        <!-- ICF Ringkasan Domain -->
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-title">Temuan ICF — Ringkasan Domain</span>
-            <span class="badge-sm badge-blue" id="badge-obs-count">— obs</span>
-          </div>
-          <div class="panel-body">
-            <div class="icf-grid" id="icf-domain-grid"></div>
-          </div>
-        </div>
-
-      </div>
-
      </div>
 
      <aside class="insight-rail">
@@ -496,6 +447,13 @@
         </div>
         <ul class="intisari-list" id="intisari-list"></ul>
         <a href="mel-beranda.html" class="intisari-link">Lihat laporan lengkap →</a>
+      </div>
+      <div>
+        <div class="intisari-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Temuan ICF
+        </div>
+        <div class="insight-card-body" id="icf-narrative">Memuat...</div>
       </div>
      </aside>
 
@@ -641,7 +599,7 @@ function renderPage(d, scnId){
           <td>
             <div style="display:flex;align-items:center;gap:0">
               <span class="avatar-sm">${init}</span>
-              <strong style="font-size:.74rem">${a.nama||'—'}</strong>
+              <strong style="font-size:.74rem;color:#f0f6fc">${a.nama||'—'}</strong>
             </div>
           </td>
           <td style="font-size:.68rem;color:#8b949e">${a.cbr||'—'}</td>
@@ -668,7 +626,7 @@ function renderPage(d, scnId){
     const pct     = w.anak>0?Math.min(Math.round(w.kunjungan_bulan/w.anak*100),100):0;
     const pctCol  = pct>=80?'#16a34a':pct>=50?'#2563eb':'#d97706';
     return `<tr>
-      <td><strong style="font-size:.74rem">${w.nama}</strong></td>
+      <td><strong style="font-size:.74rem;color:#f0f6fc">${w.nama}</strong></td>
       <td class="center" style="font-weight:700">${w.anak}</td>
       <td>
         <div style="min-width:80px">
@@ -683,7 +641,6 @@ function renderPage(d, scnId){
   }).join('');
 
   // ── ICF DOMAINS ──
-  document.getElementById('badge-obs-count').textContent = obs.length+' observasi';
   const domains=[
     {key:'st', label:'Struktur Tubuh',        c:'#1a6fd4', ci:'rgba(26,111,212,.1)',
       icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#1a6fd4" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`},
@@ -696,24 +653,27 @@ function renderPage(d, scnId){
   ];
   const posKata = ['baik','mampu','aktif','bisa','normal','fasilitator'];
   const negKata = ['terganggu','terbatas','hambatan','tidak bisa','sulit','tidak mampu'];
-  document.getElementById('icf-domain-grid').innerHTML = domains.map(dom=>{
+  const domainStats = domains.map(dom=>{
     const vals = obs.map(o=>o[dom.key]).filter(v=>v&&v.length>2);
     const pos  = vals.filter(v=>posKata.some(k=>v.toLowerCase().includes(k))).length;
     const neg  = vals.filter(v=>negKata.some(k=>v.toLowerCase().includes(k))).length;
     const pct  = vals.length>0?Math.round(pos/vals.length*100):0;
-    return `<div class="icf-domain" style="--dc:${dom.c};--di:${dom.ci}">
-      <div class="icf-domain-head">
-        <div class="icf-domain-icon" style="background:${dom.ci}">${dom.icon}</div>
-        <span class="icf-domain-label">${dom.label}</span>
-      </div>
-      <div style="display:flex;align-items:baseline;gap:6px">
-        <span class="icf-pct">${pct}%</span>
-        <span style="font-size:.65rem;color:#7d8590">baik</span>
-      </div>
-      <div class="icf-prog-wrap"><div class="icf-prog-fill" style="width:${pct}%;background:${dom.c}"></div></div>
-      <div class="icf-sub">${vals.length} observasi · ${pos} positif · ${neg} perlu perhatian</div>
-    </div>`;
-  }).join('');
+    return {...dom, vals: vals.length, pos, neg, pct};
+  }).filter(d=>d.vals>0);
+
+  let icfNarrative;
+  if (domainStats.length === 0) {
+    icfNarrative = 'Belum ada data observasi ICF untuk periode ini.';
+  } else {
+    const strongest = domainStats.reduce((a,b)=>a.pct>=b.pct?a:b);
+    const weakest    = domainStats.reduce((a,b)=>a.pct<=b.pct?a:b);
+    icfNarrative = `Dari ${obs.length} observasi, domain ${strongest.label} menunjukkan capaian terbaik (${strongest.pct}% temuan positif). `
+      + (weakest.key!==strongest.key
+        ? `Domain ${weakest.label} perlu perhatian lebih (${weakest.pct}% positif, ${weakest.neg} temuan perlu ditindaklanjuti). `
+        : '')
+      + `Total ${domainStats.reduce((s,d)=>s+d.neg,0)} temuan di seluruh domain memerlukan tindak lanjut.`;
+  }
+  document.getElementById('icf-narrative').textContent = icfNarrative;
 
   // ── DONUT RAGAM ──
   const ragamCnt={};

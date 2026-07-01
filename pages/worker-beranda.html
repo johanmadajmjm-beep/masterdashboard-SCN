@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../css/components.css"/>
   <style>
     /* Override tema gelap khusus halaman ini — tidak menyentuh components.css bersama */
-    .page { background: #0d1117 !important; }
+    .page { background: #0d1117 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji" !important; }
     .topbar { background: #0d1117 !important; border-bottom-color: #30363d !important; }
     .topbar-breadcrumb { color: #7d8590 !important; }
     .topbar-breadcrumb .current { color: #f0f6fc !important; }
@@ -174,19 +174,7 @@
 
 
 
-    /* INSIGHT */
-    .insight {
-      background:rgba(249,115,22,.08);
-      border:1px solid rgba(249,115,22,.25);
-      border-left:3px solid #F97316;
-      border-radius:8px;
-      padding:10px 14px;
-      display:flex; gap:10px; align-items:flex-start;
-    }
-    .insight-ico { width:26px; height:26px; background:rgba(249,115,22,.16); border-radius:5px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-    .insight-ico svg { width:14px; height:14px; }
-    .insight-t { font-size:.68rem; font-weight:700; color:#F97316; margin-bottom:4px; }
-    .insight-b { font-size:.68rem; color:#c9d1d9; line-height:1.6; }
+    /* INSIGHT — dipakai title/body plain di insight-rail (lihat components.css .insight-card-title/.insight-card-body) */
 
 
 
@@ -426,14 +414,9 @@
             <div class="insight-card-body" id="alert-items"></div>
             <a href="worker-anak.html" class="alert-link">Lihat detail →</a>
           </div>
-          <div class="insight" id="insight-box" style="display:none">
-            <div class="insight-ico">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#d4500a" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            </div>
-            <div>
-              <div class="insight-t">Intisari Kondisi Anak Dampingan</div>
-              <div class="insight-b" id="insight-text">Memuat...</div>
-            </div>
+          <div id="insight-box" style="display:none">
+            <div class="insight-card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Intisari Kondisi Anak Dampingan</div>
+            <div class="insight-card-body" id="insight-text">Memuat...</div>
           </div>
         </aside>
 
@@ -680,7 +663,7 @@ function renderAnak(){
   document.getElementById('insight-text').textContent=
     `Mayoritas anak berada pada level ${(lt||'').split(' ')[0].toLowerCase()} dengan ragam disabilitas ${(RS[rt]||rt||'').toLowerCase()} paling banyak (${rc[rt]||0} anak). `+
     (kritis>0?`Masih ada ${kritis} anak dengan kondisi kritis (skor ≤ 3) yang memerlukan perhatian segera.`:'Tidak ada anak dalam kondisi kritis saat ini.');
-  document.getElementById('insight-box').style.display='flex';
+  document.getElementById('insight-box').style.display='block';
 }
 
 function renderSkor(){

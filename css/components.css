@@ -1149,6 +1149,9 @@ select:hover, input:hover { border-color: #D1D5DB; }
    ============================================================ */
 body.layout-topnav { flex-direction: column; }
 
+.topnav, .ctx-sidebar {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+}
 .topnav {
   display         : flex;
   flex-direction  : column;
@@ -1184,7 +1187,7 @@ body.layout-topnav { flex-direction: column; }
   font-weight     : 800;
   color           : #1a0d03;
 }
-.topnav-brand-name { font-size:.74rem; color:#7d8590; white-space:nowrap; }
+.topnav-brand-name { font-size:.78rem; font-weight:600; color:#f0f6fc; white-space:nowrap; }
 .topnav-tabs { display:flex; align-items:center; gap:2px; height:40px; padding:0 12px; overflow-x:auto; }
 .topnav-tab {
   display         : flex;
@@ -1228,7 +1231,10 @@ body.layout-topnav { flex-direction: column; }
   font-size       : .68rem;
   color           : #c9d1d9;
   flex-shrink     : 0;
+  cursor          : pointer;
+  transition      : border-color .12s;
 }
+.topnav-avatar:hover { border-color: var(--orange); }
 
 .topnav-row { display:flex; flex-direction:row; flex:1; min-width:0; }
 
@@ -1266,20 +1272,22 @@ body.layout-topnav .page { height: calc(100vh - 60px - 84px); }
   flex-shrink   : 0;
   display       : flex;
   flex-direction: column;
-  gap           : 14px;
+  gap           : 16px;
   padding-left  : 14px;
   margin-left   : 14px;
-  border-left   : 1px solid #E5E7EB;
+  border-left   : 1px solid #30363d;
 }
+.insight-rail > div + div { padding-top:16px; border-top:1px solid #30363d; }
 .insight-card-title {
   display       : flex;
   align-items   : center;
   gap           : 6px;
   font-size     : .76rem;
   font-weight   : 700;
+  color         : #f0f6fc;
   margin-bottom : 6px;
 }
-.insight-card-body { font-size:.74rem; color:var(--text-secondary,#475569); line-height:1.6; }
+.insight-card-body { font-size:.74rem; color:#8b949e; line-height:1.6; }
 .page-with-rail { display:flex; gap:0; }
 .page-with-rail-main { flex:1; min-width:0; }
 
@@ -1311,7 +1319,7 @@ body.layout-topnav .page { height: calc(100vh - 60px - 84px); }
   .page-with-rail { flex-direction: column; }
   .insight-rail {
     width: 100%; min-width: 0; flex-direction: row; overflow-x: auto;
-    border-left: none; border-top: 1px solid #E5E7EB;
+    border-left: none; border-top: 1px solid #30363d;
     padding-left: 0; margin-left: 0; padding-top: 12px; margin-top: 12px;
   }
   .insight-rail > div { min-width: 220px; flex-shrink: 0; }

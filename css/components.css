@@ -881,6 +881,14 @@ select:hover, input:hover { border-color: #D1D5DB; }
    Sidebar tetap berfungsi normal di desktop
    ============================================================ */
 
+/* Pengaman: body TIDAK BOLEH punya transform apa pun. transform pada body
+   membuatnya jadi containing block baru untuk semua elemen position:fixed
+   di dalamnya (.bottom-nav, .sidebar-overlay, .bottom-subnav, .scn-sheet dll),
+   sehingga elemen itu nempel ke bawah KONTEN, bukan ke bawah LAYAR/viewport.
+   !important supaya tetap aman walau ada script (lama/cache) yang coba
+   set body.style.transform lagi. */
+body { transform: none !important; }
+
 /* Bottom nav container */
 .bottom-nav {
   display        : none; /* hidden di desktop */

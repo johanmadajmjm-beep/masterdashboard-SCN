@@ -826,15 +826,17 @@ function buildTopNav(activeGroup, activePage) {
 
   const topnavHtml = `
 <div class="topnav">
-  <div class="topnav-brand">
-    <div class="topnav-logo">NLR</div>
-    <span class="topnav-brand-name">MEL NLR Indonesia</span>
+  <div class="topnav-strip">
+    <div class="topnav-brand">
+      <div class="topnav-logo">NLR</div>
+      <span class="topnav-brand-name">MEL NLR Indonesia</span>
+    </div>
+    <div class="topnav-right">
+      ${scnSwitcherHtml}
+      <div class="topnav-avatar" title="${userName}">${userName.charAt(0).toUpperCase()}</div>
+    </div>
   </div>
   <div class="topnav-tabs">${tabsHtml}</div>
-  <div class="topnav-right">
-    ${scnSwitcherHtml}
-    <div class="topnav-avatar" title="${userName}">${userName.charAt(0).toUpperCase()}</div>
-  </div>
 </div>`;
 
   const activeGroupData = GROUPS.find(g => g.id === activeGroup);

@@ -612,6 +612,24 @@ function selectSCNMobile(scnId, scnLabel) {
   }
 }
 
+// ── PROFILE DROPDOWN (topnav avatar) ─────────────────────
+function toggleProfileMenu(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('topnav-profile-menu');
+  if (!menu) return;
+  const isOpen = menu.classList.contains('open');
+  menu.classList.toggle('open', !isOpen);
+  if (!isOpen) {
+    const closeOnOutside = (ev) => {
+      if (!menu.contains(ev.target)) {
+        menu.classList.remove('open');
+        document.removeEventListener('click', closeOnOutside);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+  }
+}
+
 // ── LOGOUT DENGAN KONFIRMASI ─────────────────────────────
 function confirmLogout(base) {
   const sheet = document.createElement('div');
@@ -833,7 +851,18 @@ function buildTopNav(activeGroup, activePage) {
     </div>
     <div class="topnav-right">
       ${scnSwitcherHtml}
-      <div class="topnav-avatar" title="${userName} — klik untuk keluar" onclick="confirmLogout('${base}')">${userName.charAt(0).toUpperCase()}</div>
+      <div class="topnav-profile">
+        <div class="topnav-avatar" title="${userName}" onclick="toggleProfileMenu(event)">${userName.charAt(0).toUpperCase()}</div>
+        <div class="topnav-profile-menu" id="topnav-profile-menu">
+          <div class="topnav-profile-name">${userName}</div>
+          <div class="topnav-profile-role">${isAdmin ? 'Super Admin' : 'SCN Admin'}</div>
+          <div class="topnav-profile-divider"></div>
+          <button class="topnav-profile-logout" onclick="confirmLogout('${base}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Keluar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
   <div class="topnav-tabs">${tabsHtml}</div>

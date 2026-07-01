@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="id"><head>
-  <style>html,body{background:#F8FAFC}</style><script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+  <style>html,body{background:#0d1117}</style><script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>CBR Coordinator — Beneficiary | MEL NLR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -8,60 +8,69 @@
 <link rel="stylesheet" href="../css/main.css"/>
 <link rel="stylesheet" href="../css/components.css"/>
 <style>
-.page-wrap{display:flex;flex-direction:column;height:calc(100vh - 60px);overflow:hidden}
-.page-header{padding:14px 20px;border-bottom:1px solid #E5E7EB;background:#fff;flex-shrink:0}
+.page-wrap, .page-wrap * { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"; }
+.topbar { background: #0d1117 !important; border-bottom-color: #30363d !important; }
+.topbar-breadcrumb { color: #7d8590 !important; }
+.topbar-breadcrumb .current { color: #f0f6fc !important; }
+.topbar-menu-btn { color: #c9d1d9 !important; }
+.scn-badge { background:#161b22 !important; border-color:#30363d !important; color:#c9d1d9 !important; }
+.topbar-date { color:#7d8590 !important; }
+.page-wrap tbody tr:nth-child(even) td { background: #161b22 !important; }
+
+.page-wrap{display:flex;flex-direction:column;height:calc(100vh - 60px - 84px);overflow:hidden}
+.page-header{padding:14px 20px;border-bottom:1px solid #30363d;background:#161b22;flex-shrink:0}
 .page-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.page-title{font-size:.9rem;font-weight:800;color:#1F2937}
+.page-title{font-size:.9rem;font-weight:800;color:#e6edf3}
 .kpi-bar{display:flex;gap:8px;flex-wrap:wrap}
-.kpi-card{background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:6px 14px;text-align:center;min-width:70px}
+.kpi-card{background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:6px 14px;text-align:center;min-width:70px}
 .kpi-val{font-size:1.1rem;font-weight:800;color:#F97316;font-family:'JetBrains Mono',monospace;line-height:1}
-.kpi-lbl{font-size:.58rem;color:#9CA3AF;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.kpi-lbl{font-size:.58rem;color:#7d8590;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
 .filter-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.ld-search{padding:6px 10px;border:1px solid #E5E7EB;border-radius:7px;font-size:.74rem;font-family:inherit;background:#F9FAFB;outline:none;transition:.15s;min-width:180px}
-.ld-search:focus{border-color:#F97316;background:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.08)}
-.ld-select{padding:6px 8px;border:1px solid #E5E7EB;border-radius:7px;font-size:.72rem;font-family:inherit;background:#F9FAFB;outline:none;color:#374151}
+.ld-search{padding:6px 10px;border:1px solid #30363d;border-radius:7px;font-size:.74rem;font-family:inherit;background:#1c2128;outline:none;transition:.15s;min-width:180px}
+.ld-search:focus{border-color:#F97316;background:#161b22;box-shadow:0 0 0 3px rgba(249,115,22,.08)}
+.ld-select{padding:6px 8px;border:1px solid #30363d;border-radius:7px;font-size:.72rem;font-family:inherit;background:#1c2128;outline:none;color:#c9d1d9}
 .ld-select:focus{border-color:#F97316}
-.count-label{font-size:.68rem;color:#9CA3AF;margin-left:4px}
+.count-label{font-size:.68rem;color:#7d8590;margin-left:4px}
 /* TABLE */
 .table-wrap{flex:1;overflow:auto}
 .table-wrap::-webkit-scrollbar{width:5px;height:5px}
-.table-wrap::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
+.table-wrap::-webkit-scrollbar-thumb{background:#30363d;border-radius:3px}
 table{width:100%;border-collapse:collapse;font-size:.76rem}
 thead{position:sticky;top:0;z-index:10}
-thead tr{background:#F9FAFB}
-th{padding:10px 14px;text-align:left;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6B7280;border-bottom:2px solid #E5E7EB;white-space:nowrap;cursor:pointer;user-select:none}
+thead tr{background:#1c2128}
+th{padding:10px 14px;text-align:left;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#8b949e;border-bottom:2px solid #30363d;white-space:nowrap;cursor:pointer;user-select:none}
 th:hover{color:#F97316}
 th .sort-icon{margin-left:4px;opacity:.4;font-size:.6rem}
 th.sorted .sort-icon{opacity:1;color:#F97316}
-td{padding:9px 14px;border-bottom:1px solid #F3F4F6;color:#1F2937;vertical-align:middle}
-tr:hover td{background:#FFF7ED}
+td{padding:9px 14px;border-bottom:1px solid #21262d;color:#e6edf3;vertical-align:middle}
+tr:hover td{background:rgba(249,115,22,.12)}
 .jabatan-badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:.63rem;font-weight:700;letter-spacing:.03em}
 .badge-anak{background:#FFF7ED;color:#EA6C0A}
 .badge-worker{background:#EFF6FF;color:#1D4ED8}
-.badge-lainnya{background:#F3F4F6;color:#6B7280}
+.badge-lainnya{background:#21262d;color:#8b949e}
 .gender-chip{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:.65rem;font-weight:700}
 .gender-l{background:#DBEAFE;color:#1D4ED8}
 .gender-p{background:#FCE7F3;color:#BE185D}
-.no-data{text-align:center;padding:48px;color:#9CA3AF;font-size:.8rem}
+.no-data{text-align:center;padding:48px;color:#7d8590;font-size:.8rem}
 /* empty state */
-.table-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:#9CA3AF;gap:8px}
+.table-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:#7d8590;gap:8px}
 .table-empty svg{width:40px;height:40px;opacity:.25}
 /* View modes */
 .view-modes{display:flex;gap:3px}
-.vmode{width:26px;height:26px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9CA3AF;transition:.12s}
-.vmode:hover{background:#F9FAFB;color:#6B7280}
-.vmode.active{background:#FFF7ED;border-color:#F97316;color:#F97316}
+.vmode{width:26px;height:26px;border:1px solid #30363d;border-radius:5px;background:#161b22;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#7d8590;transition:.12s}
+.vmode:hover{background:#1c2128;color:#8b949e}
+.vmode.active{background:rgba(249,115,22,.12);border-color:#F97316;color:#F97316}
 .vmode svg{width:11px;height:11px}
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;padding:14px;overflow:auto;flex:1}
-.benef-card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:12px}
-.benef-card-name{font-size:.8rem;font-weight:700;color:#1F2937;margin-bottom:4px}
-.benef-card-sub{font-size:.67rem;color:#9CA3AF;margin-bottom:4px}
+.benef-card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px}
+.benef-card-name{font-size:.8rem;font-weight:700;color:#e6edf3;margin-bottom:4px}
+.benef-card-sub{font-size:.67rem;color:#7d8590;margin-bottom:4px}
 .compact-list{flex:1;overflow:auto}
-.compact-item{display:flex;align-items:center;gap:8px;padding:5px 14px;border-bottom:1px solid #F3F4F6;font-size:.72rem}
-.compact-item-name{font-weight:600;color:#1F2937;flex:1}
+.compact-item{display:flex;align-items:center;gap:8px;padding:5px 14px;border-bottom:1px solid #21262d;font-size:.72rem}
+.compact-item-name{font-weight:600;color:#e6edf3;flex:1}
 .lst-wrap{flex:1;overflow:auto}
-.lst-item{display:flex;align-items:center;gap:8px;padding:5px 14px;border-bottom:1px solid #F3F4F6}
-.lst-item-name{font-size:.72rem;font-weight:600;color:#1F2937;flex:1}
+.lst-item{display:flex;align-items:center;gap:8px;padding:5px 14px;border-bottom:1px solid #21262d}
+.lst-item-name{font-size:.72rem;font-weight:600;color:#e6edf3;flex:1}
 </style>
 </head><body>
 <div class="app"><div class="main">
@@ -265,9 +274,9 @@ function renderTable() {
   const cardHtmlSm = list.map(b => '<div class="benef-card"><div class="benef-card-name" style="font-size:.72rem">' + b.nama + '</div><div class="benef-card-sub">' + b.jabatan + '</div></div>').join('');
   const lstHtml = list.map((b,i) => {
     const jabBadge = b.jabatan === 'Anak' ? '<span class="jabatan-badge badge-anak" style="font-size:.58rem;padding:1px 6px">Anak</span>' : '<span class="jabatan-badge badge-worker" style="font-size:.58rem;padding:1px 6px">Worker</span>';
-    return '<div class="lst-item"><span style="color:#9CA3AF;font-size:.65rem;width:24px">' + (i+1) + '</span><span class="lst-item-name">' + b.nama + '</span>' + jabBadge + '</div>';
+    return '<div class="lst-item"><span style="color:#7d8590;font-size:.65rem;width:24px">' + (i+1) + '</span><span class="lst-item-name">' + b.nama + '</span>' + jabBadge + '</div>';
   }).join('');
-  document.getElementById('view-md').innerHTML = cardHtmlMd || '<div style="padding:40px;text-align:center;color:#9CA3AF">Tidak ada data</div>';
+  document.getElementById('view-md').innerHTML = cardHtmlMd || '<div style="padding:40px;text-align:center;color:#7d8590">Tidak ada data</div>';
   document.getElementById('view-sm').innerHTML = cardHtmlSm || '';
   document.getElementById('view-lst').innerHTML = lstHtml || '';
 
@@ -282,21 +291,21 @@ function renderTable() {
       ? `<span class="gender-chip gender-l" title="Laki-laki">L</span>`
       : b.gender === 'P'
       ? `<span class="gender-chip gender-p" title="Perempuan">P</span>`
-      : `<span style="color:#D1D5DB;font-size:.72rem">—</span>`;
+      : `<span style="color:#4d535b;font-size:.72rem">—</span>`;
 
     const usia = b.usia != null
-      ? `<span style="font-weight:600">${b.usia}</span> <span style="color:#9CA3AF;font-size:.68rem">th</span>`
-      : `<span style="color:#D1D5DB">—</span>`;
+      ? `<span style="font-weight:600">${b.usia}</span> <span style="color:#7d8590;font-size:.68rem">th</span>`
+      : `<span style="color:#4d535b">—</span>`;
 
     const provinsi = b.provinsi && b.provinsi !== '—'
       ? b.provinsi
-      : `<span style="color:#D1D5DB">—</span>`;
+      : `<span style="color:#4d535b">—</span>`;
 
     return `<tr>
-      <td style="color:#9CA3AF;font-size:.68rem;font-weight:600;width:40px">${i + 1}</td>
-      <td style="font-weight:600">${b.nama}</td>
+      <td style="color:#7d8590;font-size:.68rem;font-weight:600;width:40px">${i + 1}</td>
+      <td style="font-weight:600;color:#f0f6fc">${b.nama}</td>
       <td>${jabBadge}</td>
-      <td style="font-size:.74rem;color:#374151">${provinsi}</td>
+      <td style="font-size:.74rem;color:#c9d1d9">${provinsi}</td>
       <td>${genderChip}</td>
       <td>${usia}</td>
     </tr>`;

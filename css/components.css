@@ -1162,3 +1162,95 @@ body { transform: none !important; }
   /* SCN badge normal (di topbar kanan) hilang, ganti mobile-scn-btn */
   .scn-badge { display:none; }
 }
+
+/* ============================================================
+   MOBILE RESPONSIVE — LIST+DETAIL PAGES
+   Berlaku untuk semua halaman yang pakai pola list+detail:
+   coord-pihak (.ph-wrap), coord-rtl (.ld-wrap), coord-worker (.cw-wrap/.outer-wrap),
+   worker-anak/diary/eval/plan (.ld-wrap), mel-monthly (.ld-wrap)
+   ============================================================ */
+@media (max-width: 767px) {
+
+  /* ── 1. WRAPPER: ubah dari horizontal ke vertikal stack ── */
+  .ph-wrap,
+  .ld-wrap,
+  .cw-wrap {
+    flex-direction : column !important;
+    height         : auto !important;
+    overflow       : visible !important;
+  }
+
+  /* outer-wrap di coord-worker (membungkus charts-row + cw-wrap) */
+  .outer-wrap {
+    height   : auto !important;
+    overflow : visible !important;
+  }
+
+  /* ── 2. LIST PANEL: full-width, max-height terbatas + scroll ── */
+  .ld-list {
+    width     : 100% !important;
+    min-width : 0   !important;
+    max-height: 55vh;
+    overflow-y: auto !important;
+    border-right  : none !important;
+    border-bottom : 1px solid #E5E7EB !important;
+  }
+
+  /* ── 3. SAAT DETAIL OPEN: sembunyikan list, detail full-width ── */
+  .ph-wrap.detail-open .ld-list,
+  .ld-wrap.detail-open .ld-list,
+  .cw-wrap.detail-open .ld-list {
+    display : none !important;
+  }
+
+  .ph-wrap.detail-open .ld-detail,
+  .ld-wrap.detail-open .ld-detail,
+  .cw-wrap.detail-open .ld-detail {
+    display    : block !important;
+    width      : 100% !important;
+    min-height : 60vh;
+    overflow-y : auto;
+  }
+
+  /* ── 4. DETAIL PANEL: default state (belum ada detail terpilih) ── */
+  .ld-detail {
+    display : none; /* tetap hidden sampai detail-open ditambahkan */
+  }
+
+  /* ── 5. coord-worker: charts-row grid 3-col → 1-col ── */
+  .charts-row {
+    grid-template-columns : 1fr !important;
+  }
+
+  /* ── 6. mel-itt: baris indikator min-width override ── */
+  .itt-row-right,
+  [style*="min-width:170px"] {
+    min-width : 0 !important;
+    flex-wrap : wrap !important;
+  }
+
+  /* ── 7. mel-stakeholder: tabel sudah punya overflow-x:auto, pastikan wrapper tidak block ── */
+  .tbl-wrap,
+  .keg-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ── 8. coord-worker charts: chart card height lebih compact di mobile ── */
+  .ch {
+    height : 130px !important;
+  }
+
+  /* ── 9. mel-monthly: ld-wrap punya border-radius, pertahankan ── */
+  .mm-card .ld-wrap {
+    border-radius : 14px;
+    overflow      : hidden !important;
+  }
+  .mm-card .ld-wrap,
+  .mm-card .ph-wrap,
+  .mm-card .cw-wrap {
+    flex-direction : column !important;
+    height         : auto !important;
+  }
+
+}

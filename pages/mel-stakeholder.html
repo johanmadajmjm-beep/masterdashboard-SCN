@@ -730,7 +730,7 @@ function goBenefPage(p){
 buildSidebar();
 const SESSION = AUTH.requireAuth('../index.html');
 if(SESSION){
-  if (!AUTH.canAccessMel()) { window.location.href = 'worker-beranda.html'; return; }
+  if (!AUTH.canAccessMel()) { window.location.href = 'worker-beranda.html'; }
   AUTH.applySession({
     onScnSwitch: function(scnId){
       API_BEN.clearCache(scnId);

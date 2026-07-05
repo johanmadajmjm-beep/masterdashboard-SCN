@@ -149,6 +149,24 @@ const AUTH = (() => {
     return s && s.role === 'superadmin';
   }
 
+  // Bisa akses mel-* (kecuali mel-analisis)
+  function isScnAdmin() {
+    const s = getSession();
+    return s && (s.role === 'superadmin' || s.role === 'scn_admin');
+  }
+
+  // Bisa akses coord-* dan worker-* tapi tidak mel-*
+  function isCoordOrAbove() {
+    const s = getSession();
+    return s && ['superadmin','scn_admin','coord','worker'].includes(s.role);
+  }
+
+  // Cek apakah role bisa akses mel-*
+  function canAccessMel() {
+    const s = getSession();
+    return s && (s.role === 'superadmin' || s.role === 'scn_admin');
+  }
+
   function getScnFilter() {
     const s = getSession();
     if (!s) return null;
@@ -239,7 +257,8 @@ const AUTH = (() => {
 
   return {
     login, logout, getSession, requireAuth, verifyToken,
-    getToken, isSuperAdmin, getScnFilter, setScnFilter,
+    getToken, isSuperAdmin, isScnAdmin, isCoordOrAbove, canAccessMel,
+    getScnFilter, setScnFilter,
     applySession, updateScnBadge, initSidebar, SCN_LIST,
   };
 

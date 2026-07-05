@@ -338,6 +338,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
           Pengasuh
         </button>
+        <button class="tbtn" data-tab="ragam" onclick="switchTab('ragam',this);renderRagam()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+          Ragam Disabilitas
+        </button>
       </div>
 
       <!-- TAB 1 -->
@@ -489,6 +493,66 @@
         <div class="faktor-grid" id="kw-peng-naik"></div>
       </div>
 
+      <!-- TAB 4: RAGAM DISABILITAS -->
+      <div class="tpane" id="tab-ragam">
+
+        <!-- FILTER RAGAM + DETAIL RAGAM -->
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+          <select id="flt-ragam-tab" onchange="onRagamFilterChange()" style="padding:8px 14px;border:1px solid #e9eef6;border-radius:8px;font-size:.78rem;font-family:inherit;background:#fff;cursor:pointer;outline:none;min-width:180px">
+            <option value="">Semua Ragam</option>
+            <option>Fisik</option>
+            <option>Intelektual</option>
+            <option value="Sensorik (penglihatan)">Sensorik (penglihatan)</option>
+            <option value="Sensorik (pendengaran dan bicara)">Sensorik (pendengaran & bicara)</option>
+            <option>Ganda</option>
+            <option>Lainnya</option>
+          </select>
+          <select id="flt-detail-ragam" onchange="renderRagam()" style="padding:8px 14px;border:1px solid #e9eef6;border-radius:8px;font-size:.78rem;font-family:inherit;background:#fff;cursor:pointer;outline:none;min-width:200px;display:none">
+            <option value="">Semua Detail</option>
+          </select>
+          <span id="ragam-filter-info" style="font-size:.75rem;color:#94a3b8"></span>
+        </div>
+
+        <!-- KPI RAGAM -->
+        <div class="kpi-row" id="kpi-ragam" style="margin-bottom:14px"></div>
+
+        <!-- DISTRIBUSI RAGAM + DETAIL -->
+        <div class="grid-2" style="margin-bottom:14px">
+          <div class="card">
+            <div class="card-head"><span class="card-title">Distribusi Ragam Disabilitas</span></div>
+            <div class="card-body">
+              <div id="ragam-dist-hbar"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title" id="detail-ragam-title">Detail Ragam</span></div>
+            <div class="card-body">
+              <div id="detail-ragam-hbar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RAGAM PER CBR WORKER -->
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-head"><span class="card-title" id="ragam-cbr-title">Ragam per CBR Worker</span></div>
+          <div class="card-body">
+            <div class="ch h170"><canvas id="c-ragam-cbr"></canvas></div>
+          </div>
+        </div>
+
+        <!-- DAFTAR ANAK -->
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title" id="ragam-list-title">Daftar Anak</span>
+            <span id="ragam-list-count" style="font-size:.72rem;color:#94a3b8;margin-left:8px"></span>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div id="ragam-anak-list" style="max-height:380px;overflow-y:auto"></div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   </div>
 </div>
@@ -548,6 +612,150 @@ const BO = {
     });
   }}
 };
+
+function renderRagam(){
+  const selRagam  = document.getElementById('flt-ragam-tab').value;
+  const selDetail = document.getElementById('flt-detail-ragam').value;
+
+  // Filter data
+  let a = ALL;
+  if (selRagam)  a = a.filter(x => x.ragam === selRagam);
+  if (selDetail) a = a.filter(x => (x.rgd||'').includes(selDetail));
+
+  const n = a.length;
+  document.getElementById('ragam-filter-info').textContent =
+    n + ' anak' + (selRagam ? ' · '+selRagam : '') + (selDetail ? ' · '+selDetail : '');
+
+  // KPI
+  const parah   = a.filter(x=>(x.level||'').includes('Parah')).length;
+  const kritis  = a.filter(x=>x.sp!=null&&x.sp<=3).length;
+  const terapi  = a.filter(x=>x.tr).length;
+  const obat    = a.filter(x=>x.ob).length;
+  const spArr   = a.map(x=>x.sp).filter(v=>v!=null);
+  const avSp    = spArr.length ? avg(spArr) : 0;
+  document.getElementById('kpi-ragam').innerHTML = [
+    {v:n,             l:'Jumlah Anak',      s:selRagam||'Semua ragam',       c:'#F97316'},
+    {v:avSp.toFixed(1),l:'Rata-rata Skor',  s:'Cantrill Ladder 1–10',        c:sc(avSp)},
+    {v:parah,         l:'Level Parah',      s:'Butuh dukungan penuh',         c:'#1E293B'},
+    {v:kritis,        l:'Kondisi Kritis',   s:'Skor ≤ 3',                    c:'#DC2626'},
+    {v:terapi,        l:'Pernah Terapi',    s:'dari '+n+' anak',             c:'#059669'},
+    {v:obat,          l:'Pengobatan Aktif', s:'dalam 1 tahun terakhir',      c:'#475569'},
+  ].map(k=>`
+    <div class="kpi-box" style="--kc:${k.c}">
+      <div class="kpi-ico" style="background:${k.c}18;color:${k.c}">${ICONS.total}</div>
+      <div>
+        <div class="kpi-num">${k.v}</div>
+        <div class="kpi-lbl">${k.l}</div>
+        <div class="kpi-sub">${k.s}</div>
+      </div>
+    </div>`).join('');
+
+  // DISTRIBUSI RAGAM (horizontal bar)
+  const rcnt = cnt(ALL,'ragam');
+  const mxR  = Math.max(...RO.map(r=>rcnt[r]||0), 1);
+  document.getElementById('ragam-dist-hbar').innerHTML = RO.map(r=>`
+    <div class="hbar-item" style="cursor:pointer;${selRagam===r?'outline:2px solid '+RC[r]+';border-radius:6px;':''}opacity:${selRagam&&selRagam!==r?'0.4':'1'}"
+         onclick="document.getElementById('flt-ragam-tab').value='${selRagam===r?'':r}';onRagamFilterChange()">
+      <div class="hbar-meta"><span>${RS[r]}</span><span style="color:${RC[r]};font-weight:700">${rcnt[r]||0}</span></div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${Math.round((rcnt[r]||0)/mxR*100)}%;background:${RC[r]}"></div></div>
+    </div>`).join('');
+
+  // DETAIL RAGAM (horizontal bar dari rgd field)
+  const filteredForDetail = selRagam ? ALL.filter(x=>x.ragam===selRagam) : ALL;
+  const detailMap = {};
+  filteredForDetail.forEach(x=>{
+    if (!x.rgd) return;
+    x.rgd.split(',').forEach(d=>{
+      const dk = d.trim();
+      if (dk) detailMap[dk] = (detailMap[dk]||0)+1;
+    });
+  });
+  const detailEntries = Object.entries(detailMap).sort((a,b)=>b[1]-a[1]);
+  const mxD = detailEntries.length ? detailEntries[0][1] : 1;
+  const baseColor = selRagam ? RC[selRagam] : '#F97316';
+  document.getElementById('detail-ragam-title').textContent =
+    selRagam ? 'Detail — ' + selRagam : 'Detail Semua Ragam';
+  document.getElementById('detail-ragam-hbar').innerHTML = detailEntries.length
+    ? detailEntries.map(([d,ct])=>`
+        <div class="hbar-item" style="cursor:pointer;${selDetail===d?'outline:2px solid '+baseColor+';border-radius:6px;':''}opacity:${selDetail&&selDetail!==d?'0.4':'1'}"
+             onclick="document.getElementById('flt-detail-ragam').value='${selDetail===d?'':d}';renderRagam()">
+          <div class="hbar-meta"><span style="font-size:.72rem">${d}</span><span style="color:${baseColor};font-weight:700">${ct}</span></div>
+          <div class="hbar-track"><div class="hbar-fill" style="width:${Math.round(ct/mxD*100)}%;background:${baseColor}80"></div></div>
+        </div>`).join('')
+    : '<div style="color:#94a3b8;font-size:.78rem;padding:8px 0">Tidak ada data detail ragam</div>';
+
+  // RAGAM PER CBR WORKER
+  const workers = [...new Set(ALL.map(x=>x.cbr).filter(Boolean))].sort();
+  document.getElementById('ragam-cbr-title').textContent =
+    selRagam ? 'CBR Worker — ' + (RS[selRagam]||selRagam) + (selDetail?' ('+selDetail+')':'') : 'Ragam per CBR Worker';
+  mk('c-ragam-cbr','bar',{
+    labels: workers.map(w=>w.split(' ').pop()),
+    datasets: selRagam
+      ? [{
+          label: selRagam,
+          data: workers.map(w=>a.filter(x=>x.cbr===w).length),
+          backgroundColor: baseColor,
+          borderRadius: 5,
+        }]
+      : RO.map(r=>({
+          label: RS[r],
+          data: workers.map(w=>ALL.filter(x=>x.cbr===w&&x.ragam===r).length),
+          backgroundColor: RC[r],
+          borderRadius: 4,
+        }))
+  },{
+    ...BO,
+    plugins:{legend:{display:!selRagam,position:'bottom',labels:{boxWidth:10,font:{size:10}}}},
+    scales:{x:{stacked:!selRagam,grid:{display:false},ticks:{font:{size:10}}},y:{stacked:!selRagam,beginAtZero:true,grid:{color:'#f1f5f9'}}},
+    layout:{padding:{top:16}}
+  });
+
+  // DAFTAR ANAK
+  document.getElementById('ragam-list-title').textContent =
+    'Daftar Anak' + (selRagam ? ' — ' + selRagam : '') + (selDetail ? ' · ' + selDetail : '');
+  document.getElementById('ragam-list-count').textContent = n + ' anak';
+  document.getElementById('ragam-anak-list').innerHTML = a.length
+    ? a.map(x=>{
+        const color = RC[x.ragam]||'#94a3b8';
+        return `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #f8fafc;font-size:.78rem">
+          <div style="width:36px;height:36px;border-radius:10px;background:${color}18;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:${color};flex-shrink:0">${(x.nama||'?').charAt(0)}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.nama}</div>
+            <div style="color:#94a3b8;font-size:.7rem;margin-top:2px">${x.cbr||'—'} · ${x.desa||'—'}</div>
+            ${x.rgd?`<div style="color:#64748b;font-size:.68rem;margin-top:3px;font-style:italic">${x.rgd}</div>`:''}
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:.68rem;font-weight:700;color:${color};background:${color}15;padding:2px 8px;border-radius:6px;white-space:nowrap">${(x.ragam||'—').split(' ')[0]}</div>
+            <div style="font-size:.67rem;color:#94a3b8;margin-top:3px">${x.level?x.level.split(' ')[0]:'—'}</div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div style="padding:24px;text-align:center;color:#94a3b8">Tidak ada anak ditemukan</div>';
+}
+
+function onRagamFilterChange(){
+  const selRagam = document.getElementById('flt-ragam-tab').value;
+  const detSel   = document.getElementById('flt-detail-ragam');
+  detSel.value   = ''; // reset detail saat ragam berubah
+
+  if (selRagam) {
+    // Isi opsi detail ragam berdasarkan ragam yang dipilih
+    const filteredAnak = ALL.filter(x=>x.ragam===selRagam);
+    const detailSet = new Set();
+    filteredAnak.forEach(x=>{
+      if (!x.rgd) return;
+      x.rgd.split(',').forEach(d=>{ const dk=d.trim(); if(dk) detailSet.add(dk); });
+    });
+    const details = [...detailSet].sort();
+    detSel.innerHTML = '<option value="">Semua Detail</option>' +
+      details.map(d=>`<option value="${d}">${d}</option>`).join('');
+    detSel.style.display = details.length ? 'block' : 'none';
+  } else {
+    detSel.style.display = 'none';
+    detSel.innerHTML = '<option value="">Semua Detail</option>';
+  }
+  renderRagam();
+}
 
 function switchTab(id,btn){
   document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('active'));

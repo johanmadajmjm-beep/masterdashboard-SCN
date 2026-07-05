@@ -49,7 +49,8 @@
 <div class="page" style="overflow:hidden;display:flex;flex-direction:column;padding:14px 20px;gap:8px">
 
   <div class="map-filters">
-    <select id="mp-ragam" onchange="updateMap()"><option value="">Semua Ragam</option><option>Fisik</option><option>Intelektual</option><option value="Sensorik (penglihatan)">S. Penglihatan</option><option value="Sensorik (pendengaran dan bicara)">S. Pendengaran</option><option>Ganda</option></select>
+    <select id="mp-ragam" onchange="onPetaRagamChange()"><option value="">Semua Ragam</option><option>Fisik</option><option>Intelektual</option><option value="Sensorik (penglihatan)">S. Penglihatan</option><option value="Sensorik (pendengaran dan bicara)">S. Pendengaran</option><option>Ganda</option><option>Lainnya</option></select>
+    <select id="mp-detail" onchange="updateMap()" style="display:none"><option value="">Semua Detail</option></select>
     <select id="mp-level" onchange="updateMap()"><option value="">Semua Level</option><option value="Parah (dukungan penuh)">Parah</option><option value="Sedang (dukungan reguler)">Sedang</option><option value="Rendah (sedikit dukungan)">Rendah</option></select>
     <select id="mp-cbr" onchange="updateMap()"><option value="">Semua CBR Worker</option></select>
     <div class="map-stat">GPS: <strong id="mp-count">—</strong> titik</div>
@@ -91,13 +92,36 @@ function initMap(){
   MARKERS=L.layerGroup().addTo(MAP);
 }
 
+function onPetaRagamChange(){
+  const selRagam = document.getElementById('mp-ragam').value;
+  const fD = document.getElementById('mp-detail');
+  fD.value = '';
+  if (selRagam) {
+    const filtered = ALL_ANAK.filter(a=>a.ragam===selRagam);
+    const detailSet = new Set();
+    filtered.forEach(a=>{
+      if(!a.rgd) return;
+      a.rgd.split(',').forEach(d=>{ const dk=d.trim(); if(dk) detailSet.add(dk); });
+    });
+    const details = [...detailSet].sort();
+    fD.innerHTML = '<option value="">Semua Detail</option>' +
+      details.map(d=>`<option value="${d}">${d}</option>`).join('');
+    fD.style.display = details.length ? 'inline-block' : 'none';
+  } else {
+    fD.style.display = 'none';
+    fD.innerHTML = '<option value="">Semua Detail</option>';
+  }
+  updateMap();
+}
+
 function updateMap(doFit=false){
   if(!MAP)return;
   const rF=document.getElementById('mp-ragam').value;
+  const dF=document.getElementById('mp-detail').value;
   const lF=document.getElementById('mp-level').value;
   const cF=document.getElementById('mp-cbr').value;
   const hasGPS=a=>a.lat&&a.lon&&!isNaN(a.lat)&&!isNaN(a.lon)&&!(a.lat===0&&a.lon===0);
-  const pts=ALL_ANAK.filter(a=>hasGPS(a)&&(!rF||a.ragam===rF)&&(!lF||a.level===lF)&&(!cF||a.cbr===cF));
+  const pts=ALL_ANAK.filter(a=>hasGPS(a)&&(!rF||a.ragam===rF)&&(!dF||!(a.rgd||'').split(',').every(d=>d.trim()!==dF))&&(!lF||a.level===lF)&&(!cF||a.cbr===cF));
   document.getElementById('mp-count').textContent=pts.length;
   MARKERS.clearLayers();
   const lls=[];

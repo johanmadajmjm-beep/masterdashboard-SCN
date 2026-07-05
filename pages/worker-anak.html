@@ -174,8 +174,9 @@
         </div>
       </div>
       <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama anak..."/>
-      <div style="display:flex;gap:5px;margin-top:7px">
-        <select class="ld-select" id="flt-ragam"><option value="">Semua Ragam</option></select>
+      <div style="display:flex;gap:5px;margin-top:7px;flex-wrap:wrap">
+        <select class="ld-select" id="flt-ragam" onchange="onRagamChange()"><option value="">Semua Ragam</option></select>
+        <select class="ld-select" id="flt-detail" style="display:none"><option value="">Semua Detail</option></select>
         <select class="ld-select" id="flt-cbr"><option value="">Semua CBR</option></select>
       </div>
       <div style="font-size:.68rem;color:#9CA3AF;margin-top:6px" id="ld-count">—</div>
@@ -257,6 +258,30 @@ function renderPage(d,scnId){
   renderList();
 }
 
+function onRagamChange(){
+  const selRagam = document.getElementById('flt-ragam').value;
+  const fD = document.getElementById('flt-detail');
+  fD.value = '';
+  if (selRagam) {
+    const filtered = ALL_ANAK.filter(a=>a.ragam===selRagam);
+    const detailSet = new Set();
+    filtered.forEach(a=>{
+      if(!a.rgd) return;
+      a.rgd.split(',').forEach(d=>{ const dk=d.trim(); if(dk) detailSet.add(dk); });
+    });
+    const details = [...detailSet].sort();
+    fD.innerHTML = '<option value="">Semua Detail</option>' +
+      details.map(d=>`<option value="${d}">${d}</option>`).join('');
+    fD.style.display = details.length ? 'block' : 'none';
+  } else {
+    fD.style.display = 'none';
+    fD.innerHTML = '<option value="">Semua Detail</option>';
+  }
+  fD.removeEventListener('change', renderList);
+  fD.addEventListener('change', renderList);
+  renderList();
+}
+
 function setFilter(f){
   ACTIVE_FILTER=f;
   document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
@@ -266,10 +291,12 @@ function setFilter(f){
 
 function renderList(){
   const rg=document.getElementById('flt-ragam').value;
+  const det=document.getElementById('flt-detail').value;
   const cb=document.getElementById('flt-cbr').value;
   const q=(document.getElementById('flt-search').value||'').toLowerCase();
   let list=ALL_ANAK.filter(a=>{
     if(rg&&a.ragam!==rg) return false;
+    if(det&&!(a.rgd||'').includes(det)) return false;
     if(cb&&a.cbr!==cb) return false;
     if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
     const hasObs=!!OBS_MAP[a.nama?.toLowerCase()];

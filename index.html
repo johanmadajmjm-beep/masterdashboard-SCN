@@ -167,9 +167,12 @@
 
         // Berhasil — redirect sesuai role
         const role = result.session ? result.session.role : result.role;
-        if (role === 'superadmin') {
+        if (role === 'superadmin' || role === 'scn_admin') {
           window.location.href = 'pages/mel-beranda.html';
+        } else if (role === 'coord') {
+          window.location.href = 'pages/coord-beranda.html';
         } else {
+          // worker dan role lainnya
           window.location.href = 'pages/worker-beranda.html';
         }
 

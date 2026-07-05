@@ -63,7 +63,7 @@ const AUTH = (() => {
 
       if (!result.ok) return { ok: false, message: result.message || 'Login gagal.' };
 
-      // Simpan session ke localStorage (token saja, bukan password)
+      // Simpan session ke sessionStorage (token saja, bukan password)
       const session = {
         token    : result.token,
         username : result.username,
@@ -73,8 +73,8 @@ const AUTH = (() => {
         expiredAt: result.expiredAt,
         loggedAt : Date.now(),
       };
-      localStorage.setItem(KEY, JSON.stringify(session));
-      localStorage.removeItem(SCN_KEY);
+      sessionStorage.setItem(KEY, JSON.stringify(session));
+      sessionStorage.removeItem(SCN_KEY);
 
       return { ok: true, session };
 
@@ -94,19 +94,19 @@ const AUTH = (() => {
         body   : JSON.stringify({ action: 'logout', token: s.token }),
       }).catch(() => {});
     }
-    localStorage.removeItem(KEY);
-    localStorage.removeItem(SCN_KEY);
+    sessionStorage.removeItem(KEY);
+    sessionStorage.removeItem(SCN_KEY);
     window.location.href = '../index.html';
   }
 
-  // ── GET SESSION (dari localStorage) ──────────────────────
+  // ── GET SESSION (dari sessionStorage) ──────────────────────
   function getSession() {
     try {
-      const s = JSON.parse(localStorage.getItem(KEY));
+      const s = JSON.parse(sessionStorage.getItem(KEY));
       if (!s || !s.token) return null;
       // Cek expired berdasarkan expiredAt dari server
       if (s.expiredAt && new Date(s.expiredAt) < new Date()) {
-        localStorage.removeItem(KEY);
+        sessionStorage.removeItem(KEY);
         return null;
       }
       return s;
@@ -171,12 +171,12 @@ const AUTH = (() => {
     const s = getSession();
     if (!s) return null;
     if (s.role !== 'superadmin') return s.scn_id;
-    return localStorage.getItem(SCN_KEY) || null;
+    return sessionStorage.getItem(SCN_KEY) || null;
   }
 
   function setScnFilter(scnId) {
-    if (scnId) localStorage.setItem(SCN_KEY, scnId);
-    else localStorage.removeItem(SCN_KEY);
+    if (scnId) sessionStorage.setItem(SCN_KEY, scnId);
+    else sessionStorage.removeItem(SCN_KEY);
   }
 
   function updateScnBadge(scnId) {

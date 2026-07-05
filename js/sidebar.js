@@ -31,16 +31,32 @@ function buildSidebar() {
     chevron : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>`,
   };
 
-  const scnId    = AUTH.getScnFilter ? AUTH.getScnFilter() : null;
-  const session  = AUTH.getSession ? AUTH.getSession() : null;
+  const scnId   = AUTH.getScnFilter ? AUTH.getScnFilter() : null;
+  const session = AUTH.getSession ? AUTH.getSession() : null;
   const isAdmin  = AUTH.isSuperAdmin ? AUTH.isSuperAdmin() : false;
   const canMel   = AUTH.canAccessMel ? AUTH.canAccessMel() : isAdmin;
   const role     = session ? (session.role || '') : '';
 
-  // Galeri dan Peta: semua role bisa akses
-  // MEL group: hanya superadmin dan scn_admin
-  // Coord group: semua role
-  // Worker group: semua role
+  // SCN Switcher (hanya superadmin)
+  const SCN_LIST = [
+    { id:'manggarai',  label:'SCN Manggarai' },
+    { id:'kupang',     label:'SCN Kupang' },
+    { id:'tts',        label:'SCN Timor Tengah Selatan' },
+    { id:'banyuwangi', label:'SCN Banyuwangi' },
+    { id:'jember',     label:'SCN Jember' },
+    { id:'situbondo',  label:'SCN Situbondo' },
+    { id:'palu',       label:'SCN Palu' },
+    { id:'sigi',       label:'SCN Sigi' },
+  ];
+
+  const scnSwitcher = isAdmin ? `
+    <div class="sidebar-scn-switcher">
+      <div class="switcher-label">SCN Filter</div>
+      <select id="scn-switcher-select" class="switcher-select">
+        <option value="">Semua SCN</option>
+        ${SCN_LIST.map(s => `<option value="${s.id}" ${scnId === s.id ? 'selected' : ''}>${s.label}</option>`).join('')}
+      </select>
+    </div>` : '';
 
   // Nav groups
   const NAV = `
@@ -62,7 +78,7 @@ function buildSidebar() {
       </div>
     </div>
 
-    // CBR COORDINATOR — superadmin/scn_admin/coord: semua, worker: hanya RTL
+    <!-- CBR COORDINATOR — semua role, worker hanya RTL -->
     <div class="nav-group">
       <div class="nav-group-header" onclick="toggleGroup(this)">
         <span class="nav-group-icon">${ICONS.benef}</span>
@@ -99,94 +115,6 @@ function buildSidebar() {
       </div>
     </div>` : ''}
 
-    <!-- GALERI — semua role -->
-    <div class="nav-direct">
-      <a class="nav-direct-item" data-page="g-galeri" href="${base}/pages/mel-galeri.html">
-        <span class="nav-group-icon">${ICONS.camera}</span>
-        <span class="nav-direct-label">Galeri Foto</span>
-      </a>
-    </div>
-
-    <!-- PETA — semua role -->
-    <div class="nav-direct">
-      <a class="nav-direct-item" data-page="p-peta" href="${base}/pages/peta.html">
-        <span class="nav-group-icon">${ICONS.map}</span>
-        <span class="nav-direct-label">Peta</span>
-      </a>
-    </div>`;
-    { id:'manggarai',  label:'SCN Manggarai' },
-    { id:'kupang',     label:'SCN Kupang' },
-    { id:'tts',        label:'SCN Timor Tengah Selatan' },
-    { id:'banyuwangi', label:'SCN Banyuwangi' },
-    { id:'jember',     label:'SCN Jember' },
-    { id:'situbondo',  label:'SCN Situbondo' },
-    { id:'palu',       label:'SCN Palu' },
-    { id:'sigi',       label:'SCN Sigi' },
-  ];
-
-  const scnSwitcher = isAdmin ? `
-    <div class="sidebar-scn-switcher">
-      <div class="switcher-label">SCN Filter</div>
-      <select id="scn-switcher-select" class="switcher-select">
-        <option value="">Semua SCN</option>
-        ${SCN_LIST.map(s => `<option value="${s.id}" ${scnId === s.id ? 'selected' : ''}>${s.label}</option>`).join('')}
-      </select>
-    </div>` : '';
-
-  // Nav groups
-  const NAV = `
-    <!-- CBR WORKER -->
-    <div class="nav-group">
-      <div class="nav-group-header" onclick="toggleGroup(this)">
-        <span class="nav-group-icon">${ICONS.worker}</span>
-        <span class="nav-group-label">CBR Worker</span>
-        <span class="nav-group-chevron">${ICONS.chevron}</span>
-      </div>
-      <div class="nav-group-items">
-        <a class="nav-sub-item" data-page="w-beranda"  href="${base}/pages/worker-beranda.html">${ICONS.home} Beranda</a>
-        <a class="nav-sub-item" data-page="w-anak"     href="${base}/pages/worker-anak.html">${ICONS.list} Profil Anak</a>
-        <a class="nav-sub-item" data-page="w-obs"      href="${base}/pages/worker-obs.html">${ICONS.obs} Observasi</a>
-        <a class="nav-sub-item" data-page="w-plan"     href="${base}/pages/worker-plan.html">${ICONS.plan} Perencanaan</a>
-        <a class="nav-sub-item" data-page="w-diary"    href="${base}/pages/worker-diary.html">${ICONS.diary} Buku Harian</a>
-        <a class="nav-sub-item" data-page="w-eval"     href="${base}/pages/worker-eval.html">${ICONS.eval} Evaluasi Akhir</a>
-        <a class="nav-sub-item" data-page="w-activity" href="${base}/pages/worker-aktivitas.html">${ICONS.activity} Aktivitas</a>
-      </div>
-    </div>
-
-    <!-- CBR COORDINATOR -->
-    <div class="nav-group">
-      <div class="nav-group-header" onclick="toggleGroup(this)">
-        <span class="nav-group-icon">${ICONS.benef}</span>
-        <span class="nav-group-label">CBR Coordinator</span>
-        <span class="nav-group-chevron">${ICONS.chevron}</span>
-      </div>
-      <div class="nav-group-items">
-        <a class="nav-sub-item" data-page="c-beranda" href="${base}/pages/coord-beranda.html">${ICONS.home} Beranda</a>
-        <a class="nav-sub-item" data-page="c-worker"  href="${base}/pages/coord-worker.html">${ICONS.worker} Profil Worker</a>
-        <a class="nav-sub-item" data-page="c-benef"   href="${base}/pages/coord-benef.html">${ICONS.benef} Beneficiary</a>
-        <a class="nav-sub-item" data-page="c-rtl"     href="${base}/pages/coord-rtl.html">${ICONS.rtl} RTL</a>
-        <a class="nav-sub-item" data-page="c-pihak"  href="${base}/pages/coord-pihak.html">${ICONS.stake} Pihak Terlibat</a>
-      </div>
-    </div>
-
-    <!-- MEL -->
-    <div class="nav-group">
-      <div class="nav-group-header" onclick="toggleGroup(this)">
-        <span class="nav-group-icon">${ICONS.chart}</span>
-        <span class="nav-group-label">MEL</span>
-        <span class="nav-group-chevron">${ICONS.chevron}</span>
-      </div>
-      <div class="nav-group-items">
-        <a class="nav-sub-item" data-page="m-beranda" href="${base}/pages/mel-beranda.html">${ICONS.home} Beranda</a>
-        <a class="nav-sub-item" data-page="m-itt"     href="${base}/pages/mel-itt.html">${ICONS.itt} ITT</a>
-        <a class="nav-sub-item" data-page="m-stake"   href="${base}/pages/mel-stakeholder.html">${ICONS.stake} Data Stakeholder</a>
-        <a class="nav-sub-item" data-page="m-monthly" href="${base}/pages/mel-monthly.html">${ICONS.monthly} Monthly Monitoring</a>
-        <a class="nav-sub-item" data-page="m-story"   href="${base}/pages/mel-cerita.html">${ICONS.story} Cerita Perubahan</a>
-        <a class="nav-sub-item" data-page="m-sukses"  href="${base}/pages/mel-sukses.html">${ICONS.star} Cerita Sukses</a>
-        ${isAdmin ? `<a class="nav-sub-item" data-page="m-analisis" href="${base}/pages/mel-analisis.html">${ICONS.trend} Analisis & Trend</a>` : ''}
-      </div>
-    </div>
-
     <!-- GALERI -->
     <div class="nav-direct">
       <a class="nav-direct-item" data-page="g-galeri" href="${base}/pages/mel-galeri.html">
@@ -202,27 +130,6 @@ function buildSidebar() {
         <span class="nav-direct-label">Peta</span>
       </a>
     </div>`;
-
-  // SCN Switcher (hanya superadmin)
-  const SCN_LIST = [
-    { id:'manggarai',  label:'SCN Manggarai' },
-    { id:'kupang',     label:'SCN Kupang' },
-    { id:'tts',        label:'SCN Timor Tengah Selatan' },
-    { id:'banyuwangi', label:'SCN Banyuwangi' },
-    { id:'jember',     label:'SCN Jember' },
-    { id:'situbondo',  label:'SCN Situbondo' },
-    { id:'palu',       label:'SCN Palu' },
-    { id:'sigi',       label:'SCN Sigi' },
-  ];
-
-  const scnSwitcher = isAdmin ? `
-    <div class="sidebar-scn-switcher">
-      <div class="switcher-label">SCN Filter</div>
-      <select id="scn-switcher-select" class="switcher-select">
-        <option value="">Semua SCN</option>
-        ${SCN_LIST.map(s => `<option value="${s.id}" ${scnId === s.id ? 'selected' : ''}>${s.label}</option>`).join('')}
-      </select>
-    </div>` : '';
 
   const userName = session ? (session.label || session.username || '—') : '—';
   const userRole = session ? (session.role || '—') : '—';
@@ -419,6 +326,8 @@ function buildBottomNav() {
   const base     = window.location.pathname.includes('/pages/') ? '..' : '.';
   const session  = AUTH.getSession  ? AUTH.getSession()   : null;
   const isAdmin  = AUTH.isSuperAdmin ? AUTH.isSuperAdmin() : false;
+  const canMel   = AUTH.canAccessMel ? AUTH.canAccessMel() : isAdmin;
+  const role     = session ? (session.role || '') : '';
   const scnId    = AUTH.getScnFilter ? AUTH.getScnFilter() : null;
 
   const ICONS = {
@@ -446,8 +355,8 @@ function buildBottomNav() {
     activity: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
   };
 
-  // Define tab groups untuk bottom nav berdasarkan role
-  const ALL_GROUPS = [
+  // Define 5 tab groups untuk bottom nav
+  const GROUPS = [
     {
       id    : 'worker',
       label : 'Worker',
@@ -469,9 +378,7 @@ function buildBottomNav() {
       icon  : ICONS.benef,
       pages : ['c-beranda','c-worker','c-benef','c-rtl','c-pihak'],
       items : role === 'worker'
-        ? [
-            { page:'c-rtl', label:'RTL', icon:ICONS.rtl, href:`${base}/pages/coord-rtl.html` },
-          ]
+        ? [{ page:'c-rtl', label:'RTL', icon:ICONS.rtl, href:`${base}/pages/coord-rtl.html` }]
         : [
             { page:'c-beranda', label:'Beranda',    icon:ICONS.home,  href:`${base}/pages/coord-beranda.html` },
             { page:'c-worker',  label:'Worker',     icon:ICONS.worker,href:`${base}/pages/coord-worker.html` },
@@ -480,7 +387,6 @@ function buildBottomNav() {
             { page:'c-pihak',   label:'Pihak',      icon:ICONS.stake, href:`${base}/pages/coord-pihak.html` },
           ],
     },
-    // MEL — hanya superadmin dan scn_admin
     ...(canMel ? [{
       id    : 'mel',
       label : 'MEL',
@@ -512,8 +418,8 @@ function buildBottomNav() {
       direct: true,
       href  : `${base}/pages/peta.html`,
     },
+
   ];
-  const GROUPS = ALL_GROUPS;
 
   // SCN list
   const SCN_LIST = [

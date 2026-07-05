@@ -194,7 +194,24 @@
 </div></div>
 
 <script>
-const RC={Fisik:'#F97316',Intelektual:'#1D4ED8','Sensorik (penglihatan)':'#059669','Sensorik (pendengaran dan bicara)':'#7C3AED',Ganda:'#1E293B',Lainnya:'#94A3B8'};
+const RC={
+  'Fisik'                              :'#F97316',
+  'Intelektual'                        :'#1D4ED8',
+  'Sensorik (penglihatan)'             :'#059669',
+  'Sensorik (pendengaran dan bicara)'  :'#7C3AED',
+  'Sensorik (pendengaran & bicara)'    :'#7C3AED',
+  'Ganda'                              :'#DC2626',
+  'Lainnya'                            :'#94A3B8',
+};
+const RAGAM_DESC = {
+  'Fisik'                             :'Keterbatasan fungsi gerak/motorik — termasuk cerebral palsy, kelumpuhan, kaki pengkor, spina bifida, polio, dan kondisi muskuloskeletal lainnya.',
+  'Intelektual'                       :'Keterbatasan signifikan dalam fungsi intelektual dan perilaku adaptif — termasuk Down Syndrome, autisme, kesulitan belajar, dan disabilitas intelektual lainnya.',
+  'Sensorik (penglihatan)'            :'Gangguan fungsi penglihatan — termasuk buta total (low vision berat) hingga gangguan penglihatan parsial yang mempengaruhi aktivitas sehari-hari.',
+  'Sensorik (pendengaran dan bicara)' :'Gangguan fungsi pendengaran dan/atau kemampuan bicara — termasuk tuli total, gangguan pendengaran parsial, tuna wicara, dan kombinasi rungu-wicara.',
+  'Sensorik (pendengaran & bicara)'   :'Gangguan fungsi pendengaran dan/atau kemampuan bicara — termasuk tuli total, gangguan pendengaran parsial, tuna wicara, dan kombinasi rungu-wicara.',
+  'Ganda'                             :'Kombinasi dua atau lebih ragam disabilitas yang membutuhkan dukungan lintas domain — misalnya fisik + intelektual, atau sensorik + fisik.',
+  'Lainnya'                           :'Ragam disabilitas lain yang tidak termasuk kategori di atas — termasuk disabilitas psikososial dan kondisi kronis lainnya.',
+};
 const LC={'Parah (dukungan penuh)':'#1E293B','Sedang (dukungan reguler)':'#F97316','Rendah (sedikit dukungan)':'#059669'};
 function sc(v){return v<=3?'#1E293B':v<=6?'#FB923C':'#F97316';}
 
@@ -371,15 +388,23 @@ function showDetail(el,a){
     <div class="det-section">
       ${shead(icoUser,'rgba(249,115,22,.1)','#F97316','Profil Anak')}
       <div class="det-section-body">
-        ${row('Jenis Kelamin', a.gender==='L'?'Laki-laki':a.gender==='P'?'Perempuan':a.j==='Laki-Laki'?'Laki-laki':a.j||a.gender||'—')}
+        ${row('Jenis Kelamin', a.gender==='L'?'Laki-laki':a.gender==='P'?'Perempuan':'—')}
+        ${row('Tanggal Lahir', (()=>{ const tl=a.tl; if(!tl) return '—'; const d=new Date(tl); return isNaN(d)?tl:d.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'}); })())}
+        ${row('Usia', a.usia ? a.usia+' tahun' : a.gu||'—')}
         ${row('Kelompok Usia', a.gu||'—')}
-        ${row('Kampung/Dusun', a.k||a.kampung||'—')}
-        ${row('Desa', a.desa||a.d||'—')}
-        ${row('Ragam Disabilitas', a.ragam||a.rg||'—')}
-        ${row('Level Disabilitas', a.level||a.lv||'—')}
-        ${row('Epilepsi', a.ep||'—')}
-        ${row('Pengobatan 1 Tahun Terakhir', a.ob||'—')}
-        ${row('Pernah Mendapat Terapi', a.tr||'—')}
+        ${row('Kampung/Dusun', a.kampung||'—')}
+        ${row('Desa', a.desa||'—')}
+        ${(()=>{ const rg=a.ragam||'—'; const desc=RAGAM_DESC?.[rg]; const color=RC[rg]||'#94A3B8'; return `<div class="det-row" style="flex-direction:column;align-items:flex-start;gap:4px"><span style="font-size:.7rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.04em">Ragam Disabilitas</span><div style="margin-top:2px"><span style="display:inline-block;background:${color}18;color:${color};font-weight:700;font-size:.75rem;padding:3px 10px;border-radius:6px;border:1px solid ${color}30">${rg}</span>${desc?`<p style="margin:6px 0 0;font-size:.72rem;color:#6b7280;line-height:1.6">${desc}</p>`:''}</div></div>`; })()}
+        ${a.rgd ? `<div class="det-row" style="flex-direction:column;align-items:flex-start;gap:4px"><span style="font-size:.7rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.04em">Detail Ragam</span><p style="margin:4px 0 0;font-size:.78rem;color:#1e293b;line-height:1.6">${a.rgd}</p></div>` : ''}
+        ${row('Level Disabilitas', a.level||'—')}
+        ${row('Epilepsi', a.ep ? 'Ya' : 'Tidak')}
+        ${row('Pengobatan 1 Tahun Terakhir', a.ob ? 'Ya' : 'Tidak')}
+        ${a.obf ? row('Fasilitas Kesehatan', a.obf) : ''}
+        ${a.obl ? row('Layanan Pengobatan', a.obl) : ''}
+        ${row('Pernah Mendapat Terapi', a.tr ? 'Ya' : 'Tidak')}
+        ${a.trj ? row('Jenis Terapi', a.trj) : ''}
+        ${a.trs ? row('Pelaksana Terapi', a.trs) : ''}
+        ${a.wk  ? row('Waktu Kunjungan CBR', a.wk) : ''}
       </div>
     </div>
 
@@ -387,8 +412,9 @@ function showDetail(el,a){
     <div class="det-section">
       ${shead(icoUser,'rgba(99,102,241,.1)','#6366F1','Profil Pengasuh')}
       <div class="det-section-body">
-        ${row('Nama Pengasuh', a.np||a.nama_pengasuh||'—')}
-        ${row('CBR Worker', a.cbr||a.cb||'—')}
+        ${row('Status Pengasuh', a.stp||'—')}
+        ${a.stpl ? row('Keterangan Pengasuh', a.stpl) : ''}
+        ${row('CBR Worker', a.cbr||'—')}
         ${row('Faktor Membantu Pengasuh', a.nkp||'—')}
         ${row('Faktor Menyulitkan Pengasuh', a.tkp||'—')}
       </div>

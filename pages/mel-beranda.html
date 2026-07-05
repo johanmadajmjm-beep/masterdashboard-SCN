@@ -434,6 +434,7 @@ function fmtTgl(v){
 buildSidebar();
 const SESSION = AUTH.requireAuth('../index.html');
 if(SESSION){
+  if (!AUTH.canAccessMel()) { window.location.href = 'worker-beranda.html'; return; }
   AUTH.applySession({
     onScnSwitch: async function(scnId){
       const page = document.querySelector('.page');

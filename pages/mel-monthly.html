@@ -464,6 +464,7 @@ function kpiCard(icon,bg,color,val,lbl,sub){
 buildSidebar();
 const SESSION = AUTH.requireAuth('../index.html');
 if(SESSION){
+  if (!AUTH.canAccessMel()) { window.location.href = 'worker-beranda.html'; return; }
   AUTH.applySession({
     onScnSwitch: function(scnId){
       const sel = document.getElementById('scn-filter-select');

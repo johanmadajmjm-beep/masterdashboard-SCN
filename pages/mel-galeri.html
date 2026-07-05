@@ -480,6 +480,7 @@
   buildSidebar();
   const SESSION = AUTH.requireAuth('../index.html');
   if (SESSION) {
+    if (!AUTH.canAccessMel()) { window.location.href = 'worker-beranda.html'; return; }
     AUTH.applySession({
       onScnSwitch: async function(scnId) {
         document.getElementById('foto-grid').innerHTML = '<div class="loading-galeri">Memuat foto...</div>';

@@ -124,23 +124,32 @@ const API = (() => {
       );
       return {
         nama   : r.na  || '—',
-        np     : r.np  || '—',
         cbr    : r.cb  || '—',
         ragam  : r.rg  || '—',
+        rgd    : r.rgd || '',           // detail ragam disabilitas
         level  : r.lv  || '—',
+        kampung: r.k   || '—',
         desa   : r.d   || '—',
         gender : (r.j  || '').toLowerCase().includes('perempuan') ? 'P' : 'L',
+        tl     : r.tl  || '',           // tanggal lahir
         usia,
         gu,
         sp     : r.sp  != null ? parseFloat(r.sp) : null,
         sa     : r.sa  != null ? parseFloat(r.sa) : null,
         ep     : (r.ep || '').toLowerCase() === 'ya',
         ob     : (r.ob || '').toLowerCase() === 'ya',
+        obf    : r.obf || '',           // fasilitas kesehatan
+        obl    : r.obl || '',           // layanan pengobatan
         tr     : (r.tr || '').toLowerCase() === 'ya',
+        trj    : r.trj || '',           // jenis terapi
+        trs    : r.trs || '',           // pelaksana terapi
+        stp    : r.stp || '',           // status pengasuh
+        stpl   : r.stpl || '',          // status pengasuh lainnya
         nka    : r.nka || '',
         tka    : r.tka || '',
         nkp    : r.nkp || '',
         tkp    : r.tkp || '',
+        wk     : r.wk  || '',           // waktu kunjungan CBR
         lat    : r.lat ? parseFloat(r.lat) : null,
         lon    : r.lon ? parseFloat(r.lon) : null,
         provinsi: r.provinsi || '',

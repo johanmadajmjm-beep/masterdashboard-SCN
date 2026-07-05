@@ -215,15 +215,43 @@
     function showErr(m){ errTxt.textContent = m; errMsg.classList.add('show'); }
     function hideErr(){ errMsg.classList.remove('show'); }
 
+    // ── BRUTE FORCE PROTECTION ───────────────────────────────
+    let failCount  = 0;
+    let inCooldown = false;
+    const MAX_FAIL      = 5;   // maksimal percobaan gagal
+    const COOLDOWN_SEC  = 30;  // durasi kunci (detik)
+
     function setLoading(state) {
+      if (!state && inCooldown) return; // jangan enable tombol saat cooldown
       btn.disabled             = state;
       btn.classList.toggle('loading', state);
       spinner.style.display    = state ? 'block' : 'none';
       loginIco.style.display   = state ? 'none'  : 'block';
     }
 
+    function startCooldown() {
+      inCooldown = true;
+      let remaining = COOLDOWN_SEC;
+      btn.disabled = true;
+      const btnLabel = btn.querySelector('svg') ? btn : null;
+      const tick = () => {
+        showErr(`Terlalu banyak percobaan gagal. Coba lagi dalam ${remaining} detik.`);
+        remaining--;
+        if (remaining < 0) {
+          clearInterval(timer);
+          inCooldown = false;
+          failCount  = 0;
+          hideErr();
+          btn.disabled = false;
+        }
+      };
+      tick();
+      const timer = setInterval(tick, 1000);
+    }
+
     // ── LOGIN ASYNC — kirim ke GAS 3 ─────────────────────────
     async function doLogin() {
+      if (inCooldown) return; // blokir saat cooldown
       hideErr();
       const u = uEl.value.trim();
       const p = pEl.value;
@@ -235,14 +263,20 @@
         const result = await AUTH.login(u, p);
 
         if (!result.ok) {
-          showErr(result.message || 'Username atau password salah.');
+          failCount++;
+          setLoading(false);
+          if (failCount >= MAX_FAIL) {
+            startCooldown();
+          } else {
+            showErr((result.message || 'Username atau password salah.') + ` (percobaan ${failCount}/${MAX_FAIL})`);
+          }
           pEl.value = '';
           pEl.focus();
-          setLoading(false);
           return;
         }
 
-        // Berhasil — redirect sesuai role
+        // Berhasil — reset counter, redirect sesuai role
+        failCount = 0;
         const role = result.session ? result.session.role : result.role;
         if (role === 'superadmin' || role === 'scn_admin') {
           window.location.href = 'pages/mel-beranda.html';

@@ -341,12 +341,12 @@ const API = (() => {
 
   // ── BUILD RESULT DARI RAW DATA ────────────────────────────
   function buildResult(scnId, rawAwal, rawObs, rawRencana, rawDiary, rawEvalMenengah, rawEvalAkhir) {
-    const awalRows         = Array.isArray(rawAwal)         ? rawAwal         : (rawAwal.data         || []);
-    const obsRows          = Array.isArray(rawObs)          ? rawObs          : (rawObs.data          || []);
-    const rencanaRows      = Array.isArray(rawRencana)      ? rawRencana      : (rawRencana.data      || []);
-    const diaryRows        = Array.isArray(rawDiary)        ? rawDiary        : (rawDiary.data        || []);
-    const evalMenengahRows = Array.isArray(rawEvalMenengah) ? rawEvalMenengah : (rawEvalMenengah.data || []);
-    const evalAkhirRows    = Array.isArray(rawEvalAkhir)    ? rawEvalAkhir    : (rawEvalAkhir.data    || []);
+    const awalRows         = Array.isArray(rawAwal)         ? rawAwal         : (rawAwal?.data         || []);
+    const obsRows          = Array.isArray(rawObs)          ? rawObs          : (rawObs?.data          || []);
+    const rencanaRows      = Array.isArray(rawRencana)      ? rawRencana      : (rawRencana?.data      || []);
+    const diaryRows        = Array.isArray(rawDiary)        ? rawDiary        : (rawDiary?.data        || []);
+    const evalMenengahRows = Array.isArray(rawEvalMenengah) ? rawEvalMenengah : (rawEvalMenengah?.data || []);
+    const evalAkhirRows    = Array.isArray(rawEvalAkhir)    ? rawEvalAkhir    : (rawEvalAkhir?.data    || []);
     const cached   = ssGet(scnId + '_DataAwal');
     const lastSync = cached ? cached.lastSync : null;
 

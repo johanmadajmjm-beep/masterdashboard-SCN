@@ -173,7 +173,7 @@ function renderList(){
       if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
       return true;
     });
-  });
+  }
   document.getElementById('ld-count').textContent=list.length+' anak';
   const empty='<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem;grid-column:1/-1">Tidak ada data</div>';
 

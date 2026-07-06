@@ -73,6 +73,7 @@ function buildSidebar() {
         <a class="nav-sub-item" data-page="w-obs"      href="${base}/pages/worker-obs.html">${ICONS.obs} Observasi</a>
         <a class="nav-sub-item" data-page="w-plan"     href="${base}/pages/worker-plan.html">${ICONS.plan} Perencanaan</a>
         <a class="nav-sub-item" data-page="w-diary"    href="${base}/pages/worker-diary.html">${ICONS.diary} Buku Harian</a>
+        <a class="nav-sub-item" data-page="w-eval-mid" href="${base}/pages/worker-eval-menengah.html">${ICONS.eval} Evaluasi Menengah</a>
         <a class="nav-sub-item" data-page="w-eval"     href="${base}/pages/worker-eval.html">${ICONS.eval} Evaluasi Akhir</a>
         <a class="nav-sub-item" data-page="w-activity" href="${base}/pages/worker-aktivitas.html">${ICONS.activity} Aktivitas</a>
       </div>
@@ -361,14 +362,15 @@ function buildBottomNav() {
       id    : 'worker',
       label : 'Worker',
       icon  : ICONS.worker,
-      pages : ['w-beranda','w-anak','w-obs','w-plan','w-diary','w-eval','w-activity'],
+      pages : ['w-beranda','w-anak','w-obs','w-plan','w-diary','w-eval-mid','w-eval','w-activity'],
       items : [
         { page:'w-beranda',  label:'Beranda',     icon:ICONS.home,     href:`${base}/pages/worker-beranda.html` },
         { page:'w-anak',     label:'Profil Anak', icon:ICONS.list,     href:`${base}/pages/worker-anak.html` },
         { page:'w-obs',      label:'Observasi',   icon:ICONS.obs,      href:`${base}/pages/worker-obs.html` },
         { page:'w-plan',     label:'Perencanaan', icon:ICONS.plan,     href:`${base}/pages/worker-plan.html` },
         { page:'w-diary',    label:'Buku Harian', icon:ICONS.diary,    href:`${base}/pages/worker-diary.html` },
-        { page:'w-eval',     label:'Evaluasi',    icon:ICONS.eval,     href:`${base}/pages/worker-eval.html` },
+        { page:'w-eval-mid', label:'Eval. Tengah',icon:ICONS.eval,     href:`${base}/pages/worker-eval-menengah.html` },
+        { page:'w-eval',     label:'Eval. Akhir', icon:ICONS.eval,     href:`${base}/pages/worker-eval.html` },
         { page:'w-activity', label:'Aktivitas',   icon:ICONS.activity, href:`${base}/pages/worker-aktivitas.html` },
       ],
     },

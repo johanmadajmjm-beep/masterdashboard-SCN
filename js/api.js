@@ -145,6 +145,7 @@ const API = (() => {
         trs    : r.trs || '',           // pelaksana terapi
         stp    : r.stp || '',           // status pengasuh
         stpl   : r.stpl || '',          // status pengasuh lainnya
+        np     : r.np  || '',           // nama pengasuh
         nka    : r.nka || '',
         tka    : r.tka || '',
         nkp    : r.nkp || '',
@@ -320,9 +321,13 @@ const API = (() => {
 
     // Tidak ada cache — fetch penuh dari server
     const serverLastSync = await fetchLastSync(scnId);
-    const [rawAwal, rawObs] = await Promise.all([
-      fetchSheet(scnId, 'DataAwal', serverLastSync),
-      fetchSheet(scnId, 'DataObs',  serverLastSync),
+    const [rawAwal, rawObs, rawRencana, rawDiary, rawEvalMenengah, rawEvalAkhir] = await Promise.all([
+      fetchSheet(scnId, 'DataAwal',        serverLastSync),
+      fetchSheet(scnId, 'DataObs',         serverLastSync),
+      fetchSheet(scnId, 'DataRencana',     serverLastSync),
+      fetchSheet(scnId, 'DataDiary',       serverLastSync),
+      fetchSheet(scnId, 'DataEvalMenengah',serverLastSync),
+      fetchSheet(scnId, 'DataEvalAkhir',   serverLastSync),
     ]);
 
     if (!rawAwal || !rawAwal.length) {
@@ -331,18 +336,26 @@ const API = (() => {
       return null;
     }
 
-    return buildResult(scnId, rawAwal, rawObs || []);
+    return buildResult(scnId, rawAwal, rawObs || [], rawRencana || [], rawDiary || [], rawEvalMenengah || [], rawEvalAkhir || []);
   }
 
   // ── BUILD RESULT DARI RAW DATA ────────────────────────────
-  function buildResult(scnId, rawAwal, rawObs) {
-    const awalRows = Array.isArray(rawAwal) ? rawAwal : (rawAwal.data || []);
-    const obsRows  = Array.isArray(rawObs)  ? rawObs  : (rawObs.data  || []);
+  function buildResult(scnId, rawAwal, rawObs, rawRencana, rawDiary, rawEvalMenengah, rawEvalAkhir) {
+    const awalRows         = Array.isArray(rawAwal)         ? rawAwal         : (rawAwal.data         || []);
+    const obsRows          = Array.isArray(rawObs)          ? rawObs          : (rawObs.data          || []);
+    const rencanaRows      = Array.isArray(rawRencana)      ? rawRencana      : (rawRencana.data      || []);
+    const diaryRows        = Array.isArray(rawDiary)        ? rawDiary        : (rawDiary.data        || []);
+    const evalMenengahRows = Array.isArray(rawEvalMenengah) ? rawEvalMenengah : (rawEvalMenengah.data || []);
+    const evalAkhirRows    = Array.isArray(rawEvalAkhir)    ? rawEvalAkhir    : (rawEvalAkhir.data    || []);
     const cached   = ssGet(scnId + '_DataAwal');
     const lastSync = cached ? cached.lastSync : null;
 
-    const anak = normalizeDataAwal(awalRows);
-    const obs  = normalizeObs(obsRows);
+    const anak         = normalizeDataAwal(awalRows);
+    const obs          = normalizeObs(obsRows);
+    const perencanaan  = rencanaRows;
+    const diary        = diaryRows;
+    const evalMenengah = evalMenengahRows;
+    const evalAkhir    = evalAkhirRows;
     calcStats(anak, obs);
     const workers = buildWorkers(anak, obs);
     const itt     = calcITT(anak, obs);
@@ -392,6 +405,7 @@ const API = (() => {
         sumber   : 'Google Sheets (real)',
       },
       workers, anak, obs, referral, aktivitas, stakeholder,
+      perencanaan, diary, evalMenengah, evalAkhir,
       cerita : [],
       itt    : { Y1_Q2: itt },
     };
@@ -424,12 +438,16 @@ const API = (() => {
       const serverLastSync = await fetchLastSync(scnId);
       if (!serverLastSync || serverLastSync === cachedLastSync) return;
       // Ada data baru — fetch ulang
-      const [rawAwal, rawObs] = await Promise.all([
-        fetchSheet(scnId, 'DataAwal', serverLastSync),
-        fetchSheet(scnId, 'DataObs',  serverLastSync),
+      const [rawAwal, rawObs, rawRencana, rawDiary, rawEvalMenengah, rawEvalAkhir] = await Promise.all([
+        fetchSheet(scnId, 'DataAwal',        serverLastSync),
+        fetchSheet(scnId, 'DataObs',         serverLastSync),
+        fetchSheet(scnId, 'DataRencana',     serverLastSync),
+        fetchSheet(scnId, 'DataDiary',       serverLastSync),
+        fetchSheet(scnId, 'DataEvalMenengah',serverLastSync),
+        fetchSheet(scnId, 'DataEvalAkhir',   serverLastSync),
       ]);
       if (!rawAwal || !rawAwal.length) return;
-      const result = buildResult(scnId, rawAwal, rawObs || []);
+      const result = buildResult(scnId, rawAwal, rawObs || [], rawRencana || [], rawDiary || [], rawEvalMenengah || [], rawEvalAkhir || []);
       if (window.renderPage) renderPage(result, scnId);
       console.log('[API] Data baru terdeteksi, halaman di-refresh otomatis');
     } catch(e) {

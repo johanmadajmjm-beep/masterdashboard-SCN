@@ -195,16 +195,18 @@ const API = (() => {
   }
 
   // ── HITUNG WORKERS DARI DATA REAL ────────────────────────
-  function buildWorkers(anak, obs) {
+  function buildWorkers(anak, obs, perencanaan, diary, evalMenengah, evalAkhir) {
     const now      = new Date();
     const bulan    = now.getMonth();
     const tahun    = now.getFullYear();
     const workerMap = {};
-    anak.forEach(a => {
-      const cb = a.cbr;
-      if (!workerMap[cb]) {
-        workerMap[cb] = {
-          id             : cb.toLowerCase().replace(/\s/g, '_').replace(/\./g, ''),
+
+    function addWorker(cb) {
+      if (!cb || cb === '—') return;
+      const key = cb.toLowerCase().replace(/\s/g, '_').replace(/\./g, '');
+      if (!workerMap[key]) {
+        workerMap[key] = {
+          id             : key,
           nama           : cb,
           anak           : 0,
           kunjungan_bulan: 0,
@@ -212,21 +214,45 @@ const API = (() => {
           late           : 0,
         };
       }
-      workerMap[cb].anak++;
+    }
+
+    // Kumpulkan worker dari semua 6 form — deduplikasi by nama
+    anak.forEach(a => { addWorker(a.cbr); workerMap[a.cbr?.toLowerCase().replace(/\s/g,'_').replace(/\./g,'')]?.anak && (workerMap[a.cbr?.toLowerCase().replace(/\s/g,'_').replace(/\./g,'')].anak++); });
+    (obs||[]).forEach(o => addWorker(o.cb));
+    (perencanaan||[]).forEach(r => addWorker(r.cbr_worker||r.cb));
+    (diary||[]).forEach(r => addWorker(r.cbr_worker||r.cb));
+    (evalMenengah||[]).forEach(r => addWorker(r.cbr_worker||r.cb));
+    (evalAkhir||[]).forEach(r => addWorker(r.cbr_worker||r.cb));
+
+    // Hitung anak per worker dari DataAwal
+    const workerAnakCount = {};
+    anak.forEach(a => {
+      if (!a.cbr) return;
+      workerAnakCount[a.cbr] = (workerAnakCount[a.cbr] || 0) + 1;
     });
+    Object.values(workerMap).forEach(w => {
+      w.anak = workerAnakCount[w.nama] || 0;
+    });
+
+    // Hitung kunjungan bulan ini dari obs
     obs.forEach(o => {
       if (!o.tgl || o.tgl === '—') return;
       const d = new Date(o.tgl);
       if (d.getMonth() === bulan && d.getFullYear() === tahun) {
-        if (workerMap[o.cb]) workerMap[o.cb].kunjungan_bulan++;
+        const key = o.cb?.toLowerCase().replace(/\s/g,'_').replace(/\./g,'');
+        if (key && workerMap[key]) workerMap[key].kunjungan_bulan++;
       }
     });
+
+    // Hitung late & irp dari DataAwal
     anak.forEach(a => {
-      const w = workerMap[a.cbr];
+      const key = a.cbr?.toLowerCase().replace(/\s/g,'_').replace(/\./g,'');
+      const w = key ? workerMap[key] : null;
       if (!w) return;
       if (a.hari > 30) w.late++;
       if (a.irp === 'Aktif') w.irp_aktif++;
     });
+
     return Object.values(workerMap);
   }
 
@@ -344,7 +370,7 @@ const API = (() => {
     const evalMenengah = evalMenengahRows;
     const evalAkhir    = evalAkhirRows;
     calcStats(anak, obs);
-    const workers = buildWorkers(anak, obs);
+    const workers = buildWorkers(anak, obs, perencanaan||[], diary||[], evalMenengah||[], evalAkhir||[]);
     const itt     = calcITT(anak, obs);
 
     const stakeholder = {
@@ -487,7 +513,13 @@ const API = (() => {
     const anak    = normalizeDataAwal(awalRows);
     const obs     = normalizeObs(obsRows);
     calcStats(anak, obs);
-    const workers = buildWorkers(anak, obs);
+
+    const perencanaan  = Array.isArray(rawRencana)      ? rawRencana      : (rawRencana?.data      || []);
+    const diary        = Array.isArray(rawDiary)        ? rawDiary        : (rawDiary?.data        || []);
+    const evalMenengah = Array.isArray(rawEvalMenengah) ? rawEvalMenengah : (rawEvalMenengah?.data || []);
+    const evalAkhir    = Array.isArray(rawEvalAkhir)    ? rawEvalAkhir    : (rawEvalAkhir?.data    || []);
+
+    const workers = buildWorkers(anak, obs, perencanaan, diary, evalMenengah, evalAkhir);
     const itt     = calcITT(anak, obs);
 
     const referral = anak.filter(a => a.hari > 30).slice(0,15).map(a => ({
@@ -499,10 +531,6 @@ const API = (() => {
       .map(o => ({ tgl:o.tgl, nama:`Kunjungan CBR — ${o.na}`, outcome:1, peserta:1, lokasi:'—', scn:o.scn||'' }));
 
     // Attach Gemini tema — tidak bisa akses PropertiesService di frontend
-    const perencanaan  = Array.isArray(rawRencana)      ? rawRencana      : (rawRencana?.data      || []);
-    const diary        = Array.isArray(rawDiary)        ? rawDiary        : (rawDiary?.data        || []);
-    const evalMenengah = Array.isArray(rawEvalMenengah) ? rawEvalMenengah : (rawEvalMenengah?.data || []);
-    const evalAkhir    = Array.isArray(rawEvalAkhir)    ? rawEvalAkhir    : (rawEvalAkhir?.data    || []);
 
     const stakeholder = {
       'CBR Worker'    : { total: workers.length, L: Math.ceil(workers.length*.4), P: Math.floor(workers.length*.6) },

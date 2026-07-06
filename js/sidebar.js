@@ -373,7 +373,6 @@ function buildBottomNav() {
         { page:'w-diary',    label:'Buku Harian', icon:ICONS.diary,    href:`${base}/pages/worker-diary.html` },
         { page:'w-eval-mid', label:'Eval. Tengah',icon:ICONS.eval,     href:`${base}/pages/worker-eval-menengah.html` },
         { page:'w-eval',     label:'Eval. Akhir', icon:ICONS.eval,     href:`${base}/pages/worker-eval.html` },
-        { page: label:'Aktivitas',   icon:ICONS.activity, href:`${base}/pages/worker-aktivitas.html` },
       ],
     },
     {

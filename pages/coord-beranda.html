@@ -577,19 +577,15 @@ function renderPage(d, scnId){
   const totalKunj  = workers.reduce((s,w)=>s+w.kunjungan_bulan,0);
 
   // ── KPI — KELENGKAPAN 6 FORM ──
-  const namaSet = new Set(anak.map(a=>(a.nama||'').toLowerCase()).filter(Boolean));
-  function hitungAda(arr, namaField){
-    const s = new Set((arr||[]).map(r=>(r[namaField]||r.na||r.nama_anak||'').toLowerCase()).filter(Boolean));
-    let count = 0; namaSet.forEach(n=>{ if(s.has(n)) count++; }); return count;
-  }
   const formData = [
-    { label:'Data Awal',      count: total,                              c:'#F97316', icon:KPI_ICONS.total },
-    { label:'Observasi',      count: hitungAda(d.obs,'na'),              c:'#2563eb', icon:KPI_ICONS.obs   },
-    { label:'Perencanaan',    count: hitungAda(d.perencanaan,'nama_anak'),c:'#16a34a',icon:KPI_ICONS.worker },
-    { label:'Buku Harian',    count: hitungAda(d.diary,'nama_anak'),     c:'#9333ea', icon:KPI_ICONS.obs   },
-    { label:'Eval. Menengah', count: hitungAda(d.evalMenengah,'nama_anak'),c:'#d97706',icon:KPI_ICONS.skor },
-    { label:'Eval. Akhir',    count: hitungAda(d.evalAkhir,'nama_anak'), c:'#059669', icon:KPI_ICONS.obs   },
+    { label:'Data Awal',      count: (d.anak||[]).length,              c:'#F97316', icon:KPI_ICONS.total },
+    { label:'Observasi',      count: (d.obs||[]).length,               c:'#2563eb', icon:KPI_ICONS.obs   },
+    { label:'Perencanaan',    count: (d.perencanaan||[]).length,       c:'#16a34a', icon:KPI_ICONS.worker },
+    { label:'Buku Harian',    count: (d.diary||[]).length,             c:'#9333ea', icon:KPI_ICONS.obs   },
+    { label:'Eval. Menengah', count: (d.evalMenengah||[]).length,      c:'#d97706', icon:KPI_ICONS.skor  },
+    { label:'Eval. Akhir',    count: (d.evalAkhir||[]).length,         c:'#059669', icon:KPI_ICONS.obs   },
   ];
+  const total = Math.max((d.anak||[]).length, 1);
   const kpiData = formData.map(f=>({
     v    : f.count,
     l    : f.label,

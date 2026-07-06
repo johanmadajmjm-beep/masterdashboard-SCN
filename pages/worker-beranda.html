@@ -696,22 +696,13 @@ function renderFormSummary(d){
   const total = anak.length;
   if(!total) return;
 
-  const namaSet = new Set(anak.map(a=>(a.nama||'').toLowerCase()).filter(Boolean));
-
-  function hitungAda(arr, namaField){
-    const s = new Set((arr||[]).map(r=>(r[namaField]||r.na||r.nama_anak||'').toLowerCase()).filter(Boolean));
-    let count = 0;
-    namaSet.forEach(n=>{ if(s.has(n)) count++; });
-    return count;
-  }
-
   const forms = [
-    { label:'Data Awal',         icon:'📋', count:total,                              href:'worker-data-awal.html', c:'#F97316' },
-    { label:'Observasi',         icon:'👁', count:hitungAda(d.obs,'na'),              href:'worker-obs.html',       c:'#2563eb' },
-    { label:'Perencanaan',       icon:'📝', count:hitungAda(d.perencanaan,'nama_anak'),href:'worker-plan.html',     c:'#16a34a' },
-    { label:'Buku Harian',       icon:'📖', count:hitungAda(d.diary,'nama_anak'),     href:'worker-diary.html',    c:'#9333ea' },
-    { label:'Eval. Menengah',    icon:'📊', count:hitungAda(d.evalMenengah,'nama_anak'),href:'worker-eval-menengah.html', c:'#d97706' },
-    { label:'Eval. Akhir',       icon:'✅', count:hitungAda(d.evalAkhir,'nama_anak'), href:'worker-eval.html',     c:'#059669' },
+    { label:'Data Awal',         icon:'📋', count:(anak||[]).length,              href:'worker-data-awal.html', c:'#F97316' },
+    { label:'Observasi',         icon:'👁', count:(d.obs||[]).length,             href:'worker-obs.html',       c:'#2563eb' },
+    { label:'Perencanaan',       icon:'📝', count:(d.perencanaan||[]).length,     href:'worker-plan.html',      c:'#16a34a' },
+    { label:'Buku Harian',       icon:'📖', count:(d.diary||[]).length,           href:'worker-diary.html',     c:'#9333ea' },
+    { label:'Eval. Menengah',    icon:'📊', count:(d.evalMenengah||[]).length,    href:'worker-eval-menengah.html', c:'#d97706' },
+    { label:'Eval. Akhir',       icon:'✅', count:(d.evalAkhir||[]).length,       href:'worker-eval.html',      c:'#059669' },
   ];
 
   document.getElementById('form-summary-grid').innerHTML = forms.map(f=>{

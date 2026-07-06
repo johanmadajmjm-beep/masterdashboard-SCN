@@ -612,8 +612,6 @@ function renderPage(d, scnId){
   window._cbAnakAll = anak;
   window._cbObsAll  = d.obs||[];
   window._cbPlanAll = d.perencanaan||[];
-  // Pre-render temuan agar siap saat tab diklik
-  setTimeout(renderTemuan, 100);
 
   document.getElementById('kpi-coord').innerHTML = kpiData.map(k=>`
     <div class="kpi-box" style="--kc:${k.c}">
@@ -1017,10 +1015,11 @@ function renderRagam(){
   }).join('');
 
   // DAFTAR ANAK
-  document.getElementById('ragam-list-title').textContent =
+  const ragamListTitle = document.getElementById('ragam-list-title');
+  if(ragamListTitle) ragamListTitle.textContent =
     'Daftar Anak' + (selRagam ? ' — ' + selRagam : '') + (selDetail ? ' · ' + selDetail : '');
-  document.getElementById('ragam-list-count').textContent = n + ' anak';
-  document.getElementById('ragam-anak-list').innerHTML = a.length
+  (document.getElementById('ragam-list-count')||{innerHTML:'',textContent:'',style:{}}).textContent = n + ' anak';
+  (document.getElementById('ragam-anak-list')||{innerHTML:'',textContent:'',style:{}}).innerHTML = a.length
     ? a.map(x=>{
         const color = RC[x.ragam]||'#94a3b8';
         return `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #f8fafc;font-size:.78rem">

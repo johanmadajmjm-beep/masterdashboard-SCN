@@ -481,6 +481,8 @@ const API = (() => {
         const resp = await fetch(`${url}?sheet=${sheetName}&token=${token}`);
         if (!resp.ok) return [];
         const json = await resp.json();
+        if (json.ok === false) { console.warn(`[API] fetchAll ${sheetName} error:`, json.error); return []; }
+        console.log(`[API] fetchAll ${sheetName}:`, (json.data||[]).length, 'rows');
         return json.data || [];
       } catch(e) { console.warn(`[API] Gagal fetch all ${sheetName}:`, e.message); return []; }
     }

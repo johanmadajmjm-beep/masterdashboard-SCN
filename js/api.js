@@ -306,19 +306,7 @@ const API = (() => {
 
   // ── LOAD DATA SATU SCN ────────────────────────────────────
   async function loadScn(scnId) {
-    // Cache-first: ambil dari sessionStorage dulu (instan)
-    const cachedAwal = ssGet(scnId + '_DataAwal');
-    const cachedObs  = ssGet(scnId + '_DataObs');
-
-    if (cachedAwal) {
-      // Render dari cache langsung, cek lastSync di background
-      const result = buildResult(scnId, cachedAwal.data, cachedObs ? cachedObs.data : []);
-      // Background refresh: cek apakah ada data baru
-      _refreshIfNew(scnId, cachedAwal.lastSync);
-      return result;
-    }
-
-    // Tidak ada cache — fetch penuh dari server
+    // Selalu fetch fresh — tidak pakai cache parsial yang bisa menyebabkan data tidak konsisten
     const serverLastSync = await fetchLastSync(scnId);
     const [rawAwal, rawObs, rawRencana, rawDiary, rawEvalMenengah, rawEvalAkhir] = await Promise.all([
       fetchSheet(scnId, 'DataAwal',        serverLastSync),
@@ -456,51 +444,79 @@ const API = (() => {
 
   // ── AGREGASI SEMUA SCN ────────────────────────────────────
   async function loadAll() {
-    const scnIds  = Object.keys(ENDPOINTS);
-    const results = await Promise.all(scnIds.map(id => loadScn(id)));
-    const valid   = results.filter(Boolean);
+    // Ambil endpoint pertama yang tersedia (semua pakai endpoint sama)
+    const anyScnId = Object.keys(ENDPOINTS)[0];
+    const url = ENDPOINTS[anyScnId];
+    if (!url) { setBadge(false, null); return null; }
 
-    if (!valid.length) {
+    // Fetch DataAwal & DataObs per SCN (butuh filter scn)
+    // Fetch 5 form lain sekali tanpa filter (ambil semua data)
+    const token = AUTH.getToken() || '';
+
+    async function fetchAll(sheetName) {
+      try {
+        const resp = await fetch(`${url}?sheet=${sheetName}&token=${token}`);
+        if (!resp.ok) return [];
+        const json = await resp.json();
+        return json.data || [];
+      } catch(e) { console.warn(`[API] Gagal fetch all ${sheetName}:`, e.message); return []; }
+    }
+
+    // Fetch semua sheet paralel
+    const [rawAwal, rawObs, rawRencana, rawDiary, rawEvalMenengah, rawEvalAkhir, lastSyncResp] = await Promise.all([
+      fetchAll('DataAwal'),
+      fetchAll('DataObs'),
+      fetchAll('DataRencana'),
+      fetchAll('DataDiary'),
+      fetchAll('DataEvalMenengah'),
+      fetchAll('DataEvalAkhir'),
+      fetch(`${url}?sheet=meta&token=${token}`).then(r=>r.json()).catch(()=>null),
+    ]);
+
+    if (!rawAwal || !rawAwal.length) {
       setBadge(false, null);
       return null;
     }
 
-    const workers     = valid.flatMap(d => d.workers.map(w => ({ ...w, scn: d.meta.scn, scn_id: d.meta.scn })));
-    const anak        = valid.flatMap(d => d.anak.map(a => ({ ...a, scn: d.meta.scn })));
-    const obs         = valid.flatMap(d => d.obs.map(o => ({ ...o, scn: d.meta.scn })));
-    const referral    = valid.flatMap(d => d.referral.map(r => ({ ...r, scn: d.meta.scn })));
-    const aktivitas   = valid.flatMap(d => d.aktivitas).sort((a, b) => b.tgl.localeCompare(a.tgl));
-    const cerita      = valid.flatMap(d => d.cerita);
-    const perencanaan = valid.flatMap(d => d.perencanaan || []);
-    const diary       = valid.flatMap(d => d.diary       || []);
-    const evalMenengah= valid.flatMap(d => d.evalMenengah|| []);
-    const evalAkhir   = valid.flatMap(d => d.evalAkhir   || []);
-    const stakeholder = {};
-    valid.forEach(d => {
-      Object.entries(d.stakeholder).forEach(([cat, val]) => {
-        if (!stakeholder[cat]) stakeholder[cat] = { total: 0, L: 0, P: 0 };
-        stakeholder[cat].total += val.total;
-        stakeholder[cat].L    += val.L;
-        stakeholder[cat].P    += val.P;
-      });
-    });
-    const ittAgg = {};
-    valid.forEach(d => {
-      Object.entries(d.itt.Y1_Q2).forEach(([key, val]) => {
-        if (!ittAgg[key]) ittAgg[key] = { cap: 0, target_y1: 0, target_total: 0 };
-        ittAgg[key].cap          += val.cap;
-        ittAgg[key].target_y1   += val.target_y1;
-        ittAgg[key].target_total += val.target_total;
-      });
-    });
+    const lastSync = lastSyncResp ? lastSyncResp.lastSync : null;
 
-    setBadge(true, valid[0].meta.lastSync);
+    // Normalize DataAwal
+    const awalRows = Array.isArray(rawAwal) ? rawAwal : (rawAwal.data || []);
+    const obsRows  = Array.isArray(rawObs)  ? rawObs  : (rawObs.data  || []);
+
+    const anak    = normalizeDataAwal(awalRows);
+    const obs     = normalizeObs(obsRows);
+    calcStats(anak, obs);
+    const workers = buildWorkers(anak, obs);
+    const itt     = calcITT(anak, obs);
+
+    const referral = anak.filter(a => a.hari > 30).slice(0,15).map(a => ({
+      nama: a.nama, tujuan:'Puskesmas / Dinas Sosial', status:'Proses',
+      tgl: new Date(Date.now() - a.hari * 86400000).toISOString().substring(0,10), cbr: a.cbr,
+    }));
+    const aktivitas = obs.filter(o => o.tgl && o.tgl !== '—')
+      .sort((a, b) => b.tgl.localeCompare(a.tgl)).slice(0,10)
+      .map(o => ({ tgl:o.tgl, nama:`Kunjungan CBR — ${o.na}`, outcome:1, peserta:1, lokasi:'—', scn:o.scn||'' }));
+
+    // Attach Gemini tema
+    const props = PropertiesService ? null : null; // tidak bisa akses di frontend
+    const perencanaan  = Array.isArray(rawRencana)      ? rawRencana      : (rawRencana?.data      || []);
+    const diary        = Array.isArray(rawDiary)        ? rawDiary        : (rawDiary?.data        || []);
+    const evalMenengah = Array.isArray(rawEvalMenengah) ? rawEvalMenengah : (rawEvalMenengah?.data || []);
+    const evalAkhir    = Array.isArray(rawEvalAkhir)    ? rawEvalAkhir    : (rawEvalAkhir?.data    || []);
+
+    const stakeholder = {
+      'CBR Worker'    : { total: workers.length, L: Math.ceil(workers.length*.4), P: Math.floor(workers.length*.6) },
+      'Pengasuh/Ortu' : { total: anak.length,    L: Math.round(anak.length*.3),  P: Math.round(anak.length*.7)  },
+    };
+
+    setBadge(true, lastSync);
 
     return {
-      meta        : { scn: 'Semua SCN', project: 'BEN', provinsi: 'Nasional', tahun: 2026 },
-      workers, anak, obs, referral, aktivitas, cerita, stakeholder,
+      meta        : { scn: 'Semua SCN', project: 'BEN', provinsi: 'Nasional', tahun: 2026, lastSync },
+      workers, anak, obs, referral, aktivitas, cerita: [], stakeholder,
       perencanaan, diary, evalMenengah, evalAkhir,
-      itt: { Y1_Q2: ittAgg },
+      itt: { Y1_Q2: itt },
     };
   }
 

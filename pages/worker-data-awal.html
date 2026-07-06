@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <style>html,body{background:#F8FAFC}</style><script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>CBR Worker — Data Awal | MEL NLR</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <style>
+    .ph{display:flex;align-items:flex-start;justify-content:space-between;border-left:4px solid #F97316;padding-left:14px;margin-bottom:12px}
+    .ph h1{font-size:1.25rem;font-weight:700;color:#111827;margin:0}
+    .tnav{display:flex;gap:2px;border-bottom:1px solid #e5e7eb;margin-bottom:12px}
+    .tbtn{display:flex;align-items:center;gap:6px;padding:7px 14px;border:none;border-bottom:2px solid transparent;background:none;color:#6b7280;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;border-radius:5px 5px 0 0}
+    .tbtn:hover{color:#111827;background:#f9fafb}
+    .tbtn.active{color:#d4500a;border-bottom-color:#d4500a;background:rgba(212,80,10,.05)}
+    .tbtn svg{width:13px;height:13px}
+    .tpane{display:none}
+    .tpane.active{display:block}
+    .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:12px}
+    .kpi-box{min-width:0;background:white;border:1px solid #e5e7eb;border-left:3px solid var(--kc,#F97316);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+    .kpi-ico{width:32px;height:32px;border-radius:8px;background:var(--ki,rgba(249,115,22,.1));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .kpi-ico svg{width:15px;height:15px}
+    .kpi-num{font-size:1.35rem;font-weight:800;color:var(--kc,#F97316);line-height:1}
+    .kpi-lbl{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin:4px 0 2px}
+    .kpi-sub{font-size:.6rem;color:#9ca3af}
+    .profil-panel{background:white;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:10px}
+    .profil-5col{display:grid;grid-template-columns:200px 1fr 1fr 1fr 1fr;gap:0}
+    @media(max-width:1100px){.profil-5col{grid-template-columns:200px 1fr 1fr}}
+    @media(max-width:700px){.profil-5col{grid-template-columns:1fr 1fr}}
+    .pcol{padding:12px 14px;border-right:1px solid #f3f4f6}
+    .pcol:last-child{border-right:none}
+    .pcol-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;margin-bottom:10px}
+    .donut-wrap{position:relative;height:130px;margin-bottom:8px}
+    .donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);text-align:center;pointer-events:none}
+    .donut-num{font-size:1.3rem;font-weight:800;color:#111827;line-height:1}
+    .donut-lbl{font-size:.55rem;color:#9ca3af;font-weight:600;text-transform:uppercase}
+    .donut-legend{display:flex;flex-wrap:wrap;gap:5px 10px}
+    .dl-item{display:flex;align-items:center;gap:4px;font-size:.62rem;color:#6b7280}
+    .dl-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+    .hbar-item{margin-bottom:7px}
+    .hbar-meta{display:flex;justify-content:space-between;font-size:.65rem;color:#374151;margin-bottom:3px;font-weight:500}
+    .hbar-meta span:last-child{font-weight:700}
+    .hbar-track{height:6px;background:#f3f4f6;border-radius:99px}
+    .hbar-fill{height:100%;border-radius:99px}
+    .slay-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f9fafb}
+    .slay-item:last-child{border-bottom:none}
+    .slay-ico{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .slay-ico svg{width:12px;height:12px}
+    .slay-label{font-size:.68rem;font-weight:600;color:#374151}
+    .slay-track{height:5px;background:#f3f4f6;border-radius:99px;margin-top:4px}
+    .slay-fill{height:100%;border-radius:99px}
+    .slay-right{margin-left:auto;text-align:right;flex-shrink:0}
+    .slay-num{font-size:1.1rem;font-weight:800;color:#111827;line-height:1}
+    .slay-pct{font-size:.6rem;color:#9ca3af}
+    .narr-box{background:#fff9f5;border:1px solid rgba(212,80,10,.12);border-left:4px solid #d4500a;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:.72rem;font-weight:500;line-height:1.7;color:#374151}
+    .narr-box strong{color:#d4500a}
+    .hl-r{color:#dc2626;font-weight:700}
+    .hl-g{color:#16a34a;font-weight:700}
+    .ch{position:relative}
+    .ch.h170{height:170px}
+    .hchart-wrap{padding:4px 0}
+    .hchart-item{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+    .hchart-label{font-size:.65rem;color:#374151;font-weight:500;width:90px;flex-shrink:0;text-align:right}
+    .hchart-track{flex:1;height:22px;background:#f3f4f6;border-radius:5px;overflow:hidden;position:relative}
+    .hchart-fill{height:100%;border-radius:5px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;transition:width .5s ease;min-width:30px}
+    .hchart-val{font-size:.65rem;font-weight:700;color:white}
+    .skor-level-wrap{display:flex;align-items:center;gap:16px;padding:4px 0}
+    .skor-level-donut{position:relative;width:130px;height:130px;flex-shrink:0}
+    .skor-level-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+    .skor-level-avg{font-size:1.3rem;font-weight:800;color:#111827;line-height:1}
+    .skor-level-sub{font-size:.52rem;color:#9ca3af;font-weight:600;text-transform:uppercase}
+    .skor-level-legend{flex:1;display:flex;flex-direction:column;gap:8px}
+    .sll-item{display:flex;align-items:center;gap:6px}
+    .sll-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+    .sll-info{flex:1}
+    .sll-name{font-size:.65rem;color:#374151;font-weight:600}
+    .sll-score{font-size:.72rem;font-weight:800;color:#111827}
+    .sdiv{display:flex;align-items:center;gap:8px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9ca3af;margin:16px 0 10px}
+    .sdiv::before{content:'';width:3px;height:11px;background:#F97316;border-radius:2px;flex-shrink:0}
+    .sdiv::after{content:'';flex:1;height:1px;background:#e5e7eb}
+    .faktor-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+    @media(max-width:800px){.faktor-grid{grid-template-columns:1fr}}
+    .faktor-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
+    .faktor-card-head{padding:10px 14px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:8px}
+    .faktor-card-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:#fff;flex-shrink:0}
+    .faktor-card-title{font-size:.78rem;font-weight:700;color:#111827}
+    .faktor-card-out{font-size:.62rem;color:#9ca3af;margin-top:1px}
+    .faktor-card-body{display:grid;grid-template-columns:1fr 1fr;min-height:80px}
+    .faktor-col{padding:10px 12px}
+    .faktor-col:first-child{border-right:1px solid #f3f4f6}
+    .faktor-col-head{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+    .faktor-item{font-size:.68rem;color:#374151;padding:2px 0;display:flex;align-items:flex-start;gap:5px;line-height:1.4}
+    .faktor-item-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;margin-top:5px}
+    .faktor-item-count{font-size:.6rem;font-weight:700;color:#9ca3af;font-family:monospace;flex-shrink:0;margin-left:auto;padding-left:4px}
+    .faktor-badge{font-size:.6rem;background:#f1f5f9;border:0.5px solid #e5e7eb;border-radius:99px;padding:1px 7px;color:#6b7280;font-weight:600}
+    .kw-badge{font-size:.6rem;color:#94a3b8;font-weight:600;background:#f1f5f9;padding:2px 7px;border-radius:99px}
+    .kw-item{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid #f9fafb;position:relative}
+    .kw-item:last-child{border-bottom:none}
+    .kw-rank{font-size:.58rem;font-weight:700;color:#d1d5db;min-width:14px;text-align:right;flex-shrink:0}
+    .kw-main{flex:1;min-width:0}
+    .kw-top{display:flex;align-items:center;gap:7px}
+    .kw-name{font-size:.71rem;font-weight:600;color:#1f2937;flex:1;min-width:0}
+    .kw-track{width:80px;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;flex-shrink:0}
+    .kw-fill{height:100%;border-radius:3px}
+    .kw-num{font-size:.68rem;font-weight:700;font-family:monospace;min-width:60px;text-align:right;flex-shrink:0}
+    .kw-pct{font-size:.6rem;color:#9ca3af;min-width:36px;text-align:right;flex-shrink:0}
+    .page .grid-2{gap:8px;margin-bottom:8px}
+    .page .card{margin-bottom:8px}
+    .seksi-title{font-size:.82rem;font-weight:700;color:#111827;margin-bottom:10px}
+  </style>
+</head>
+<body>
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="topbar-breadcrumb">CBR Worker <span class="sep">›</span><span class="current">Data Awal</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
+
+<div class="page">
+  <div class="ph">
+    <div>
+      <h1>Data Awal Anak Dampingan</h1>
+      <div style="font-size:.72rem;color:#6b7280;margin-top:3px">Profil, skor kesejahteraan, dan kondisi pengasuh</div>
+    </div>
+    <div style="font-size:.65rem;color:#9ca3af;text-align:right;line-height:1.6">
+      <div>© Data terakhir diperbarui</div>
+      <div><strong id="freshness-detail">—</strong></div>
+    </div>
+  </div>
+
+  <!-- TAB NAV -->
+  <div class="tnav">
+    <button class="tbtn active" data-tab="profil" onclick="switchTab('profil',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>
+      Data Awal Anak
+    </button>
+    <button class="tbtn" data-tab="skor" onclick="switchTab('skor',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg>
+      Skor Anak
+    </button>
+    <button class="tbtn" data-tab="pengasuh" onclick="switchTab('pengasuh',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+      Skor Pengasuh
+    </button>
+  </div>
+
+  <!-- TAB 1: DATA AWAL ANAK -->
+  <div class="tpane active" id="tab-profil">
+    <div class="kpi-row" id="kpi-anak"></div>
+    <div class="seksi-title">Profil Anak Dampingan</div>
+    <div class="profil-panel" style="margin-bottom:10px">
+      <div class="profil-5col">
+        <div class="pcol">
+          <div class="pcol-title">Level Disabilitas</div>
+          <div class="donut-wrap">
+            <canvas id="c-level"></canvas>
+            <div class="donut-center">
+              <div class="donut-num" id="donut-total">—</div>
+              <div class="donut-lbl">Anak</div>
+            </div>
+          </div>
+          <div class="donut-legend" id="level-legend"></div>
+        </div>
+        <div class="pcol">
+          <div class="pcol-title">Ragam Disabilitas</div>
+          <div id="ragam-hbar"></div>
+        </div>
+        <div class="pcol">
+          <div class="pcol-title">Status Layanan</div>
+          <div id="status-layanan"></div>
+        </div>
+        <div class="pcol">
+          <div class="pcol-title">Jenis Kelamin</div>
+          <div class="ch" style="height:150px"><canvas id="c-jk"></canvas></div>
+        </div>
+        <div class="pcol">
+          <div class="pcol-title">Kelompok Usia</div>
+          <div class="ch" style="height:150px"><canvas id="c-usia"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: SKOR ANAK -->
+  <div class="tpane" id="tab-skor">
+    <div class="narr-box" id="narr-skor">Memuat...</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Distribusi Skor Anak (Cantrill 1–10)</span></div>
+        <div class="card-body"><div class="ch h170"><canvas id="c-skor-dist"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Skor per Ragam Disabilitas</span></div>
+        <div class="card-body"><div id="c-skor-ragam-hbar" class="hchart-wrap"></div></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Skor per Level Disabilitas</span></div>
+        <div class="card-body">
+          <div class="skor-level-wrap">
+            <div class="skor-level-donut">
+              <canvas id="c-skor-level"></canvas>
+              <div class="skor-level-center">
+                <div class="skor-level-avg" id="skor-level-avg">—</div>
+                <div class="skor-level-sub">Avg</div>
+              </div>
+            </div>
+            <div class="skor-level-legend" id="skor-level-legend"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Skor per Kelompok Usia</span></div>
+        <div class="card-body"><div class="ch h170"><canvas id="c-skor-usia"></canvas></div></div>
+      </div>
+    </div>
+    <div class="sdiv" style="display:flex;align-items:center;justify-content:space-between">
+      <span>Faktor yang mempengaruhi anak — naik dan turun tangga</span>
+      <span class="faktor-badge" id="kw-anka-naik-ct"></span>
+    </div>
+    <div class="faktor-grid" id="kw-anak-naik"></div>
+  </div>
+
+  <!-- TAB 3: SKOR PENGASUH -->
+  <div class="tpane" id="tab-pengasuh">
+    <div class="narr-box" id="narr-pengasuh">Memuat...</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Distribusi Skor Pengasuh (Cantrill 1–10)</span></div>
+        <div class="card-body"><div class="ch h170"><canvas id="c-sp-dist"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Skor Pengasuh per CBR Worker</span></div>
+        <div class="card-body"><div id="c-sp-worker-hbar" class="hchart-wrap"></div></div>
+      </div>
+    </div>
+    <div class="sdiv" style="display:flex;align-items:center;justify-content:space-between">
+      <span>Faktor yang mempengaruhi pengasuh — naik dan turun tangga</span>
+      <span class="faktor-badge" id="kw-peng-naik-ct"></span>
+    </div>
+    <div class="faktor-grid" id="kw-peng-naik"></div>
+  </div>
+
+</div></div>
+
+<script>
+const RO  = ['Fisik','Intelektual','Sensorik (penglihatan)','Sensorik (pendengaran dan bicara)','Ganda','Lainnya'];
+const RS  = {'Fisik':'Fisik','Intelektual':'Intelektual','Sensorik (penglihatan)':'S.Penglihatan','Sensorik (pendengaran dan bicara)':'S.Pendengaran','Ganda':'Ganda','Lainnya':'Lainnya'};
+const RC  = {'Fisik':'#F97316','Intelektual':'#FB923C','Sensorik (penglihatan)':'#FDBA74','Sensorik (pendengaran dan bicara)':'#FED7AA','Ganda':'#1E293B','Lainnya':'#94A3B8'};
+const LO  = ['Parah (dukungan penuh)','Sedang (dukungan reguler)','Rendah (sedikit dukungan)'];
+const LC  = {'Parah (dukungan penuh)':'#1E293B','Sedang (dukungan reguler)':'#F97316','Rendah (sedikit dukungan)':'#FDBA74'};
+const AGO = ['0-5 th','6-12 th','13-17 th','18-24 th','25+ th'];
+const PAL = ['#F97316','#FB923C','#FDBA74','#FED7AA','#1E293B','#475569','#94A3B8','#CBD5E1'];
+const ICONS = {
+  total   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  skor    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+  parah   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  kritis  : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  epilepsi: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`,
+  terapi  : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  obat    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>`,
+  ganda   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`,
+};
+let CH = {}, ALL = [];
+function sc(v){ return v<=3?'#1E293B':v<=6?'#FB923C':'#F97316'; }
+function avg(a){ const v=a.filter(x=>x!=null&&!isNaN(x)); return v.length?v.reduce((a,b)=>a+b,0)/v.length:0; }
+function cnt(a,f){ const m={}; a.forEach(r=>{const v=r[f];if(v&&v!=='—')m[v]=(m[v]||0)+1;}); return m; }
+function mk(id,type,data,opts){
+  if(CH[id]){CH[id].destroy();delete CH[id];}
+  const el=document.getElementById(id); if(!el)return;
+  CH[id]=new Chart(el,{type,data,options:opts});
+}
+const BO = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},
+  scales:{
+    x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}}},
+    y:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}},beginAtZero:true}
+  },
+  animation:{onComplete:function(){
+    const ctx=this.ctx;
+    this.data.datasets.forEach((ds,i)=>{
+      const meta=this.getDatasetMeta(i);
+      meta.data.forEach((bar,idx)=>{
+        const v=ds.data[idx]; if(!v&&v!==0)return;
+        ctx.save(); ctx.fillStyle='#374151'; ctx.font='bold 9px system-ui,sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='bottom';
+        ctx.fillText(typeof v==='number'&&v%1!==0?v.toFixed(1):v,bar.x,bar.y-2);
+        ctx.restore();
+      });
+    });
+  }}
+};
+
+function switchTab(id,btn){
+  document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  setTimeout(()=>{ Object.values(CH).forEach(c=>{try{c.resize();}catch(e){}}); },50);
+}
+
+function renderPage(d,scnId){
+  if(!d||!d.anak)return;
+  ALL=d.anak;
+  renderAnak();
+  renderSkor();
+  renderPengasuh();
+  const st=document.getElementById('sync-time');
+  const fd=document.getElementById('freshness-detail');
+  if(st&&fd){const t=st.textContent.replace('Sync:','').trim();if(t)fd.textContent=t;}
+}
+
+function renderAnak(){
+  const a=ALL, n=a.length;
+  const lk=a.filter(x=>x.gender==='L').length, pr=a.filter(x=>x.gender==='P').length;
+  const parah=a.filter(x=>(x.level||'').includes('Parah')).length;
+  const kritis=a.filter(x=>x.sp!=null&&x.sp<=3).length;
+  const ep=a.filter(x=>x.ep).length, tr=a.filter(x=>x.tr).length, ob=a.filter(x=>x.ob).length;
+  const ganda=a.filter(x=>(x.ragam||'').toLowerCase()==='ganda').length;
+  const sp=a.map(x=>x.sp).filter(v=>v!=null);
+  const av=sp.length?avg(sp):0;
+  const kd=[
+    {v:n,          l:'Total Anak',       s:lk+' L · '+pr+' P',              c:'#F97316',ki:'rgba(249,115,22,.1)', ic:ICONS.total},
+    {v:av.toFixed(1),l:'Avg Skor Anak',  s:'Cantrill Ladder 1–10',           c:sc(av),   ki:'rgba(249,115,22,.1)', ic:ICONS.skor},
+    {v:parah,      l:'Level Parah',      s:'Butuh dukungan penuh',           c:'#1E293B',ki:'rgba(30,41,59,.1)',   ic:ICONS.parah},
+    {v:kritis,     l:'Kondisi Kritis',   s:'Skor ≤ 3',                       c:'#1E293B',ki:'rgba(30,41,59,.1)',   ic:ICONS.kritis},
+    {v:ep,         l:'Punya Epilepsi',   s:n?Math.round(ep/n*100)+'% total':'—',c:'#FB923C',ki:'rgba(251,146,60,.1)',ic:ICONS.epilepsi},
+    {v:tr,         l:'Pernah Terapi',    s:'dari '+n+' anak',                c:'#FDBA74',ki:'rgba(253,186,116,.12)',ic:ICONS.terapi},
+    {v:ob,         l:'Pengobatan Aktif', s:'dalam 1 tahun terakhir',         c:'#475569',ki:'rgba(71,85,105,.1)',  ic:ICONS.obat},
+    {v:ganda,      l:'Disabilitas Ganda',s:'beban pengasuhan berlipat',      c:'#FDBA74',ki:'rgba(253,186,116,.12)',ic:ICONS.ganda},
+  ];
+  document.getElementById('kpi-anak').innerHTML=kd.map(k=>`
+    <div class="kpi-box" style="--kc:${k.c}">
+      <div class="kpi-ico" style="background:${k.ki};color:${k.c}">${k.ic}</div>
+      <div>
+        <div class="kpi-num">${k.v}</div>
+        <div class="kpi-lbl">${k.l}</div>
+        <div class="kpi-sub">${k.s}</div>
+      </div>
+    </div>`).join('');
+  const lc=cnt(a,'level');
+  document.getElementById('donut-total').textContent=n;
+  mk('c-level','doughnut',{labels:LO.map(l=>l.split(' ')[0]),datasets:[{data:LO.map(l=>lc[l]||0),backgroundColor:LO.map(l=>LC[l]),borderColor:'#F8FAFC',borderWidth:2,hoverOffset:4}]},{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}}});
+  document.getElementById('level-legend').innerHTML=[
+    {l:'Parah',c:'#1E293B',n:lc['Parah (dukungan penuh)']||0},
+    {l:'Sedang',c:'#F97316',n:lc['Sedang (dukungan reguler)']||0},
+    {l:'Rendah',c:'#FDBA74',n:lc['Rendah (sedikit dukungan)']||0}
+  ].map(x=>`<div class="dl-item"><div class="dl-dot" style="background:${x.c}"></div>${x.l} (${x.n})</div>`).join('');
+  const rc=cnt(a,'ragam'), mx=Math.max(...RO.map(r=>rc[r]||0),1);
+  document.getElementById('ragam-hbar').innerHTML=RO.map(r=>`
+    <div class="hbar-item">
+      <div class="hbar-meta"><span>${RS[r]}</span><span>${rc[r]||0}</span></div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${Math.round((rc[r]||0)/mx*100)}%;background:${RC[r]}"></div></div>
+    </div>`).join('');
+  const mendapat=a.filter(x=>x.tr||x.ob).length, proses=a.filter(x=>x.ep).length, belum=Math.max(n-mendapat,0);
+  document.getElementById('status-layanan').innerHTML=[
+    {ic:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,bg:'#d1fae5',c:'#059669',f:'#059669',l:'Mendapat Layanan',n:mendapat,p:n?Math.round(mendapat/n*100):0},
+    {ic:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,bg:'#fef3c7',c:'#d97706',f:'#f59e0b',l:'Dalam Proses',n:proses,p:n?Math.round(proses/n*100):0},
+    {ic:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,bg:'#fee2e2',c:'#dc2626',f:'#ef4444',l:'Belum Mendapat',n:belum,p:n?Math.round(belum/n*100):0},
+  ].map(s=>`
+    <div class="slay-item">
+      <div class="slay-ico" style="background:${s.bg};color:${s.c}">${s.ic}</div>
+      <div style="flex:1">
+        <div class="slay-label">${s.l}</div>
+        <div class="slay-track"><div class="slay-fill" style="width:${s.p}%;background:${s.f}"></div></div>
+      </div>
+      <div class="slay-right">
+        <div class="slay-num">${s.n}</div>
+        <div class="slay-pct">${s.p}%</div>
+      </div>
+    </div>`).join('');
+  mk('c-jk','bar',{labels:['Laki-laki','Perempuan'],datasets:[{data:[lk,pr],backgroundColor:['#F97316','#1E293B'],borderRadius:6,borderSkipped:false,maxBarThickness:48}]},{...BO,layout:{padding:{top:16}}});
+  const au=cnt(a,'gu');
+  mk('c-usia','bar',{labels:AGO,datasets:[{data:AGO.map(x=>au[x]||0),backgroundColor:PAL,borderRadius:4,borderSkipped:false}]},{...BO,layout:{padding:{top:16}}});
+}
+
+function renderSkor(){
+  const a=ALL, sp=a.map(x=>x.sp).filter(v=>v!=null), av=sp.length?avg(sp):0;
+  const kr=a.filter(x=>x.sp!=null&&x.sp<=3), bg=a.filter(x=>x.sp!=null&&x.sp>=8);
+  document.getElementById('narr-skor').innerHTML=`Rata-rata skor kesejahteraan anak: <strong>${av.toFixed(1)}/10</strong>. <span class="hl-r">${kr.length} anak kondisi kritis (skor ≤ 3)</span> memerlukan intervensi segera. <span class="hl-g">${bg.length} anak skor ≥ 8</span> — menunjukkan ketangguhan yang perlu dipelajari.`;
+  const dist=Array(10).fill(0);
+  a.forEach(x=>{if(x.sp!=null){const i=Math.min(Math.max(Math.round(x.sp)-1,0),9);dist[i]++;}});
+  mk('c-skor-dist','bar',{labels:['1','2','3','4','5','6','7','8','9','10'],datasets:[{data:dist,backgroundColor:dist.map((_,i)=>sc(i+1)),borderRadius:4,borderSkipped:false}]},{...BO,layout:{padding:{top:16}}});
+  const raAvg=RO.map(r=>+avg(a.filter(x=>x.ragam===r).map(x=>x.sp).filter(v=>v!=null)).toFixed(1));
+  (function(){
+    const mx=10, el=document.getElementById('c-skor-ragam-hbar'); if(!el)return;
+    el.innerHTML=RO.map((r,i)=>`
+      <div class="hchart-item">
+        <div class="hchart-label">${RS[r]}</div>
+        <div class="hchart-track">
+          <div class="hchart-fill" style="width:${raAvg[i]?Math.round(raAvg[i]/mx*100):0}%;background:${RC[r]}">
+            <span class="hchart-val">${raAvg[i]||'—'}</span>
+          </div>
+        </div>
+      </div>`).join('');
+  })();
+  const lvAvg=LO.map(l=>+avg(a.filter(x=>x.level===l).map(x=>x.sp).filter(v=>v!=null)).toFixed(1));
+  const globalAvg=+avg(a.map(x=>x.sp).filter(v=>v!=null)).toFixed(1);
+  document.getElementById('skor-level-avg').textContent=globalAvg||'—';
+  mk('c-skor-level','doughnut',{labels:LO.map(l=>l.split(' ')[0]),datasets:[{data:lvAvg,backgroundColor:LO.map(l=>LC[l]),borderColor:'#F8FAFC',borderWidth:2,hoverOffset:4}]},{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af',callbacks:{label:function(ctx){return ' Skor: '+ctx.raw;}}}},animation:{}});
+  document.getElementById('skor-level-legend').innerHTML=LO.map((l,i)=>`
+    <div class="sll-item">
+      <div class="sll-dot" style="background:${LC[l]}"></div>
+      <div class="sll-info"><div class="sll-name">${l.split(' ')[0]}</div></div>
+      <div class="sll-score">${lvAvg[i]||'—'}</div>
+    </div>`).join('');
+  const auAvg=AGO.map(x=>+avg(a.filter(y=>y.gu===x).map(y=>y.sp).filter(v=>v!=null)).toFixed(1));
+  mk('c-skor-usia','bar',{labels:AGO,datasets:[{data:auAvg,backgroundColor:PAL,borderRadius:4,borderSkipped:false}]},{...BO,scales:{...BO.scales,y:{...BO.scales.y,suggestedMax:10}},layout:{padding:{top:16}}});
+  renderKW('kw-anak-naik','kw-anka-naik-ct',a,'nka','#059669',window.KAT_ANAK);
+}
+
+function renderPengasuh(){
+  const a=ALL, sa=a.map(x=>x.sa).filter(v=>v!=null), av=sa.length?avg(sa):0;
+  const kr=a.filter(x=>x.sa!=null&&x.sa<=3).length, bg=a.filter(x=>x.sa!=null&&x.sa>=8).length;
+  document.getElementById('narr-pengasuh').innerHTML=`Rata-rata skor pengasuh: <strong>${av.toFixed(1)}/10</strong>. <span class="hl-g">${bg} pengasuh kondisi baik (skor ≥ 8)</span>, sementara <span class="hl-r">${kr} pengasuh dalam kondisi berat (skor ≤ 3)</span>.`;
+  const dist=Array(10).fill(0);
+  a.forEach(x=>{if(x.sa!=null){const i=Math.min(Math.max(Math.round(x.sa)-1,0),9);dist[i]++;}});
+  mk('c-sp-dist','bar',{labels:['1','2','3','4','5','6','7','8','9','10'],datasets:[{data:dist,backgroundColor:dist.map((_,i)=>sc(i+1)),borderRadius:4,borderSkipped:false}]},{...BO,layout:{padding:{top:16}}});
+  const ws=[...new Set(a.map(x=>x.cbr).filter(Boolean))];
+  const wA=ws.map(w=>+avg(a.filter(x=>x.cbr===w).map(x=>x.sa).filter(v=>v!=null)).toFixed(1));
+  (function(){
+    const mx=10, el=document.getElementById('c-sp-worker-hbar'); if(!el)return;
+    el.innerHTML=ws.map((w,i)=>`
+      <div class="hchart-item">
+        <div class="hchart-label">${w.split(' ').pop()}</div>
+        <div class="hchart-track">
+          <div class="hchart-fill" style="width:${wA[i]?Math.round(wA[i]/mx*100):0}%;background:${PAL[i%PAL.length]}">
+            <span class="hchart-val">${wA[i]||'—'}</span>
+          </div>
+        </div>
+      </div>`).join('');
+  })();
+  renderKW('kw-peng-naik','kw-peng-naik-ct',a,'nkp','#059669',window.KAT_PENGASUH);
+}
+
+function renderKW(gridId, ctId, data, field, color, cats){
+  const el=document.getElementById(gridId); if(!el)return;
+  const ctEl=document.getElementById(ctId);
+  const entries=data.filter(x=>x[field]&&x[field].length>5);
+  if(ctEl) ctEl.textContent=entries.length+' narasi';
+  if(!cats||!entries.length){ el.innerHTML=''; return; }
+  el.innerHTML=cats.map(cat=>{
+    const kw_naik=cat.kw_naik||[], kw_turun=cat.kw_turun||[];
+    const naik_count={}, turun_count={};
+    entries.forEach(x=>{
+      const txt=(x[field]||'').toLowerCase();
+      kw_naik.forEach(k=>{ if(txt.includes(k)) naik_count[k]=(naik_count[k]||0)+1; });
+      kw_turun.forEach(k=>{ if(txt.includes(k)) turun_count[k]=(turun_count[k]||0)+1; });
+    });
+    const topNaik=Object.entries(naik_count).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    const topTurun=Object.entries(turun_count).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    return `<div class="faktor-card">
+      <div class="faktor-card-head">
+        <div class="faktor-card-icon" style="background:${cat.color}">${cat.label.charAt(0)}</div>
+        <div><div class="faktor-card-title">${cat.label}</div></div>
+      </div>
+      <div class="faktor-card-body">
+        <div class="faktor-col">
+          <div class="faktor-col-head" style="color:#059669">⬆ Faktor Naik</div>
+          ${topNaik.length?topNaik.map(([k,n])=>`<div class="faktor-item"><div class="faktor-item-dot" style="background:#059669"></div>${k}<span class="faktor-item-count">${n}</span></div>`).join(''):'<div class="faktor-empty">Belum ada data</div>'}
+        </div>
+        <div class="faktor-col">
+          <div class="faktor-col-head" style="color:#dc2626">⬇ Faktor Turun</div>
+          ${topTurun.length?topTurun.map(([k,n])=>`<div class="faktor-item"><div class="faktor-item-dot" style="background:#dc2626"></div>${k}<span class="faktor-item-count">${n}</span></div>`).join(''):'<div class="faktor-empty">Belum ada data</div>'}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// KAT_ANAK & KAT_PENGASUH
+window.KAT_ANAK=[
+  {label:'Kesejahteraan & kemandirian anak',color:'#F97316',kw_naik:['mandi sendiri','cebok sendiri','makan sendiri','berpakaian sendiri','berjalan','berdiri','aktif','responsif','percaya diri','mandiri'],kw_turun:['belum bisa mandi','belum cebok','belum berpakaian','kondisi memburuk','sakit parah','keterbatasan','menarik diri','pasif','kejang','epilepsi']},
+  {label:'Akses pendidikan',color:'#1E293B',kw_naik:['sekolah inklusi','slb','guru pendamping','belajar','diterima sekolah'],kw_turun:['ditolak sekolah','tidak ada slb','sekolah jauh','tidak ada guru','putus sekolah','tidak bisa sekolah']},
+  {label:'Akses layanan kesehatan',color:'#2563eb',kw_naik:['terapi rutin','fisioterapi','bpjs aktif','puskesmas','obat tersedia'],kw_turun:['terapi terhenti','tidak ada terapi','tidak punya bpjs','puskesmas jauh','obat tidak','sering sakit']},
+  {label:'Komunikasi & sosialisasi',color:'#7c3aed',kw_naik:['mulai bicara','bermain','bersosialisasi','diterima','disapa','punya teman'],kw_turun:['belum bisa komunikasi','dikucilkan','dikurung','stigma','tidak punya teman','diisolasi']},
+  {label:'Dukungan keluarga & jaringan',color:'#059669',kw_naik:['keluarga dampingi','kdd','dpo','gereja','komunitas','tetangga peduli'],kw_turun:['tidak ada dukungan','orang tua sakit','keluarga tidak peduli','isolasi','tidak ada jaringan']},
+  {label:'Kondisi ekonomi keluarga',color:'#d97706',kw_naik:['pkh','bantuan sembako','panen berhasil','usaha jalan','penghasilan','dapat modal'],kw_turun:['gagal panen','usaha tutup','tidak ada bantuan','biaya tidak terjangkau','penghasilan tidak']},
+];
+window.KAT_PENGASUH=[
+  {label:'Kesehatan & kondisi pengasuh',color:'#F97316',kw_naik:['sehat','bugar','istirahat cukup','mental stabil','tidak stres'],kw_turun:['sakit','kelelahan','tidak ada yang bantu','stres','depresi']},
+  {label:'Ekonomi & penghidupan pengasuh',color:'#d97706',kw_naik:['pkh sembako','panen berhasil','usaha berhasil','kiriman lancar','pelatihan keterampilan'],kw_turun:['gagal panen','usaha rugi','kiriman terhenti','tidak ada bantuan','biaya anak']},
+  {label:'Kemajuan & kemandirian anak',color:'#059669',kw_naik:['anak makin mandiri','bisa makan sendiri','bisa sekolah','perkembangan baik','komunikasi meningkat'],kw_turun:['anak tidak berkembang','kondisi memburuk','tidak bisa sekolah','anak sakit','ketergantungan']},
+  {label:'Dukungan sosial & jaringan',color:'#7c3aed',kw_naik:['dukungan keluarga','tetangga membantu','komunitas peduli','ada yang dampingi','tidak sendirian'],kw_turun:['tidak ada dukungan','dikucilkan','stigma','sendirian','tidak ada jaringan']},
+  {label:'Akses layanan untuk anak',color:'#2563eb',kw_naik:['akses puskesmas','bpjs aktif','terapi tersedia','sekolah dekat','ada guru khusus'],kw_turun:['tidak ada akses','biaya mahal','tidak ada terapi','sekolah jauh','tidak ada guru']},
+  {label:'Pendampingan CBR & program',color:'#1E293B',kw_naik:['kunjungan rutin','cbr aktif dampingi','program membantu','ada pelatihan','dapat modal usaha'],kw_turun:['cbr jarang kunjungi','program tidak berlanjut','tidak ada pendampingan','cbr tidak datang']},
+];
+</script>
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/api.js"></script>
+<script>
+buildSidebar();
+const SESSION=AUTH.requireAuth('../index.html');
+if(SESSION){
+  AUTH.applySession({onScnSwitch:async function(scnId){const d=await API.get(scnId);if(window.renderPage)renderPage(d,scnId);}});
+  AUTH.initSidebar('worker','w-data-awal');
+  API.get(AUTH.getScnFilter()).then(d=>{if(window.renderPage)renderPage(d,AUTH.getScnFilter());});
+}
+</script>
+</body>
+</html>

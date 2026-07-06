@@ -87,6 +87,7 @@
   </div>
 </header>
 
+<div id="summary-card-form"></div>
 <div class="ld-wrap">
   <!-- LIST PANEL -->
   <div class="ld-list">
@@ -238,6 +239,25 @@ function clearDetail(){
 function renderPage(d, scnId) {
   ALL_ANAK_EV=d.anak||[];
   ALL_EVAL=d.evalAkhir||[];
+  // Card ringkasan
+  const _total = ALL_ANAK_EV.length;
+  const _namaSet = new Set(ALL_ANAK_EV.map(a=>(a.nama||'').toLowerCase()).filter(Boolean));
+  const _arr = d.evalAkhir||[];
+  const _set = new Set(_arr.map(r=>(r['nama_anak']||r.na||'').toLowerCase()).filter(Boolean));
+  let _ada = 0; _namaSet.forEach(n=>{ if(_set.has(n)) _ada++; });
+  const _pct = _total>0?Math.round(_ada/_total*100):0;
+  const _cardEl = document.getElementById('summary-card-form');
+  if(_cardEl) _cardEl.innerHTML = `
+    <div style="background:#fff;border:1px solid #e5e7eb;border-left:3px solid #059669;border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:16px">
+      <div>
+        <div style="font-size:1.6rem;font-weight:800;color:#059669;line-height:1">${_ada}</div>
+        <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af;margin-top:3px">Sudah Ada Evaluasi Akhir</div>
+        <div style="font-size:.65rem;color:#9ca3af">dari ${_total} anak · ${_pct}%</div>
+      </div>
+      <div style="flex:1;height:6px;background:#f3f4f6;border-radius:99px;margin-left:8px">
+        <div style="height:6px;width:${_pct}%;background:#059669;border-radius:99px;transition:width .5s ease"></div>
+      </div>
+    </div>`;
   EVAL_MAP={};
   ALL_EVAL.forEach(e=>{const key=(e.nama_anak||e.na||'').toLowerCase();EVAL_MAP[key]=e;});
   const anak=ALL_ANAK_EV, ev=ALL_EVAL;

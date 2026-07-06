@@ -340,7 +340,6 @@ function renderRingkasan(d){
   const totalAnak=(d.anak||[]).length;
 
   document.getElementById('kpi-obs').innerHTML=[
-    {v:total,      l:'Total Kunjungan',   s:'Seluruh baris observasi', c:'#2563eb'},
     {v:unik,       l:'Anak Terpantau',    s:'Beneficiary unik',        c:'#16a34a'},
     {v:totalAnak-unik>0?totalAnak-unik:0, l:'Belum Diobservasi', s:'dari '+totalAnak+' anak total', c:'#dc2626'},
     {v:workers.length, l:'CBR Worker Aktif', s:'mengisi observasi',    c:'#d4500a'},

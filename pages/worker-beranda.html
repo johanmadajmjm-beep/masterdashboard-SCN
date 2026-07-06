@@ -332,14 +332,6 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>
           Ringkasan Anak
         </button>
-        <button class="tbtn" data-tab="skor" onclick="switchTab('skor',this)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg>
-          Skor Anak
-        </button>
-        <button class="tbtn" data-tab="pengasuh" onclick="switchTab('pengasuh',this)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
-          Pengasuh
-        </button>
         <button class="tbtn" data-tab="ragam" onclick="switchTab('ragam',this);renderRagam()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
           Ragam Disabilitas
@@ -348,43 +340,12 @@
 
       <!-- TAB 1 -->
       <div class="tpane active" id="tab-anak">
-
-        <!-- KPI -->
+        <!-- KPI RINGKASAN 6 FORM -->
         <div class="kpi-row" id="kpi-anak"></div>
 
-        <!-- PROFIL PANEL 5 KOLOM -->
-        <div class="seksi-title">Profil Anak Dampingan</div>
-        <div class="profil-panel" style="margin-bottom:10px">
-          <div class="profil-5col">
-            <div class="pcol">
-              <div class="pcol-title">Level Disabilitas</div>
-              <div class="donut-wrap">
-                <canvas id="c-level"></canvas>
-                <div class="donut-center">
-                  <div class="donut-num" id="donut-total">—</div>
-                  <div class="donut-lbl">Anak</div>
-                </div>
-              </div>
-              <div class="donut-legend" id="level-legend"></div>
-            </div>
-            <div class="pcol">
-              <div class="pcol-title">Ragam Disabilitas</div>
-              <div id="ragam-hbar"></div>
-            </div>
-            <div class="pcol">
-              <div class="pcol-title">Status Layanan</div>
-              <div id="status-layanan"></div>
-            </div>
-            <div class="pcol">
-              <div class="pcol-title">Jenis Kelamin</div>
-              <div class="ch" style="height:150px"><canvas id="c-jk"></canvas></div>
-            </div>
-            <div class="pcol">
-              <div class="pcol-title">Kelompok Usia</div>
-              <div class="ch" style="height:150px"><canvas id="c-usia"></canvas></div>
-            </div>
-          </div>
-        </div>
+        <!-- RINGKASAN KELENGKAPAN DATA -->
+        <div class="seksi-title">Kelengkapan Data per Form</div>
+        <div id="form-summary-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:14px"></div>
 
         <!-- ALERT PERLU PERHATIAN -->
         <div class="alert-card" style="margin-bottom:10px">
@@ -421,81 +382,9 @@
             </div>
           </div>
         </div>
-
-        <!-- INSIGHT -->
-        <div class="insight" id="insight-box" style="display:none">
-          <div class="insight-ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#d4500a" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          </div>
-          <div>
-            <div class="insight-t">Intisari Kondisi Anak Dampingan</div>
-            <div class="insight-b" id="insight-text">Memuat...</div>
-          </div>
-        </div>
       </div>
 
-      <!-- TAB 2 -->
-      <div class="tpane" id="tab-skor">
-        <div class="narr-box" id="narr-skor">Memuat...</div>
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-head"><span class="card-title">Distribusi Skor Anak (Cantrill 1–10)</span></div>
-            <div class="card-body"><div class="ch h170"><canvas id="c-skor-dist"></canvas></div></div>
-          </div>
-          <div class="card">
-            <div class="card-head"><span class="card-title">Skor per Ragam Disabilitas</span></div>
-            <div class="card-body"><div id="c-skor-ragam-hbar" class="hchart-wrap"></div></div>
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-head"><span class="card-title">Skor per Level Disabilitas</span></div>
-            <div class="card-body">
-              <div class="skor-level-wrap">
-                <div class="skor-level-donut">
-                  <canvas id="c-skor-level"></canvas>
-                  <div class="skor-level-center">
-                    <div class="skor-level-avg" id="skor-level-avg">—</div>
-                    <div class="skor-level-sub">Avg</div>
-                  </div>
-                </div>
-                <div class="skor-level-legend" id="skor-level-legend"></div>
-              </div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-head"><span class="card-title">Skor per Kelompok Usia</span></div>
-            <div class="card-body"><div class="ch h170"><canvas id="c-skor-usia"></canvas></div></div>
-          </div>
-        </div>
-        <div class="sdiv" style="display:flex;align-items:center;justify-content:space-between">
-          <span>Faktor yang mempengaruhi anak — naik dan turun tangga</span>
-          <span class="faktor-badge" id="kw-anka-naik-ct"></span>
-        </div>
-        <div class="faktor-grid" id="kw-anak-naik"></div>
-      </div>
-
-      <!-- TAB 3 -->
-      <div class="tpane" id="tab-pengasuh">
-        <div class="narr-box" id="narr-pengasuh">Memuat...</div>
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-head"><span class="card-title">Distribusi Skor Pengasuh (Cantrill 1–10)</span></div>
-            <div class="card-body"><div class="ch h170"><canvas id="c-sp-dist"></canvas></div></div>
-          </div>
-          <div class="card">
-            <div class="card-head"><span class="card-title">Skor Pengasuh per CBR Worker</span></div>
-            <div class="card-body"><div id="c-sp-worker-hbar" class="hchart-wrap"></div></div>
-          </div>
-        </div>
-        <div class="sdiv" style="display:flex;align-items:center;justify-content:space-between">
-          <span>Faktor yang mempengaruhi pengasuh — naik dan turun tangga</span>
-          <span class="faktor-badge" id="kw-peng-naik-ct"></span>
-        </div>
-        <div class="faktor-grid" id="kw-peng-naik"></div>
-      </div>
-
-      <!-- TAB 4: RAGAM DISABILITAS -->
+      <!-- TAB 2: RAGAM DISABILITAS -->
       <div class="tpane" id="tab-ragam">
 
         <!-- FILTER RAGAM + DETAIL RAGAM -->
@@ -793,6 +682,7 @@ function renderPage(d,scnId){
   if(!d||!d.anak)return;
   ALL=d.anak;
   renderAnak();
+  renderFormSummary(d);
   renderSkor();
   renderPengasuh();
   // freshness
@@ -800,6 +690,48 @@ function renderPage(d,scnId){
   const fd=document.getElementById('freshness-detail');
   if(st&&fd){const t=st.textContent.replace('Sync:','').trim();if(t)fd.textContent=t;}
 }
+
+function renderFormSummary(d){
+  const anak = d.anak||[];
+  const total = anak.length;
+  if(!total) return;
+
+  const namaSet = new Set(anak.map(a=>(a.nama||'').toLowerCase()).filter(Boolean));
+
+  function hitungAda(arr, namaField){
+    const s = new Set((arr||[]).map(r=>(r[namaField]||r.na||r.nama_anak||'').toLowerCase()).filter(Boolean));
+    let count = 0;
+    namaSet.forEach(n=>{ if(s.has(n)) count++; });
+    return count;
+  }
+
+  const forms = [
+    { label:'Data Awal',         icon:'📋', count:total,                              href:'worker-data-awal.html', c:'#F97316' },
+    { label:'Observasi',         icon:'👁', count:hitungAda(d.obs,'na'),              href:'worker-obs.html',       c:'#2563eb' },
+    { label:'Perencanaan',       icon:'📝', count:hitungAda(d.perencanaan,'nama_anak'),href:'worker-plan.html',     c:'#16a34a' },
+    { label:'Buku Harian',       icon:'📖', count:hitungAda(d.diary,'nama_anak'),     href:'worker-diary.html',    c:'#9333ea' },
+    { label:'Eval. Menengah',    icon:'📊', count:hitungAda(d.evalMenengah,'nama_anak'),href:'worker-eval-menengah.html', c:'#d97706' },
+    { label:'Eval. Akhir',       icon:'✅', count:hitungAda(d.evalAkhir,'nama_anak'), href:'worker-eval.html',     c:'#059669' },
+  ];
+
+  document.getElementById('form-summary-grid').innerHTML = forms.map(f=>{
+    const pct = total>0 ? Math.round(f.count/total*100) : 0;
+    return `<a href="${f.href}" style="text-decoration:none">
+      <div style="background:#fff;border:1px solid #e5e7eb;border-left:3px solid ${f.c};border-radius:10px;padding:12px 14px;cursor:pointer;transition:box-shadow .15s" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow=''">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:.7rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">${f.icon} ${f.label}</span>
+          <span style="font-size:.65rem;font-weight:700;color:${f.c}">${pct}%</span>
+        </div>
+        <div style="font-size:1.4rem;font-weight:800;color:${f.c};line-height:1">${f.count}</div>
+        <div style="font-size:.62rem;color:#9ca3af;margin-top:2px">dari ${total} anak</div>
+        <div style="margin-top:7px;height:4px;background:#f3f4f6;border-radius:99px">
+          <div style="height:100%;width:${pct}%;background:${f.c};border-radius:99px;transition:width .5s ease"></div>
+        </div>
+      </div>
+    </a>`;
+  }).join('');
+}
+
 
 function renderAnak(){
   const a=ALL, n=a.length;

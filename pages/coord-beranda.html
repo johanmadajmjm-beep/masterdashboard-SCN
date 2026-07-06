@@ -576,17 +576,28 @@ function renderPage(d, scnId){
   const terlambat  = anak.filter(a=>a.hari>30).length;
   const totalKunj  = workers.reduce((s,w)=>s+w.kunjungan_bulan,0);
 
-  // ── KPI ──
-  const kpiData = [
-    {v:total,         l:'Total Beneficiary',        s:lk+' L · '+pr+' P',            c:'#F97316', ki:'rgba(249,115,22,.1)',  icon:KPI_ICONS.total},
-    {v:avSP.toFixed(1),l:'Avg Skor Anak',           s:'Cantrill Ladder 1–10',         c:sc(avSP),  ki:scBg(avSP),            icon:KPI_ICONS.skor},
-    {v:kritis,        l:'Kondisi Kritis',            s:'Skor ≤ 3',                     c:'#dc2626', ki:'#fee2e2',             icon:KPI_ICONS.kritis},
-    {v:parah,         l:'Level Parah',               s:'Dukungan penuh',               c:'#dc2626', ki:'#fee2e2',             icon:KPI_ICONS.parah},
-    {v:punyaObs,      l:'Sudah Diobservasi',         s:'dari '+total+' anak',          c:'#16a34a', ki:'#dcfce7',             icon:KPI_ICONS.obs},
-    {v:belumObs,      l:'Belum Diobservasi',         s:'perlu kunjungan',              c:belumObs>20?'#dc2626':'#d97706', ki:belumObs>20?'#fee2e2':'#fef3c7', icon:KPI_ICONS.belum},
-    {v:terlambat,     l:'>30 Hari Tdk Dikunjungi',  s:'perlu tindak lanjut',          c:terlambat>0?'#dc2626':'#16a34a', ki:terlambat>0?'#fee2e2':'#dcfce7', icon:KPI_ICONS.late},
-    {v:workers.length,l:'CBR Worker Aktif',          s:totalKunj+' kunjungan bulan ini', c:'#2563eb', ki:'#dbeafe',           icon:KPI_ICONS.worker},
+  // ── KPI — KELENGKAPAN 6 FORM ──
+  const namaSet = new Set(anak.map(a=>(a.nama||'').toLowerCase()).filter(Boolean));
+  function hitungAda(arr, namaField){
+    const s = new Set((arr||[]).map(r=>(r[namaField]||r.na||r.nama_anak||'').toLowerCase()).filter(Boolean));
+    let count = 0; namaSet.forEach(n=>{ if(s.has(n)) count++; }); return count;
+  }
+  const formData = [
+    { label:'Data Awal',      count: total,                              c:'#F97316', icon:KPI_ICONS.total },
+    { label:'Observasi',      count: hitungAda(d.obs,'na'),              c:'#2563eb', icon:KPI_ICONS.obs   },
+    { label:'Perencanaan',    count: hitungAda(d.perencanaan,'nama_anak'),c:'#16a34a',icon:KPI_ICONS.worker },
+    { label:'Buku Harian',    count: hitungAda(d.diary,'nama_anak'),     c:'#9333ea', icon:KPI_ICONS.obs   },
+    { label:'Eval. Menengah', count: hitungAda(d.evalMenengah,'nama_anak'),c:'#d97706',icon:KPI_ICONS.skor },
+    { label:'Eval. Akhir',    count: hitungAda(d.evalAkhir,'nama_anak'), c:'#059669', icon:KPI_ICONS.obs   },
   ];
+  const kpiData = formData.map(f=>({
+    v    : f.count,
+    l    : f.label,
+    s    : `dari ${total} anak · ${total>0?Math.round(f.count/total*100):0}%`,
+    c    : f.c,
+    ki   : f.c+'22',
+    icon : f.icon,
+  }));
   document.getElementById('kpi-coord').innerHTML = kpiData.map(k=>`
     <div class="kpi-box" style="--kc:${k.c}">
       <div class="kpi-icon" style="background:${k.ki};color:${k.c}">${k.icon}</div>

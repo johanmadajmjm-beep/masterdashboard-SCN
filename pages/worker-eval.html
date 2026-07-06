@@ -143,17 +143,11 @@ function renderList(){
   const cb=document.getElementById('flt-cbr').value;
   const st=document.getElementById('flt-status').value;
   const q=(document.getElementById('flt-search').value||'').toLowerCase();
-  const list=ALL_ANAK_EV.filter(a=>{
-    if(cb&&a.cbr!==cb) return false;
-    if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
-    const ev=EVAL_MAP[a.nama?.toLowerCase()];
-    if(st&&(!ev||ev.tercapai_tujuan_1!==st)) return false;
-    return true;
-  });
+  const list = (ALL_EVAL||[]).map(r=>({nama:r.nama_anak||r.na||'—',cbr:r.cbr_worker||r.cb||'—',_data:r})).filter(a=>(!cb||a.cbr===cb)&&(!q||(a.nama||'').toLowerCase().includes(q)));
   document.getElementById('ld-count').textContent=list.length+' anak';
   const empty='<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem;grid-column:1/-1">Tidak ada data</div>';
   const cardHTML=list.map((a,i)=>{
-    const ev=EVAL_MAP[a.nama?.toLowerCase()];
+    const ev=a._data||EVAL_MAP[a.nama?.toLowerCase()];
     const status=ev?.tercapai_tujuan_1||'Belum';
     const sc=status==='Ya'?'#15803D':status==='Tidak'?'#DC2626':'#9CA3AF';
     const sbg=status==='Ya'?'#DCFCE7':status==='Tidak'?'#FEE2E2':'#F3F4F6';
@@ -216,8 +210,8 @@ function showDetail(el,a){
     <div class="det-name">${a.nama||'—'}</div>
     <div class="det-meta">
       <span class="det-chip">👤 ${a.cbr||'—'}</span>
-      <span class="det-chip">📍 ${a.desa||'—'}</span>
-      <span class="det-chip">🏷 ${a.ragam||'—'}</span>
+      <span class="det-chip">📍 ${(a._data?.desa||'—')}</span>
+      <span class="det-chip">🏷 ${(a._data?.ragam||a.ragam||'—'}</span>
     </div>
     ${ev ? `<div class="det-section">
       <div class="det-section-head">Info Evaluasi Akhir</div>

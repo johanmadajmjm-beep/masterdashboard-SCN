@@ -791,7 +791,6 @@ function renderPage(d, scnId){
   const ragamTerbanyak = ragamKeys[0] || '—';
   const intisari = [
     kritis>0  ? `${kritis} anak dalam kondisi kritis (skor ≤ 3) perlu perhatian segera.` : 'Tidak ada anak dalam kondisi kritis saat ini.',
-    terlambat>0 ? `${terlambat} anak belum dikunjungi > 30 hari.` : 'Semua anak sudah dikunjungi dalam 30 hari terakhir.',
     icfDomBest.label ? `Domain ${icfDomBest.label} menunjukkan hasil terbaik (${icfDomBest.pct}%).` : '',
     `Rata-rata skor anak: ${avSP.toFixed(1)} (kategori ${avSP>=8?'baik':avSP>=6?'sedang':avSP>=4?'rendah':'kritis'}).`,
   ].filter(Boolean);
@@ -964,6 +963,7 @@ function renderTemuan() {
     :'<tr><td colspan="4" style="padding:20px;text-align:center;color:#9ca3af">Semua anak sudah punya perencanaan</td></tr>';
 }
 
+function cnt(a,f){const m={};a.forEach(r=>{const v=r[f];if(v&&v!=='—')m[v]=(m[v]||0)+1;});return m;}
 function renderRagam(){
   const a_ragam = window._cbAnakAll||[];
   // alias untuk filter change

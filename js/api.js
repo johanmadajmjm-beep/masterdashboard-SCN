@@ -498,8 +498,7 @@ const API = (() => {
       .sort((a, b) => b.tgl.localeCompare(a.tgl)).slice(0,10)
       .map(o => ({ tgl:o.tgl, nama:`Kunjungan CBR — ${o.na}`, outcome:1, peserta:1, lokasi:'—', scn:o.scn||'' }));
 
-    // Attach Gemini tema
-    const props = PropertiesService ? null : null; // tidak bisa akses di frontend
+    // Attach Gemini tema — tidak bisa akses PropertiesService di frontend
     const perencanaan  = Array.isArray(rawRencana)      ? rawRencana      : (rawRencana?.data      || []);
     const diary        = Array.isArray(rawDiary)        ? rawDiary        : (rawDiary?.data        || []);
     const evalMenengah = Array.isArray(rawEvalMenengah) ? rawEvalMenengah : (rawEvalMenengah?.data || []);

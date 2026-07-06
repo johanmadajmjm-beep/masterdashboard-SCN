@@ -180,14 +180,28 @@ function renderList(){
   const cb=document.getElementById('flt-cbr').value;
   const st=document.getElementById('flt-status').value;
   const q=(document.getElementById('flt-search').value||'').toLowerCase();
-  const list=ALL_ANAK.filter(a=>{
-    if(cb&&a.cbr!==cb) return false;
-    if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
-    const hasPlan=!!PLAN_MAP[a.nama?.toLowerCase()];
-    if(st==='sudah') return hasPlan;
-    if(st==='belum') return !hasPlan;
-    return hasPlan;
-  });
+  // Tampilkan langsung dari data perencanaan yang ada
+  let list;
+  if(st==='belum'){
+    // Anak yang belum punya perencanaan (dari ALL_ANAK)
+    list=ALL_ANAK.filter(a=>{
+      if(cb&&a.cbr!==cb) return false;
+      if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
+      return !PLAN_MAP[a.nama?.toLowerCase()];
+    });
+  } else {
+    // Default & sudah: dari data perencanaan langsung
+    list=ALL_PLAN.map(p=>({
+      nama:p.nama_anak||p.na||'—',
+      cbr:p.cbr_worker||p.cb||'—',
+      ragam:'',desa:'',level:'',gender:'',usia:'',gu:'',sp:null,sa:null,
+      _fromPlan:p
+    })).filter(a=>{
+      if(cb&&a.cbr!==cb) return false;
+      if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }
   document.getElementById('ld-count').textContent=list.length+' anak';
   const empty='<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem;grid-column:1/-1">Tidak ada data</div>';
   const cardHTML=list.map((a,i)=>{

@@ -156,13 +156,23 @@ function renderList(){
   const cb=document.getElementById('flt-cbr').value;
   const st=document.getElementById('flt-status').value;
   const q=(document.getElementById('flt-search').value||'').toLowerCase();
-  const list=ALL_ANAK.filter(a=>{
-    if(cb&&a.cbr!==cb) return false;
-    if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
-    const hasEval=!!EVAL_MID_MAP[a.nama?.toLowerCase()];
-    if(st==='ada') return hasEval;
-    if(st==='belum') return !hasEval;
-    return hasEval;
+  let list;
+  if(st==='belum'){
+    list=ALL_ANAK.filter(a=>{
+      if(cb&&a.cbr!==cb) return false;
+      if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
+      return !EVAL_MID_MAP[a.nama?.toLowerCase()];
+    });
+  } else {
+    list=ALL_EVAL_MID.map(e=>({
+      nama:e.nama_anak||e.na||'—',
+      cbr:e.cbr_worker||e.cb||'—',
+      ragam:'',desa:'',level:'',
+    })).filter(a=>{
+      if(cb&&a.cbr!==cb) return false;
+      if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
+      return true;
+    });
   });
   document.getElementById('ld-count').textContent=list.length+' anak';
   const empty='<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem;grid-column:1/-1">Tidak ada data</div>';

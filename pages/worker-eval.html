@@ -143,12 +143,16 @@ function renderList(){
   const cb=document.getElementById('flt-cbr').value;
   const st=document.getElementById('flt-status').value;
   const q=(document.getElementById('flt-search').value||'').toLowerCase();
-  const list=ALL_ANAK_EV.filter(a=>{
+  const list=ALL_EVAL.map(e=>({
+    nama:e.nama_anak||e.na||'—',
+    cbr:e.cbr_worker||e.cb||'—',
+    ragam:'',desa:'',level:'',
+  })).filter(a=>{
     if(cb&&a.cbr!==cb) return false;
     if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
     const ev=EVAL_MAP[a.nama?.toLowerCase()];
     if(st&&(!ev||ev.tercapai_tujuan_1!==st)) return false;
-    return !!ev;
+    return true;
   });
   document.getElementById('ld-count').textContent=list.length+' anak';
   const empty='<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem;grid-column:1/-1">Tidak ada data</div>';

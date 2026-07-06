@@ -174,9 +174,15 @@ function renderPage(d,scnId){
 function renderList(){
   const cb=document.getElementById('flt-cbr').value;
   const q=(document.getElementById('flt-search').value||'').toLowerCase();
-  const list=ALL_ANAK.filter(a=>{
-    const hasDiary=!!(DIARY_MAP[a.nama?.toLowerCase()]||[]).length;
-    return hasDiary&&(!cb||a.cbr===cb)&&(!q||(a.nama||'').toLowerCase().includes(q));
+  // Tampilkan langsung dari data diary yang ada
+  const list=ALL_DIARY.map(e=>({
+    nama:e.nama_anak||e.na||'—',
+    cbr:e.cbr_worker||e.cb||'—',
+    ragam:'',desa:'',level:'',
+  })).filter(a=>{
+    if(cb&&a.cbr!==cb) return false;
+    if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
+    return true;
   });
   document.getElementById('ld-count').textContent=list.length+' anak';
   const empty='<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem;grid-column:1/-1">Tidak ada data</div>';

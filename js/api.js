@@ -216,8 +216,8 @@ const API = (() => {
       }
     }
 
-    // Kumpulkan worker dari semua 6 form — deduplikasi by nama
-    anak.forEach(a => { addWorker(a.cbr); workerMap[a.cbr?.toLowerCase().replace(/\s/g,'_').replace(/\./g,'')]?.anak && (workerMap[a.cbr?.toLowerCase().replace(/\s/g,'_').replace(/\./g,'')].anak++); });
+    // Kumpulkan semua worker dari 6 form — deduplikasi by key
+    (anak||[]).forEach(a => addWorker(a.cbr));
     (obs||[]).forEach(o => addWorker(o.cb));
     (perencanaan||[]).forEach(r => addWorker(r.cbr_worker||r.cb));
     (diary||[]).forEach(r => addWorker(r.cbr_worker||r.cb));
@@ -225,13 +225,10 @@ const API = (() => {
     (evalAkhir||[]).forEach(r => addWorker(r.cbr_worker||r.cb));
 
     // Hitung anak per worker dari DataAwal
-    const workerAnakCount = {};
     anak.forEach(a => {
       if (!a.cbr) return;
-      workerAnakCount[a.cbr] = (workerAnakCount[a.cbr] || 0) + 1;
-    });
-    Object.values(workerMap).forEach(w => {
-      w.anak = workerAnakCount[w.nama] || 0;
+      const key = a.cbr.toLowerCase().replace(/\s/g,'_').replace(/\./g,'');
+      if (workerMap[key]) workerMap[key].anak++;
     });
 
     // Hitung kunjungan bulan ini dari obs
@@ -557,21 +554,65 @@ const API = (() => {
   }
 
   // ── PUBLIC: get(scnId) ────────────────────────────────────
+  const CACHE_TTL_MS = 2 * 60 * 1000; // 2 menit — sesuai trigger sync
+
+  function getCached(key) {
+    try {
+      const raw = sessionStorage.getItem('mel_cache_' + key);
+      if (!raw) return null;
+      const obj = JSON.parse(raw);
+      return obj;
+    } catch(e) { return null; }
+  }
+
+  function setCached(key, data) {
+    try {
+      sessionStorage.setItem('mel_cache_' + key, JSON.stringify({ data, ts: Date.now() }));
+    } catch(e) {}
+  }
+
+  function isStale(cached) {
+    if (!cached) return true;
+    return (Date.now() - cached.ts) > CACHE_TTL_MS;
+  }
+
   async function get(scnId) {
-    if (!scnId) return await loadAll();
-    if (ENDPOINTS[scnId]) return await loadScn(scnId);
-    setBadge(false, null);
-    return {
-      meta        : { scn: `SCN ${scnId}`, project: 'BEN', tahun: 2026, sumber: 'Belum terhubung' },
-      workers     : [],
-      anak        : [],
-      obs         : [],
-      referral    : [],
-      aktivitas   : [],
-      stakeholder : {},
-      cerita      : [],
-      itt         : { Y1_Q2: {} },
-    };
+    const cacheKey = scnId || 'all';
+    const cached = getCached(cacheKey);
+
+    // Ada cache — tampilkan langsung
+    if (cached && cached.data) {
+      if (isStale(cached)) {
+        // Stale — revalidate di background, return cache dulu
+        setTimeout(async () => {
+          try {
+            const fresh = scnId ? await loadScn(scnId) : await loadAll();
+            if (fresh) {
+              setCached(cacheKey, fresh);
+              if (window.renderPage) window.renderPage(fresh, scnId);
+            }
+          } catch(e) { console.warn('[API] Background revalidate gagal:', e.message); }
+        }, 0);
+      }
+      return cached.data;
+    }
+
+    // Tidak ada cache — fetch fresh
+    const result = scnId ? (ENDPOINTS[scnId] ? await loadScn(scnId) : null) : await loadAll();
+    if (result) setCached(cacheKey, result);
+
+    if (!result && scnId) {
+      setBadge(false, null);
+      return {
+        meta        : { scn: `SCN ${scnId}`, project: 'BEN', tahun: 2026, sumber: 'Belum terhubung' },
+        workers     : [], anak: [], obs: [], referral: [],
+        aktivitas   : [], stakeholder: {}, cerita: [],
+        perencanaan : [], diary: [], evalMenengah: [], evalAkhir: [],
+        itt         : { Y1_Q2: {} },
+      };
+    }
+
+    return result;
   }
 
   return { get, getTema, hasTema, setBadge, clearCache, ENDPOINTS };

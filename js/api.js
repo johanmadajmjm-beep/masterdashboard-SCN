@@ -190,9 +190,7 @@ const API = (() => {
       if (!lastVisit[key] || o.tgl > lastVisit[key]) lastVisit[key] = o.tgl;
     });
     anak.forEach(a => {
-      const key  = a.nama.toLowerCase();
-      const last = lastVisit[key];
-      a.hari = last ? Math.floor((now - new Date(last)) / 86400000) : 999;
+      a.hari = 999; // tidak dipakai
     });
     return { anak };
   }
@@ -249,7 +247,7 @@ const API = (() => {
       const key = a.cbr?.toLowerCase().replace(/\s/g,'_').replace(/\./g,'');
       const w = key ? workerMap[key] : null;
       if (!w) return;
-      if (a.hari > 30) w.late++;
+      // hari tidak dipakai
       if (a.irp === 'Aktif') w.irp_aktif++;
     });
 

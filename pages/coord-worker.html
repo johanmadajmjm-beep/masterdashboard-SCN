@@ -223,7 +223,11 @@ function renderPage(d,scnId){
   if(!d||!d.anak)return;
   ALL_ANAK=d.anak;
   ALL_OBS=d.obs||[];
-  ALL_WORKERS=[...new Set(ALL_ANAK.map(a=>a.cbr).filter(Boolean))].sort();
+  // Ambil semua worker dari d.workers (sudah include semua 6 form, deduplikat)
+  const workerNames = (d.workers||[]).map(w=>w.nama).filter(Boolean).sort();
+  // Worker yang ada di DataAwal ditampilkan nama asli, yang lain tetap pakai nama dari form
+  const workerNamesFromAnak = new Set(ALL_ANAK.map(a=>a.cbr).filter(Boolean));
+  ALL_WORKERS = [...new Set([...workerNamesFromAnak, ...workerNames])].sort();
 
   // Chart 1: Anak per Worker
   mk('c-worker-bar','bar',

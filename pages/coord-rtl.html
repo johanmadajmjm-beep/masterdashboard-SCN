@@ -203,6 +203,7 @@
   </div>
 </header>
 
+<div id="alert-khusus"></div>
 <div class="ld-wrap">
   <!-- PANEL KIRI: LIST -->
   <div class="ld-list">
@@ -332,6 +333,28 @@ function filterDomain(d,btn){
 
 function renderPage(d,scnId){
   const anak=d.anak||[], obs=d.obs||[];
+  // Perhatian Khusus — dari referral
+  const late   = anak.filter(a=>a.hari>30).sort((a,b)=>b.hari-a.hari);
+  const kritis = anak.filter(a=>a.sp!=null&&a.sp<=3).sort((a,b)=>a.sp-b.sp);
+  // Render section perhatian khusus di topbar KPI
+  const totalAksi = 0; // akan diupdate setelah buildRTL
+  const kritisCount = kritis.length;
+  const lateCount   = late.length;
+
+  // Render alert bar jika ada perhatian khusus
+  let alertBar = '';
+  if (kritisCount > 0 || lateCount > 0) {
+    alertBar = `<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap;align-items:center">
+      <span style="font-size:.72rem;font-weight:700;color:#DC2626">⚠ Perhatian Khusus</span>
+      ${kritisCount>0?`<span style="font-size:.72rem;color:#DC2626;font-weight:600">${kritisCount} anak skor kritis (≤3)</span>`:''}
+      ${lateCount>0?`<span style="font-size:.72rem;color:#D97706;font-weight:600">${lateCount} anak >30 hari tidak dikunjungi</span>`:''}
+      <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+        ${kritis.slice(0,3).map(a=>`<span style="font-size:.65rem;background:#FEE2E2;color:#DC2626;padding:2px 8px;border-radius:999px;font-weight:600">${a.nama} (${a.sp})</span>`).join('')}
+        ${late.slice(0,3).map(a=>`<span style="font-size:.65rem;background:#FEF3C7;color:#D97706;padding:2px 8px;border-radius:999px;font-weight:600">${a.nama} (${a.hari}h)</span>`).join('')}
+      </div>
+    </div>`;
+  }
+  document.getElementById('alert-khusus').innerHTML = alertBar;
   // Buat map obs per nama anak
   OBS_MAP={};
   obs.forEach(o=>{if(o.na)OBS_MAP[o.na.toLowerCase()]=o;});

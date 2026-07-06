@@ -735,17 +735,14 @@ function renderAnak(){
   const av=sp.length?avg(sp):0;
 
   // KPI
+  // KPI beranda: hanya info yang tidak ada di worker-data-awal
   const kd=[
-    {v:n,          l:'Total Anak',       s:lk+' L · '+pr+' P',              c:'#F97316',ki:'rgba(249,115,22,.1)', ic:ICONS.total},
-    {v:av.toFixed(1),l:'Avg Skor Anak',  s:'Cantrill Ladder 1–10',           c:sc(av),   ki:'rgba(249,115,22,.1)', ic:ICONS.skor},
-    {v:parah,      l:'Level Parah',      s:'Butuh dukungan penuh',           c:'#1E293B',ki:'rgba(30,41,59,.1)',   ic:ICONS.parah},
-    {v:kritis,     l:'Kondisi Kritis',   s:'Skor ≤ 3',                       c:'#1E293B',ki:'rgba(30,41,59,.1)',   ic:ICONS.kritis},
-    {v:ep,         l:'Punya Epilepsi',   s:n?Math.round(ep/n*100)+'% total':'—',c:'#FB923C',ki:'rgba(251,146,60,.1)',ic:ICONS.epilepsi},
-    {v:tr,         l:'Pernah Terapi',    s:'dari '+n+' anak',                c:'#FDBA74',ki:'rgba(253,186,116,.12)',ic:ICONS.terapi},
-    {v:ob,         l:'Pengobatan Aktif', s:'dalam 1 tahun terakhir',         c:'#475569',ki:'rgba(71,85,105,.1)',  ic:ICONS.obat},
-    {v:ganda,      l:'Disabilitas Ganda',s:'beban pengasuhan berlipat',      c:'#FDBA74',ki:'rgba(253,186,116,.12)',ic:ICONS.ganda},
+    {v:ep,  l:'Punya Epilepsi',    s:n?Math.round(ep/n*100)+'% total':'—',      c:'#FB923C',ki:'rgba(251,146,60,.1)',   ic:ICONS.epilepsi},
+    {v:tr,  l:'Pernah Terapi',     s:'dari '+n+' anak',                          c:'#FDBA74',ki:'rgba(253,186,116,.12)', ic:ICONS.terapi},
+    {v:ob,  l:'Pengobatan Aktif',  s:'dalam 1 tahun terakhir',                   c:'#475569',ki:'rgba(71,85,105,.1)',    ic:ICONS.obat},
+    {v:ganda,l:'Disabilitas Ganda',s:'beban pengasuhan berlipat',                c:'#FDBA74',ki:'rgba(253,186,116,.12)', ic:ICONS.ganda},
   ];
-  document.getElementById('kpi-anak').innerHTML=kd.map(k=>`
+  if(document.getElementById('kpi-anak')) document.getElementById('kpi-anak').innerHTML=kd.map(k=>`
     <div class="kpi-box" style="--kc:${k.c}">
       <div class="kpi-ico" style="background:${k.ki};color:${k.c}">${k.ic}</div>
       <div>

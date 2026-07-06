@@ -366,7 +366,6 @@ function buildBottomNav() {
       items : [
         { page:'w-beranda',  label:'Beranda',     icon:ICONS.home,     href:`${base}/pages/worker-beranda.html` },
         { page:'w-data-awal',label:'Data Awal',   icon:ICONS.list,     href:`${base}/pages/worker-data-awal.html` },
-        { page:     label:'Profil Anak', icon:ICONS.list,     href:`${base}/pages/worker-anak.html` },
         { page:'w-obs',      label:'Observasi',   icon:ICONS.obs,      href:`${base}/pages/worker-obs.html` },
         { page:'w-plan',     label:'Perencanaan', icon:ICONS.plan,     href:`${base}/pages/worker-plan.html` },
         { page:'w-diary',    label:'Buku Harian', icon:ICONS.diary,    href:`${base}/pages/worker-diary.html` },

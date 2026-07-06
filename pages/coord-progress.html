@@ -88,7 +88,7 @@
 .pl-badge  { font-size:.65rem; color:#9CA3AF; }
 .pl-search { width:100%; padding:6px 10px; border:1px solid #E5E7EB; border-radius:7px; font-size:.72rem; font-family:inherit; background:#F9FAFB; outline:none; margin-top:6px; }
 .pl-search:focus { border-color:#F97316; background:#fff; }
-.pl-items  { flex:1; overflow-y:auto; }
+.pl-items  { flex:1; overflow-y:auto; min-height:0; }
 .pl-item   { display:flex; align-items:center; gap:8px; padding:9px 14px; border-bottom:1px solid #F9FAFB; cursor:pointer; transition:background .1s; }
 .pl-item:hover  { background:#FFF7ED; }
 .pl-item.active { background:#FFF7ED; border-left:3px solid #F97316; padding-left:11px; }
@@ -320,9 +320,10 @@ function openList(scnId, formIdx, e) {
 
 function renderList(list) {
   const color = FORM_COLORS[ACTIVE_FORM] || '#F97316';
-  document.getElementById('pl-items').innerHTML = list.length
+  const el = document.getElementById('pl-items');
+  el.innerHTML = list.length
     ? list.map((item,i)=>`
-        <div class="pl-item" data-i="${i}" onclick="openDetail(${i})">
+        <div class="pl-item" data-i="${i}">
           <div class="pl-item-dot" style="background:${color}"></div>
           <div>
             <div class="pl-item-name">${item.nama||'—'}</div>
@@ -331,32 +332,26 @@ function renderList(list) {
         </div>`).join('')
     : '<div class="pd-empty">Tidak ada data</div>';
 
-  document.getElementById('pl-search').oninput = function() {
+  // Attach click via event delegation
+  el.querySelectorAll('.pl-item').forEach(function(row) {
+    row.addEventListener('click', function() {
+      const i = parseInt(this.dataset.i);
+      openDetailItem(list[i], this);
+    });
+  });
+
+  // Setup search
+  const srch = document.getElementById('pl-search');
+  srch.oninput = function() {
     const q = this.value.toLowerCase();
     const filtered = ACTIVE_LIST.filter(item=>(item.nama||'').toLowerCase().includes(q));
     document.getElementById('pl-badge').textContent = filtered.length+' anak';
-    renderListItems(filtered);
+    renderList(filtered);
   };
 }
 
 function renderListItems(list) {
-  const color = FORM_COLORS[ACTIVE_FORM] || '#F97316';
-  document.getElementById('pl-items').innerHTML = list.length
-    ? list.map((item,i)=>`
-        <div class="pl-item" data-i="${i}" onclick="openDetailDirect(item_${i})">
-          <div class="pl-item-dot" style="background:${color}"></div>
-          <div>
-            <div class="pl-item-name">${item.nama||'—'}</div>
-            <div class="pl-item-cbr">${item.cbr||'—'}</div>
-          </div>
-        </div>`).join('')
-    : '<div class="pd-empty">Tidak ada data</div>';
-
-  // attach click
-  list.forEach((item,i)=>{
-    const el = document.querySelectorAll('.pl-item')[i];
-    if(el) el.onclick = ()=>openDetailItem(item, el);
-  });
+  renderList(list);
 }
 
 function openDetail(i) {

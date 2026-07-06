@@ -766,12 +766,12 @@ function renderAnak(){
 
   // DONUT
   const lc=cnt(a,'level');
-  document.getElementById('donut-total').textContent=n;
+  if(document.getElementById('donut-total')) document.getElementById('donut-total').textContent=n;
   mk('c-level','doughnut',{
     labels:LO.map(l=>l.split(' ')[0]),
     datasets:[{data:LO.map(l=>lc[l]||0),backgroundColor:LO.map(l=>LC[l]),borderColor:'#F8FAFC',borderWidth:2,hoverOffset:4}]
   },{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}}});
-  document.getElementById('level-legend').innerHTML=[
+  if(document.getElementById('level-legend')) document.getElementById('level-legend').innerHTML=[
     {l:'Parah',c:'#1E293B',n:lc['Parah (dukungan penuh)']||0},
     {l:'Sedang',c:'#F97316',n:lc['Sedang (dukungan reguler)']||0},
     {l:'Rendah',c:'#FDBA74',n:lc['Rendah (sedikit dukungan)']||0}
@@ -779,7 +779,7 @@ function renderAnak(){
 
   // RAGAM HBAR
   const rc=cnt(a,'ragam'), mx=Math.max(...RO.map(r=>rc[r]||0),1);
-  document.getElementById('ragam-hbar').innerHTML=RO.map(r=>`
+  if(document.getElementById('ragam-hbar')) document.getElementById('ragam-hbar').innerHTML=RO.map(r=>`
     <div class="hbar-item">
       <div class="hbar-meta"><span>${RS[r]}</span><span>${rc[r]||0}</span></div>
       <div class="hbar-track"><div class="hbar-fill" style="width:${Math.round((rc[r]||0)/mx*100)}%;background:${RC[r]}"></div></div>
@@ -789,7 +789,7 @@ function renderAnak(){
   const mendapat=a.filter(x=>x.tr||x.ob).length;
   const proses=a.filter(x=>x.ep).length;
   const belum=Math.max(n-mendapat,0);
-  document.getElementById('status-layanan').innerHTML=[
+  if(document.getElementById('status-layanan')) document.getElementById('status-layanan').innerHTML=[
     {ic:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,bg:'#d1fae5',c:'#059669',f:'#059669',l:'Mendapat Layanan',n:mendapat,p:n?Math.round(mendapat/n*100):0},
     {ic:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,bg:'#fef3c7',c:'#d97706',f:'#f59e0b',l:'Dalam Proses',n:proses,p:n?Math.round(proses/n*100):0},
     {ic:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,bg:'#fee2e2',c:'#dc2626',f:'#ef4444',l:'Belum Mendapat',n:belum,p:n?Math.round(belum/n*100):0},
@@ -813,7 +813,7 @@ function renderAnak(){
 
   // ALERT
   const telat=a.filter(x=>x.hari>30).length, tanpa=a.filter(x=>x.hari===999).length;
-  document.getElementById('alert-items').innerHTML=[
+  if(document.getElementById('alert-items')) document.getElementById('alert-items').innerHTML=[
     kritis>0?`<div class="alert-item"><div class="alert-dot red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="alert-main">${kritis} anak dalam kondisi kritis</div><div class="alert-sub">Skor ≤ 3 — perlu intervensi segera</div></div></div>`:'',
     telat>0?`<div class="alert-item"><div class="alert-dot amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="alert-main">${telat} anak belum dikunjungi >30 hari</div><div class="alert-sub">${n?Math.round(telat/n*100):0}% dari total anak</div></div></div>`:'',
     tanpa>0?`<div class="alert-item"><div class="alert-dot blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="alert-main">${tanpa} anak belum ada observasi</div><div class="alert-sub">Belum pernah dikunjungi</div></div></div>`:'',
@@ -828,10 +828,10 @@ function renderAnak(){
   // INSIGHT
   const rt=RO.reduce((a,b)=>(rc[a]||0)>=(rc[b]||0)?a:b,RO[0]);
   const lt=LO.reduce((a,b)=>(lc[a]||0)>=(lc[b]||0)?a:b,LO[0]);
-  document.getElementById('insight-text').textContent=
+  if(document.getElementById('insight-text')) document.getElementById('insight-text').textContent=
     `Mayoritas anak berada pada level ${(lt||'').split(' ')[0].toLowerCase()} dengan ragam disabilitas ${(RS[rt]||rt||'').toLowerCase()} paling banyak (${rc[rt]||0} anak). `+
     (kritis>0?`Masih ada ${kritis} anak dengan kondisi kritis (skor ≤ 3) yang memerlukan perhatian segera.`:'Tidak ada anak dalam kondisi kritis saat ini.');
-  document.getElementById('insight-box').style.display='flex';
+  if(document.getElementById('insight-box')) document.getElementById('insight-box').style.display='flex';
 }
 
 function renderSkor(){

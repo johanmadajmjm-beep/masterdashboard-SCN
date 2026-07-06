@@ -10,14 +10,13 @@ const API = (() => {
   // ── ENDPOINT PER SCN ──────────────────────────────────────
   const ENDPOINTS = {
     manggarai  : 'https://script.google.com/macros/s/AKfycbx9jmqhOFmIywMzftoUASILY3Xlq7yqMCBqdx_J_wwjaqXFt-vHSd2eR8OVwovT_qlk/exec',
-    // SCN lain ditambah saat Apps Script mereka siap:
-    // kupang     : 'https://script.google.com/macros/s/xxx/exec',
-    // banyuwangi : 'https://script.google.com/macros/s/xxx/exec',
-    // jember     : 'https://script.google.com/macros/s/xxx/exec',
-    // situbondo  : 'https://script.google.com/macros/s/xxx/exec',
-    // tts        : 'https://script.google.com/macros/s/xxx/exec',
-    // palu       : 'https://script.google.com/macros/s/xxx/exec',
-    // sigi       : 'https://script.google.com/macros/s/xxx/exec',
+    kupang     : 'https://script.google.com/macros/s/AKfycbx9jmqhOFmIywMzftoUASILY3Xlq7yqMCBqdx_J_wwjaqXFt-vHSd2eR8OVwovT_qlk/exec',
+    banyuwangi : 'https://script.google.com/macros/s/AKfycbx9jmqhOFmIywMzftoUASILY3Xlq7yqMCBqdx_J_wwjaqXFt-vHSd2eR8OVwovT_qlk/exec',
+    jember     : 'https://script.google.com/macros/s/AKfycbx9jmqhOFmIywMzftoUASILY3Xlq7yqMCBqdx_J_wwjaqXFt-vHSd2eR8OVwovT_qlk/exec',
+    situbondo  : 'https://script.google.com/macros/s/AKfycbx9jmqhOFmIywMzftoUASILY3Xlq7yqMCBqdx_J_wwjaqXFt-vHSd2eR8OVwovT_qlk/exec',
+    tts        : 'https://script.google.com/macros/s/AKfycbx9jmqhOFmIywMzftoUASILY3Xlq7yqMCBqdx_J_wwjaqXFt-vHSd2eR8OVwovT_qlk/exec',
+    palu       : 'https://script.google.com/macros/s/AKfycbx9jmqhOFmIywMzftoUASILY3Xlq7yqMCBqdx_J_wwjaqXFt-vHSd2eR8OVwovT_qlk/exec',
+    sigi       : 'https://script.google.com/macros/s/AKfycbx9jmqhOFmIywMzftoUASILY3Xlq7yqMCBqdx_J_wwjaqXFt-vHSd2eR8OVwovT_qlk/exec',
   };
 
   // ── SESSION STORAGE CACHE ─────────────────────────────────
@@ -472,6 +471,10 @@ const API = (() => {
     const referral    = valid.flatMap(d => d.referral.map(r => ({ ...r, scn: d.meta.scn })));
     const aktivitas   = valid.flatMap(d => d.aktivitas).sort((a, b) => b.tgl.localeCompare(a.tgl));
     const cerita      = valid.flatMap(d => d.cerita);
+    const perencanaan = valid.flatMap(d => d.perencanaan || []);
+    const diary       = valid.flatMap(d => d.diary       || []);
+    const evalMenengah= valid.flatMap(d => d.evalMenengah|| []);
+    const evalAkhir   = valid.flatMap(d => d.evalAkhir   || []);
     const stakeholder = {};
     valid.forEach(d => {
       Object.entries(d.stakeholder).forEach(([cat, val]) => {
@@ -496,6 +499,7 @@ const API = (() => {
     return {
       meta        : { scn: 'Semua SCN', project: 'BEN', provinsi: 'Nasional', tahun: 2026 },
       workers, anak, obs, referral, aktivitas, cerita, stakeholder,
+      perencanaan, diary, evalMenengah, evalAkhir,
       itt: { Y1_Q2: ittAgg },
     };
   }

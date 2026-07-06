@@ -336,10 +336,9 @@ function renderPage(d,scnId){
   // Perhatian Khusus — dari referral
   const late   = anak.filter(a=>a.hari>30).sort((a,b)=>b.hari-a.hari);
   const kritis = anak.filter(a=>a.sp!=null&&a.sp<=3).sort((a,b)=>a.sp-b.sp);
-  // Render section perhatian khusus di topbar KPI
-  const totalAksi = 0; // akan diupdate setelah buildRTL
-  const kritisCount = kritis.length;
+  // referral info sudah masuk ke RTL via alert bar
   const lateCount   = late.length;
+  const kritisCount = kritis.length;
 
   // Render alert bar jika ada perhatian khusus
   let alertBar = '';

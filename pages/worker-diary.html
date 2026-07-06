@@ -198,12 +198,21 @@ function showDetail(el,a){
       <p>CBR Worker belum mengisi Buku Harian untuk anak ini.</p>
     </div>`;
   } else {
-    entryHTML=entries.map(e=>`
-      <div class="diary-entry">
-        <div class="diary-tgl">${e.tanggal_submit||e.tgl_diary_1||'—'} · ${e.cbr_worker||e.cb||a.cbr||'—'}</div>
-        ${e.tgl_diary_1?`<div style="margin-bottom:8px"><div style="font-size:.65rem;font-weight:600;color:#9CA3AF;margin-bottom:3px">${e.tgl_diary_1}</div><div class="diary-text">${e.isi_diary_1||'—'}</div></div>`:''}
-        ${e.tgl_diary_2?`<div><div style="font-size:.65rem;font-weight:600;color:#9CA3AF;margin-bottom:3px">${e.tgl_diary_2}</div><div class="diary-text">${e.isi_diary_2||'—'}</div></div>`:''}
-      </div>`).join('');
+    entryHTML=entries.map(e=>{
+      function diaryItem(n){
+        const tgl=e['tgl_diary_'+n]||'';
+        const isi=e['isi_diary_'+n]||'';
+        if(!tgl&&!isi) return '';
+        return `<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #F3F4F6">
+          <div style="font-size:.65rem;font-weight:600;color:#F97316;margin-bottom:3px">${tgl||'—'}</div>
+          <div class="diary-text">${isi||'—'}</div>
+        </div>`;
+      }
+      return `<div class="diary-entry">
+        <div class="diary-tgl">${e.tanggal_submit||'—'} · ${e.cbr_worker||a.cbr||'—'}</div>
+        ${[1,2,3,4,5,6,7,8,9,10].map(n=>diaryItem(n)).join('')}
+      </div>`;
+    }).join('');
   }
   document.getElementById('ld-detail').innerHTML=`
     <div class="det-wrap">

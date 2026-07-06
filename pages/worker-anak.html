@@ -441,9 +441,10 @@ function showDetail(el,a){
       <div class="det-section-body">
         ${row('Status Pengasuh', a.stp||'—')}
         ${a.stpl ? row('Keterangan Pengasuh', a.stpl) : ''}
+        ${a.np   ? row('Nama Pengasuh', a.np) : ''}
         ${row('CBR Worker', a.cbr||'—')}
-        ${row('Faktor Membantu Pengasuh', a.nkp||'—')}
-        ${row('Faktor Menyulitkan Pengasuh', a.tkp||'—')}
+        ${a.nkp  ? row('Faktor Membantu Pengasuh', a.nkp) : row('Faktor Membantu Pengasuh', '—')}
+        ${a.tkp  ? row('Faktor Menyulitkan Pengasuh', a.tkp) : row('Faktor Menyulitkan Pengasuh', '—')}
       </div>
     </div>
 
@@ -451,8 +452,8 @@ function showDetail(el,a){
     <div class="det-section">
       ${shead(icoFaktor,'rgba(16,185,129,.1)','#10B981','Faktor Kesejahteraan Anak')}
       <div class="det-section-body">
-        ${row('Faktor Membantu Anak', a.nka||'—')}
-        ${row('Faktor Menyulitkan Anak', a.tka||'—')}
+        ${a.nka  ? row('Faktor Membantu Anak', a.nka) : row('Faktor Membantu Anak', '—')}
+        ${a.tka  ? row('Faktor Menyulitkan Anak', a.tka) : row('Faktor Menyulitkan Anak', '—')}
       </div>
     </div>
 

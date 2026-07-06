@@ -154,6 +154,7 @@ const API = (() => {
         lon    : r.lon ? parseFloat(r.lon) : null,
         provinsi: r.provinsi || '',
         scn_id : r.scn || '',
+        scn    : r.scn || '',   // alias untuk filter konsisten
         irp    : 'Aktif',
         hari   : 999,
         _tema  : r._tema || null,
@@ -174,6 +175,8 @@ const API = (() => {
       lg  : r.lg  || '',
       lat : r.lat ? parseFloat(r.lat) : null,
       lon : r.lon ? parseFloat(r.lon) : null,
+      scn : r.scn || '',
+      provinsi: r.provinsi || '',
     }));
   }
 

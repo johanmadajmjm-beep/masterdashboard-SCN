@@ -156,12 +156,19 @@ function renderList(){
   const cb=document.getElementById('flt-cbr').value;
   const st=document.getElementById('flt-status').value;
   const q=(document.getElementById('flt-search').value||'').toLowerCase();
-  const list = (ALL_EVAL_MID||[]).map(r=>({nama:r.nama_anak||r.na||'—',cbr:r.cbr_worker||r.cb||'—',_data:r})).filter(a=>(!cb||a.cbr===cb)&&(!q||(a.nama||'').toLowerCase().includes(q)));
+  const list=ALL_ANAK.filter(a=>{
+    if(cb&&a.cbr!==cb) return false;
+    if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
+    const hasEval=!!EVAL_MID_MAP[a.nama?.toLowerCase()];
+    if(st==='ada') return hasEval;
+    if(st==='belum') return !hasEval;
+    return hasEval;
+  });
   document.getElementById('ld-count').textContent=list.length+' anak';
   const empty='<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem;grid-column:1/-1">Tidak ada data</div>';
 
   const cardHTML=list.map((a,i)=>{
-    const ev=a._data||EVAL_MID_MAP[a.nama?.toLowerCase()];
+    const ev=EVAL_MID_MAP[a.nama?.toLowerCase()];
     const skor=ev?.score_tujuan_1||ev?.skor_t1||'';
     const badge=ev
       ?`<span style="font-size:.58rem;font-weight:700;padding:1px 6px;border-radius:999px;background:#DCFCE7;color:#15803D">✓ Sudah${skor?' · Skor '+skor:''}</span>`
@@ -226,8 +233,8 @@ function showDetail(el,a){
     <div class="det-name">${a.nama||'—'}</div>
     <div class="det-meta">
       <span class="det-chip">👤 ${a.cbr||'—'}</span>
-      <span class="det-chip">📍 ${(a._data?.desa||'—')}</span>
-      <span class="det-chip">🏷 ${(a._data?.ragam||a.ragam||'—'}</span>
+      <span class="det-chip">📍 ${a.desa||'—'}</span>
+      <span class="det-chip">🏷 ${a.ragam||'—'}</span>
     </div>
     ${ev ? `<div class="det-section">
       <div class="det-section-head">Info Evaluasi Menengah</div>

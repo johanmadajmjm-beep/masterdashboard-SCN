@@ -964,6 +964,8 @@ function renderTemuan() {
 }
 
 function cnt(a,f){const m={};a.forEach(r=>{const v=r[f];if(v&&v!=='—')m[v]=(m[v]||0)+1;});return m;}
+const RO=['Fisik','Intelektual','Sensorik (penglihatan)','Sensorik (pendengaran dan bicara)','Ganda','Lainnya'];
+const RC={'Fisik':'#F97316','Intelektual':'#FB923C','Sensorik (penglihatan)':'#FDBA74','Sensorik (pendengaran dan bicara)':'#FED7AA','Ganda':'#1E293B','Lainnya':'#94A3B8'};
 function renderRagam(){
   const a_ragam = window._cbAnakAll||[];
   // alias untuk filter change

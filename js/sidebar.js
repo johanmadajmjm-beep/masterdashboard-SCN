@@ -70,7 +70,7 @@ function buildSidebar() {
       <div class="nav-group-items">
         <a class="nav-sub-item" data-page="w-beranda"   href="${base}/pages/worker-beranda.html">${ICONS.home} Beranda</a>
         <a class="nav-sub-item" data-page="w-data-awal" href="${base}/pages/worker-data-awal.html">${ICONS.list} Data Awal</a>
-        <a class="nav-sub-item" data-page="w-anak"      href="${base}/pages/worker-anak.html">${ICONS.list} Profil Anak</a>
+        <a class="nav-sub-item" data-page="w-data-awal"      href="${base}/pages/worker-data-awal.html">${ICONS.list} Profil Anak</a>
         <a class="nav-sub-item" data-page="w-obs"      href="${base}/pages/worker-obs.html">${ICONS.obs} Observasi</a>
         <a class="nav-sub-item" data-page="w-plan"     href="${base}/pages/worker-plan.html">${ICONS.plan} Perencanaan</a>
         <a class="nav-sub-item" data-page="w-diary"    href="${base}/pages/worker-diary.html">${ICONS.diary} Buku Harian</a>
@@ -363,11 +363,11 @@ function buildBottomNav() {
       id    : 'worker',
       label : 'Worker',
       icon  : ICONS.worker,
-      pages : ['w-beranda','w-data-awal','w-anak','w-obs','w-plan','w-diary','w-eval-mid','w-eval','w-activity'],
+      pages : ['w-beranda','w-data-awal','w-obs','w-plan','w-diary','w-eval-mid','w-eval','w-activity'],
       items : [
         { page:'w-beranda',  label:'Beranda',     icon:ICONS.home,     href:`${base}/pages/worker-beranda.html` },
         { page:'w-data-awal',label:'Data Awal',   icon:ICONS.list,     href:`${base}/pages/worker-data-awal.html` },
-        { page:'w-anak',     label:'Profil Anak', icon:ICONS.list,     href:`${base}/pages/worker-anak.html` },
+        { page:'w-data-awal',     label:'Data Awal', icon:ICONS.list,     href:`${base}/pages/worker-data-awal.html` },
         { page:'w-obs',      label:'Observasi',   icon:ICONS.obs,      href:`${base}/pages/worker-obs.html` },
         { page:'w-plan',     label:'Perencanaan', icon:ICONS.plan,     href:`${base}/pages/worker-plan.html` },
         { page:'w-diary',    label:'Buku Harian', icon:ICONS.diary,    href:`${base}/pages/worker-diary.html` },

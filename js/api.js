@@ -379,16 +379,7 @@ const API = (() => {
       'Staff Mitra'   : { total: 7,  L: 5,  P: 2  },
     };
 
-    const referral = anak
-      .filter(a => a.hari > 30)
-      .slice(0, 15)
-      .map(a => ({
-        nama   : a.nama,
-        tujuan : 'Puskesmas / Dinas Sosial',
-        status : 'Proses',
-        tgl    : new Date(Date.now() - a.hari * 86400000).toISOString().substring(0, 10),
-        cbr    : a.cbr,
-      }));
+    // referral dihapus — sudah digabung ke coord-rtl
 
     const aktivitas = obs
       .filter(o => o.tgl && o.tgl !== '—')
@@ -414,7 +405,7 @@ const API = (() => {
         lastSync,
         sumber   : 'Google Sheets (real)',
       },
-      workers, anak, obs, referral, aktivitas, stakeholder,
+      workers, anak, obs, aktivitas, stakeholder,
       perencanaan, diary, evalMenengah, evalAkhir,
       cerita : [],
       itt    : { Y1_Q2: itt },
@@ -521,10 +512,7 @@ const API = (() => {
     const workers = buildWorkers(anak, obs, perencanaan, diary, evalMenengah, evalAkhir);
     const itt     = calcITT(anak, obs);
 
-    const referral = anak.filter(a => a.hari > 30).slice(0,15).map(a => ({
-      nama: a.nama, tujuan:'Puskesmas / Dinas Sosial', status:'Proses',
-      tgl: new Date(Date.now() - a.hari * 86400000).toISOString().substring(0,10), cbr: a.cbr,
-    }));
+    // referral dihapus — sudah digabung ke coord-rtl
     const aktivitas = obs.filter(o => o.tgl && o.tgl !== '—')
       .sort((a, b) => b.tgl.localeCompare(a.tgl)).slice(0,10)
       .map(o => ({ tgl:o.tgl, nama:`Kunjungan CBR — ${o.na}`, outcome:1, peserta:1, lokasi:'—', scn:o.scn||'' }));
@@ -540,7 +528,7 @@ const API = (() => {
 
     return {
       meta        : { scn: 'Semua SCN', project: 'BEN', provinsi: 'Nasional', tahun: 2026, lastSync },
-      workers, anak, obs, referral, aktivitas, cerita: [], stakeholder,
+      workers, anak, obs, aktivitas, cerita: [], stakeholder,
       perencanaan, diary, evalMenengah, evalAkhir,
       itt: { Y1_Q2: itt },
     };
@@ -607,7 +595,7 @@ const API = (() => {
       setBadge(false, null);
       return {
         meta        : { scn: `SCN ${scnId}`, project: 'BEN', tahun: 2026, sumber: 'Belum terhubung' },
-        workers     : [], anak: [], obs: [], referral: [],
+        workers     : [], anak: [], obs: [],
         aktivitas   : [], stakeholder: {}, cerita: [],
         perencanaan : [], diary: [], evalMenengah: [], evalAkhir: [],
         itt         : { Y1_Q2: {} },

@@ -144,6 +144,7 @@ function setView(v){
 }
 
 function renderPage(d,scnId){
+  window._d = d;
   ALL_ANAK=d.anak||[];
   // Card ringkasan
   const _ada = (d.perencanaan||[]).length;
@@ -167,7 +168,7 @@ function renderPage(d,scnId){
     const key=(p.nama_anak||p.na||'').toLowerCase();
     if(!PLAN_MAP[key]) PLAN_MAP[key]=p;
   });
-  const cbrs=[...new Set(ALL_ANAK.map(a=>a.cbr).filter(Boolean))].sort();
+  const cbrs=[...new Set([...(window._d?.workers||[]).map(w=>w.nama),...ALL_ANAK.map(a=>a.cbr)].filter(Boolean))].sort();
   const fC=document.getElementById('flt-cbr');
   cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});
   [fC,document.getElementById('flt-status')].forEach(el=>el.addEventListener('change',renderList));

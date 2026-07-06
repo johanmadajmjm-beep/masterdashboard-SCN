@@ -175,9 +175,10 @@ function showDetail(a){
 }
 
 function renderPage(d,scnId){
+  window._d = d;
   if(!d||!d.anak)return;
   ALL_ANAK=d.anak;
-  const cbrs=[...new Set(ALL_ANAK.map(a=>a.cbr).filter(Boolean))].sort();
+  const cbrs=[...new Set([...(window._d?.workers||[]).map(w=>w.nama),...ALL_ANAK.map(a=>a.cbr)].filter(Boolean))].sort();
   const fC=document.getElementById('mp-cbr');
   fC.innerHTML='<option value="">Semua CBR Worker</option>';
   cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});

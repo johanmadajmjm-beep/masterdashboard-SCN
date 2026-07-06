@@ -336,7 +336,7 @@ function renderPage(d,scnId){
   OBS_MAP={};
   obs.forEach(o=>{if(o.na)OBS_MAP[o.na.toLowerCase()]=o;});
   ALL_RTL=buildRTL(anak);
-  const cbrs=[...new Set(anak.map(a=>a.cbr).filter(Boolean))].sort();
+  const cbrs=[...new Set([...(d.workers||[]).map(w=>w.nama),...anak.map(a=>a.cbr)].filter(Boolean))].sort();
   const levels=[...new Set(anak.map(a=>a.level).filter(Boolean))].sort();
   const fC=document.getElementById('flt-cbr'), fL=document.getElementById('flt-level');
   cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});

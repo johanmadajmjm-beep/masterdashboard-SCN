@@ -231,6 +231,7 @@ function setView(v){
 }
 
 function renderPage(d,scnId){
+  window._d = d;
   if(!d) return;
   ALL_ANAK=d.anak||[];
   OBS_MAP={};
@@ -249,7 +250,7 @@ function renderPage(d,scnId){
     <button class="chip${ACTIVE_FILTER===c.f?' active':''}" onclick="setFilter('${c.f}')">${c.l}: ${c.n}</button>
   `).join('');
   const ragams=[...new Set(ALL_ANAK.map(a=>a.ragam).filter(Boolean))].sort();
-  const cbrs=[...new Set(ALL_ANAK.map(a=>a.cbr).filter(Boolean))].sort();
+  const cbrs=[...new Set([...(window._d?.workers||[]).map(w=>w.nama),...ALL_ANAK.map(a=>a.cbr)].filter(Boolean))].sort();
   const fR=document.getElementById('flt-ragam'),fC=document.getElementById('flt-cbr');
   ragams.forEach(r=>{const o=document.createElement('option');o.value=o.textContent=r;fR.appendChild(o);});
   cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});

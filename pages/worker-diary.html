@@ -138,6 +138,7 @@ function setView(v){
 }
 
 function renderPage(d,scnId){
+  window._d = d;
   ALL_ANAK=d.anak||[];
   // Card ringkasan
   const _ada = (d.diary||[]).length;
@@ -162,7 +163,7 @@ function renderPage(d,scnId){
     if(!DIARY_MAP[key]) DIARY_MAP[key]=[];
     DIARY_MAP[key].push(e);
   });
-  const cbrs=[...new Set(ALL_ANAK.map(a=>a.cbr).filter(Boolean))].sort();
+  const cbrs=[...new Set([...(window._d?.workers||[]).map(w=>w.nama),...ALL_ANAK.map(a=>a.cbr)].filter(Boolean))].sort();
   const fC=document.getElementById('flt-cbr');
   cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});
   fC.addEventListener('change',renderList);

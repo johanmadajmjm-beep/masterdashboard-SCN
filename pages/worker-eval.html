@@ -237,6 +237,7 @@ function clearDetail(){
 }
 
 function renderPage(d, scnId) {
+  window._d = d;
   ALL_ANAK_EV=d.anak||[];
   ALL_EVAL=d.evalAkhir||[];
   // Card ringkasan
@@ -258,7 +259,7 @@ function renderPage(d, scnId) {
   EVAL_MAP={};
   ALL_EVAL.forEach(e=>{const key=(e.nama_anak||e.na||'').toLowerCase();EVAL_MAP[key]=e;});
   const anak=ALL_ANAK_EV, ev=ALL_EVAL;
-  const cbrs=[...new Set(anak.map(a=>a.cbr).filter(Boolean))].sort();
+  const cbrs=[...new Set([...(window._d?.workers||[]).map(w=>w.nama),...anak.map(a=>a.cbr)].filter(Boolean))].sort();
   const fC=document.getElementById('flt-cbr'); if(!fC) return;
   cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});
   [fC,document.getElementById('flt-status')].forEach(el=>el.addEventListener('change',renderList));

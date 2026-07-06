@@ -364,11 +364,11 @@ function renderPage(d,scnId){
   cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});
   levels.forEach(l=>{const o=document.createElement('option');o.value=l;o.textContent=l.split('(')[0].trim();fL.appendChild(o);});
   const totalAksi=ALL_RTL.reduce((s,a)=>s+a.totalAksi,0);
-  const kritis=ALL_RTL.filter(a=>a.sp!=null&&a.sp<=3).length;
+  const kritisKPI=ALL_RTL.filter(a=>a.sp!=null&&a.sp<=3).length;
   document.getElementById('kpi-rtl').innerHTML=[
     {v:anak.length,l:'Anak',c:'#F97316'},
     {v:totalAksi,l:'Rekomendasi',c:'#1D4ED8'},
-    {v:kritis,l:'Prioritas',c:'#DC2626'},
+    {v:kritisKPI,l:'Prioritas',c:'#DC2626'},
   ].map(k=>`<div style="background:white;border:1px solid #E5E7EB;border-radius:8px;padding:6px 12px;text-align:center;min-width:60px"><div style="font-size:1rem;font-weight:800;color:${k.c};font-family:'JetBrains Mono',monospace">${k.v}</div><div style="font-size:.58rem;color:#9CA3AF;font-weight:600;text-transform:uppercase;letter-spacing:.05em">${k.l}</div></div>`).join('');
   ['flt-cbr','flt-level'].forEach(id=>document.getElementById(id).addEventListener('change',renderList));
   document.getElementById('flt-search').addEventListener('input',renderList);

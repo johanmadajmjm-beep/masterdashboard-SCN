@@ -966,6 +966,12 @@ function renderTemuan() {
 
 function renderRagam(){
   const a_ragam = window._cbAnakAll||[];
+  // alias untuk filter change
+  window.onRagamFilterChange = function(){ renderRagam(); };
+  window.showRagamDetail = function(r){
+    document.getElementById('flt-ragam-tab').value=r;
+    renderRagam();
+  };
   const selRagam  = document.getElementById('flt-ragam-tab').value;
   const selDetail = document.getElementById('flt-detail-ragam').value;
 

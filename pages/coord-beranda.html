@@ -612,6 +612,8 @@ function renderPage(d, scnId){
   window._cbAnakAll = anak;
   window._cbObsAll  = d.obs||[];
   window._cbPlanAll = d.perencanaan||[];
+  // Pre-render temuan agar siap saat tab diklik
+  setTimeout(renderTemuan, 100);
 
   document.getElementById('kpi-coord').innerHTML = kpiData.map(k=>`
     <div class="kpi-box" style="--kc:${k.c}">

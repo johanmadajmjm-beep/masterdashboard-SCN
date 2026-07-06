@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="id"><head>
+<style>html,body{background:#F8FAFC}</style>
+<script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CBR Coordinator — Progress SCN | MEL NLR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
+<link rel="stylesheet" href="../css/main.css"/>
+<link rel="stylesheet" href="../css/components.css"/>
+<style>
+/* ── LAYOUT ── */
+.pg-wrap { display:flex; gap:0; height:calc(100vh - 60px); overflow:hidden; }
+
+/* PANEL KIRI — tabel */
+.pg-table-panel {
+  flex:1; min-width:0; background:#fff;
+  border-right:1px solid #E5E7EB;
+  display:flex; flex-direction:column;
+  overflow:hidden; transition:flex .25s ease;
+}
+.pg-wrap.detail-open .pg-table-panel { flex:0 0 520px; min-width:0; }
+
+/* PANEL KANAN — list + detail */
+.pg-right {
+  display:none; flex-direction:column;
+  width:0; overflow:hidden; transition:width .25s ease;
+}
+.pg-wrap.detail-open .pg-right { display:flex; width:100%; }
+
+.pg-list-panel {
+  width:280px; min-width:280px; flex-shrink:0;
+  background:#F8FAFC; border-right:1px solid #E5E7EB;
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.pg-wrap.child-open .pg-list-panel { width:280px; }
+
+.pg-detail-panel {
+  flex:1; overflow-y:auto; background:#fff; display:none;
+}
+.pg-wrap.child-open .pg-detail-panel { display:block; }
+
+/* TABLE */
+.pg-header { padding:12px 16px; border-bottom:1px solid #E5E7EB; flex-shrink:0; }
+.pg-title   { font-size:.85rem; font-weight:700; color:#1F2937; }
+.pg-sub     { font-size:.68rem; color:#9CA3AF; margin-top:2px; }
+.tbl-wrap   { flex:1; overflow:auto; }
+.pg-table   { width:100%; border-collapse:collapse; font-size:.76rem; }
+.pg-table th {
+  padding:9px 12px; background:#F9FAFB;
+  border-bottom:2px solid #E5E7EB;
+  font-size:.65rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.05em; color:#6B7280; text-align:left;
+  white-space:nowrap; position:sticky; top:0; z-index:1;
+}
+.pg-table th.num { text-align:center; }
+.pg-table td {
+  padding:10px 12px; border-bottom:1px solid #F3F4F6;
+  color:#374151; vertical-align:middle;
+}
+.pg-table tr:hover td { background:#FFF7ED; }
+.pg-table tr.active td { background:#FFF7ED; }
+.scn-name { font-weight:700; color:#1F2937; font-size:.8rem; }
+.scn-loc  { font-size:.65rem; color:#9CA3AF; }
+.num-cell { text-align:center; }
+.num-btn  {
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:36px; height:28px; padding:0 8px;
+  border-radius:6px; font-size:.8rem; font-weight:700;
+  cursor:pointer; transition:.15s; border:none; font-family:inherit;
+}
+.num-btn:hover { transform:scale(1.08); }
+.num-btn.zero { background:#F3F4F6; color:#9CA3AF; cursor:default; }
+.num-btn.zero:hover { transform:none; }
+.num-btn.f0 { background:#FFF7ED; color:#F97316; }
+.num-btn.f1 { background:#DBEAFE; color:#1D4ED8; }
+.num-btn.f2 { background:#DCFCE7; color:#15803D; }
+.num-btn.f3 { background:#F3E8FF; color:#7C3AED; }
+.num-btn.f4 { background:#FEF3C7; color:#D97706; }
+.num-btn.f5 { background:#D1FAE5; color:#059669; }
+.pct-bar { height:3px; border-radius:99px; background:#F3F4F6; margin-top:4px; }
+.pct-fill { height:100%; border-radius:99px; }
+.total-row td { background:#F9FAFB; font-weight:700; border-top:2px solid #E5E7EB; }
+
+/* LIST PANEL */
+.pl-header { padding:10px 14px; border-bottom:1px solid #E5E7EB; background:#fff; flex-shrink:0; }
+.pl-title  { font-size:.78rem; font-weight:700; color:#1F2937; }
+.pl-badge  { font-size:.65rem; color:#9CA3AF; }
+.pl-search { width:100%; padding:6px 10px; border:1px solid #E5E7EB; border-radius:7px; font-size:.72rem; font-family:inherit; background:#F9FAFB; outline:none; margin-top:6px; }
+.pl-search:focus { border-color:#F97316; background:#fff; }
+.pl-items  { flex:1; overflow-y:auto; }
+.pl-item   { display:flex; align-items:center; gap:8px; padding:9px 14px; border-bottom:1px solid #F9FAFB; cursor:pointer; transition:background .1s; }
+.pl-item:hover  { background:#FFF7ED; }
+.pl-item.active { background:#FFF7ED; border-left:3px solid #F97316; padding-left:11px; }
+.pl-item-dot  { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.pl-item-name { font-size:.76rem; font-weight:600; color:#1F2937; flex:1; }
+.pl-item-cbr  { font-size:.63rem; color:#9CA3AF; }
+
+/* DETAIL PANEL */
+.pd-inner  { padding:20px; }
+.pd-back   { display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border:1px solid #E5E7EB; border-radius:7px; background:#fff; color:#6B7280; font-size:.72rem; font-weight:500; cursor:pointer; font-family:inherit; margin-bottom:14px; transition:.15s; }
+.pd-back:hover { background:#F9FAFB; }
+.pd-back svg { width:13px; height:13px; }
+.pd-name { font-size:1.1rem; font-weight:800; color:#1F2937; margin-bottom:4px; }
+.pd-meta { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+.pd-chip { padding:2px 9px; border-radius:999px; font-size:.65rem; font-weight:600; background:#F3F4F6; color:#4B5563; }
+.pd-section { background:#fff; border:1px solid #E5E7EB; border-radius:10px; margin-bottom:10px; overflow:hidden; }
+.pd-section-head { padding:9px 14px; border-bottom:1px solid #F3F4F6; font-size:.72rem; font-weight:700; color:#1F2937; display:flex; align-items:center; gap:6px; }
+.pd-section-body { padding:12px 14px; }
+.pd-row { display:grid; grid-template-columns:140px 1fr; gap:8px; padding:6px 0; border-bottom:1px solid #F9FAFB; font-size:.76rem; }
+.pd-row:last-child { border-bottom:none; }
+.pd-row-label { color:#6B7280; font-size:.7rem; }
+.pd-row-val { font-weight:600; color:#1F2937; word-break:break-word; line-height:1.5; }
+.pd-empty { text-align:center; padding:32px; color:#9CA3AF; font-size:.78rem; }
+/* Aktor badges */
+.aktor-grp { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
+.aktor-badge { font-size:.62rem; font-weight:600; padding:2px 8px; border-radius:999px; }
+</style>
+</head><body>
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="topbar-breadcrumb">CBR Coordinator <span class="sep">›</span><span class="current">Progress SCN</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
+
+<div class="pg-wrap" id="pg-wrap">
+  <!-- PANEL KIRI: TABEL -->
+  <div class="pg-table-panel">
+    <div class="pg-header">
+      <div class="pg-title">Progress Data per SCN</div>
+      <div class="pg-sub">Klik angka untuk melihat daftar anak · Klik nama anak untuk detail</div>
+    </div>
+    <div class="tbl-wrap">
+      <table class="pg-table" id="pg-table">
+        <thead>
+          <tr>
+            <th>Nama SCN</th>
+            <th class="num" style="color:#F97316">Data Awal</th>
+            <th class="num" style="color:#1D4ED8">Observasi</th>
+            <th class="num" style="color:#15803D">Perencanaan</th>
+            <th class="num" style="color:#7C3AED">Buku Harian</th>
+            <th class="num" style="color:#D97706">Eval. Menengah</th>
+            <th class="num" style="color:#059669">Eval. Akhir</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PANEL KANAN -->
+  <div class="pg-right" id="pg-right">
+    <!-- LIST -->
+    <div class="pg-list-panel">
+      <div class="pl-header">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span class="pl-title" id="pl-title">—</span>
+          <button onclick="closeList()" style="border:none;background:none;cursor:pointer;color:#9CA3AF;font-size:1rem;padding:0 4px">✕</button>
+        </div>
+        <span class="pl-badge" id="pl-badge">—</span>
+        <input class="pl-search" id="pl-search" type="text" placeholder="🔍 Cari nama anak..."/>
+      </div>
+      <div class="pl-items" id="pl-items"></div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="pg-detail-panel" id="pg-detail">
+      <div class="pd-inner" id="pd-inner">
+        <div class="pd-empty">Pilih nama anak untuk melihat detail</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<script>
+const SCN_LIST = ['manggarai','kupang','tts','banyuwangi','jember','situbondo','palu','sigi'];
+const SCN_LABEL = {
+  manggarai:'SCN Manggarai', kupang:'SCN Kupang', tts:'SCN TTS',
+  banyuwangi:'SCN Banyuwangi', jember:'SCN Jember', situbondo:'SCN Situbondo',
+  palu:'SCN Palu', sigi:'SCN Sigi',
+};
+const SCN_LOC = {
+  manggarai:'NTT', kupang:'NTT', tts:'NTT',
+  banyuwangi:'Jawa Timur', jember:'Jawa Timur', situbondo:'Jawa Timur',
+  palu:'Sulawesi Tengah', sigi:'Sulawesi Tengah',
+};
+const FORM_COLORS = ['#F97316','#1D4ED8','#15803D','#7C3AED','#D97706','#059669'];
+const FORM_CLS    = ['f0','f1','f2','f3','f4','f5'];
+const FORM_KEYS   = ['awal','obs','perencanaan','diary','evalMenengah','evalAkhir'];
+const FORM_LABELS = ['Data Awal','Observasi','Perencanaan','Buku Harian','Eval. Menengah','Eval. Akhir'];
+
+const AKTOR_GROUPS = [
+  { label:'Keluarga',         color:'#F97316', keys:['ayah','ibu','saudara_kandung','kakek_nenek_serumah','paman_bibi','kakek_nenek_luar','sepupu','keluarga_besar_lain'] },
+  { label:'Komunitas',        color:'#0891b2', keys:['tetangga','teman_sebaya','kelompok_bermain','warga_kampung'] },
+  { label:'Tokoh Adat',       color:'#a16207', keys:['tua_golo','tua_teno','tokoh_adat','wau'] },
+  { label:'Keagamaan',        color:'#8b5cf6', keys:['pastor','suster_bruder','katekis','prodiakon','kelompok_doa','pengurus_gereja','guru_agama'] },
+  { label:'Pendidikan',       color:'#2563EB', keys:['guru_kelas','wali_kelas','kepala_sekolah','gpk','guru_paud','pengelola_paud','teman_sekelas'] },
+  { label:'Kesehatan',        color:'#16a34a', keys:['bidan_desa','perawat_puskesmas','dokter_puskesmas','kader_posyandu','kader_posbindu','fisioterapis'] },
+  { label:'Pemerintah & Desa',color:'#d97706', keys:['kepala_desa','sekdes','rt_rw','kasi_kesra','pkk_desa','karang_taruna','bpd','dinsos','dinkes','dindik','uptd_sosial','p2tp2a'] },
+  { label:'Program & NGO',    color:'#1E293B', keys:['scn','cbr_worker_lain','kader_disabilitas','kelompok_tani','koperasi','omk','org_perempuan','cbm_global','ayo_indonesia','jpm_kupang','lsm_lokal','yayasan_mitra','radio_lokal','tokoh_medsos'] },
+];
+
+let D = null;
+let ACTIVE_SCN = null, ACTIVE_FORM = null;
+let ACTIVE_LIST = [], ACTIVE_CHILD = null;
+
+// ── DATA ACCESSOR ───────────────────────────────────────────
+function getAnakBySCN(scnId) {
+  return (D.anak||[]).filter(a=>(a.scn||'').toLowerCase()===scnId);
+}
+function getFormDataBySCN(formKey, scnId) {
+  const arr = D[formKey] || [];
+  return arr.filter(r=>(r.scn||r.provinsi&&true)&&(r.scn||'').toLowerCase()===scnId);
+}
+function getObsBySCN(scnId) {
+  return (D.obs||[]).filter(o=>(o.scn||'').toLowerCase()===scnId);
+}
+
+// Nama anak dari form record
+function getNamaFromRecord(formKey, r) {
+  return r.nama_anak || r.na || r.nama || '—';
+}
+
+// ── RENDER TABLE ────────────────────────────────────────────
+function renderTable() {
+  const anak       = D.anak       || [];
+  const obs        = D.obs        || [];
+  const perencanaan= D.perencanaan|| [];
+  const diary      = D.diary      || [];
+  const evalMid    = D.evalMenengah|| [];
+  const evalAkhir  = D.evalAkhir  || [];
+
+  // Hitung per SCN
+  const rows = SCN_LIST.map(scnId => {
+    const nAwal = anak.filter(a=>(a.scn||'').toLowerCase()===scnId).length;
+    const nObs  = new Set(obs.filter(o=>(o.scn||'').toLowerCase()===scnId).map(o=>o.na||'')).size;
+    const nPlan = perencanaan.filter(r=>(r.scn||'').toLowerCase()===scnId).length;
+    const nDiary= diary.filter(r=>(r.scn||'').toLowerCase()===scnId).length;
+    const nMid  = evalMid.filter(r=>(r.scn||'').toLowerCase()===scnId).length;
+    const nAkhir= evalAkhir.filter(r=>(r.scn||'').toLowerCase()===scnId).length;
+    return { scnId, counts:[nAwal, nObs, nPlan, nDiary, nMid, nAkhir] };
+  });
+
+  // Total
+  const totals = [0,1,2,3,4,5].map(i=>rows.reduce((s,r)=>s+r.counts[i],0));
+  const maxAwal = Math.max(...rows.map(r=>r.counts[0]), 1);
+
+  const tbody = document.getElementById('tbl-body');
+  tbody.innerHTML = rows.map(({scnId, counts}) => `
+    <tr data-scn="${scnId}">
+      <td>
+        <div class="scn-name">${SCN_LABEL[scnId]}</div>
+        <div class="scn-loc">${SCN_LOC[scnId]}</div>
+      </td>
+      ${counts.map((n,i)=>{
+        const pct = counts[0]>0?Math.round(n/counts[0]*100):0;
+        return `<td class="num-cell">
+          ${n>0
+            ? `<button class="num-btn ${FORM_CLS[i]}" onclick="openList('${scnId}',${i},event)">${n}</button>`
+            : `<span class="num-btn zero">0</span>`}
+          ${i>0&&counts[0]>0?`<div class="pct-bar"><div class="pct-fill" style="width:${pct}%;background:${FORM_COLORS[i]}"></div></div>`:''}
+        </td>`;
+      }).join('')}
+    </tr>`).join('') +
+    `<tr class="total-row">
+      <td>TOTAL</td>
+      ${totals.map((n,i)=>`<td class="num-cell" style="color:${FORM_COLORS[i]};font-size:.85rem">${n}</td>`).join('')}
+    </tr>`;
+}
+
+// ── OPEN LIST ───────────────────────────────────────────────
+function openList(scnId, formIdx, e) {
+  e && e.stopPropagation();
+  ACTIVE_SCN  = scnId;
+  ACTIVE_FORM = formIdx;
+  ACTIVE_CHILD = null;
+
+  // Highlight row
+  document.querySelectorAll('#tbl-body tr').forEach(r=>r.classList.remove('active'));
+  const row = document.querySelector(`#tbl-body tr[data-scn="${scnId}"]`);
+  if (row) row.classList.add('active');
+
+  // Build list
+  let list = [];
+  if (formIdx === 0) {
+    list = (D.anak||[]).filter(a=>(a.scn||'').toLowerCase()===scnId)
+      .map(a=>({ nama:a.nama, cbr:a.cbr, data:a, type:'awal' }));
+  } else if (formIdx === 1) {
+    const seen = {};
+    (D.obs||[]).filter(o=>(o.scn||'').toLowerCase()===scnId).forEach(o=>{
+      const k=(o.na||'').toLowerCase();
+      if(!seen[k]) seen[k]={ nama:o.na, cbr:o.cb, data:o, type:'obs' };
+    });
+    list = Object.values(seen);
+  } else {
+    const formKey = FORM_KEYS[formIdx];
+    list = (D[formKey]||[]).filter(r=>(r.scn||'').toLowerCase()===scnId)
+      .map(r=>({ nama:r.nama_anak||r.na||'—', cbr:r.cbr_worker||r.cb||'—', data:r, type:formKey }));
+  }
+
+  ACTIVE_LIST = list;
+  renderList(list);
+
+  document.getElementById('pl-title').textContent = `${FORM_LABELS[formIdx]} — ${SCN_LABEL[scnId]}`;
+  document.getElementById('pl-badge').textContent = list.length+' anak';
+  document.getElementById('pl-search').value = '';
+
+  document.getElementById('pg-wrap').classList.add('detail-open');
+  document.getElementById('pg-wrap').classList.remove('child-open');
+  document.getElementById('pd-inner').innerHTML = '<div class="pd-empty">Pilih nama anak untuk melihat detail</div>';
+}
+
+function renderList(list) {
+  const color = FORM_COLORS[ACTIVE_FORM] || '#F97316';
+  document.getElementById('pl-items').innerHTML = list.length
+    ? list.map((item,i)=>`
+        <div class="pl-item" data-i="${i}" onclick="openDetail(${i})">
+          <div class="pl-item-dot" style="background:${color}"></div>
+          <div>
+            <div class="pl-item-name">${item.nama||'—'}</div>
+            <div class="pl-item-cbr">${item.cbr||'—'}</div>
+          </div>
+        </div>`).join('')
+    : '<div class="pd-empty">Tidak ada data</div>';
+
+  document.getElementById('pl-search').oninput = function() {
+    const q = this.value.toLowerCase();
+    const filtered = ACTIVE_LIST.filter(item=>(item.nama||'').toLowerCase().includes(q));
+    document.getElementById('pl-badge').textContent = filtered.length+' anak';
+    renderListItems(filtered);
+  };
+}
+
+function renderListItems(list) {
+  const color = FORM_COLORS[ACTIVE_FORM] || '#F97316';
+  document.getElementById('pl-items').innerHTML = list.length
+    ? list.map((item,i)=>`
+        <div class="pl-item" data-i="${i}" onclick="openDetailDirect(item_${i})">
+          <div class="pl-item-dot" style="background:${color}"></div>
+          <div>
+            <div class="pl-item-name">${item.nama||'—'}</div>
+            <div class="pl-item-cbr">${item.cbr||'—'}</div>
+          </div>
+        </div>`).join('')
+    : '<div class="pd-empty">Tidak ada data</div>';
+
+  // attach click
+  list.forEach((item,i)=>{
+    const el = document.querySelectorAll('.pl-item')[i];
+    if(el) el.onclick = ()=>openDetailItem(item, el);
+  });
+}
+
+function openDetail(i) {
+  const item = ACTIVE_LIST[i];
+  if(!item) return;
+  const el = document.querySelectorAll('.pl-item')[i];
+  openDetailItem(item, el);
+}
+
+function openDetailItem(item, el) {
+  ACTIVE_CHILD = item;
+  document.querySelectorAll('.pl-item').forEach(e=>e.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('pg-wrap').classList.add('child-open');
+  renderDetail(item);
+}
+
+// ── RENDER DETAIL ───────────────────────────────────────────
+function row(label, val) {
+  if(!val || val==='—' || val==='null') return '';
+  return `<div class="pd-row"><span class="pd-row-label">${label}</span><span class="pd-row-val">${val}</span></div>`;
+}
+
+function section(title, icon, content) {
+  if(!content) return '';
+  return `<div class="pd-section">
+    <div class="pd-section-head">${icon||''} ${title}</div>
+    <div class="pd-section-body">${content}</div>
+  </div>`;
+}
+
+function renderDetail(item) {
+  const d = item.data;
+  const type = item.type;
+  let html = '';
+
+  const meta = `<div class="pd-meta">
+    <span class="pd-chip">👤 ${item.cbr||'—'}</span>
+    <span class="pd-chip">🏷 ${d.scn||ACTIVE_SCN||'—'}</span>
+  </div>`;
+
+  if (type === 'awal') {
+    html = section('Data Awal', '📋', [
+      row('Tanggal Lahir', d.tl),
+      row('Usia', d.usia ? d.usia+' tahun' : d.gu),
+      row('Kelompok Usia', d.gu),
+      row('Jenis Kelamin', d.gender==='L'?'Laki-laki':d.gender==='P'?'Perempuan':d.gender),
+      row('Kampung/Dusun', d.kampung),
+      row('Desa', d.desa),
+      row('Ragam Disabilitas', d.ragam),
+      row('Detail Ragam', d.rgd),
+      row('Level Disabilitas', d.level),
+      row('Epilepsi', d.ep?'Ya':'Tidak'),
+      row('Pengobatan 1 Thn Terakhir', d.ob?'Ya':'Tidak'),
+      row('Fasilitas Kesehatan', d.obf),
+      row('Layanan Pengobatan', d.obl),
+      row('Pernah Terapi', d.tr?'Ya':'Tidak'),
+      row('Jenis Terapi', d.trj),
+      row('Pelaksana Terapi', d.trs),
+      row('Waktu Kunjungan CBR', d.wk),
+    ].join('')) +
+    section('Skor Kesejahteraan', '📊', [
+      row('Skor Anak (Cantrill)', d.sp!=null?d.sp+'/10':'—'),
+      row('Skor Pengasuh (Cantrill)', d.sa!=null?d.sa+'/10':'—'),
+      row('Faktor Membantu Anak', d.nka),
+      row('Faktor Menyulitkan Anak', d.tka),
+    ].join('')) +
+    section('Pengasuh', '👨‍👩‍👧', [
+      row('Nama Pengasuh', d.np),
+      row('Status Pengasuh', d.stp),
+      row('Keterangan', d.stpl),
+      row('Faktor Membantu Pengasuh', d.nkp),
+      row('Faktor Menyulitkan Pengasuh', d.tkp),
+    ].join(''));
+
+  } else if (type === 'obs') {
+    html = section('Observasi', '👁', [
+      row('Tanggal Kunjungan', d.tgl),
+      row('CBR Worker', d.cb),
+      row('Struktur & Fungsi Tubuh', d.st),
+      row('Kegiatan & Partisipasi', d.kg),
+      row('Personal', d.pf),
+      row('Lingkungan', d.lg),
+    ].join(''));
+
+  } else if (type === 'perencanaan') {
+    function tujuanDetail(n) {
+      const t  = d['tujuan_'+n] || '';
+      const bg = d['bagaimana_'+n] || '';
+      const dm = d['dimana_'+n] || '';
+      const kp = d['kapan_'+n] || '';
+      const ak = d['aksi_'+n] || '';
+      if(!t&&!bg&&!dm&&!kp&&!ak) return '';
+      // Aktor per kelompok
+      const aktorBadges = AKTOR_GROUPS.map(grp=>{
+        const aktif = grp.keys.filter(k=>{
+          const v = d['rencana_'+k+'_t'+n];
+          return v && v!=='0' && v!=='';
+        });
+        if(!aktif.length) return '';
+        return `<span class="aktor-badge" style="background:${grp.color}18;color:${grp.color};border:1px solid ${grp.color}40">${grp.label} (${aktif.length})</span>`;
+      }).join('');
+      return section('Tujuan '+n, '🎯', [
+        row('Tujuan', t),
+        aktorBadges ? `<div class="pd-row"><span class="pd-row-label">Aktor</span><div class="aktor-grp">${aktorBadges}</div></div>` : '',
+        row('Bagaimana', bg),
+        row('Dimana', dm),
+        row('Kapan', kp),
+        row('Rencana Aksi', ak),
+      ].join(''));
+    }
+    html = section('Info Perencanaan','📝',[
+      row('Tanggal Rencana', d.tanggal_rencana),
+      row('CBR Worker', d.cbr_worker),
+      row('Kesulitan Pengasuh', d.kesulitan_pengasuh),
+      row('Kesulitan Pekerja', d.kesulitan_pekerja),
+      row('Kesepakatan', d.kesulitan_kesepakatan),
+    ].join('')) + tujuanDetail(1) + tujuanDetail(2) + tujuanDetail(3);
+
+  } else if (type === 'diary') {
+    let entries = '';
+    for(let i=1;i<=10;i++){
+      const tgl = d['tgl_diary_'+i] || '';
+      const isi = d['isi_diary_'+i] || '';
+      if(!tgl&&!isi) continue;
+      entries += `<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #F3F4F6">
+        <div style="font-size:.65rem;font-weight:700;color:#F97316;margin-bottom:3px">${tgl||'—'}</div>
+        <div style="font-size:.74rem;color:#374151;line-height:1.6">${isi||'—'}</div>
+      </div>`;
+    }
+    html = section('Info Buku Harian','📖',[
+      row('Tanggal Submit', d.tanggal_submit),
+      row('CBR Worker', d.cbr_worker),
+    ].join('')) +
+    section('Catatan Harian','📝', entries || '<div class="pd-empty">Belum ada catatan</div>');
+
+  } else if (type === 'evalMenengah') {
+    function tujuanMid(n) {
+      const skor   = d['score_tujuan_'+n] || '';
+      const alasan = d['alasan_score_'+n] || '';
+      const perub  = d['perubahan_'+n] || '';
+      const siapa  = d['penyebab_'+n] || '';
+      const lanjut = d['lanjutan_'+n] || '';
+      if(!skor&&!alasan&&!perub&&!siapa&&!lanjut) return '';
+      const sc = parseInt(skor);
+      const scColor = sc>=7?'#15803D':sc>=4?'#D97706':'#DC2626';
+      return section('Tujuan '+n, '📊', [
+        skor?`<div class="pd-row"><span class="pd-row-label">Skor</span><span class="pd-row-val" style="color:${scColor};font-size:1.1rem;font-weight:800">${skor}/10</span></div>`:'',
+        row('Alasan Skor', alasan),
+        row('Perubahan', perub),
+        row('Oleh Siapa', siapa),
+        row('Yang Perlu Dilanjutkan', lanjut),
+      ].join(''));
+    }
+    html = section('Info Evaluasi Menengah','📊',[
+      row('Tanggal Evaluasi', d.tanggal_eval),
+      row('CBR Worker', d.cbr_worker),
+    ].join('')) + tujuanMid(1) + tujuanMid(2) + tujuanMid(3);
+
+  } else if (type === 'evalAkhir') {
+    function tujuanAkhir(n) {
+      const ter = d['tercapai_tujuan_'+n] || '';
+      const ya  = d['penjelasan_ya_'+n] || '';
+      const tdk = d['alasan_tidak_'+n] || '';
+      const sar = d['saran_'+n] || '';
+      if(!ter&&!ya&&!tdk&&!sar) return '';
+      const tc = (ter||'').toLowerCase()==='ya'||ter==='Ya'?'#15803D':'#DC2626';
+      return section('Tujuan '+n, '✅', [
+        ter?`<div class="pd-row"><span class="pd-row-label">Tercapai</span><span class="pd-row-val" style="color:${tc};font-weight:700">${ter}</span></div>`:'',
+        row('Penjelasan Ya', ya),
+        row('Alasan Tidak', tdk),
+        row('Saran', sar),
+      ].join(''));
+    }
+    html = section('Info Evaluasi Akhir','✅',[
+      row('Tanggal Evaluasi', d.tanggal_eval),
+      row('CBR Worker', d.cbr_worker),
+    ].join('')) + tujuanAkhir(1) + tujuanAkhir(2) + tujuanAkhir(3);
+  }
+
+  document.getElementById('pd-inner').innerHTML = `
+    <button class="pd-back" onclick="closeDetail()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Kembali ke daftar
+    </button>
+    <div class="pd-name">${item.nama||'—'}</div>
+    ${meta}
+    ${html || '<div class="pd-empty">Tidak ada data tersedia</div>'}`;
+}
+
+function closeList() {
+  document.getElementById('pg-wrap').classList.remove('detail-open','child-open');
+  document.querySelectorAll('#tbl-body tr').forEach(r=>r.classList.remove('active'));
+  ACTIVE_SCN = ACTIVE_FORM = null;
+}
+
+function closeDetail() {
+  document.getElementById('pg-wrap').classList.remove('child-open');
+  document.querySelectorAll('.pl-item').forEach(e=>e.classList.remove('active'));
+  document.getElementById('pd-inner').innerHTML = '<div class="pd-empty">Pilih nama anak untuk melihat detail</div>';
+  ACTIVE_CHILD = null;
+}
+
+// ── RENDER PAGE ─────────────────────────────────────────────
+function renderPage(d, scnId) {
+  D = d;
+  renderTable();
+}
+</script>
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/api.js"></script>
+<script>
+buildSidebar();
+const SESSION = AUTH.requireAuth('../index.html');
+if (SESSION) {
+  AUTH.applySession({ onScnSwitch: async function(scnId){ const d=await API.get(scnId); if(window.renderPage) renderPage(d,scnId); } });
+  AUTH.initSidebar('coord','c-progress');
+  API.get(AUTH.getScnFilter()).then(d=>{ if(window.renderPage) renderPage(d, AUTH.getScnFilter()); });
+}
+</script>
+</body></html>

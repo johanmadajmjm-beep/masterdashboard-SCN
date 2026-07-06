@@ -156,6 +156,42 @@
   <!-- TAB 1: DATA AWAL ANAK -->
   <div class="tpane active" id="tab-profil">
     <div class="kpi-row" id="kpi-anak"></div>
+
+    <!-- ALERT PERLU PERHATIAN -->
+    <div class="alert-card" style="margin-bottom:10px">
+      <div class="alert-head">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Perlu Perhatian
+      </div>
+      <div id="alert-items"></div>
+    </div>
+
+    <!-- NARASI TABEL: ANAK | PENGASUH -->
+    <div class="narasi-wrap" style="margin-bottom:12px">
+      <div class="narasi-table">
+        <div class="narasi-col">
+          <div class="narasi-head">
+            <span class="narasi-title">Anak</span>
+            <div class="narasi-tabs">
+              <button class="narasi-tab active-up" id="ntab-anak-naik" onclick="switchNarasi('anak','naik')" title="Naik tangga">⬆</button>
+              <button class="narasi-tab" id="ntab-anak-turun" onclick="switchNarasi('anak','turun')" title="Turun tangga">⬇</button>
+            </div>
+          </div>
+          <div class="narasi-body" id="narasi-anak"></div>
+        </div>
+        <div class="narasi-col">
+          <div class="narasi-head">
+            <span class="narasi-title">Pengasuh</span>
+            <div class="narasi-tabs">
+              <button class="narasi-tab active-up" id="ntab-peng-naik" onclick="switchNarasi('peng','naik')" title="Naik tangga">⬆</button>
+              <button class="narasi-tab" id="ntab-peng-turun" onclick="switchNarasi('peng','turun')" title="Turun tangga">⬇</button>
+            </div>
+          </div>
+          <div class="narasi-body" id="narasi-peng"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="seksi-title">Profil Anak Dampingan</div>
     <div class="profil-panel" style="margin-bottom:10px">
       <div class="profil-5col">
@@ -383,6 +419,10 @@ function renderAnak(){
   mk('c-jk','bar',{labels:['Laki-laki','Perempuan'],datasets:[{data:[lk,pr],backgroundColor:['#F97316','#1E293B'],borderRadius:6,borderSkipped:false,maxBarThickness:48}]},{...BO,layout:{padding:{top:16}}});
   const au=cnt(a,'gu');
   mk('c-usia','bar',{labels:AGO,datasets:[{data:AGO.map(x=>au[x]||0),backgroundColor:PAL,borderRadius:4,borderSkipped:false}]},{...BO,layout:{padding:{top:16}}});
+  // Alert & Narasi
+  renderAlert(a);
+  renderNarasi(a,'anak','naik');
+  renderNarasi(a,'peng','naik');
 }
 
 function renderSkor(){
@@ -501,6 +541,62 @@ window.KAT_PENGASUH=[
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
 <script>
+
+
+function renderAlert(a) {
+  const n = a.length;
+  const kritis = a.filter(x=>x.sp!=null&&x.sp<=3).length;
+  const tanpa  = a.filter(x=>x.hari===999).length;
+  const items  = [];
+  if (kritis>0) items.push(`<div class="alert-item"><div class="alert-dot red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="alert-body"><div class="alert-title">${kritis} anak dalam kondisi kritis</div><div class="alert-sub">Skor ≤ 3 — perlu intervensi segera</div></div></div>`);
+  if (tanpa>0)  items.push(`<div class="alert-item"><div class="alert-dot blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="alert-body"><div class="alert-title">${tanpa} anak belum ada observasi</div><div class="alert-sub">Belum pernah dikunjungi</div></div></div>`);
+  if(document.getElementById('alert-items')) document.getElementById('alert-items').innerHTML = items.join('') || '<div style="color:#9CA3AF;font-size:.75rem;padding:8px 0">Tidak ada perhatian khusus saat ini</div>';
+}
+
+function switchNarasi(col, dir){
+  renderNarasi(col, dir);
+  // Update tab styles
+  var tabs = {
+    'anak-naik' : document.getElementById('ntab-anak-naik'),
+    'anak-turun': document.getElementById('ntab-anak-turun'),
+    'peng-naik' : document.getElementById('ntab-peng-naik'),
+    'peng-turun': document.getElementById('ntab-peng-turun'),
+  };
+  // Reset both tabs for this col
+  var upTab = tabs[col+'-naik'];
+  var dnTab = tabs[col+'-turun'];
+  if(upTab){ upTab.className = 'narasi-tab' + (dir==='naik'?' active-up':''); }
+  if(dnTab){ dnTab.className = 'narasi-tab' + (dir==='turun'?' active-dn':''); }
+}
+
+function renderNarasi(col, dir){
+  var field = col === 'anak'
+    ? (dir === 'naik' ? 'nka' : 'tka')
+    : (dir === 'naik' ? 'nkp' : 'tkp');
+  var nameField = col === 'anak' ? 'nama' : 'np';
+  var elId   = 'narasi-' + col;
+  var color  = dir === 'naik' ? '#059669' : '#dc2626';
+  var cls    = dir === 'naik' ? 'up' : 'dn';
+
+  var entries = ALL.filter(function(x){ return x[field] && x[field].length > 5; });
+  var el = document.getElementById(elId);
+  if(!el) return;
+
+  if(!entries.length){
+    el.innerHTML = '<div class="narasi-empty">Belum ada data narasi.</div>';
+    return;
+  }
+
+  el.innerHTML = entries.map(function(x){
+    var txt = (x[field]||'').split('\n').join(' ').split('*').join('').trim();
+    var name = (x[nameField]||'—') + ' (' + (x.cbr||'—') + ')';
+    return '<div class="nitem ' + cls + '">' +
+      txt +
+      '<div class="nitem-tt">' + name + '</div>' +
+      '</div>';
+  }).join('');
+}
+
 buildSidebar();
 const SESSION=AUTH.requireAuth('../index.html');
 if(SESSION){

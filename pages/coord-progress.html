@@ -12,33 +12,32 @@
 /* ── LAYOUT ── */
 .pg-wrap { display:flex; gap:0; height:calc(100vh - 60px); overflow:hidden; }
 
-/* PANEL KIRI — tabel */
+/* PANEL TABEL — full width saat tidak ada detail */
 .pg-table-panel {
   flex:1; min-width:0; background:#fff;
-  border-right:1px solid #E5E7EB;
   display:flex; flex-direction:column;
-  overflow:hidden; transition:flex .25s ease;
+  overflow:hidden;
 }
-.pg-wrap.detail-open .pg-table-panel { flex:0 0 520px; min-width:0; }
+.pg-wrap.detail-open .pg-table-panel { display:none; }
 
-/* PANEL KANAN — list + detail */
+/* PANEL KANAN — list + detail (full width saat tabel disembunyikan) */
 .pg-right {
-  display:none; flex-direction:column;
-  width:0; overflow:hidden; transition:width .25s ease;
+  display:none; flex:1;
+  overflow:hidden;
 }
-.pg-wrap.detail-open .pg-right { display:flex; width:100%; }
+.pg-wrap.detail-open .pg-right { display:flex; }
 
+/* LIST PANEL — kiri */
 .pg-list-panel {
-  width:280px; min-width:280px; flex-shrink:0;
+  width:300px; min-width:300px; flex-shrink:0;
   background:#F8FAFC; border-right:1px solid #E5E7EB;
   display:flex; flex-direction:column; overflow:hidden;
 }
-.pg-wrap.child-open .pg-list-panel { width:280px; }
 
+/* DETAIL PANEL — kanan, selalu tampil */
 .pg-detail-panel {
-  flex:1; overflow-y:auto; background:#fff; display:none;
+  flex:1; overflow-y:auto; background:#fff;
 }
-.pg-wrap.child-open .pg-detail-panel { display:block; }
 
 /* TABLE */
 .pg-header { padding:12px 16px; border-bottom:1px solid #E5E7EB; flex-shrink:0; }
@@ -160,9 +159,14 @@
     <!-- LIST -->
     <div class="pg-list-panel">
       <div class="pl-header">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <button onclick="closeList()" style="display:flex;align-items:center;gap:5px;padding:5px 10px;border:1px solid #E5E7EB;border-radius:7px;background:#fff;color:#6B7280;font-size:.72rem;font-weight:600;cursor:pointer;font-family:inherit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="15 18 9 12 15 6"/></svg>
+            Kembali ke Tabel
+          </button>
+        </div>
         <div style="display:flex;align-items:center;justify-content:space-between">
           <span class="pl-title" id="pl-title">—</span>
-          <button onclick="closeList()" style="border:none;background:none;cursor:pointer;color:#9CA3AF;font-size:1rem;padding:0 4px">✕</button>
         </div>
         <span class="pl-badge" id="pl-badge">—</span>
         <input class="pl-search" id="pl-search" type="text" placeholder="🔍 Cari nama anak..."/>
@@ -170,10 +174,13 @@
       <div class="pl-items" id="pl-items"></div>
     </div>
 
-    <!-- DETAIL -->
+    <!-- DETAIL — selalu tampil di kanan -->
     <div class="pg-detail-panel" id="pg-detail">
       <div class="pd-inner" id="pd-inner">
-        <div class="pd-empty">Pilih nama anak untuk melihat detail</div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#9CA3AF;font-size:.8rem;gap:10px;padding:40px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1.5" style="width:48px;height:48px"><circle cx="12" cy="8" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+          <div>Pilih nama anak untuk melihat detail</div>
+        </div>
       </div>
     </div>
   </div>
@@ -341,7 +348,7 @@ function openList(scnId, formIdx, e) {
   document.getElementById('pl-search').value = '';
 
   document.getElementById('pg-wrap').classList.add('detail-open');
-  document.getElementById('pg-wrap').classList.remove('child-open');
+  
   document.getElementById('pd-inner').innerHTML = '<div class="pd-empty">Pilih nama anak untuk melihat detail</div>';
 }
 
@@ -392,7 +399,7 @@ function openDetailItem(item, el) {
   ACTIVE_CHILD = item;
   document.querySelectorAll('.pl-item').forEach(e=>e.classList.remove('active'));
   if(el) el.classList.add('active');
-  document.getElementById('pg-wrap').classList.add('child-open');
+  
   renderDetail(item);
 }
 
@@ -570,15 +577,14 @@ function renderDetail(item) {
 }
 
 function closeList() {
-  document.getElementById('pg-wrap').classList.remove('detail-open','child-open');
+  document.getElementById('pg-wrap').classList.remove('detail-open');
   document.querySelectorAll('#tbl-body tr').forEach(r=>r.classList.remove('active'));
   ACTIVE_SCN = ACTIVE_FORM = null;
 }
 
 function closeDetail() {
-  document.getElementById('pg-wrap').classList.remove('child-open');
   document.querySelectorAll('.pl-item').forEach(e=>e.classList.remove('active'));
-  document.getElementById('pd-inner').innerHTML = '<div class="pd-empty">Pilih nama anak untuk melihat detail</div>';
+  document.getElementById('pd-inner').innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:#9CA3AF;font-size:.8rem;gap:10px;padding:40px"><svg viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1.5" style="width:48px;height:48px"><circle cx="12" cy="8" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg><div>Pilih nama anak untuk melihat detail</div></div>';
   ACTIVE_CHILD = null;
 }
 

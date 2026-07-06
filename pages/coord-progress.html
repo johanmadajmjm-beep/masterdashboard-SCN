@@ -214,7 +214,7 @@ let ACTIVE_LIST = [], ACTIVE_CHILD = null;
 
 // ── DATA ACCESSOR ───────────────────────────────────────────
 function getAnakBySCN(scnId) {
-  return (D.anak||[]).filter(a=>(a.scn||'').toLowerCase()===scnId);
+  return (D.anak||[]).filter(a=>(a.scn_id||a.scn||'').toLowerCase()===scnId);
 }
 function getFormDataBySCN(formKey, scnId) {
   const arr = D[formKey] || [];
@@ -240,7 +240,7 @@ function renderTable() {
 
   // Hitung per SCN
   const rows = SCN_LIST.map(scnId => {
-    const nAwal = anak.filter(a=>(a.scn||'').toLowerCase()===scnId).length;
+    const nAwal = anak.filter(a=>(a.scn_id||a.scn||'').toLowerCase()===scnId).length;
     const nObs  = new Set(obs.filter(o=>(o.scn||'').toLowerCase()===scnId).map(o=>o.na||'')).size;
     const nPlan = perencanaan.filter(r=>(r.scn||'').toLowerCase()===scnId).length;
     const nDiary= diary.filter(r=>(r.scn||'').toLowerCase()===scnId).length;
@@ -291,7 +291,7 @@ function openList(scnId, formIdx, e) {
   // Build list
   let list = [];
   if (formIdx === 0) {
-    list = (D.anak||[]).filter(a=>(a.scn||'').toLowerCase()===scnId)
+    list = (D.anak||[]).filter(a=>(a.scn_id||a.scn||'').toLowerCase()===scnId)
       .map(a=>({ nama:a.nama, cbr:a.cbr, data:a, type:'awal' }));
   } else if (formIdx === 1) {
     const seen = {};
@@ -395,7 +395,7 @@ function renderDetail(item) {
 
   const meta = `<div class="pd-meta">
     <span class="pd-chip">👤 ${item.cbr||'—'}</span>
-    <span class="pd-chip">🏷 ${d.scn||ACTIVE_SCN||'—'}</span>
+    <span class="pd-chip">🏷 ${d.scn_id||d.scn||ACTIVE_SCN||'—'}</span>
   </div>`;
 
   if (type === 'awal') {

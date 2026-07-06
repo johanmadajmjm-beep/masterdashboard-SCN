@@ -585,7 +585,7 @@ function renderPage(d, scnId){
     { label:'Eval. Menengah', count: (d.evalMenengah||[]).length,      c:'#d97706', icon:KPI_ICONS.skor  },
     { label:'Eval. Akhir',    count: (d.evalAkhir||[]).length,         c:'#059669', icon:KPI_ICONS.obs   },
   ];
-  const total = Math.max((d.anak||[]).length, 1);
+  // total sudah dideklarasi di atas
   const kpiData = formData.map(f=>({
     v    : f.count,
     l    : f.label,

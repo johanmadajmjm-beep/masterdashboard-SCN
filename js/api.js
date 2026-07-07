@@ -110,7 +110,7 @@ const API = (() => {
     return data;
   }
 
-  function normalizeDataAwal(rows) {
+  function normalizeDataAwal(rows, scnId) {
     if (!rows || !rows.length) return [];
     return rows.map(r => {
       const usia = r.u ? parseInt(r.u) : 0;
@@ -121,6 +121,8 @@ const API = (() => {
         usia <= 17 ? '13-17 th' :
         usia <= 24 ? '18-24 th' : '25+ th'
       );
+      // scn: pakai dari data GAS, fallback ke scnId dari loadScn
+      const scn = r.scn || scnId || '';
       return {
         nama   : r.na  || '—',
         cbr    : r.cb  || '—',
@@ -153,8 +155,8 @@ const API = (() => {
         lat    : r.lat ? parseFloat(r.lat) : null,
         lon    : r.lon ? parseFloat(r.lon) : null,
         provinsi: r.provinsi || '',
-        scn_id : r.scn || '',
-        scn    : r.scn || '',   // alias untuk filter konsisten
+        scn_id : scn,
+        scn    : scn,   // alias untuk filter konsisten
         irp    : 'Aktif',
         hari   : 999,
         _tema  : r._tema || null,
@@ -163,7 +165,7 @@ const API = (() => {
   }
 
   // ── NORMALIZE OBSERVASI ───────────────────────────────────
-  function normalizeObs(rows) {
+  function normalizeObs(rows, scnId) {
     if (!rows || !rows.length) return [];
     return rows.map(r => ({
       na  : r.na  || '—',
@@ -175,7 +177,7 @@ const API = (() => {
       lg  : r.lg  || '',
       lat : r.lat ? parseFloat(r.lat) : null,
       lon : r.lon ? parseFloat(r.lon) : null,
-      scn : r.scn || '',
+      scn : r.scn || scnId || '',
       provinsi: r.provinsi || '',
     }));
   }
@@ -184,7 +186,7 @@ const API = (() => {
   // Anak di DataAwal → pakai data lengkap (normalizeDataAwal)
   // Anak di form lain tapi tidak di DataAwal → entri minimal
   // Key unik: nama lowercase (trim)
-  function mergeAnakFromAllForms(anakAwal, obsRows, rencanaRows, diaryRows, evalMenengahRows, evalAkhirRows) {
+  function mergeAnakFromAllForms(anakAwal, obsRows, rencanaRows, diaryRows, evalMenengahRows, evalAkhirRows, scnId) {
     // Map nama → objek anak (dari DataAwal sebagai master)
     const map = {};
     anakAwal.forEach(a => {
@@ -201,6 +203,8 @@ const API = (() => {
         if (!key || key === '—') return;
         if (!map[key]) {
           // Anak belum ada di DataAwal — buat entri minimal
+          // scn: pakai dari data row, fallback ke scnId dari loadScn
+          const scn = r.scn || scnId || '';
           map[key] = {
             nama    : nama,
             cbr     : r.cbr_worker || r.cb || r.cbr || '—',
@@ -233,8 +237,8 @@ const API = (() => {
             lat     : null,
             lon     : null,
             provinsi: r.provinsi || '',
-            scn_id  : r.scn || '',
-            scn     : r.scn || '',
+            scn_id  : scn,
+            scn     : scn,
             irp     : 'Aktif',
             hari    : 999,
             _tema   : null,
@@ -434,15 +438,15 @@ const API = (() => {
     const cached   = ssGet(scnId + '_DataAwal');
     const lastSync = cached ? cached.lastSync : null;
 
-    const anakAwal     = normalizeDataAwal(awalRows);
-    const obs          = normalizeObs(obsRows);
+    const anakAwal     = normalizeDataAwal(awalRows, scnId);
+    const obs          = normalizeObs(obsRows, scnId);
     const perencanaan  = rencanaRows;
     const diary        = diaryRows;
     const evalMenengah = evalMenengahRows;
     const evalAkhir    = evalAkhirRows;
 
     // Union unik anak dari semua 6 form — untuk dashboard coordinator & MEL
-    const anak = mergeAnakFromAllForms(anakAwal, obsRows, perencanaan, diary, evalMenengah, evalAkhir);
+    const anak = mergeAnakFromAllForms(anakAwal, obsRows, perencanaan, diary, evalMenengah, evalAkhir, scnId);
 
     calcStats(anak, obs);
     const workers = buildWorkers(anak, obs, perencanaan||[], diary||[], evalMenengah||[], evalAkhir||[]);
@@ -578,8 +582,8 @@ const API = (() => {
     const awalRows = Array.isArray(rawAwal) ? rawAwal : (rawAwal.data || []);
     const obsRows  = Array.isArray(rawObs)  ? rawObs  : (rawObs.data  || []);
 
-    const anakAwal = normalizeDataAwal(awalRows);
-    const obs      = normalizeObs(obsRows);
+    const anakAwal = normalizeDataAwal(awalRows, null); // null = semua SCN, field scn dari data GAS
+    const obs      = normalizeObs(obsRows, null);
 
     const perencanaan  = Array.isArray(rawRencana)      ? rawRencana      : (rawRencana?.data      || []);
     const diary        = Array.isArray(rawDiary)        ? rawDiary        : (rawDiary?.data        || []);
@@ -587,7 +591,7 @@ const API = (() => {
     const evalAkhir    = Array.isArray(rawEvalAkhir)    ? rawEvalAkhir    : (rawEvalAkhir?.data    || []);
 
     // Union unik anak dari semua 6 form — untuk dashboard coordinator & MEL
-    const anak = mergeAnakFromAllForms(anakAwal, obsRows, perencanaan, diary, evalMenengah, evalAkhir);
+    const anak = mergeAnakFromAllForms(anakAwal, obsRows, perencanaan, diary, evalMenengah, evalAkhir, null);
 
     calcStats(anak, obs);
     const workers = buildWorkers(anak, obs, perencanaan, diary, evalMenengah, evalAkhir);

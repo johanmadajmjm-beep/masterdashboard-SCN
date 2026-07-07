@@ -148,70 +148,6 @@
     .prog-fill  { height:100%; border-radius:99px; transition:width .4s ease; }
     .skor-num   { font-size:.72rem; font-weight:700; min-width:60px; text-align:right; color:#6b7280; }
 
-    /* ── TABEL PERHATIAN ── */
-    .tbl-perhatian { width:100%; border-collapse:collapse; font-size:.75rem; }
-    .tbl-perhatian thead th {
-      background    : #f9fafb;
-      color         : #9ca3af;
-      font-size     : .62rem;
-      font-weight   : 700;
-      text-transform: uppercase;
-      letter-spacing: .07em;
-      padding       : 8px 12px;
-      text-align    : left;
-      border-bottom : 1px solid #e5e7eb;
-    }
-    .tbl-perhatian thead th.right { text-align:center; }
-    .tbl-perhatian tbody tr { border-bottom:1px solid #f9fafb; }
-    .tbl-perhatian tbody tr:last-child { border-bottom:none; }
-    .tbl-perhatian tbody tr:hover { background:#fafafa; }
-    .tbl-perhatian tbody td { padding:8px 12px; vertical-align:middle; }
-    .avatar-sm {
-      width          : 26px;
-      height         : 26px;
-      border-radius  : 50%;
-      background     : #f3f4f6;
-      display        : inline-flex;
-      align-items    : center;
-      justify-content: center;
-      font-size      : .6rem;
-      font-weight    : 700;
-      color          : #6b7280;
-      margin-right   : 6px;
-      vertical-align : middle;
-      flex-shrink    : 0;
-    }
-    .level-badge {
-      font-size    : .6rem;
-      font-weight  : 700;
-      padding      : 2px 6px;
-      border-radius: 4px;
-      white-space  : nowrap;
-    }
-    .alasan-text { font-size:.68rem; color:#6b7280; }
-
-    /* ── WORKER TABLE ── */
-    .tbl-worker { width:100%; border-collapse:collapse; font-size:.74rem; }
-    .tbl-worker thead th {
-      background    : #f9fafb;
-      color         : #9ca3af;
-      font-size     : .6rem;
-      font-weight   : 700;
-      text-transform: uppercase;
-      letter-spacing: .07em;
-      padding       : 8px 10px;
-      text-align    : left;
-      border-bottom : 1px solid #e5e7eb;
-    }
-    .tbl-worker thead th.right { text-align:center; }
-    .tbl-worker tbody tr { border-bottom:1px solid #f9fafb; }
-    .tbl-worker tbody tr:last-child { border-bottom:none; }
-    .tbl-worker tbody tr:hover { background:#fafafa; }
-    .tbl-worker tbody td { padding:7px 10px; vertical-align:middle; }
-    .tbl-worker tbody td.center { text-align:center; }
-    .mini-prog-wrap { height:5px; background:#f3f4f6; border-radius:99px; overflow:hidden; margin-top:3px; }
-    .mini-prog-fill { height:100%; border-radius:99px; }
-
     /* ── ICF DOMAINS ── */
     .icf-grid {
       display              : grid;
@@ -433,61 +369,7 @@
 
         </div><!-- /ROW 1 -->
 
-        <!-- ROW 2: Anak Perlu Perhatian + Kinerja Worker -->
-        <div class="coord-row col-2">
-
-          <!-- Anak Perlu Perhatian -->
-          <div class="panel">
-            <div class="panel-head">
-              <span class="panel-title">Anak Perlu Perhatian</span>
-              <span class="badge-sm badge-red" id="badge-perhatian">—</span>
-            </div>
-            <div class="panel-body no-pad">
-              <div style="overflow-x:auto">
-                <table class="tbl-perhatian">
-                  <thead>
-                    <tr>
-                      <th>Nama Anak</th>
-                      <th>CBR Worker</th>
-                      <th class="right">Skor</th>
-                      <th>Level</th>
-                      <th>Alasan</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tbl-perhatian"></tbody>
-                </table>
-              </div>
-              <a href="coord-benef.html" style="display:block;text-align:center;font-size:.68rem;font-weight:700;color:#d4500a;padding:10px;border-top:1px solid #f3f4f6;text-decoration:none">Lihat semua →</a>
-            </div>
-          </div>
-
-          <!-- Kinerja Per CBR Worker -->
-          <div class="panel">
-            <div class="panel-head">
-              <span class="panel-title">Kinerja Per CBR Worker</span>
-              <span class="badge-sm badge-orange" id="badge-worker-count">—</span>
-            </div>
-            <div class="panel-body no-pad">
-              <div style="overflow-x:auto">
-                <table class="tbl-worker">
-                  <thead>
-                    <tr>
-                      <th>CBR Worker</th>
-                      <th class="right">Anak</th>
-                      <th class="right">Kunjungan</th>
-                      <th class="right">Avg Skor</th>
-                      <th class="right">Kritis</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tbl-workers"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-        </div><!-- /ROW 2 -->
-
-        <!-- ROW 3: ICF + Intisari -->
+        <!-- ROW 2: ICF + Intisari -->
         <div class="coord-row col-2">
 
           <!-- ICF Ringkasan Domain -->
@@ -964,63 +846,6 @@ function renderPage(d, scnId){
       <div class="prog-wrap"><div class="prog-fill" style="width:${Math.round(g.n/maxSkor*100)}%;background:${g.c}"></div></div>
       <span class="skor-num">${g.n} (${total>0?Math.round(g.n/total*100):0}%)</span>
     </div>`).join('');
-
-  // ── TABEL PERHATIAN ──
-  const perhatian = anak.filter(a=>a.sp!=null&&a.sp<=4).sort((a,b)=>(a.sp||10)-(b.sp||10)).slice(0,10);
-  document.getElementById('badge-perhatian').textContent = perhatian.length+' anak';
-  const alasanFor = a => a.sp!=null&&a.sp<=3 ? 'Skor sangat rendah' : a.sp!=null&&a.sp<=4 ? 'Skor rendah' : '—';
-  const levelBadgeColor = l => {
-    if((l||'').includes('Parah'))  return {bg:'#fee2e2',c:'#dc2626'};
-    if((l||'').includes('Sedang')) return {bg:'#fef3c7',c:'#d97706'};
-    return {bg:'#dcfce7',c:'#16a34a'};
-  };
-  document.getElementById('tbl-perhatian').innerHTML = perhatian.length
-    ? perhatian.map(a=>{
-        const lbc  = levelBadgeColor(a.level);
-        const init = (a.nama||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
-        return `<tr>
-          <td>
-            <div style="display:flex;align-items:center;gap:0">
-              <span class="avatar-sm">${init}</span>
-              <strong style="font-size:.74rem">${a.nama||'—'}</strong>
-            </div>
-          </td>
-          <td style="font-size:.68rem;color:#6b7280">${a.cbr||'—'}</td>
-          <td class="center">
-            <span style="font-size:.85rem;font-weight:800;color:${a.sp!=null?sc(a.sp):'#9ca3af'}">${a.sp!=null?a.sp:'—'}</span>
-          </td>
-          <td>
-            <span class="level-badge" style="background:${lbc.bg};color:${lbc.c}">
-              ${(a.level||'—').split(' ')[0]}
-            </span>
-          </td>
-          <td class="alasan-text">${alasanFor(a)}</td>
-        </tr>`;
-      }).join('')
-    : '<tr><td colspan="5" style="text-align:center;padding:20px;color:#9ca3af;font-size:.75rem">Tidak ada anak perlu perhatian</td></tr>';
-
-  // ── WORKER TABLE (tanpa kolom Terlambat) ──
-  document.getElementById('badge-worker-count').textContent = workers.length+' petugas';
-  document.getElementById('tbl-workers').innerHTML = workers.map(w=>{
-    const myAnak  = anak.filter(a=>a.cbr===w.nama);
-    const mySp    = myAnak.map(a=>a.sp).filter(v=>v!=null);
-    const myAvg   = mySp.length ? avg(mySp).toFixed(1) : '—';
-    const myKritis= myAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
-    const pct     = w.anak>0?Math.min(Math.round(w.kunjungan_bulan/w.anak*100),100):0;
-    const pctCol  = pct>=80?'#16a34a':pct>=50?'#2563eb':'#d97706';
-    return `<tr>
-      <td><strong style="font-size:.74rem">${w.nama}</strong></td>
-      <td class="center" style="font-weight:700">${w.anak}</td>
-      <td>
-        <div style="min-width:80px">
-          <div style="font-size:.68rem;color:${pctCol};font-weight:700;text-align:center">${pct}%</div>
-          <div class="mini-prog-wrap"><div class="mini-prog-fill" style="width:${pct}%;background:${pctCol}"></div></div>
-        </div>
-      </td>
-      <td class="center" style="font-weight:700;color:${myAvg!=='—'?sc(parseFloat(myAvg)):'#9ca3af'}">${myAvg}</td>
-      <td class="center" style="color:${myKritis>0?'#dc2626':'#9ca3af'};font-weight:${myKritis>0?700:400}">${myKritis}</td>
-    </tr>`;
-  }).join('');
 
   // ── ICF DOMAINS ──
   document.getElementById('badge-obs-count').textContent = obs.length+' observasi';

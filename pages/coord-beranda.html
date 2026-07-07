@@ -86,7 +86,7 @@
     .kpi-l { font-size:.55rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#9ca3af; margin:4px 0 2px; }
     .kpi-s { font-size:.61rem; color:#9ca3af; }
 
-    /* ── MAIN 2-COL LAYOUT ── */
+    /* ── MAIN LAYOUT ── */
     .coord-row {
       display: grid;
       gap: 10px;
@@ -161,6 +161,7 @@
       text-align    : left;
       border-bottom : 1px solid #e5e7eb;
     }
+    .tbl-perhatian thead th.right { text-align:center; }
     .tbl-perhatian tbody tr { border-bottom:1px solid #f9fafb; }
     .tbl-perhatian tbody tr:last-child { border-bottom:none; }
     .tbl-perhatian tbody tr:hover { background:#fafafa; }
@@ -344,260 +345,330 @@
     </header>
 
     <div class="page">
-  <!-- TAB NAV -->
-  <div style="display:flex;gap:2px;border-bottom:1px solid #e5e7eb;margin-bottom:12px;overflow-x:auto;background:#fff;padding:0 14px">
-    <button id="cb-tab-ringkasan" onclick="cbTab('ringkasan',this)" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-bottom:2px solid #d4500a;background:rgba(212,80,10,.05);color:#d4500a;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Ringkasan
-    </button>
-    <button id="cb-tab-ragam" onclick="cbTab('ragam',this)" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-bottom:2px solid transparent;background:none;color:#6b7280;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><line x1="2" y1="12" x2="22" y2="12"/></svg>Ragam Disabilitas
-    </button>
-    <button id="cb-tab-temuan" onclick="cbTab('temuan',this)" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-bottom:2px solid transparent;background:none;color:#6b7280;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Temuan
-    </button>
-  </div>
-  <div id="cb-pane-ringkasan">
-  <!-- TAB NAV -->
-  <div style="display:flex;gap:2px;border-bottom:1px solid #e5e7eb;background:#fff;padding:0 14px;margin-bottom:12px;overflow-x:auto">
-    <button class="cb-tab active" data-tab="ringkasan" onclick="cbTab('ringkasan',this)" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-bottom:2px solid transparent;background:none;color:#6b7280;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Ringkasan
-    </button>
-    <button class="cb-tab" data-tab="ragam" onclick="cbTab('ragam',this);renderRagam()" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-bottom:2px solid transparent;background:none;color:#6b7280;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><line x1="2" y1="12" x2="22" y2="12"/></svg>Ragam Disabilitas
-    </button>
-    <button class="cb-tab" data-tab="temuan" onclick="cbTab('temuan',this);renderTemuan()" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-bottom:2px solid transparent;background:none;color:#6b7280;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Temuan
-    </button>
-  </div>
 
-  <div id="cb-pane-ringkasan" class="cb-pane">
-
-      <!-- PAGE HEADER -->
-      <div class="page-header--compact">
-        <div>
-          <h1>Beranda CBR Coordinator</h1>
-          <p>Overview program, kondisi beneficiary, dan kinerja seluruh CBR Worker.</p>
-        </div>
-        <div class="header-freshness" id="header-freshness">
-          <div>⊙ Data terakhir diperbarui</div>
-          <div><strong id="freshness-detail">—</strong></div>
-        </div>
+      <!-- ── TAB NAV (satu, di luar semua pane) ── -->
+      <div style="display:flex;gap:2px;border-bottom:1px solid #e5e7eb;margin-bottom:12px;overflow-x:auto;background:#fff;padding:0 14px">
+        <button class="cb-tab" data-tab="ringkasan" onclick="cbTab('ringkasan',this)"
+          style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-bottom:2px solid #d4500a;background:rgba(212,80,10,.05);color:#d4500a;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Ringkasan
+        </button>
+        <button class="cb-tab" data-tab="ragam" onclick="cbTab('ragam',this);renderRagam()"
+          style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-bottom:2px solid transparent;background:none;color:#6b7280;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><line x1="2" y1="12" x2="22" y2="12"/></svg>Ragam Disabilitas
+        </button>
+        <button class="cb-tab" data-tab="temuan" onclick="cbTab('temuan',this);renderTemuan()"
+          style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-bottom:2px solid transparent;background:none;color:#6b7280;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Temuan
+        </button>
       </div>
 
-      <!-- KPI ROW -->
-      <div class="kpi-8" id="kpi-coord"></div>
+      <!-- ══════════════════════════════════════════
+           PANE 1: RINGKASAN
+      ══════════════════════════════════════════ -->
+      <div id="cb-pane-ringkasan" class="cb-pane">
 
-      <!-- ROW 1: 3 Distribusi Sejajar -->
-      <div class="coord-row col-3">
-
-        <!-- Distribusi Skor Anak -->
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-title">Distribusi Skor Anak</span>
+        <!-- PAGE HEADER -->
+        <div class="page-header--compact">
+          <div>
+            <h1>Beranda CBR Coordinator</h1>
+            <p>Overview program, kondisi beneficiary, dan kinerja seluruh CBR Worker.</p>
           </div>
-          <div class="panel-body" id="skor-dist-coord"></div>
+          <div class="header-freshness" id="header-freshness">
+            <div>⊙ Data terakhir diperbarui</div>
+            <div><strong id="freshness-detail">—</strong></div>
+          </div>
         </div>
 
-        <!-- Distribusi Ragam -->
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-title">Distribusi Ragam Disabilitas</span>
+        <!-- KPI ROW -->
+        <div class="kpi-8" id="kpi-coord"></div>
+
+        <!-- ROW 1: 3 Distribusi Sejajar -->
+        <div class="coord-row col-3">
+
+          <!-- Distribusi Skor Anak -->
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">Distribusi Skor Anak</span>
+            </div>
+            <div class="panel-body" id="skor-dist-coord"></div>
           </div>
-          <div class="panel-body">
-            <div class="dist-row">
-              <div class="donut-wrap">
-                <canvas id="c-ragam-donut"></canvas>
-                <div class="donut-center">
-                  <div class="donut-center-num" id="ragam-total">—</div>
-                  <div class="donut-center-label">Anak</div>
+
+          <!-- Distribusi Ragam -->
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">Distribusi Ragam Disabilitas</span>
+            </div>
+            <div class="panel-body">
+              <div class="dist-row">
+                <div class="donut-wrap">
+                  <canvas id="c-ragam-donut"></canvas>
+                  <div class="donut-center">
+                    <div class="donut-center-num" id="ragam-total">—</div>
+                    <div class="donut-center-label">Anak</div>
+                  </div>
                 </div>
+                <ul class="dist-legend" id="ragam-legend"></ul>
               </div>
-              <ul class="dist-legend" id="ragam-legend"></ul>
             </div>
           </div>
-        </div>
 
-        <!-- Distribusi Level -->
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-title">Distribusi Level Disabilitas</span>
-          </div>
-          <div class="panel-body">
-            <div class="dist-row">
-              <div class="donut-wrap">
-                <canvas id="c-level-donut"></canvas>
-                <div class="donut-center">
-                  <div class="donut-center-num" id="level-total">—</div>
-                  <div class="donut-center-label">Anak</div>
+          <!-- Distribusi Level -->
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">Distribusi Level Disabilitas</span>
+            </div>
+            <div class="panel-body">
+              <div class="dist-row">
+                <div class="donut-wrap">
+                  <canvas id="c-level-donut"></canvas>
+                  <div class="donut-center">
+                    <div class="donut-center-num" id="level-total">—</div>
+                    <div class="donut-center-label">Anak</div>
+                  </div>
                 </div>
+                <ul class="dist-legend" id="level-legend"></ul>
               </div>
-              <ul class="dist-legend" id="level-legend"></ul>
             </div>
           </div>
+
+        </div><!-- /ROW 1 -->
+
+        <!-- ROW 2: Anak Perlu Perhatian + Kinerja Worker -->
+        <div class="coord-row col-2">
+
+          <!-- Anak Perlu Perhatian -->
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">Anak Perlu Perhatian</span>
+              <span class="badge-sm badge-red" id="badge-perhatian">—</span>
+            </div>
+            <div class="panel-body no-pad">
+              <div style="overflow-x:auto">
+                <table class="tbl-perhatian">
+                  <thead>
+                    <tr>
+                      <th>Nama Anak</th>
+                      <th>CBR Worker</th>
+                      <th class="right">Skor</th>
+                      <th>Level</th>
+                      <th>Alasan</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbl-perhatian"></tbody>
+                </table>
+              </div>
+              <a href="coord-benef.html" style="display:block;text-align:center;font-size:.68rem;font-weight:700;color:#d4500a;padding:10px;border-top:1px solid #f3f4f6;text-decoration:none">Lihat semua →</a>
+            </div>
+          </div>
+
+          <!-- Kinerja Per CBR Worker -->
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">Kinerja Per CBR Worker</span>
+              <span class="badge-sm badge-orange" id="badge-worker-count">—</span>
+            </div>
+            <div class="panel-body no-pad">
+              <div style="overflow-x:auto">
+                <table class="tbl-worker">
+                  <thead>
+                    <tr>
+                      <th>CBR Worker</th>
+                      <th class="right">Anak</th>
+                      <th class="right">Kunjungan</th>
+                      <th class="right">Avg Skor</th>
+                      <th class="right">Kritis</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbl-workers"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /ROW 2 -->
+
+        <!-- ROW 3: ICF + Intisari -->
+        <div class="coord-row col-2">
+
+          <!-- ICF Ringkasan Domain -->
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">Temuan ICF — Ringkasan Domain</span>
+              <span class="badge-sm badge-blue" id="badge-obs-count">— obs</span>
+            </div>
+            <div class="panel-body">
+              <div class="icf-grid" id="icf-domain-grid"></div>
+            </div>
+          </div>
+
+          <!-- Intisari -->
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">Intisari Hari Ini</span>
+            </div>
+            <div class="panel-body">
+              <div class="intisari-box">
+                <div class="intisari-head">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  Ringkasan Program
+                </div>
+                <ul class="intisari-list" id="intisari-list"></ul>
+                <a href="mel-beranda.html" class="intisari-link">Lihat laporan lengkap →</a>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /ROW 3 -->
+
+      </div><!-- /cb-pane-ringkasan -->
+
+      <!-- ══════════════════════════════════════════
+           PANE 2: RAGAM DISABILITAS
+      ══════════════════════════════════════════ -->
+      <div id="cb-pane-ragam" class="cb-pane" style="display:none">
+
+        <!-- FILTER -->
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+          <select id="flt-ragam-tab" onchange="onRagamFilterChange()" style="padding:8px 14px;border:1px solid #e9eef6;border-radius:8px;font-size:.78rem;font-family:inherit;background:#fff;cursor:pointer;outline:none;min-width:180px">
+            <option value="">Semua Ragam</option>
+            <option>Fisik</option>
+            <option>Intelektual</option>
+            <option value="Sensorik (penglihatan)">Sensorik (penglihatan)</option>
+            <option value="Sensorik (pendengaran dan bicara)">Sensorik (pendengaran & bicara)</option>
+            <option>Ganda</option>
+            <option>Lainnya</option>
+          </select>
+          <select id="flt-detail-ragam" onchange="renderRagam()" style="padding:8px 14px;border:1px solid #e9eef6;border-radius:8px;font-size:.78rem;font-family:inherit;background:#fff;cursor:pointer;outline:none;min-width:200px;display:none">
+            <option value="">Semua Detail</option>
+          </select>
+          <span id="ragam-filter-info" style="font-size:.75rem;color:#94a3b8"></span>
         </div>
 
-      </div>
+        <!-- TABEL RAGAM + DETAIL PANEL -->
+        <div style="display:flex;gap:14px;align-items:flex-start">
 
-      <!-- ROW 2: Anak Perlu Perhatian + Kinerja Worker -->
-      <div class="coord-row col-2">
-
-        <!-- Anak Perlu Perhatian -->
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-title">Anak Perlu Perhatian</span>
-            <span class="badge-sm badge-red" id="badge-perhatian">—</span>
-          </div>
-          <div class="panel-body no-pad">
-            <div style="overflow-x:auto">
-              <table class="tbl-perhatian">
+          <!-- TABEL DISTRIBUSI RAGAM -->
+          <div class="panel" style="flex:1;min-width:0">
+            <div class="panel-head"><span class="panel-title">Distribusi Ragam Disabilitas</span></div>
+            <div class="panel-body" style="padding:0">
+              <table style="width:100%;border-collapse:collapse;font-size:.78rem">
                 <thead>
-                  <tr>
-                    <th>Nama Anak</th>
-                    <th>CBR Worker</th>
-                    <th class="right">Skor</th>
-                    <th>Level</th>
-                    <th>Alasan</th>
+                  <tr style="background:#f8fafc;border-bottom:2px solid #e9eef6">
+                    <th style="padding:10px 16px;text-align:left;font-weight:700;color:#64748b;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em">Ragam Disabilitas</th>
+                    <th style="padding:10px 16px;text-align:center;font-weight:700;color:#64748b;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em">Jumlah</th>
+                    <th style="padding:10px 16px;text-align:center;font-weight:700;color:#64748b;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em">%</th>
+                    <th style="padding:10px 16px;text-align:left;font-weight:700;color:#64748b;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em">Proporsi</th>
                   </tr>
                 </thead>
-                <tbody id="tbl-perhatian"></tbody>
-              </table>
-            </div>
-            <a href="coord-benef.html" style="display:block;text-align:center;font-size:.68rem;font-weight:700;color:#d4500a;padding:10px;border-top:1px solid #f3f4f6;text-decoration:none">Lihat semua →</a>
-          </div>
-        </div>
-
-        <!-- Kinerja Per CBR Worker -->
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-title">Kinerja Per CBR Worker</span>
-            <span class="badge-sm badge-orange" id="badge-worker-count">—</span>
-          </div>
-          <div class="panel-body no-pad">
-            <div style="overflow-x:auto">
-              <table class="tbl-worker">
-                <thead>
-                  <tr>
-                    <th>CBR Worker</th>
-                    <th class="right">Anak</th>
-                    <th class="right">Kunjungan</th>
-                    <th class="right">Avg Skor</th>
-                    <th class="right">Kritis</th>
-                    <th class="right">Terlambat</th>
-                  </tr>
-                </thead>
-                <tbody id="tbl-workers"></tbody>
+                <tbody id="ragam-tabel-body"></tbody>
               </table>
             </div>
           </div>
-        </div>
 
-      </div>
-
-      <!-- ROW 3: ICF + Intisari -->
-      <div class="coord-row col-2">
-
-        <!-- ICF Ringkasan Domain -->
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-title">Temuan ICF — Ringkasan Domain</span>
-            <span class="badge-sm badge-blue" id="badge-obs-count">— obs</span>
-          </div>
-          <div class="panel-body">
-            <div class="icf-grid" id="icf-domain-grid"></div>
-          </div>
-        </div>
-
-        <!-- Intisari Hari Ini -->
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-title">Intisari Hari Ini</span>
-          </div>
-          <div class="panel-body">
-            <div class="intisari-box">
-              <div class="intisari-head">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                Ringkasan Program
+          <!-- DETAIL PANEL (muncul saat ragam diklik) -->
+          <div id="ragam-detail-panel" style="width:340px;flex-shrink:0;display:none">
+            <div class="panel">
+              <div class="panel-head" style="display:flex;align-items:center;justify-content:space-between">
+                <span class="panel-title" id="ragam-detail-panel-title">Detail Ragam</span>
+                <button onclick="closeRagamDetail()" style="background:none;border:none;cursor:pointer;color:#94a3b8;padding:2px;line-height:1">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
               </div>
-              <ul class="intisari-list" id="intisari-list"></ul>
-              <a href="mel-beranda.html" class="intisari-link">Lihat laporan lengkap →</a>
+              <div class="panel-body" style="padding:0">
+                <div id="ragam-detail-panel-body"></div>
+              </div>
             </div>
+          </div>
+
+        </div><!-- /flex layout ragam -->
+
+        <!-- DAFTAR ANAK per filter -->
+        <div class="panel" style="margin-top:14px">
+          <div class="panel-head">
+            <span class="panel-title" id="ragam-list-title">Daftar Anak</span>
+            <span class="badge-sm badge-orange" id="ragam-list-count"></span>
+          </div>
+          <div id="ragam-anak-list" style="max-height:400px;overflow-y:auto"></div>
+        </div>
+
+      </div><!-- /cb-pane-ragam -->
+
+      <!-- ══════════════════════════════════════════
+           PANE 3: TEMUAN
+      ══════════════════════════════════════════ -->
+      <div id="cb-pane-temuan" class="cb-pane" style="display:none">
+
+        <!-- 🔴 Kritis -->
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:12px">
+          <div style="padding:10px 14px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;background:#fef2f2">
+            <span style="font-size:.75rem;font-weight:700;color:#dc2626">🔴 Anak Kondisi Kritis (Skor ≤ 3)</span>
+            <span id="ct-kritis-count" style="font-size:.65rem;color:#9ca3af"></span>
+          </div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:.76rem">
+              <thead><tr style="background:#fef2f2">
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Nama Anak</th>
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">CBR Worker</th>
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">SCN</th>
+                <th style="padding:8px 12px;text-align:center;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Skor Anak</th>
+                <th style="padding:8px 12px;text-align:center;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Skor Pengasuh</th>
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Ragam</th>
+              </tr></thead>
+              <tbody id="tb-kritis"></tbody>
+            </table>
           </div>
         </div>
 
-      </div>
+        <!-- 🔵 Belum Obs -->
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:12px">
+          <div style="padding:10px 14px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;background:#eff6ff">
+            <span style="font-size:.75rem;font-weight:700;color:#2563eb">🔵 Anak Belum Pernah Diobservasi</span>
+            <span id="ct-obs-count" style="font-size:.65rem;color:#9ca3af"></span>
+          </div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:.76rem">
+              <thead><tr style="background:#eff6ff">
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Nama Anak</th>
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">CBR Worker</th>
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">SCN</th>
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Ragam</th>
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Level</th>
+              </tr></thead>
+              <tbody id="tb-belum-obs"></tbody>
+            </table>
+          </div>
+        </div>
 
-  </div><!-- /cb-pane-ringkasan -->
+        <!-- 🟡 Belum Plan -->
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden">
+          <div style="padding:10px 14px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;background:#fffbeb">
+            <span style="font-size:.75rem;font-weight:700;color:#d97706">🟡 Anak Belum Ada Perencanaan</span>
+            <span id="ct-plan-count" style="font-size:.65rem;color:#9ca3af"></span>
+          </div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:.76rem">
+              <thead><tr style="background:#fffbeb">
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Nama Anak</th>
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">CBR Worker</th>
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">SCN</th>
+                <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Ragam</th>
+              </tr></thead>
+              <tbody id="tb-belum-plan"></tbody>
+            </table>
+          </div>
+        </div>
 
-  <!-- PANE RAGAM -->
-  <div id="cb-pane-ragam" style="display:none">
-    <div id="ragam-content-coord" style="padding:0"></div>
-  </div>
-
-  <!-- PANE TEMUAN -->
-  <div id="cb-pane-temuan" style="display:none;padding:0">
-    <div style="margin-bottom:10px">
-      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:10px">
-        <div style="padding:10px 14px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;background:#fef2f2">
-          <span style="font-size:.75rem;font-weight:700;color:#dc2626">🔴 Anak Kondisi Kritis (Skor ≤ 3)</span>
-          <span id="ct-kritis-count" style="font-size:.65rem;color:#9ca3af"></span>
-        </div>
-        <div style="overflow-x:auto">
-          <table style="width:100%;border-collapse:collapse;font-size:.76rem">
-            <thead><tr style="background:#fef2f2">
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Nama Anak</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">CBR Worker</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">SCN</th>
-              <th style="padding:8px 12px;text-align:center;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Skor Anak</th>
-              <th style="padding:8px 12px;text-align:center;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Skor Pengasuh</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Ragam</th>
-            </tr></thead>
-            <tbody id="tb-kritis"></tbody>
-          </table>
-        </div>
-      </div>
-      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:10px">
-        <div style="padding:10px 14px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;background:#eff6ff">
-          <span style="font-size:.75rem;font-weight:700;color:#2563eb">🔵 Anak Belum Pernah Diobservasi</span>
-          <span id="ct-obs-count" style="font-size:.65rem;color:#9ca3af"></span>
-        </div>
-        <div style="overflow-x:auto">
-          <table style="width:100%;border-collapse:collapse;font-size:.76rem">
-            <thead><tr style="background:#eff6ff">
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Nama Anak</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">CBR Worker</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">SCN</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Ragam</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Level</th>
-            </tr></thead>
-            <tbody id="tb-belum-obs"></tbody>
-          </table>
-        </div>
-      </div>
-      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden">
-        <div style="padding:10px 14px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;background:#fffbeb">
-          <span style="font-size:.75rem;font-weight:700;color:#d97706">🟡 Anak Belum Ada Perencanaan</span>
-          <span id="ct-plan-count" style="font-size:.65rem;color:#9ca3af"></span>
-        </div>
-        <div style="overflow-x:auto">
-          <table style="width:100%;border-collapse:collapse;font-size:.76rem">
-            <thead><tr style="background:#fffbeb">
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Nama Anak</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">CBR Worker</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">SCN</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Ragam</th>
-            </tr></thead>
-            <tbody id="tb-belum-plan"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
+      </div><!-- /cb-pane-temuan -->
 
     </div><!-- /.page -->
   </div><!-- /.main -->
 </div><!-- /.app -->
 
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/api.js"></script>
 <script>
+
 // ── HELPERS ────────────────────────────────────────────────
 const RAGAM_COLOR = {
   'Fisik'                              : '#1a6fd4',
@@ -629,11 +700,22 @@ const KPI_ICONS = {
   worker  : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`,
 };
 
+const RC = {
+  'Fisik'                             :'#F97316',
+  'Intelektual'                       :'#FB923C',
+  'Sensorik (penglihatan)'            :'#FDBA74',
+  'Sensorik (pendengaran dan bicara)' :'#FED7AA',
+  'Ganda'                             :'#1E293B',
+  'Lainnya'                           :'#94A3B8',
+};
+const RO = ['Fisik','Intelektual','Sensorik (penglihatan)','Sensorik (pendengaran dan bicara)','Ganda','Lainnya'];
+
 let CHARTS = {};
 
 function sc(v){ return v<=3?'#dc2626':v<=5?'#d97706':v<=7?'#f59e0b':'#16a34a'; }
 function scBg(v){ return v<=3?'#fee2e2':v<=5?'#fef3c7':v<=7?'#fffbeb':'#dcfce7'; }
 function avg(arr){ const v=arr.filter(x=>x!=null&&!isNaN(x)); return v.length?v.reduce((a,b)=>a+b,0)/v.length:0; }
+function cnt(a,f){ const m={}; a.forEach(r=>{ const v=r[f]; if(v&&v!=='—') m[v]=(m[v]||0)+1; }); return m; }
 
 function mkDonut(id, labels, data, colors){
   if(CHARTS[id]){ CHARTS[id].destroy(); delete CHARTS[id]; }
@@ -648,7 +730,145 @@ function mkDonut(id, labels, data, colors){
   });
 }
 
-// ── RENDER PAGE ────────────────────────────────────────────
+// ── TAB SWITCHING ──────────────────────────────────────────
+function cbTab(id, btn){
+  document.querySelectorAll('.cb-tab').forEach(b=>{
+    b.style.color='#6b7280';
+    b.style.borderBottomColor='transparent';
+    b.style.background='none';
+  });
+  btn.style.color='#d4500a';
+  btn.style.borderBottomColor='#d4500a';
+  btn.style.background='rgba(212,80,10,.05)';
+  document.querySelectorAll('.cb-pane').forEach(p=>p.style.display='none');
+  document.getElementById('cb-pane-'+id).style.display='block';
+}
+
+// ── RENDER: TEMUAN ──────────────────────────────────────────
+function renderTemuan(){
+  const a     = window._cbAnakAll||[];
+  const obs   = window._cbObsAll||[];
+  const plans = window._cbPlanAll||[];
+
+  // Kritis
+  const kritis = a.filter(x=>x.sp!=null&&x.sp<=3).sort((a,b)=>a.sp-b.sp);
+  document.getElementById('ct-kritis-count').textContent = kritis.length+' anak';
+  document.getElementById('tb-kritis').innerHTML = kritis.length
+    ? kritis.map(x=>`<tr style="border-bottom:1px solid #f9fafb">
+        <td style="padding:8px 12px;font-weight:600">${x.nama||'—'}</td>
+        <td style="padding:8px 12px;color:#6b7280">${x.cbr||'—'}</td>
+        <td style="padding:8px 12px;color:#6b7280">${x.scn||x.scn_id||'—'}</td>
+        <td style="padding:8px 12px;text-align:center;font-weight:800;color:#dc2626">${x.sp}</td>
+        <td style="padding:8px 12px;text-align:center;font-weight:700;color:#d97706">${x.sa||'—'}</td>
+        <td style="padding:8px 12px;color:#6b7280">${x.ragam||'—'}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="6" style="padding:20px;text-align:center;color:#9ca3af">Tidak ada anak kondisi kritis</td></tr>';
+
+  // Belum Obs (cocokkan by nama lowercase)
+  const obsNamaSet = new Set(obs.map(o=>(o.na||'').toLowerCase()));
+  const belumObs   = a.filter(x=>!obsNamaSet.has((x.nama||'').toLowerCase()));
+  document.getElementById('ct-obs-count').textContent = belumObs.length+' anak';
+  document.getElementById('tb-belum-obs').innerHTML = belumObs.length
+    ? belumObs.map(x=>`<tr style="border-bottom:1px solid #f9fafb">
+        <td style="padding:8px 12px;font-weight:600">${x.nama||'—'}</td>
+        <td style="padding:8px 12px;color:#6b7280">${x.cbr||'—'}</td>
+        <td style="padding:8px 12px;color:#6b7280">${x.scn||x.scn_id||'—'}</td>
+        <td style="padding:8px 12px;color:#6b7280">${x.ragam||'—'}</td>
+        <td style="padding:8px 12px;color:#6b7280">${x.level||'—'}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="5" style="padding:20px;text-align:center;color:#9ca3af">Semua anak sudah diobservasi</td></tr>';
+
+  // Belum Plan — cek field nama_anak atau na atau nama
+  const planNamaSet = new Set(plans.map(p=>(p.nama_anak||p.na||p.nama||'').toLowerCase()));
+  const belumPlan   = a.filter(x=>!planNamaSet.has((x.nama||'').toLowerCase()));
+  document.getElementById('ct-plan-count').textContent = belumPlan.length+' anak';
+  document.getElementById('tb-belum-plan').innerHTML = belumPlan.length
+    ? belumPlan.map(x=>`<tr style="border-bottom:1px solid #f9fafb">
+        <td style="padding:8px 12px;font-weight:600">${x.nama||'—'}</td>
+        <td style="padding:8px 12px;color:#6b7280">${x.cbr||'—'}</td>
+        <td style="padding:8px 12px;color:#6b7280">${x.scn||x.scn_id||'—'}</td>
+        <td style="padding:8px 12px;color:#6b7280">${x.ragam||'—'}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" style="padding:20px;text-align:center;color:#9ca3af">Semua anak sudah punya perencanaan</td></tr>';
+}
+
+// ── RENDER: RAGAM ──────────────────────────────────────────
+function renderRagam(){
+  const a_ragam = window._cbAnakAll||[];
+
+  window.onRagamFilterChange = function(){ renderRagam(); };
+  window.showRagamDetail     = function(r){ document.getElementById('flt-ragam-tab').value=r; renderRagam(); };
+  window.closeRagamDetail    = function(){
+    document.getElementById('ragam-detail-panel').style.display='none';
+    document.getElementById('flt-ragam-tab').value='';
+    renderRagam();
+  };
+
+  const selRagam  = document.getElementById('flt-ragam-tab').value;
+  const selDetail = document.getElementById('flt-detail-ragam').value;
+
+  let a = a_ragam;
+  if(selRagam)  a = a.filter(x=>x.ragam===selRagam);
+  if(selDetail) a = a.filter(x=>(x.rgd||'').includes(selDetail));
+
+  const n = a.length;
+  document.getElementById('ragam-filter-info').textContent =
+    n+' anak'+(selRagam?' · '+selRagam:'')+(selDetail?' · '+selDetail:'');
+
+  // Tabel distribusi
+  const total = a_ragam.length||1;
+  const rcnt  = cnt(a_ragam,'ragam');
+  const mxR   = Math.max(...RO.map(r=>rcnt[r]||0),1);
+  document.getElementById('ragam-tabel-body').innerHTML = RO.map(r=>{
+    const ct      = rcnt[r]||0;
+    const pct     = Math.round(ct/total*100);
+    const color   = RC[r]||'#94a3b8';
+    const isActive= selRagam===r;
+    return `<tr data-ragam="${r}"
+      onclick="document.getElementById('flt-ragam-tab').value='${r}';onRagamFilterChange();showRagamDetail('${r}')"
+      style="border-bottom:1px solid #f8fafc;cursor:pointer;transition:background .12s;${isActive?'background:#fff7ed;':''}">
+      <td style="padding:11px 16px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
+          <span style="font-weight:600;color:#1e293b;font-size:.78rem">${r}</span>
+        </div>
+      </td>
+      <td style="padding:11px 16px;text-align:center;font-weight:800;font-family:monospace;font-size:.9rem;color:${color}">${ct}</td>
+      <td style="padding:11px 16px;text-align:center;font-size:.75rem;color:#64748b">${pct}%</td>
+      <td style="padding:11px 16px;min-width:120px">
+        <div style="height:6px;background:#f1f5f9;border-radius:3px">
+          <div style="height:6px;background:${color};border-radius:3px;width:${Math.round(ct/mxR*100)}%;transition:width .3s"></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Daftar anak
+  const listTitle = document.getElementById('ragam-list-title');
+  const listCount = document.getElementById('ragam-list-count');
+  const listBody  = document.getElementById('ragam-anak-list');
+  if(listTitle) listTitle.textContent = 'Daftar Anak'+(selRagam?' — '+selRagam:'')+(selDetail?' · '+selDetail:'');
+  if(listCount) listCount.textContent = n+' anak';
+  if(listBody)  listBody.innerHTML = a.length
+    ? a.map(x=>{
+        const color = RC[x.ragam]||'#94a3b8';
+        return `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #f8fafc;font-size:.78rem">
+          <div style="width:36px;height:36px;border-radius:10px;background:${color}18;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:${color};flex-shrink:0">${(x.nama||'?').charAt(0)}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.nama||'—'}</div>
+            <div style="color:#94a3b8;font-size:.7rem;margin-top:2px">${x.cbr||'—'} · ${x.desa||'—'}</div>
+            ${x.rgd?`<div style="color:#64748b;font-size:.68rem;margin-top:3px;font-style:italic">${x.rgd}</div>`:''}
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:.68rem;font-weight:700;color:${color};background:${color}15;padding:2px 8px;border-radius:6px;white-space:nowrap">${(x.ragam||'—').split(' ')[0]}</div>
+            <div style="font-size:.67rem;color:#94a3b8;margin-top:3px">${x.level?x.level.split(' ')[0]:'—'}</div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div style="padding:24px;text-align:center;color:#94a3b8">Tidak ada anak ditemukan</div>';
+}
+
+// ── RENDER PAGE (dipanggil saat data API tiba) ─────────────
 function renderPage(d, scnId){
   if(!d||!d.anak) return;
   const anak    = d.anak;
@@ -659,47 +879,32 @@ function renderPage(d, scnId){
   const obsMap={};
   obs.forEach(o=>{ if(o.na) obsMap[o.na.toLowerCase()]=o; });
 
-  const lk         = anak.filter(a=>a.gender==='L').length;
-  const pr         = anak.filter(a=>a.gender==='P').length;
-  const sp         = anak.map(a=>a.sp).filter(v=>v!=null);
-  const avSP       = sp.length ? avg(sp) : 0;
-  const parah      = anak.filter(a=>(a.level||'').includes('Parah')).length;
-  const kritis     = anak.filter(a=>a.sp!=null&&a.sp<=3).length;
-  const punyaObs   = anak.filter(a=>obsMap[a.nama?.toLowerCase()]).length;
-  const belumObs   = total - punyaObs;
-  // terlambat dihapus
-  const totalKunj  = workers.reduce((s,w)=>s+w.kunjungan_bulan,0);
+  const sp     = anak.map(a=>a.sp).filter(v=>v!=null);
+  const avSP   = sp.length ? avg(sp) : 0;
+  const kritis = anak.filter(a=>a.sp!=null&&a.sp<=3).length;
+  const punyaObs = anak.filter(a=>obsMap[a.nama?.toLowerCase()]).length;
 
-  // ── KPI — KELENGKAPAN 6 FORM ──
-  const formData = [
-    { label:'Data Awal',      count: (d.anak||[]).length,              c:'#F97316', icon:KPI_ICONS.total },
-    { label:'Observasi',      count: (d.obs||[]).length,               c:'#2563eb', icon:KPI_ICONS.obs   },
-    { label:'Perencanaan',    count: (d.perencanaan||[]).length,       c:'#16a34a', icon:KPI_ICONS.worker },
-    { label:'Buku Harian',    count: (d.diary||[]).length,             c:'#9333ea', icon:KPI_ICONS.obs   },
-    { label:'Eval. Menengah', count: (d.evalMenengah||[]).length,      c:'#d97706', icon:KPI_ICONS.skor  },
-    { label:'Eval. Akhir',    count: (d.evalAkhir||[]).length,         c:'#059669', icon:KPI_ICONS.obs   },
-  ];
-  // total sudah dideklarasi di atas
-  const kpiData = formData.map(f=>({
-    v    : f.count,
-    l    : f.label,
-    s    : `dari ${total} anak · ${total>0?Math.round(f.count/total*100):0}%`,
-    c    : f.c,
-    ki   : f.c+'22',
-    icon : f.icon,
-  }));
-  // Simpan untuk tab lain
+  // Simpan untuk tab Temuan & Ragam
   window._cbAnakAll = anak;
-  window._cbObsAll  = d.obs||[];
+  window._cbObsAll  = obs;
   window._cbPlanAll = d.perencanaan||[];
 
-  document.getElementById('kpi-coord').innerHTML = kpiData.map(k=>`
-    <div class="kpi-box" style="--kc:${k.c}">
-      <div class="kpi-icon" style="background:${k.ki};color:${k.c}">${k.icon}</div>
+  // ── KPI 6 FORM ──
+  const formData = [
+    { label:'Data Awal',      count:(d.anak||[]).length,         c:'#F97316', icon:KPI_ICONS.total  },
+    { label:'Observasi',      count:(d.obs||[]).length,          c:'#2563eb', icon:KPI_ICONS.obs    },
+    { label:'Perencanaan',    count:(d.perencanaan||[]).length,  c:'#16a34a', icon:KPI_ICONS.worker },
+    { label:'Buku Harian',    count:(d.diary||[]).length,        c:'#9333ea', icon:KPI_ICONS.obs    },
+    { label:'Eval. Menengah', count:(d.evalMenengah||[]).length, c:'#d97706', icon:KPI_ICONS.skor   },
+    { label:'Eval. Akhir',    count:(d.evalAkhir||[]).length,    c:'#059669', icon:KPI_ICONS.obs    },
+  ];
+  document.getElementById('kpi-coord').innerHTML = formData.map(f=>`
+    <div class="kpi-box" style="--kc:${f.c}">
+      <div class="kpi-icon" style="background:${f.c}22;color:${f.c}">${f.icon}</div>
       <div class="kpi-body">
-        <div class="kpi-v">${k.v}</div>
-        <div class="kpi-l">${k.l}</div>
-        <div class="kpi-s">${k.s}</div>
+        <div class="kpi-v">${f.count}</div>
+        <div class="kpi-l">${f.label}</div>
+        <div class="kpi-s">dari ${total} anak · ${total>0?Math.round(f.count/total*100):0}%</div>
       </div>
     </div>`).join('');
 
@@ -720,18 +925,9 @@ function renderPage(d, scnId){
     </div>`).join('');
 
   // ── TABEL PERHATIAN ──
-  const perhatian = anak
-    .filter(a=>a.sp!=null&&a.sp<=4)
-    .sort((a,b)=>(a.sp||10)-(b.sp||10))
-    .slice(0,10);
+  const perhatian = anak.filter(a=>a.sp!=null&&a.sp<=4).sort((a,b)=>(a.sp||10)-(b.sp||10)).slice(0,10);
   document.getElementById('badge-perhatian').textContent = perhatian.length+' anak';
-
-  const alasanFor = a => {
-    if(a.sp!=null&&a.sp<=3) return 'Skor sangat rendah';
-    if(a.sp!=null&&a.sp<=4) return 'Skor rendah';
-    
-    return '—';
-  };
+  const alasanFor = a => a.sp!=null&&a.sp<=3 ? 'Skor sangat rendah' : a.sp!=null&&a.sp<=4 ? 'Skor rendah' : '—';
   const levelBadgeColor = l => {
     if((l||'').includes('Parah'))  return {bg:'#fee2e2',c:'#dc2626'};
     if((l||'').includes('Sedang')) return {bg:'#fef3c7',c:'#d97706'};
@@ -739,7 +935,7 @@ function renderPage(d, scnId){
   };
   document.getElementById('tbl-perhatian').innerHTML = perhatian.length
     ? perhatian.map(a=>{
-        const lbc = levelBadgeColor(a.level);
+        const lbc  = levelBadgeColor(a.level);
         const init = (a.nama||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
         return `<tr>
           <td>
@@ -762,7 +958,7 @@ function renderPage(d, scnId){
       }).join('')
     : '<tr><td colspan="5" style="text-align:center;padding:20px;color:#9ca3af;font-size:.75rem">Tidak ada anak perlu perhatian</td></tr>';
 
-  // ── WORKER TABLE ──
+  // ── WORKER TABLE (tanpa kolom Terlambat) ──
   document.getElementById('badge-worker-count').textContent = workers.length+' petugas';
   document.getElementById('tbl-workers').innerHTML = workers.map(w=>{
     const myAnak  = anak.filter(a=>a.cbr===w.nama);
@@ -782,7 +978,6 @@ function renderPage(d, scnId){
       </td>
       <td class="center" style="font-weight:700;color:${myAvg!=='—'?sc(parseFloat(myAvg)):'#9ca3af'}">${myAvg}</td>
       <td class="center" style="color:${myKritis>0?'#dc2626':'#9ca3af'};font-weight:${myKritis>0?700:400}">${myKritis}</td>
-      <td class="center" style="color:${w.late>0?'#dc2626':'#9ca3af'};font-weight:${w.late>0?700:400}">${w.late}</td>
     </tr>`;
   }).join('');
 
@@ -820,14 +1015,12 @@ function renderPage(d, scnId){
   }).join('');
 
   // ── DONUT RAGAM ──
-  const ragamCnt={};
+  const ragamCnt    = {};
   anak.forEach(a=>{ ragamCnt[a.ragam||'Lainnya']=(ragamCnt[a.ragam||'Lainnya']||0)+1; });
   const ragamKeys   = Object.keys(ragamCnt).sort((a,b)=>ragamCnt[b]-ragamCnt[a]);
-  const ragamLabels = ragamKeys;
-  const ragamData   = ragamKeys.map(r=>ragamCnt[r]);
   const ragamColors = ragamKeys.map(r=>RAGAM_COLOR[r]||'#9ca3af');
   document.getElementById('ragam-total').textContent = total;
-  mkDonut('c-ragam-donut', ragamLabels, ragamData, ragamColors);
+  mkDonut('c-ragam-donut', ragamKeys, ragamKeys.map(r=>ragamCnt[r]), ragamColors);
   document.getElementById('ragam-legend').innerHTML = ragamKeys.map(r=>`
     <li>
       <span class="dist-legend-label">
@@ -844,10 +1037,8 @@ function renderPage(d, scnId){
   const levelKeys   = Object.keys(LEVEL_COLOR);
   const levelCnt    = {};
   anak.forEach(a=>{ levelCnt[a.level||'Tidak diketahui']=(levelCnt[a.level||'Tidak diketahui']||0)+1; });
-  const levelData   = levelKeys.map(l=>levelCnt[l]||0);
-  const levelColors = levelKeys.map(l=>LEVEL_COLOR[l]);
   document.getElementById('level-total').textContent = total;
-  mkDonut('c-level-donut', levelKeys.map(l=>LEVEL_LABEL[l]||l), levelData, levelColors);
+  mkDonut('c-level-donut', levelKeys.map(l=>LEVEL_LABEL[l]||l), levelKeys.map(l=>levelCnt[l]||0), levelKeys.map(l=>LEVEL_COLOR[l]));
   document.getElementById('level-legend').innerHTML = levelKeys.map(l=>`
     <li>
       <span class="dist-legend-label">
@@ -865,273 +1056,42 @@ function renderPage(d, scnId){
     const vals = obs.map(o=>o[dom.key]).filter(v=>v&&v.length>2);
     const pos  = vals.filter(v=>posKata.some(k=>v.toLowerCase().includes(k))).length;
     const pct  = vals.length>0?Math.round(pos/vals.length*100):0;
-    return pct > (best.pct||0) ? {label:dom.label, pct} : best;
+    return pct>(best.pct||0) ? {label:dom.label,pct} : best;
   },{});
-
-  const ragamTerbanyak = ragamKeys[0] || '—';
   const intisari = [
-    kritis>0  ? `${kritis} anak dalam kondisi kritis (skor ≤ 3) perlu perhatian segera.` : 'Tidak ada anak dalam kondisi kritis saat ini.',
+    kritis>0
+      ? `${kritis} anak dalam kondisi kritis (skor ≤ 3) perlu perhatian segera.`
+      : 'Tidak ada anak dalam kondisi kritis saat ini.',
     icfDomBest.label ? `Domain ${icfDomBest.label} menunjukkan hasil terbaik (${icfDomBest.pct}%).` : '',
     `Rata-rata skor anak: ${avSP.toFixed(1)} (kategori ${avSP>=8?'baik':avSP>=6?'sedang':avSP>=4?'rendah':'kritis'}).`,
   ].filter(Boolean);
   document.getElementById('intisari-list').innerHTML = intisari.map(t=>`
     <li><span class="intisari-check">✓</span>${t}</li>`).join('');
 
-  // ── FRESHNESS ──
+  // ── FRESHNESS — ambil dari sync-time jika ada ──
   const st = document.getElementById('sync-time');
   const fd = document.getElementById('freshness-detail');
-  if(st&&fd){ const txt=st.textContent.replace('Sync:','').trim(); if(txt) fd.textContent=txt; }
-}
-</script>
-
-  </div><!-- /cb-pane-ringkasan -->
-
-  <!-- TAB RAGAM -->
-  <div id="cb-pane-ragam" class="cb-pane" style="display:none">
-    
-
-        <!-- FILTER RAGAM + DETAIL RAGAM -->
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
-          <select id="flt-ragam-tab" onchange="onRagamFilterChange()" style="padding:8px 14px;border:1px solid #e9eef6;border-radius:8px;font-size:.78rem;font-family:inherit;background:#fff;cursor:pointer;outline:none;min-width:180px">
-            <option value="">Semua Ragam</option>
-            <option>Fisik</option>
-            <option>Intelektual</option>
-            <option value="Sensorik (penglihatan)">Sensorik (penglihatan)</option>
-            <option value="Sensorik (pendengaran dan bicara)">Sensorik (pendengaran & bicara)</option>
-            <option>Ganda</option>
-            <option>Lainnya</option>
-          </select>
-          <select id="flt-detail-ragam" onchange="renderRagam()" style="padding:8px 14px;border:1px solid #e9eef6;border-radius:8px;font-size:.78rem;font-family:inherit;background:#fff;cursor:pointer;outline:none;min-width:200px;display:none">
-            <option value="">Semua Detail</option>
-          </select>
-          <span id="ragam-filter-info" style="font-size:.75rem;color:#94a3b8"></span>
-        </div>
-
-        <!-- TABEL RAGAM + DETAIL PANEL -->
-        <div style="display:flex;gap:14px;align-items:flex-start">
-
-          <!-- TABEL DISTRIBUSI RAGAM -->
-          <div class="card" style="flex:1;min-width:0">
-            <div class="card-head"><span class="card-title">Distribusi Ragam Disabilitas</span></div>
-            <div class="card-body" style="padding:0">
-              <table style="width:100%;border-collapse:collapse;font-size:.78rem">
-                <thead>
-                  <tr style="background:#f8fafc;border-bottom:2px solid #e9eef6">
-                    <th style="padding:10px 16px;text-align:left;font-weight:700;color:#64748b;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em">Ragam Disabilitas</th>
-                    <th style="padding:10px 16px;text-align:center;font-weight:700;color:#64748b;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em">Jumlah</th>
-                    <th style="padding:10px 16px;text-align:center;font-weight:700;color:#64748b;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em">%</th>
-                    <th style="padding:10px 16px;text-align:left;font-weight:700;color:#64748b;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em">Proporsi</th>
-                  </tr>
-                </thead>
-                <tbody id="ragam-tabel-body"></tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- DETAIL PANEL (muncul saat ragam diklik) -->
-          <div id="ragam-detail-panel" style="width:340px;flex-shrink:0;display:none">
-            <div class="card">
-              <div class="card-head" style="display:flex;align-items:center;justify-content:space-between">
-                <span class="card-title" id="ragam-detail-panel-title">Detail Ragam</span>
-                <button onclick="closeRagamDetail()" style="background:none;border:none;cursor:pointer;color:#94a3b8;padding:2px;line-height:1">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
-              </div>
-              <div class="card-body" style="padding:0">
-                <div id="ragam-detail-panel-body">
-  </div>
-
-  <!-- TAB TEMUAN -->
-  <div id="cb-pane-temuan" class="cb-pane" style="display:none">
-    <div style="margin-bottom:16px">
-      <div class="seksi-title">Anak Perlu Perhatian</div>
-      <div id="temuan-kritis" style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:12px">
-        <div style="padding:10px 14px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between">
-          <span style="font-size:.75rem;font-weight:700;color:#dc2626">🔴 Anak Kondisi Kritis (Skor ≤ 3)</span>
-          <span id="ct-kritis-count" style="font-size:.65rem;color:#9ca3af"></span>
-        </div>
-        <div id="ct-kritis-list" style="overflow-x:auto">
-          <table style="width:100%;border-collapse:collapse;font-size:.76rem">
-            <thead><tr style="background:#fef2f2">
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Nama Anak</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">CBR Worker</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">SCN</th>
-              <th style="padding:8px 12px;text-align:center;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Skor Anak</th>
-              <th style="padding:8px 12px;text-align:center;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Skor Pengasuh</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Ragam</th>
-            </tr></thead>
-            <tbody id="tb-kritis"></tbody>
-          </table>
-        </div>
-      </div>
-      <div id="temuan-belum-obs" style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:12px">
-        <div style="padding:10px 14px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between">
-          <span style="font-size:.75rem;font-weight:700;color:#2563eb">🔵 Anak Belum Pernah Diobservasi</span>
-          <span id="ct-obs-count" style="font-size:.65rem;color:#9ca3af"></span>
-        </div>
-        <div style="overflow-x:auto">
-          <table style="width:100%;border-collapse:collapse;font-size:.76rem">
-            <thead><tr style="background:#eff6ff">
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Nama Anak</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">CBR Worker</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">SCN</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Ragam</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Level</th>
-            </tr></thead>
-            <tbody id="tb-belum-obs"></tbody>
-          </table>
-        </div>
-      </div>
-      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden">
-        <div style="padding:10px 14px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between">
-          <span style="font-size:.75rem;font-weight:700;color:#d97706">🟡 Anak Belum Ada Perencanaan</span>
-          <span id="ct-plan-count" style="font-size:.65rem;color:#9ca3af"></span>
-        </div>
-        <div style="overflow-x:auto">
-          <table style="width:100%;border-collapse:collapse;font-size:.76rem">
-            <thead><tr style="background:#fffbeb">
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Nama Anak</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">CBR Worker</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">SCN</th>
-              <th style="padding:8px 12px;text-align:left;color:#6b7280;font-size:.65rem;font-weight:700;text-transform:uppercase">Ragam</th>
-            </tr></thead>
-            <tbody id="tb-belum-plan"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-</div>
-
-<script src="../js/auth.js"></script>
-<script src="../js/sidebar.js"></script>
-<script src="../js/api.js"></script>
-<script>
-
-// ── TAB COORD BERANDA ──
-function cbTab(id, btn) {
-  document.querySelectorAll('.cb-tab').forEach(b=>{
-    b.style.color='#6b7280'; b.style.borderBottomColor='transparent'; b.style.background='none';
-  });
-  btn.style.color='#d4500a'; btn.style.borderBottomColor='#d4500a'; btn.style.background='rgba(212,80,10,.05)';
-  document.querySelectorAll('.cb-pane').forEach(p=>p.style.display='none');
-  document.getElementById('cb-pane-'+id).style.display='block';
-}
-
-function renderTemuan() {
-  const a = window._cbAnakAll||[];
-  const obs = window._cbObsAll||[];
-  const plans = window._cbPlanAll||[];
-  const kritis = a.filter(x=>x.sp!=null&&x.sp<=3).sort((a,b)=>a.sp-b.sp);
-  document.getElementById('ct-kritis-count').textContent=kritis.length+' anak';
-  document.getElementById('tb-kritis').innerHTML=kritis.length
-    ?kritis.map(x=>`<tr style="border-bottom:1px solid #f9fafb"><td style="padding:8px 12px;font-weight:600">${x.nama||'—'}</td><td style="padding:8px 12px;color:#6b7280">${x.cbr||'—'}</td><td style="padding:8px 12px;color:#6b7280">${x.scn||x.scn_id||'—'}</td><td style="padding:8px 12px;text-align:center;font-weight:800;color:#dc2626">${x.sp}</td><td style="padding:8px 12px;text-align:center;font-weight:700;color:#d97706">${x.sa||'—'}</td><td style="padding:8px 12px;color:#6b7280">${x.ragam||'—'}</td></tr>`).join('')
-    :'<tr><td colspan="6" style="padding:20px;text-align:center;color:#9ca3af">Tidak ada anak kondisi kritis</td></tr>';
-  const obsNamaSet=new Set(obs.map(o=>(o.na||'').toLowerCase()));
-  const belumObs=a.filter(x=>!obsNamaSet.has((x.nama||'').toLowerCase()));
-  document.getElementById('ct-obs-count').textContent=belumObs.length+' anak';
-  document.getElementById('tb-belum-obs').innerHTML=belumObs.length
-    ?belumObs.map(x=>`<tr style="border-bottom:1px solid #f9fafb"><td style="padding:8px 12px;font-weight:600">${x.nama||'—'}</td><td style="padding:8px 12px;color:#6b7280">${x.cbr||'—'}</td><td style="padding:8px 12px;color:#6b7280">${x.scn||x.scn_id||'—'}</td><td style="padding:8px 12px;color:#6b7280">${x.ragam||'—'}</td><td style="padding:8px 12px;color:#6b7280">${x.level||'—'}</td></tr>`).join('')
-    :'<tr><td colspan="5" style="padding:20px;text-align:center;color:#9ca3af">Semua anak sudah diobservasi</td></tr>';
-  const planNamaSet=new Set(plans.map(p=>(p.nama_anak||p.na||'').toLowerCase()));
-  const belumPlan=a.filter(x=>!planNamaSet.has((x.nama||'').toLowerCase()));
-  document.getElementById('ct-plan-count').textContent=belumPlan.length+' anak';
-  document.getElementById('tb-belum-plan').innerHTML=belumPlan.length
-    ?belumPlan.map(x=>`<tr style="border-bottom:1px solid #f9fafb"><td style="padding:8px 12px;font-weight:600">${x.nama||'—'}</td><td style="padding:8px 12px;color:#6b7280">${x.cbr||'—'}</td><td style="padding:8px 12px;color:#6b7280">${x.scn||x.scn_id||'—'}</td><td style="padding:8px 12px;color:#6b7280">${x.ragam||'—'}</td></tr>`).join('')
-    :'<tr><td colspan="4" style="padding:20px;text-align:center;color:#9ca3af">Semua anak sudah punya perencanaan</td></tr>';
-}
-
-function cnt(a,f){const m={};a.forEach(r=>{const v=r[f];if(v&&v!=='—')m[v]=(m[v]||0)+1;});return m;}
-const RO=['Fisik','Intelektual','Sensorik (penglihatan)','Sensorik (pendengaran dan bicara)','Ganda','Lainnya'];
-const RC={'Fisik':'#F97316','Intelektual':'#FB923C','Sensorik (penglihatan)':'#FDBA74','Sensorik (pendengaran dan bicara)':'#FED7AA','Ganda':'#1E293B','Lainnya':'#94A3B8'};
-function renderRagam(){
-  const a_ragam = window._cbAnakAll||[];
-  // alias untuk filter change
-  window.onRagamFilterChange = function(){ renderRagam(); };
-  window.showRagamDetail = function(r){
-    document.getElementById('flt-ragam-tab').value=r;
-    renderRagam();
-  };
-  const selRagam  = document.getElementById('flt-ragam-tab').value;
-  const selDetail = document.getElementById('flt-detail-ragam').value;
-
-  // Filter data
-  let a = a_ragam;
-  if (selRagam)  a = a.filter(x => x.ragam === selRagam);
-  if (selDetail) a = a.filter(x => (x.rgd||'').includes(selDetail));
-
-  const n = a.length;
-  document.getElementById('ragam-filter-info').textContent =
-    n + ' anak' + (selRagam ? ' · '+selRagam : '') + (selDetail ? ' · '+selDetail : '');
-
-  // TABEL DISTRIBUSI RAGAM
-  const total = a_ragam.length || 1;
-  const rcnt  = cnt(a_ragam,'ragam');
-  const mxR   = Math.max(...RO.map(r=>rcnt[r]||0), 1);
-  document.getElementById('ragam-tabel-body').innerHTML = RO.map(r=>{
-    const ct  = rcnt[r]||0;
-    const pct = Math.round(ct/total*100);
-    const color = RC[r]||'#94a3b8';
-    const isActive = selRagam === r;
-    return `<tr data-ragam="${r}" onclick="document.getElementById('flt-ragam-tab').value='${r}';onRagamFilterChange();showRagamDetail('${r}')"
-      class="${isActive?'rg-active':''}"
-      style="border-bottom:1px solid #f8fafc;cursor:pointer;transition:background .12s;${isActive?'background:#fff7ed;':''}">
-      <td style="padding:11px 16px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>
-          <span style="font-weight:600;color:#1e293b;font-size:.78rem">${r}</span>
-        </div>
-      </td>
-      <td style="padding:11px 16px;text-align:center;font-weight:800;font-family:monospace;font-size:.9rem;color:${color}">${ct}</td>
-      <td style="padding:11px 16px;text-align:center;font-size:.75rem;color:#64748b">${pct}%</td>
-      <td style="padding:11px 16px;min-width:120px">
-        <div style="height:6px;background:#f1f5f9;border-radius:3px">
-          <div style="height:6px;background:${color};border-radius:3px;width:${Math.round(ct/mxR*100)}%;transition:width .3s"></div>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-
-  // DAFTAR ANAK
-  const ragamListTitle = document.getElementById('ragam-list-title');
-  if(ragamListTitle) ragamListTitle.textContent =
-    'Daftar Anak' + (selRagam ? ' — ' + selRagam : '') + (selDetail ? ' · ' + selDetail : '');
-  (document.getElementById('ragam-list-count')||{innerHTML:'',textContent:'',style:{}}).textContent = n + ' anak';
-  (document.getElementById('ragam-anak-list')||{innerHTML:'',textContent:'',style:{}}).innerHTML = a.length
-    ? a.map(x=>{
-        const color = RC[x.ragam]||'#94a3b8';
-        return `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #f8fafc;font-size:.78rem">
-          <div style="width:36px;height:36px;border-radius:10px;background:${color}18;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:${color};flex-shrink:0">${(x.nama||'?').charAt(0)}</div>
-          <div style="flex:1;min-width:0">
-            <div style="font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.nama}</div>
-            <div style="color:#94a3b8;font-size:.7rem;margin-top:2px">${x.cbr||'—'} · ${x.desa||'—'}</div>
-            ${x.rgd?`<div style="color:#64748b;font-size:.68rem;margin-top:3px;font-style:italic">${x.rgd}</div>`:''}
-          </div>
-          <div style="text-align:right;flex-shrink:0">
-            <div style="font-size:.68rem;font-weight:700;color:${color};background:${color}15;padding:2px 8px;border-radius:6px;white-space:nowrap">${(x.ragam||'—').split(' ')[0]}</div>
-            <div style="font-size:.67rem;color:#94a3b8;margin-top:3px">${x.level?x.level.split(' ')[0]:'—'}</div>
-          </div>
-        </div>`;
-      }).join('')
-    : '<div style="padding:24px;text-align:center;color:#94a3b8">Tidak ada anak ditemukan</div>';
-}
-
-  buildSidebar();
-  const SESSION = AUTH.requireAuth('../index.html');
-  if(SESSION){
-    AUTH.applySession({
-      onScnSwitch: async function(scnId){
-        const d = await API.get(scnId);
-        if(window.renderPage) renderPage(d, scnId);
-      }
-    });
-    AUTH.initSidebar('coord','c-beranda');
-    API.get(AUTH.getScnFilter()).then(d=>{
-      if(window.renderPage) renderPage(d, AUTH.getScnFilter());
-    });
+  if(st&&fd){
+    const txt = st.textContent.replace('Sync:','').trim();
+    if(txt) fd.textContent = txt;
   }
+}
+
+// ── INIT ────────────────────────────────────────────────────
+buildSidebar();
+const SESSION = AUTH.requireAuth('../index.html');
+if(SESSION){
+  AUTH.applySession({
+    onScnSwitch: async function(scnId){
+      const d = await API.get(scnId);
+      if(window.renderPage) renderPage(d, scnId);
+    }
+  });
+  AUTH.initSidebar('coord','c-beranda');
+  API.get(AUTH.getScnFilter()).then(d=>{
+    if(window.renderPage) renderPage(d, AUTH.getScnFilter());
+  });
+}
 </script>
 </body>
 </html>

@@ -226,21 +226,28 @@ function buildUI(){
     <!-- STATUS PER SCN -->
     <div class="sec-lbl">Status Program per SCN</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:20px">
-      ${['manggarai','kupang','tts','banyuwangi','jember','situbondo','palu','sigi'].map(scnId=>{
-        const scnAnak = anak.filter(a=>(a.scn||'').toLowerCase()===scnId);
-        const n = scnAnak.length;
-        const hasObs = n>0 ? Math.round((d.obs||[]).filter(o=>(o.scn||'').toLowerCase()===scnId).length / Math.max(n,1) * 100) : 0;
-        const avgSp = n>0 ? (scnAnak.map(a=>a.sp).filter(v=>v!=null).reduce((a,b)=>a+b,0)/Math.max(scnAnak.map(a=>a.sp).filter(v=>v!=null).length,1)).toFixed(1) : '—';
-        const kritis = scnAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
-        const statusColor = n===0?'#94a3b8':kritis>3?'#dc2626':hasObs<50?'#d97706':'#16a34a';
-        const statusLabel = n===0?'Belum ada data':kritis>3?'Perlu perhatian':hasObs<50?'Dalam proses':'Berjalan baik';
-        return `<div style="background:#fff;border:1px solid #e5e7eb;border-left:3px solid ${statusColor};border-radius:10px;padding:12px">
-          <div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#374151;margin-bottom:6px">${scnId.toUpperCase()}</div>
-          <div style="font-size:1.3rem;font-weight:800;color:${statusColor};line-height:1">${n}</div>
-          <div style="font-size:.62rem;color:#9ca3af;margin-bottom:6px">anak dampingan</div>
-          <div style="font-size:.65rem;font-weight:600;color:${statusColor};background:${statusColor}15;padding:2px 8px;border-radius:999px;display:inline-block">${statusLabel}</div>
-        </div>`;
-      }).join('')}
+      ${(()=>{
+        const scnFilter = (typeof AUTH !== 'undefined') ? AUTH.getScnFilter() : null;
+        const scnList = scnFilter
+          ? [scnFilter]
+          : ['manggarai','kupang','tts','banyuwangi','jember','situbondo','palu','sigi'];
+        const SCN_FULL = {manggarai:'Manggarai',kupang:'Kupang',tts:'TTS',banyuwangi:'Banyuwangi',jember:'Jember',situbondo:'Situbondo',palu:'Palu',sigi:'Sigi'};
+        return scnList.map(scnId=>{
+          const scnAnak = anak.filter(a=>(a.scn||'').toLowerCase()===scnId);
+          const n = scnAnak.length;
+          const hasObs = n>0 ? Math.round((d.obs||[]).filter(o=>(o.scn||'').toLowerCase()===scnId).length / Math.max(n,1) * 100) : 0;
+          const avgSp = n>0 ? (scnAnak.map(a=>a.sp).filter(v=>v!=null).reduce((a,b)=>a+b,0)/Math.max(scnAnak.map(a=>a.sp).filter(v=>v!=null).length,1)).toFixed(1) : '—';
+          const kritis = scnAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
+          const statusColor = n===0?'#94a3b8':kritis>3?'#dc2626':hasObs<50?'#d97706':'#16a34a';
+          const statusLabel = n===0?'Belum ada data':kritis>3?'Perlu perhatian':hasObs<50?'Dalam proses':'Berjalan baik';
+          return `<div style="background:#fff;border:1px solid #e5e7eb;border-left:3px solid ${statusColor};border-radius:10px;padding:12px">
+            <div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#374151;margin-bottom:6px">SCN ${SCN_FULL[scnId]||scnId}</div>
+            <div style="font-size:1.3rem;font-weight:800;color:${statusColor};line-height:1">${n}</div>
+            <div style="font-size:.62rem;color:#9ca3af;margin-bottom:6px">anak dampingan</div>
+            <div style="font-size:.65rem;font-weight:600;color:${statusColor};background:${statusColor}15;padding:2px 8px;border-radius:999px;display:inline-block">${statusLabel}</div>
+          </div>`;
+        }).join('');
+      })()}
     </div>
 
     <!-- KELENGKAPAN 6 FORM -->

@@ -193,7 +193,13 @@ async function onSCNFilterChange(scnId){
 async function renderPage(d, scnId){
   ACTIVE_SCN = scnId||null;
   const sel = document.getElementById('scn-filter-select');
-  if(sel) sel.value = ACTIVE_SCN||'';
+  if(sel){
+    sel.value = ACTIVE_SCN||'';
+    // Jika filter global aktif (bukan superadmin atau sudah pilih SCN) — kunci dropdown
+    const globalFilter = (typeof AUTH !== 'undefined') ? AUTH.getScnFilter() : null;
+    if(globalFilter){ sel.disabled = true; sel.title = 'Filter SCN dikunci oleh sesi aktif'; }
+    else { sel.disabled = false; sel.title = ''; }
+  }
   document.getElementById('page-content').innerHTML='<div class="mm-loading"><div class="spin"></div> Memuat data monitoring...</div>';
   ALL_DATA = await fetchMonthly(ACTIVE_SCN);
   ACTIVE_IDX = 0;

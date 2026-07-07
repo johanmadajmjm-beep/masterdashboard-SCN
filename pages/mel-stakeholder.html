@@ -196,6 +196,20 @@ async function renderPage(d, scnId){
   ACTIVE_SCN = scnId||null;
   document.getElementById('page-content').innerHTML='<div class="sk-loading"><div class="spin"></div> Memuat data stakeholder...</div>';
   ALL_DATA = await fetchStakeholder(ACTIVE_SCN);
+  // Jika filter global aktif — set dan kunci dropdown SCN internal
+  const globalFilter = (typeof AUTH !== 'undefined') ? AUTH.getScnFilter() : null;
+  setTimeout(()=>{
+    const tblScn = document.getElementById('tbl-scn');
+    const benScn = document.getElementById('benef-scn');
+    if(globalFilter){
+      if(tblScn){ tblScn.value=globalFilter; tblScn.disabled=true; tblScn.title='Filter SCN dikunci oleh sesi aktif'; }
+      if(benScn){ benScn.value=globalFilter; benScn.disabled=true; benScn.title='Filter SCN dikunci oleh sesi aktif'; }
+      TBL_SCN = globalFilter;
+    } else {
+      if(tblScn){ tblScn.disabled=false; tblScn.title=''; }
+      if(benScn){ benScn.disabled=false; benScn.title=''; }
+    }
+  }, 100);
   if(!ALL_DATA.length){
     document.getElementById('page-content').innerHTML='<div class="empty-state">Belum ada data stakeholder.<br>Upload data melalui MEL SCN Tools terlebih dahulu.</div>';
     return;

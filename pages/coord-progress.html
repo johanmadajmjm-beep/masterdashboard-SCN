@@ -272,8 +272,12 @@ function renderTable() {
   const evalMid    = D.evalMenengah|| [];
   const evalAkhir  = D.evalAkhir  || [];
 
+  // Filter SCN — tampilkan hanya SCN yang dipilih jika ada filter aktif
+  const scnFilter = (typeof AUTH !== 'undefined') ? AUTH.getScnFilter() : null;
+  const activeList = scnFilter ? SCN_LIST.filter(id => id === scnFilter) : SCN_LIST;
+
   // Hitung per SCN
-  const rows = SCN_LIST.map(scnId => {
+  const rows = activeList.map(scnId => {
     const nAwal = getAnakBySCN(scnId).length;
     const nObs  = new Set(getObsBySCN(scnId).map(o=>o.na||'')).size;
     const nPlan = getFormDataBySCN('perencanaan', scnId).length;
@@ -283,9 +287,10 @@ function renderTable() {
     return { scnId, counts:[nAwal, nObs, nPlan, nDiary, nMid, nAkhir] };
   });
 
-  // Total
+  // Total — sembunyikan jika hanya 1 SCN
   const totals = [0,1,2,3,4,5].map(i=>rows.reduce((s,r)=>s+r.counts[i],0));
   const maxAwal = Math.max(...rows.map(r=>r.counts[0]), 1);
+  const showTotal = rows.length > 1;
 
   const tbody = document.getElementById('tbl-body');
   tbody.innerHTML = rows.map(({scnId, counts}) => `
@@ -304,10 +309,10 @@ function renderTable() {
         </td>`;
       }).join('')}
     </tr>`).join('') +
-    `<tr class="total-row">
+    (showTotal ? `<tr class="total-row">
       <td>TOTAL</td>
       ${totals.map((n,i)=>`<td class="num-cell" style="color:${FORM_COLORS[i]};font-size:.85rem">${n}</td>`).join('')}
-    </tr>`;
+    </tr>` : '');
 }
 
 // ── OPEN LIST ───────────────────────────────────────────────

@@ -259,10 +259,13 @@ function renderPage(d, scnId){
 }
 
 function renderAll(){
-  const scns    = Object.keys(KOBO);
-  const allAnak = scns.flatMap(id=>KOBO[id].anak||[]);
-  const allObs  = scns.flatMap(id=>KOBO[id].obs||[]);
-  const allWork = scns.flatMap(id=>(KOBO[id].workers||[]).map(w=>({...w,scn:id})));
+  // Filter SCN jika ada filter aktif
+  const scnFilter = (typeof AUTH !== 'undefined') ? AUTH.getScnFilter() : null;
+  const allScns   = Object.keys(KOBO);
+  const scns      = scnFilter ? allScns.filter(id=>id===scnFilter) : allScns;
+  const allAnak   = scns.flatMap(id=>KOBO[id].anak||[]);
+  const allObs    = scns.flatMap(id=>KOBO[id].obs||[]);
+  const allWork   = scns.flatMap(id=>(KOBO[id].workers||[]).map(w=>({...w,scn:id})));
 
   // ── KPI agregasi semua sumber ─────────────────────────────
   const total    = allAnak.length;
@@ -296,7 +299,7 @@ function renderAll(){
 
     <!-- ── KPI 3 SUMBER ── -->
     <div class="kpi-strip">
-      ${kpi('👶','#fff7ed','#F97316',total,'Total Beneficiary',scns.length+' SCN aktif')}
+      ${kpi('👶','#fff7ed','#F97316',total,'Total Beneficiary',(scnFilter?'SCN '+scnFilter.toUpperCase():scns.length+' SCN aktif'))}
       ${kpi('📊','#fff7ed','#EA6C00',avgSp+'/10','Avg Skor Anak','Cantrill Ladder')}
       ${kpi('💚','#f0fdf4','#16a34a',avgSa+'/10','Avg Skor Pengasuh','Cantrill Ladder')}
       ${kpi('📸','#eff6ff','#2563eb',coverage+'%','Coverage Observasi',total-tanpaObs+' sudah diobservasi')}

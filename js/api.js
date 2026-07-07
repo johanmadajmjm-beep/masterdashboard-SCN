@@ -692,12 +692,8 @@ const API = (() => {
         // Stale — revalidate di background, return cache dulu
         setTimeout(async () => {
           try {
-            let fresh = scnId ? await loadScn(scnId) : await loadAll();
+            const fresh = scnId ? await loadScn(scnId) : await loadAll();
             if (fresh) {
-              if (!scnId) {
-                const activeFilter = (typeof AUTH !== 'undefined') ? AUTH.getScnFilter() : null;
-                if (activeFilter) fresh = filterResultBySCN(fresh, activeFilter);
-              }
               setCached(cacheKey, fresh);
               if (window.renderPage) window.renderPage(fresh, scnId);
             }
@@ -708,12 +704,7 @@ const API = (() => {
     }
 
     // Tidak ada cache — fetch fresh
-    let result = scnId ? (ENDPOINTS[scnId] ? await loadScn(scnId) : null) : await loadAll();
-    // Jika loadAll tapi ada filter SCN aktif — filter client-side
-    if (result && !scnId) {
-      const activeFilter = (typeof AUTH !== 'undefined') ? AUTH.getScnFilter() : null;
-      if (activeFilter) result = filterResultBySCN(result, activeFilter);
-    }
+    const result = scnId ? (ENDPOINTS[scnId] ? await loadScn(scnId) : null) : await loadAll();
     if (result) setCached(cacheKey, result);
 
     if (!result && scnId) {

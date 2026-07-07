@@ -615,6 +615,41 @@ const API = (() => {
     };
   }
 
+  // ── FILTER RESULT BY SCN (client-side, untuk loadAll) ───────
+  // Dipakai saat superadmin pilih SCN tertentu — filter semua array by field scn
+  function filterResultBySCN(result, scnId) {
+    if (!scnId || !result) return result;
+    const sid = scnId.toLowerCase();
+
+    function filterArr(arr, ...fields) {
+      if (!arr || !arr.length) return arr;
+      return arr.filter(r => {
+        for (const f of fields) {
+          const v = (r[f] || '').toLowerCase().trim();
+          if (v && v === sid) return true;
+        }
+        return false;
+      });
+    }
+
+    return {
+      ...result,
+      anak        : filterArr(result.anak,        'scn', 'scn_id'),
+      obs         : filterArr(result.obs,         'scn'),
+      perencanaan : filterArr(result.perencanaan, 'scn'),
+      diary       : filterArr(result.diary,       'scn'),
+      evalMenengah: filterArr(result.evalMenengah,'scn'),
+      evalAkhir   : filterArr(result.evalAkhir,   'scn'),
+      workers     : result.workers ? result.workers.filter(w => {
+        // worker tidak punya field scn langsung — filter berdasarkan anak yang sudah difilter
+        const anakFiltered = filterArr(result.anak, 'scn', 'scn_id');
+        const namaSet = new Set(anakFiltered.map(a => (a.cbr||'').toLowerCase()));
+        return namaSet.has((w.nama||'').toLowerCase());
+      }) : [],
+      meta: { ...result.meta, scn: result.meta?.scn || scnId },
+    };
+  }
+
   // ── CLEAR CACHE ───────────────────────────────────────────
   function clearCache(scnId) {
     if (scnId) {
@@ -657,8 +692,12 @@ const API = (() => {
         // Stale — revalidate di background, return cache dulu
         setTimeout(async () => {
           try {
-            const fresh = scnId ? await loadScn(scnId) : await loadAll();
+            let fresh = scnId ? await loadScn(scnId) : await loadAll();
             if (fresh) {
+              if (!scnId) {
+                const activeFilter = (typeof AUTH !== 'undefined') ? AUTH.getScnFilter() : null;
+                if (activeFilter) fresh = filterResultBySCN(fresh, activeFilter);
+              }
               setCached(cacheKey, fresh);
               if (window.renderPage) window.renderPage(fresh, scnId);
             }
@@ -669,7 +708,12 @@ const API = (() => {
     }
 
     // Tidak ada cache — fetch fresh
-    const result = scnId ? (ENDPOINTS[scnId] ? await loadScn(scnId) : null) : await loadAll();
+    let result = scnId ? (ENDPOINTS[scnId] ? await loadScn(scnId) : null) : await loadAll();
+    // Jika loadAll tapi ada filter SCN aktif — filter client-side
+    if (result && !scnId) {
+      const activeFilter = (typeof AUTH !== 'undefined') ? AUTH.getScnFilter() : null;
+      if (activeFilter) result = filterResultBySCN(result, activeFilter);
+    }
     if (result) setCached(cacheKey, result);
 
     if (!result && scnId) {

@@ -220,9 +220,6 @@ let ACTIVE_SCN = null, ACTIVE_FORM = null;
 let ACTIVE_LIST = [], ACTIVE_CHILD = null;
 
 // ── DATA ACCESSOR ───────────────────────────────────────────
-// CBR Worker Manggarai yang diketahui
-const CBR_MANGGARAI = ['Elfrida Suryati','Jack Roka','Laurensius Herbianto','Leonardus M. Mawardi','Magdalena Sabe','Maria Diana Banut','Miseldis Halmida','Stanis J. Ngalu'];
-
 function matchSCN(val, scnId) {
   const v = (val||'').toLowerCase().trim();
   if (!v) return false;
@@ -231,14 +228,8 @@ function matchSCN(val, scnId) {
 
 function getAnakBySCN(scnId) {
   return (D.anak||[]).filter(a=>{
-    // Coba dari scn/scn_id field
     const s = (a.scn_id||a.scn||'').toLowerCase().trim();
-    if (s) return s === scnId;
-    // Fallback Manggarai: deteksi dari CBR Worker
-    if (scnId === 'manggarai') {
-      return CBR_MANGGARAI.some(cbr => (a.cbr||'').toLowerCase().includes(cbr.split(' ')[0].toLowerCase()));
-    }
-    return false;
+    return s === scnId;
   });
 }
 
@@ -250,11 +241,7 @@ function getFormDataBySCN(formKey, scnId) {
 function getObsBySCN(scnId) {
   return (D.obs||[]).filter(o => {
     const s = (o.scn||'').toLowerCase().trim();
-    if (s) return s === scnId;
-    if (scnId === 'manggarai') {
-      return CBR_MANGGARAI.some(cbr => (o.cb||'').toLowerCase().includes(cbr.split(' ')[0].toLowerCase()));
-    }
-    return false;
+    return s === scnId;
   });
 }
 

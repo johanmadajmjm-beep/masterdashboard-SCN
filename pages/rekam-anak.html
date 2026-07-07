@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <style>html,body{background:#F8FAFC}</style>
+  <script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Rekam Anak | MEL NLR Indonesia</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <style>
+    /* ── LAYOUT ── */
+    .ra-wrap{display:flex;height:calc(100vh - 56px);overflow:hidden}
+    .ra-list-panel{width:300px;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;transition:width .2s}
+    .ra-list-panel.collapsed{width:0;overflow:hidden}
+    .ra-detail-panel{flex:1;overflow-y:auto;background:#F8FAFC}
+    .ra-detail-panel::-webkit-scrollbar{width:4px}
+    .ra-detail-panel::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:2px}
+
+    /* ── TOOLBAR ── */
+    .ra-toolbar{padding:10px 12px;border-bottom:1px solid #E5E7EB;flex-shrink:0;background:#fff}
+    .ra-search{width:100%;padding:7px 10px 7px 32px;border:1px solid #E5E7EB;border-radius:8px;font-size:.78rem;font-family:inherit;outline:none;background:#F8FAFC;color:#1F2937;position:relative}
+    .ra-search:focus{border-color:#F97316;background:#fff}
+    .ra-search-wrap{position:relative;margin-bottom:8px}
+    .ra-search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#9CA3AF;pointer-events:none}
+    .ra-filters{display:flex;flex-direction:column;gap:5px}
+    .ra-select{width:100%;padding:5px 8px;border:1px solid #E5E7EB;border-radius:7px;font-size:.72rem;font-family:inherit;background:#fff;color:#374151;outline:none;cursor:pointer}
+    .ra-select:focus{border-color:#F97316}
+
+    /* ── SEGMENT ── */
+    .ra-seg{display:flex;gap:3px;margin-top:8px}
+    .ra-seg-btn{flex:1;padding:5px 0;border:1px solid #E5E7EB;border-radius:6px;background:#fff;font-size:.65rem;font-weight:600;color:#6B7280;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:3px;transition:.12s}
+    .ra-seg-btn.active{background:#FFF7ED;border-color:#F97316;color:#F97316}
+    .ra-seg-btn svg{width:11px;height:11px}
+
+    /* ── COUNT ── */
+    .ra-count{padding:6px 12px;font-size:.65rem;color:#9CA3AF;border-bottom:1px solid #F3F4F6;flex-shrink:0;background:#fff}
+
+    /* ── LIST ── */
+    .ra-list{flex:1;overflow-y:auto}
+    .ra-list::-webkit-scrollbar{width:3px}
+    .ra-list::-webkit-scrollbar-thumb{background:#F3F4F6}
+
+    /* ── ITEM VIEWS ── */
+    /* XL */
+    .ra-item-xl{padding:10px 12px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .1s;display:flex;align-items:flex-start;gap:10px}
+    .ra-item-xl:hover{background:#FFF7ED}
+    .ra-item-xl.active{background:#FFF7ED;border-left:3px solid #F97316}
+    .ra-avatar{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;flex-shrink:0;background:#FFF7ED;color:#F97316}
+    .ra-item-xl-body{flex:1;min-width:0}
+    .ra-item-name{font-size:.78rem;font-weight:700;color:#1F2937;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ra-item-meta{font-size:.63rem;color:#9CA3AF;margin-top:2px;display:flex;gap:6px;flex-wrap:wrap}
+    .ra-item-skor{font-size:.7rem;font-weight:800;margin-top:4px}
+    .ra-item-chips{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
+    .ra-chip{padding:1px 7px;border-radius:999px;font-size:.58rem;font-weight:700}
+
+    /* MD */
+    .ra-item-md{padding:8px 12px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .1s;display:flex;align-items:center;gap:9px}
+    .ra-item-md:hover{background:#FFF7ED}
+    .ra-item-md.active{background:#FFF7ED;border-left:3px solid #F97316}
+    .ra-avatar-md{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:800;flex-shrink:0;background:#FFF7ED;color:#F97316}
+    .ra-item-md-body{flex:1;min-width:0}
+    .ra-item-md-name{font-size:.75rem;font-weight:700;color:#1F2937;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ra-item-md-sub{font-size:.62rem;color:#9CA3AF;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    /* SM */
+    .ra-item-sm{padding:6px 12px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .1s;display:flex;align-items:center;gap:8px}
+    .ra-item-sm:hover{background:#FFF7ED}
+    .ra-item-sm.active{background:#FFF7ED;border-left:3px solid #F97316}
+    .ra-item-sm-name{font-size:.73rem;font-weight:600;color:#1F2937;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ra-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+    /* LST */
+    .ra-item-lst{padding:5px 12px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .1s;display:flex;align-items:center;gap:6px}
+    .ra-item-lst:hover{background:#FFF7ED}
+    .ra-item-lst.active{background:#FFF7ED;border-left:3px solid #F97316}
+    .ra-item-lst-name{font-size:.7rem;color:#374151;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ra-item-lst-skor{font-size:.68rem;font-weight:700;width:24px;text-align:right;flex-shrink:0}
+
+    /* ── DETAIL ── */
+    .ra-empty-detail{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#9CA3AF;gap:12px}
+    .ra-empty-detail svg{width:48px;height:48px;opacity:.2}
+    .ra-empty-detail p{font-size:.8rem}
+
+    .ra-detail-inner{padding:20px 24px}
+    .ra-detail-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #E5E7EB}
+    .ra-detail-avatar{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;flex-shrink:0;background:#FFF7ED;color:#F97316}
+    .ra-detail-name{font-size:1.1rem;font-weight:800;color:#1F2937;margin-bottom:4px}
+    .ra-detail-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+    .ra-meta-tag{padding:3px 10px;border-radius:6px;font-size:.65rem;font-weight:700;background:#F3F4F6;color:#374151}
+    .ra-skor-row{display:flex;gap:10px;flex-wrap:wrap}
+    .ra-skor-box{background:#F8FAFC;border-radius:8px;padding:8px 14px;text-align:center}
+    .ra-skor-val{font-size:1.3rem;font-weight:800;line-height:1}
+    .ra-skor-lbl{font-size:.58rem;color:#9CA3AF;font-weight:600;text-transform:uppercase;margin-top:2px}
+
+    /* ── FORM BADGES (header) ── */
+    .ra-form-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+    .ra-form-badge{padding:4px 10px;border-radius:999px;font-size:.65rem;font-weight:700;display:flex;align-items:center;gap:4px}
+    .ra-form-badge.has{background:#DCFCE7;color:#15803D}
+    .ra-form-badge.no{background:#F1F5F9;color:#94A3B8}
+
+    /* ── ACCORDION ── */
+    .acc{background:#fff;border:1px solid #E5E7EB;border-radius:12px;overflow:hidden;margin-bottom:10px}
+    .acc-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;user-select:none;transition:background .1s}
+    .acc-head:hover{background:#F9FAFB}
+    .acc-head-left{display:flex;align-items:center;gap:10px}
+    .acc-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+    .acc-title{font-size:.82rem;font-weight:700;color:#1F2937}
+    .acc-badge{font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:999px}
+    .acc-chevron{width:16px;height:16px;color:#9CA3AF;transition:transform .2s;flex-shrink:0}
+    .acc-chevron.open{transform:rotate(180deg)}
+    .acc-body{display:none;border-top:1px solid #F3F4F6}
+    .acc-body.open{display:block}
+    .acc-body-inner{padding:14px 16px}
+
+    /* ── FIELD ROWS ── */
+    .f-row{display:flex;gap:10px;margin-bottom:8px;font-size:.75rem;line-height:1.6}
+    .f-row:last-child{margin-bottom:0}
+    .f-lbl{color:#9CA3AF;font-weight:600;min-width:140px;flex-shrink:0}
+    .f-val{color:#1F2937;flex:1}
+    .f-quote{background:#F8FAFC;border-left:3px solid #F97316;padding:8px 12px;border-radius:0 8px 8px 0;font-size:.74rem;color:#374151;line-height:1.7;margin:6px 0}
+    .f-divider{border:none;border-top:1px solid #F3F4F6;margin:12px 0}
+    .f-section{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#9CA3AF;margin:10px 0 6px}
+    .f-empty{font-size:.73rem;color:#CBD5E1;font-style:italic}
+
+    /* ── TUJUAN ── */
+    .tujuan-card{background:#F8FAFC;border-radius:8px;padding:10px 12px;margin-bottom:8px;border-left:3px solid #F97316}
+    .tujuan-title{font-size:.7rem;font-weight:800;color:#F97316;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+    .tujuan-val{font-size:.76rem;color:#1F2937;line-height:1.6}
+    .tujuan-aktor{font-size:.67rem;color:#6B7280;margin-top:5px}
+
+    /* ── DIARY ── */
+    .diary-item{border-bottom:1px solid #F3F4F6;padding:8px 0}
+    .diary-item:last-child{border-bottom:none}
+    .diary-tgl{font-size:.63rem;font-weight:700;color:#F97316;margin-bottom:3px}
+    .diary-isi{font-size:.74rem;color:#374151;line-height:1.6}
+
+    /* ── EVAL ── */
+    .eval-item{background:#F8FAFC;border-radius:8px;padding:10px 12px;margin-bottom:8px}
+    .eval-tujuan{font-size:.65rem;font-weight:800;color:#64748B;text-transform:uppercase;margin-bottom:5px}
+    .eval-skor{font-size:1.1rem;font-weight:800;margin-bottom:4px}
+    .eval-field{font-size:.73rem;color:#374151;line-height:1.6;margin-bottom:3px}
+    .eval-field span{color:#9CA3AF;font-weight:600}
+
+    /* ── AKTOR GRID ── */
+    .aktor-grid{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+    .aktor-pill{padding:2px 8px;border-radius:999px;font-size:.63rem;font-weight:600;background:#EFF6FF;color:#1D4ED8}
+
+    /* ── EMPTY LIST ── */
+    .ra-list-empty{padding:24px;text-align:center;color:#9CA3AF;font-size:.76rem}
+
+    /* ── TOPBAR TOGGLE ── */
+    .ra-toggle-btn{padding:5px 8px;border:1px solid #E5E7EB;border-radius:7px;background:#fff;cursor:pointer;color:#6B7280;display:flex;align-items:center;gap:5px;font-size:.72rem;font-family:inherit;transition:.12s}
+    .ra-toggle-btn:hover{background:#F9FAFB}
+  </style>
+</head>
+<body>
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="topbar-breadcrumb">CBR <span class="sep">›</span><span class="current">Rekam Anak</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
+
+<div class="ra-wrap">
+  <!-- LIST PANEL -->
+  <div class="ra-list-panel" id="ra-list-panel">
+
+    <!-- TOOLBAR -->
+    <div class="ra-toolbar">
+      <div class="ra-search-wrap">
+        <svg class="ra-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input class="ra-search" id="ra-search" type="text" placeholder="Cari nama anak..." oninput="applyFilter()"/>
+      </div>
+      <div class="ra-filters">
+        <select class="ra-select" id="flt-cbr" onchange="applyFilter()">
+          <option value="">Semua CBR Worker</option>
+        </select>
+        <select class="ra-select" id="flt-ragam" onchange="onRagamChange()">
+          <option value="">Semua Ragam</option>
+          <option>Fisik</option>
+          <option>Intelektual</option>
+          <option value="Sensorik (penglihatan)">Sensorik (penglihatan)</option>
+          <option value="Sensorik (pendengaran dan bicara)">Sensorik (pendengaran & bicara)</option>
+          <option>Ganda</option>
+          <option>Lainnya</option>
+        </select>
+        <select class="ra-select" id="flt-detail" onchange="applyFilter()" style="display:none">
+          <option value="">Semua Detail Ragam</option>
+        </select>
+      </div>
+      <!-- SEGMENT -->
+      <div class="ra-seg">
+        <button class="ra-seg-btn active" id="seg-xl" onclick="setView('xl')" title="Tampilan XL">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </button>
+        <button class="ra-seg-btn" id="seg-md" onclick="setView('md')" title="Tampilan MD">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+        <button class="ra-seg-btn" id="seg-sm" onclick="setView('sm')" title="Tampilan SM">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <button class="ra-seg-btn" id="seg-lst" onclick="setView('lst')" title="Tampilan List">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="15" y2="6"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- COUNT -->
+    <div class="ra-count" id="ra-count">Memuat...</div>
+
+    <!-- LIST -->
+    <div class="ra-list" id="ra-list"></div>
+  </div>
+
+  <!-- DETAIL PANEL -->
+  <div class="ra-detail-panel" id="ra-detail">
+    <div class="ra-empty-detail">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      <p>Pilih nama anak untuk melihat rekam jejaknya</p>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/api.js"></script>
+<script>
+// ── STATE ──────────────────────────────────────────────────────
+let ALL_DATA   = null;
+let ALL_ANAK   = [];   // union unik dari 6 form
+let FILTERED   = [];
+let ACTIVE_IDX = null;
+let CURR_VIEW  = 'xl';
+let MY_ROLE    = '';
+let MY_CBR     = '';
+
+// ── KONSTANTA WARNA ────────────────────────────────────────────
+const RC = {
+  'Fisik':'#F97316','Intelektual':'#2563eb',
+  'Sensorik (penglihatan)':'#16a34a',
+  'Sensorik (pendengaran dan bicara)':'#d97706',
+  'Ganda':'#7c3aed','Lainnya':'#94a3b8'
+};
+const LC = {
+  'Parah (dukungan penuh)':'#dc2626',
+  'Sedang (dukungan reguler)':'#d97706',
+  'Rendah (sedikit dukungan)':'#16a34a'
+};
+
+function scColor(v){ return v<=3?'#dc2626':v<=5?'#d97706':v<=7?'#f59e0b':'#16a34a'; }
+function scBg(v){ return v<=3?'#fee2e2':v<=5?'#fef3c7':v<=7?'#fffbeb':'#dcfce7'; }
+function inits(nama){ return (nama||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase(); }
+
+// ── BUILD UNION ANAK ───────────────────────────────────────────
+// Union unik nama dari 6 form, DataAwal sebagai master data
+function buildUnionAnak(d) {
+  const map = {}; // key: nama lowercase
+
+  // DataAwal — sumber data lengkap
+  (d.anak||[]).forEach(a => {
+    const k = (a.nama||'').toLowerCase().trim();
+    if (!k || k==='—') return;
+    map[k] = { ...a, _sumber:'DataAwal' };
+  });
+
+  // 5 form lain — tambah anak yang belum ada di DataAwal
+  function addFrom(arr, label) {
+    arr.forEach(r => {
+      const nama = (r.nama_anak||r.na||r.nama||'').trim();
+      const k    = nama.toLowerCase();
+      if (!k || k==='—') return;
+      if (!map[k]) {
+        map[k] = {
+          nama, cbr: r.cbr_worker||r.cb||r.cbr||'—',
+          ragam:'—', rgd:'', level:'—', desa:'—',
+          gender:'—', usia:null, sp:null, sa:null,
+          scn:r.scn||'', _sumber:label
+        };
+      }
+    });
+  }
+  addFrom(d.obs||[],          'Observasi');
+  addFrom(d.perencanaan||[],  'Perencanaan');
+  addFrom(d.diary||[],        'Buku Harian');
+  addFrom(d.evalMenengah||[], 'Eval Menengah');
+  addFrom(d.evalAkhir||[],    'Eval Akhir');
+
+  return Object.values(map).sort((a,b)=>(a.nama||'').localeCompare(b.nama||''));
+}
+
+// ── FILTER CBR (untuk worker: hanya tampil anak miliknya) ──────
+function filterByRole(anak) {
+  if (MY_ROLE === 'worker' && MY_CBR) {
+    return anak.filter(a => (a.cbr||'').toLowerCase() === MY_CBR.toLowerCase());
+  }
+  return anak;
+}
+
+// ── RENDER LIST ────────────────────────────────────────────────
+function applyFilter() {
+  const q       = (document.getElementById('ra-search').value||'').toLowerCase().trim();
+  const cbr     = document.getElementById('flt-cbr').value;
+  const ragam   = document.getElementById('flt-ragam').value;
+  const detail  = document.getElementById('flt-detail').value;
+
+  FILTERED = ALL_ANAK.filter(a => {
+    if (q && !(a.nama||'').toLowerCase().includes(q)) return false;
+    if (cbr && (a.cbr||'') !== cbr) return false;
+    if (ragam && (a.ragam||'') !== ragam) return false;
+    if (detail && !(a.rgd||'').includes(detail)) return false;
+    return true;
+  });
+
+  document.getElementById('ra-count').textContent =
+    `${FILTERED.length} dari ${ALL_ANAK.length} anak`;
+
+  renderList();
+}
+
+function onRagamChange() {
+  const ragam  = document.getElementById('flt-ragam').value;
+  const detSel = document.getElementById('flt-detail');
+  detSel.style.display = ragam ? 'block' : 'none';
+  if (!ragam) { detSel.value=''; }
+  applyFilter();
+}
+
+function renderList() {
+  const el = document.getElementById('ra-list');
+  if (!FILTERED.length) {
+    el.innerHTML = '<div class="ra-list-empty">Tidak ada anak ditemukan</div>';
+    return;
+  }
+  el.innerHTML = FILTERED.map((a,i) => renderItem(a, i)).join('');
+}
+
+function renderItem(a, i) {
+  const isActive = ACTIVE_IDX === i;
+  const ac = isActive ? ' active' : '';
+  const rColor = RC[a.ragam]||'#94a3b8';
+  const ragamShort = (a.ragam||'—').split(' ')[0];
+
+  if (CURR_VIEW === 'xl') {
+    const spHtml = a.sp!=null
+      ? `<span class="ra-item-skor" style="color:${scColor(a.sp)}">Skor Anak: ${a.sp}/10</span>`
+      : '';
+    return `<div class="ra-item-xl${ac}" onclick="selectAnak(${i})">
+      <div class="ra-avatar" style="background:${rColor}18;color:${rColor}">${inits(a.nama)}</div>
+      <div class="ra-item-xl-body">
+        <div class="ra-item-name">${a.nama}</div>
+        <div class="ra-item-meta">
+          <span>${a.cbr||'—'}</span>
+          ${a.desa&&a.desa!=='—'?`<span>📍 ${a.desa}</span>`:''}
+        </div>
+        ${spHtml}
+        <div class="ra-item-chips">
+          <span class="ra-chip" style="background:${rColor}18;color:${rColor}">${ragamShort}</span>
+          ${a.level&&a.level!=='—'?`<span class="ra-chip" style="background:${LC[a.level]||'#9ca3af'}18;color:${LC[a.level]||'#9ca3af'}">${a.level.split(' ')[0]}</span>`:''}
+          ${a._sumber!=='DataAwal'?`<span class="ra-chip" style="background:#f1f5f9;color:#64748b">${a._sumber}</span>`:''}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if (CURR_VIEW === 'md') {
+    return `<div class="ra-item-md${ac}" onclick="selectAnak(${i})">
+      <div class="ra-avatar-md" style="background:${rColor}18;color:${rColor}">${inits(a.nama)}</div>
+      <div class="ra-item-md-body">
+        <div class="ra-item-md-name">${a.nama}</div>
+        <div class="ra-item-md-sub">${a.cbr||'—'} · ${ragamShort}${a.sp!=null?' · Skor '+a.sp:''}</div>
+      </div>
+    </div>`;
+  }
+
+  if (CURR_VIEW === 'sm') {
+    return `<div class="ra-item-sm${ac}" onclick="selectAnak(${i})">
+      <div class="ra-dot" style="background:${rColor}"></div>
+      <div class="ra-item-sm-name">${a.nama}</div>
+      ${a.sp!=null?`<span style="font-size:.65rem;font-weight:700;color:${scColor(a.sp)}">${a.sp}</span>`:''}
+    </div>`;
+  }
+
+  // lst
+  return `<div class="ra-item-lst${ac}" onclick="selectAnak(${i})">
+    <div class="ra-dot" style="background:${rColor}"></div>
+    <div class="ra-item-lst-name">${a.nama}</div>
+    ${a.sp!=null?`<div class="ra-item-lst-skor" style="color:${scColor(a.sp)}">${a.sp}</div>`:''}
+  </div>`;
+}
+
+function setView(v) {
+  CURR_VIEW = v;
+  ['xl','md','sm','lst'].forEach(s => {
+    document.getElementById('seg-'+s).classList.toggle('active', s===v);
+  });
+  renderList();
+}
+
+// ── SELECT ANAK ────────────────────────────────────────────────
+function selectAnak(idx) {
+  ACTIVE_IDX = idx;
+  renderList(); // highlight
+  const a = FILTERED[idx];
+  if (!a) return;
+  renderDetail(a);
+}
+
+function renderDetail(a) {
+  const d = ALL_DATA;
+  const k = (a.nama||'').toLowerCase().trim();
+
+  // Cari data dari masing-masing form
+  const obsData   = (d.obs||[]).filter(o=>(o.na||'').toLowerCase().trim()===k);
+  const planData  = (d.perencanaan||[]).filter(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k);
+  const diaryData = (d.diary||[]).filter(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k);
+  const evalMData = (d.evalMenengah||[]).filter(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k);
+  const evalAData = (d.evalAkhir||[]).filter(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k);
+
+  const rColor = RC[a.ragam]||'#94a3b8';
+  const lColor = LC[a.level]||'#94a3b8';
+
+  // Form badges
+  const formBadge = (label, has) =>
+    `<span class="ra-form-badge ${has?'has':'no'}">${has?'✓':'○'} ${label}</span>`;
+
+  document.getElementById('ra-detail').innerHTML = `
+  <div class="ra-detail-inner">
+
+    <!-- HEADER -->
+    <div class="ra-detail-header">
+      <div class="ra-detail-avatar" style="background:${rColor}18;color:${rColor}">${inits(a.nama)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="ra-detail-name">${a.nama}</div>
+        <div class="ra-detail-meta">
+          ${a.cbr&&a.cbr!=='—'?`<span class="ra-meta-tag">👤 ${a.cbr}</span>`:''}
+          ${a.ragam&&a.ragam!=='—'?`<span class="ra-meta-tag" style="background:${rColor}18;color:${rColor}">${a.ragam}</span>`:''}
+          ${a.level&&a.level!=='—'?`<span class="ra-meta-tag" style="background:${lColor}18;color:${lColor}">${a.level.split('(')[0].trim()}</span>`:''}
+          ${a.gender&&a.gender!=='—'?`<span class="ra-meta-tag">${a.gender==='P'?'👧':'👦'} ${a.gender==='P'?'Perempuan':'Laki-laki'}</span>`:''}
+          ${a.usia?`<span class="ra-meta-tag">🎂 ${a.usia} th</span>`:''}
+          ${a.desa&&a.desa!=='—'?`<span class="ra-meta-tag">📍 ${a.desa}</span>`:''}
+        </div>
+        <div class="ra-skor-row">
+          ${a.sp!=null?`<div class="ra-skor-box" style="background:${scBg(a.sp)}">
+            <div class="ra-skor-val" style="color:${scColor(a.sp)}">${a.sp}</div>
+            <div class="ra-skor-lbl">Skor Anak</div>
+          </div>`:''}
+          ${a.sa!=null?`<div class="ra-skor-box" style="background:${scBg(a.sa)}">
+            <div class="ra-skor-val" style="color:${scColor(a.sa)}">${a.sa}</div>
+            <div class="ra-skor-lbl">Skor Pengasuh</div>
+          </div>`:''}
+          ${!a.sp&&!a.sa?`<div style="font-size:.72rem;color:#9CA3AF">Skor belum diisi</div>`:''}
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM BADGES -->
+    <div class="ra-form-badges">
+      ${formBadge('Data Awal',   a._sumber==='DataAwal'||a.sp!=null||a.ragam!=='—')}
+      ${formBadge('Observasi',   obsData.length>0)}
+      ${formBadge('Perencanaan', planData.length>0)}
+      ${formBadge('Buku Harian', diaryData.length>0)}
+      ${formBadge('Eval Menengah', evalMData.length>0)}
+      ${formBadge('Eval Akhir',  evalAData.length>0)}
+    </div>
+
+    <!-- ACCORDION: DATA AWAL -->
+    ${accSection('📋','Data Awal','#FFF7ED','#F97316',
+      a._sumber==='DataAwal'?'Ada':'Tidak Ada',
+      a._sumber==='DataAwal'?'has':'no',
+      renderDataAwal(a)
+    )}
+
+    <!-- ACCORDION: OBSERVASI -->
+    ${accSection('👁','Observasi','#EFF6FF','#2563eb',
+      obsData.length>0?obsData.length+' record':'Belum ada',
+      obsData.length>0?'has':'no',
+      renderObservasi(obsData)
+    )}
+
+    <!-- ACCORDION: PERENCANAAN -->
+    ${accSection('📝','Perencanaan','#F0FDF4','#16a34a',
+      planData.length>0?planData.length+' record':'Belum ada',
+      planData.length>0?'has':'no',
+      renderPerencanaan(planData)
+    )}
+
+    <!-- ACCORDION: BUKU HARIAN -->
+    ${accSection('📔','Buku Harian','#F5F3FF','#7c3aed',
+      diaryData.length>0?diaryData.length+' record':'Belum ada',
+      diaryData.length>0?'has':'no',
+      renderDiary(diaryData)
+    )}
+
+    <!-- ACCORDION: EVAL MENENGAH -->
+    ${accSection('📊','Evaluasi Menengah','#FFFBEB','#d97706',
+      evalMData.length>0?evalMData.length+' record':'Belum ada',
+      evalMData.length>0?'has':'no',
+      renderEvalMenengah(evalMData)
+    )}
+
+    <!-- ACCORDION: EVAL AKHIR -->
+    ${accSection('🏁','Evaluasi Akhir','#F0FDF4','#059669',
+      evalAData.length>0?evalAData.length+' record':'Belum ada',
+      evalAData.length>0?'has':'no',
+      renderEvalAkhir(evalAData)
+    )}
+
+  </div>`;
+}
+
+function accSection(icon, title, bg, color, badge, badgeType, content) {
+  const id = 'acc-' + title.replace(/\s/g,'');
+  const isOpen = badgeType === 'has';
+  return `<div class="acc">
+    <div class="acc-head" onclick="toggleAcc('${id}')">
+      <div class="acc-head-left">
+        <div class="acc-icon" style="background:${bg};color:${color}">${icon}</div>
+        <span class="acc-title">${title}</span>
+        <span class="acc-badge" style="background:${badgeType==='has'?bg:'#F1F5F9'};color:${badgeType==='has'?color:'#94A3B8'}">${badge}</span>
+      </div>
+      <svg class="acc-chevron ${isOpen?'open':''}" id="chev-${id}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <div class="acc-body ${isOpen?'open':''}" id="${id}">
+      <div class="acc-body-inner">${content}</div>
+    </div>
+  </div>`;
+}
+
+function toggleAcc(id) {
+  const body  = document.getElementById(id);
+  const chev  = document.getElementById('chev-'+id);
+  const isOpen= body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chev.classList.toggle('open', !isOpen);
+}
+
+// ── RENDER PER FORM ────────────────────────────────────────────
+
+function frow(lbl, val) {
+  if (!val || val==='—' || val==='' || val===null) return '';
+  return `<div class="f-row"><span class="f-lbl">${lbl}</span><span class="f-val">${val}</span></div>`;
+}
+
+function fquote(val) {
+  if (!val || val==='—' || val==='') return '';
+  return `<div class="f-quote">${val}</div>`;
+}
+
+function renderDataAwal(a) {
+  if (a._sumber !== 'DataAwal' && a.ragam === '—') {
+    return `<div class="f-empty">Data Awal belum ada. Anak ini pertama kali tercatat di form: ${a._sumber}</div>`;
+  }
+  return `
+    <div class="f-section">Identitas</div>
+    ${frow('Nama Lengkap', a.nama)}
+    ${frow('Tanggal Lahir', a.tl)}
+    ${frow('Usia', a.usia ? a.usia+' tahun ('+a.gu+')' : null)}
+    ${frow('Jenis Kelamin', a.gender==='P'?'Perempuan':a.gender==='L'?'Laki-laki':null)}
+    ${frow('Kampung/Dusun', a.kampung)}
+    ${frow('Desa', a.desa)}
+    ${frow('SCN', a.scn)}
+    <hr class="f-divider"/>
+    <div class="f-section">Disabilitas</div>
+    ${frow('Ragam Disabilitas', a.ragam)}
+    ${frow('Detail Ragam', a.rgd)}
+    ${frow('Level Dukungan', a.level)}
+    ${frow('Epilepsi', a.ep?'Ya':'Tidak')}
+    ${frow('Pernah Pengobatan', a.ob?'Ya':'Tidak')}
+    ${a.obf?frow('Fasilitas Pengobatan', a.obf):''}
+    ${a.obl?frow('Layanan Pengobatan', a.obl):''}
+    ${frow('Pernah Terapi', a.tr?'Ya':'Tidak')}
+    ${a.trj?frow('Jenis Terapi', a.trj):''}
+    ${a.trs?frow('Pelaksana Terapi', a.trs):''}
+    <hr class="f-divider"/>
+    <div class="f-section">Skor Wellbeing (Cantrill Ladder)</div>
+    ${frow('Skor Anak (sp)', a.sp!=null?a.sp+'/10':null)}
+    ${frow('Skor Pengasuh (sa)', a.sa!=null?a.sa+'/10':null)}
+    <hr class="f-divider"/>
+    <div class="f-section">Pengasuh</div>
+    ${frow('Nama Pengasuh', a.np)}
+    ${frow('Status Pengasuh', a.stp)}
+    ${frow('Waktu Kunjungan CBR', a.wk)}
+    <hr class="f-divider"/>
+    <div class="f-section">Narasi Cantrill</div>
+    ${a.nka?`<div class="f-section" style="margin-top:4px">Yang membantu anak naik tangga:</div>${fquote(a.nka)}`:''}
+    ${a.tka?`<div class="f-section">Yang menghambat anak:</div>${fquote(a.tka)}`:''}
+    ${a.nkp?`<div class="f-section">Yang membantu pengasuh naik tangga:</div>${fquote(a.nkp)}`:''}
+    ${a.tkp?`<div class="f-section">Yang menghambat pengasuh:</div>${fquote(a.tkp)}`:''}
+  `;
+}
+
+function renderObservasi(obsArr) {
+  if (!obsArr.length) return `<div class="f-empty">Belum ada data observasi untuk anak ini.</div>`;
+  return obsArr.map((o,i) => `
+    ${i>0?'<hr class="f-divider"/>':''}
+    ${frow('Tanggal Kunjungan', o.tgl)}
+    ${frow('CBR Worker', o.cb)}
+    <div class="f-section">Temuan ICF</div>
+    ${o.st?`<div class="f-section" style="margin-top:4px">🧠 Struktur & Fungsi Tubuh:</div>${fquote(o.st)}`:''}
+    ${o.kg?`<div class="f-section">🏃 Kegiatan & Partisipasi:</div>${fquote(o.kg)}`:''}
+    ${o.pf?`<div class="f-section">👤 Faktor Personal:</div>${fquote(o.pf)}`:''}
+    ${o.lg?`<div class="f-section">🌳 Lingkungan:</div>${fquote(o.lg)}`:''}
+    ${!o.st&&!o.kg&&!o.pf&&!o.lg?`<div class="f-empty">Temuan ICF belum diisi</div>`:''}
+  `).join('');
+}
+
+function renderPerencanaan(planArr) {
+  if (!planArr.length) return `<div class="f-empty">Belum ada perencanaan untuk anak ini.</div>`;
+  return planArr.map((p,i) => {
+    const aktorKeys = Object.keys(p).filter(k=>k.startsWith('rencana_')&&p[k]&&p[k]!=='0'&&p[k]!=='');
+    const aktorLabels = aktorKeys.map(k=>k.replace('rencana_','').replace(/_t[123]$/,'').replace(/_/g,' ')).filter((v,i,a)=>a.indexOf(v)===i);
+    return `
+      ${i>0?'<hr class="f-divider"/>':''}
+      ${frow('Tanggal Submit', p.tanggal_submit||p.tanggal_rencana)}
+      ${frow('CBR Worker', p.cbr_worker)}
+      <div class="f-section">Kesulitan</div>
+      ${p.kesulitan_pengasuh?`<div class="f-section" style="margin-top:4px">Kesulitan pengasuh:</div>${fquote(p.kesulitan_pengasuh)}`:''}
+      ${p.kesulitan_pekerja?`<div class="f-section">Kesulitan pekerja lapangan:</div>${fquote(p.kesulitan_pekerja)}`:''}
+      ${p.kesulitan_kesepakatan?`<div class="f-section">Kesepakatan:</div>${fquote(p.kesulitan_kesepakatan)}`:''}
+      ${[1,2,3].map(n=>{
+        const tj = p['tujuan_'+n];
+        const ak = p['aktor_tujuan_'+n];
+        const bg = p['bagaimana_'+n];
+        const dm = p['dimana_'+n];
+        const kp = p['kapan_'+n];
+        const ac = p['aksi_'+n];
+        if (!tj) return '';
+        return `<div class="tujuan-card">
+          <div class="tujuan-title">Tujuan ${n}</div>
+          <div class="tujuan-val">${tj}</div>
+          ${ak?`<div class="tujuan-aktor">👥 Aktor: ${ak}</div>`:''}
+          ${bg?`<div class="tujuan-aktor">❓ Bagaimana: ${bg}</div>`:''}
+          ${dm?`<div class="tujuan-aktor">📍 Dimana: ${dm}</div>`:''}
+          ${kp?`<div class="tujuan-aktor">📅 Kapan: ${kp}</div>`:''}
+          ${ac?`<div class="tujuan-aktor">✅ Rencana Aksi: ${ac}</div>`:''}
+        </div>`;
+      }).join('')}
+      ${aktorLabels.length?`
+        <div class="f-section">Aktor yang Dilibatkan</div>
+        <div class="aktor-grid">${aktorLabels.map(l=>`<span class="aktor-pill">${l}</span>`).join('')}</div>
+      `:''}
+    `;
+  }).join('');
+}
+
+function renderDiary(diaryArr) {
+  if (!diaryArr.length) return `<div class="f-empty">Belum ada buku harian untuk anak ini.</div>`;
+  return diaryArr.map((dr,i) => {
+    const entries = [];
+    for (let n=1; n<=10; n++) {
+      const tgl = dr['tgl_diary_'+n];
+      const isi = dr['isi_diary_'+n];
+      if (isi) entries.push({ tgl, isi });
+    }
+    return `
+      ${i>0?'<hr class="f-divider"/>':''}
+      ${frow('Tanggal Submit', dr.tanggal_submit)}
+      ${frow('CBR Worker', dr.cbr_worker)}
+      <div class="f-section">Catatan Harian</div>
+      ${entries.length?entries.map(e=>`
+        <div class="diary-item">
+          ${e.tgl?`<div class="diary-tgl">📅 ${e.tgl}</div>`:''}
+          <div class="diary-isi">${e.isi}</div>
+        </div>`).join(''):
+        `<div class="f-empty">Isi diary belum diisi</div>`}
+    `;
+  }).join('');
+}
+
+function renderEvalMenengah(evalArr) {
+  if (!evalArr.length) return `<div class="f-empty">Belum ada evaluasi menengah untuk anak ini.</div>`;
+  return evalArr.map((e,i) => `
+    ${i>0?'<hr class="f-divider"/>':''}
+    ${frow('Tanggal Submit', e.tanggal_submit)}
+    ${frow('Tanggal Evaluasi', e.tanggal_eval)}
+    ${frow('CBR Worker', e.cbr_worker)}
+    ${[1,2,3].map(n=>{
+      const skor = e['score_tujuan_'+n];
+      const alasan = e['alasan_score_'+n];
+      const perubahan = e['perubahan_'+n];
+      const penyebab = e['penyebab_'+n];
+      const lanjutan = e['lanjutan_'+n];
+      if (!skor&&!alasan&&!perubahan) return '';
+      return `<div class="eval-item">
+        <div class="eval-tujuan">Tujuan ${n}</div>
+        ${skor?`<div class="eval-skor" style="color:${scColor(parseFloat(skor)||0)}">Skor: ${skor}/10</div>`:''}
+        ${alasan?`<div class="eval-field"><span>Alasan: </span>${alasan}</div>`:''}
+        ${perubahan?`<div class="eval-field"><span>Perubahan: </span>${perubahan}</div>`:''}
+        ${penyebab?`<div class="eval-field"><span>Penyebab: </span>${penyebab}</div>`:''}
+        ${lanjutan?`<div class="eval-field"><span>Tindak Lanjut: </span>${lanjutan}</div>`:''}
+      </div>`;
+    }).join('')}
+  `).join('');
+}
+
+function renderEvalAkhir(evalArr) {
+  if (!evalArr.length) return `<div class="f-empty">Belum ada evaluasi akhir untuk anak ini.</div>`;
+  return evalArr.map((e,i) => `
+    ${i>0?'<hr class="f-divider"/>':''}
+    ${frow('Tanggal Submit', e.tanggal_submit)}
+    ${frow('Tanggal Evaluasi', e.tanggal_eval)}
+    ${frow('CBR Worker', e.cbr_worker)}
+    ${[1,2,3].map(n=>{
+      const tercapai = e['tercapai_tujuan_'+n];
+      const penjelasan = e['penjelasan_ya_'+n];
+      const alasan = e['alasan_tidak_'+n];
+      const saran = e['saran_'+n];
+      if (!tercapai&&!penjelasan&&!alasan) return '';
+      const isYa = (tercapai||'').toLowerCase()==='ya';
+      return `<div class="eval-item" style="border-left:3px solid ${isYa?'#16a34a':'#dc2626'}">
+        <div class="eval-tujuan">Tujuan ${n}</div>
+        ${tercapai?`<div class="eval-skor" style="color:${isYa?'#16a34a':'#dc2626'};font-size:.85rem">
+          ${isYa?'✅':'❌'} ${tercapai}
+        </div>`:''}
+        ${penjelasan?`<div class="eval-field"><span>Penjelasan: </span>${penjelasan}</div>`:''}
+        ${alasan?`<div class="eval-field"><span>Alasan tidak tercapai: </span>${alasan}</div>`:''}
+        ${saran?`<div class="eval-field"><span>Saran: </span>${saran}</div>`:''}
+      </div>`;
+    }).join('')}
+  `).join('');
+}
+
+// ── POPULATE FILTERS ───────────────────────────────────────────
+function populateFilters(anak) {
+  // CBR Worker
+  const cbrs = [...new Set(anak.map(a=>a.cbr).filter(c=>c&&c!=='—'))].sort();
+  const cbrSel = document.getElementById('flt-cbr');
+  cbrs.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    cbrSel.appendChild(opt);
+  });
+
+  // Detail ragam
+  const details = [...new Set(anak.flatMap(a=>(a.rgd||'').split(',').map(d=>d.trim()).filter(Boolean)))].sort();
+  const detSel = document.getElementById('flt-detail');
+  details.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d; opt.textContent = d;
+    detSel.appendChild(opt);
+  });
+
+  // Jika worker: set dan lock filter CBR
+  if (MY_ROLE === 'worker' && MY_CBR) {
+    cbrSel.value = MY_CBR;
+    cbrSel.disabled = true;
+    cbrSel.title = 'Filter dikunci untuk CBR Worker Anda';
+  }
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+buildSidebar();
+const SESSION = AUTH.requireAuth('../index.html');
+if (SESSION) {
+  MY_ROLE = SESSION.role||'';
+  MY_CBR  = SESSION.username||'';
+
+  const sidebar = MY_ROLE === 'coord' ? 'coord' : 'worker';
+  AUTH.applySession({
+    onScnSwitch: async function(scnId) {
+      const d = await API.get(scnId);
+      if (d) {
+        ALL_DATA = d;
+        ALL_ANAK = filterByRole(buildUnionAnak(d));
+        populateFilters(ALL_ANAK);
+        ACTIVE_IDX = null;
+        applyFilter();
+        document.getElementById('ra-detail').innerHTML = `
+          <div class="ra-empty-detail">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+            </svg>
+            <p>Pilih nama anak untuk melihat rekam jejaknya</p>
+          </div>`;
+      }
+    }
+  });
+  AUTH.initSidebar(sidebar, sidebar==='coord'?'c-rekam':'w-rekam');
+
+  API.get(AUTH.getScnFilter()).then(d => {
+    if (!d) {
+      document.getElementById('ra-count').textContent = 'Tidak ada data';
+      return;
+    }
+    ALL_DATA = d;
+    ALL_ANAK = filterByRole(buildUnionAnak(d));
+    populateFilters(ALL_ANAK);
+    applyFilter();
+  });
+}
+</script>
+</body></html>

@@ -33,20 +33,41 @@
     .ra-detail-panel::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:2px}
 
     /* ── TOOLBAR ── */
-    .ra-toolbar{padding:10px 12px;border-bottom:1px solid #E5E7EB;flex-shrink:0;background:#fff}
-    .ra-search{width:100%;padding:7px 10px 7px 32px;border:1px solid #E5E7EB;border-radius:8px;font-size:.78rem;font-family:inherit;outline:none;background:#F8FAFC;color:#1F2937;position:relative}
+    .ra-toolbar{
+      padding:8px 12px;border-bottom:1px solid #E5E7EB;
+      flex-shrink:0;background:#fff;
+      display:flex;align-items:center;gap:7px;flex-wrap:nowrap;
+    }
+    .ra-search-wrap{position:relative;flex:2;min-width:0}
+    .ra-search{
+      width:100%;padding:6px 10px 6px 30px;
+      border:1px solid #E5E7EB;border-radius:7px;
+      font-size:.75rem;font-family:inherit;outline:none;
+      background:#F8FAFC;color:#1F2937;box-sizing:border-box;
+    }
     .ra-search:focus{border-color:#F97316;background:#fff}
-    .ra-search-wrap{position:relative;margin-bottom:8px}
-    .ra-search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#9CA3AF;pointer-events:none}
-    .ra-filters{display:flex;flex-direction:column;gap:5px}
-    .ra-select{width:100%;padding:5px 8px;border:1px solid #E5E7EB;border-radius:7px;font-size:.72rem;font-family:inherit;background:#fff;color:#374151;outline:none;cursor:pointer}
+    .ra-search-icon{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#9CA3AF;pointer-events:none}
+    .ra-filters{display:contents}
+    .ra-select{
+      flex:1;min-width:0;padding:6px 8px;
+      border:1px solid #E5E7EB;border-radius:7px;
+      font-size:.72rem;font-family:inherit;
+      background:#fff;color:#374151;outline:none;cursor:pointer;
+    }
     .ra-select:focus{border-color:#F97316}
 
     /* ── SEGMENT ── */
-    .ra-seg{display:flex;gap:3px;margin-top:8px}
-    .ra-seg-btn{flex:1;padding:5px 0;border:1px solid #E5E7EB;border-radius:6px;background:#fff;font-size:.65rem;font-weight:600;color:#6B7280;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:3px;transition:.12s}
+    .ra-seg{display:flex;gap:2px;flex-shrink:0}
+    .ra-seg-btn{
+      width:30px;height:30px;padding:0;
+      border:1px solid #E5E7EB;border-radius:6px;
+      background:#fff;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:.12s;
+    }
     .ra-seg-btn.active{background:#FFF7ED;border-color:#F97316;color:#F97316}
-    .ra-seg-btn svg{width:11px;height:11px}
+    .ra-seg-btn svg{width:13px;height:13px;color:#6B7280}
+    .ra-seg-btn.active svg{color:#F97316}
 
     /* ── COUNT ── */
     .ra-count{padding:6px 12px;font-size:.65rem;color:#9CA3AF;border-bottom:1px solid #F3F4F6;flex-shrink:0;background:#fff}
@@ -224,7 +245,7 @@
   <!-- LIST PANEL -->
   <div class="ra-list-panel" id="ra-list-panel">
 
-    <!-- TOOLBAR -->
+    <!-- TOOLBAR — 1 baris -->
     <div class="ra-toolbar">
       <div class="ra-search-wrap">
         <svg class="ra-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -246,21 +267,20 @@
           <option>Lainnya</option>
         </select>
         <select class="ra-select" id="flt-detail" onchange="applyFilter()" style="display:none">
-          <option value="">Semua Detail Ragam</option>
+          <option value="">Semua Detail</option>
         </select>
       </div>
-      <!-- SEGMENT -->
       <div class="ra-seg">
-        <button class="ra-seg-btn active" id="seg-xl" onclick="setView('xl')" title="Tampilan XL">
+        <button class="ra-seg-btn active" id="seg-xl" onclick="setView('xl')" title="XL">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         </button>
-        <button class="ra-seg-btn" id="seg-md" onclick="setView('md')" title="Tampilan MD">
+        <button class="ra-seg-btn" id="seg-md" onclick="setView('md')" title="MD">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
         </button>
-        <button class="ra-seg-btn" id="seg-sm" onclick="setView('sm')" title="Tampilan SM">
+        <button class="ra-seg-btn" id="seg-sm" onclick="setView('sm')" title="SM">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
-        <button class="ra-seg-btn" id="seg-lst" onclick="setView('lst')" title="Tampilan List">
+        <button class="ra-seg-btn" id="seg-lst" onclick="setView('lst')" title="List">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="15" y2="6"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
         </button>
       </div>

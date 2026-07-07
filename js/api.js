@@ -180,6 +180,79 @@ const API = (() => {
     }));
   }
 
+  // ── MERGE ANAK DARI SEMUA 6 FORM ─────────────────────────
+  // Anak di DataAwal → pakai data lengkap (normalizeDataAwal)
+  // Anak di form lain tapi tidak di DataAwal → entri minimal
+  // Key unik: nama lowercase (trim)
+  function mergeAnakFromAllForms(anakAwal, obsRows, rencanaRows, diaryRows, evalMenengahRows, evalAkhirRows) {
+    // Map nama → objek anak (dari DataAwal sebagai master)
+    const map = {};
+    anakAwal.forEach(a => {
+      const key = (a.nama || '').toLowerCase().trim();
+      if (key && key !== '—') map[key] = a;
+    });
+
+    // Helper: ekstrak nama & cbr dari row form lain
+    function extractFromForm(rows) {
+      if (!rows || !rows.length) return;
+      rows.forEach(r => {
+        const nama = (r.nama_anak || r.na || r.nama || '').trim();
+        const key  = nama.toLowerCase();
+        if (!key || key === '—') return;
+        if (!map[key]) {
+          // Anak belum ada di DataAwal — buat entri minimal
+          map[key] = {
+            nama    : nama,
+            cbr     : r.cbr_worker || r.cb || r.cbr || '—',
+            ragam   : '—',
+            rgd     : '',
+            level   : '—',
+            kampung : '—',
+            desa    : '—',
+            gender  : '—',
+            tl      : '',
+            usia    : null,
+            gu      : '',
+            sp      : null,
+            sa      : null,
+            ep      : false,
+            ob      : false,
+            obf     : '',
+            obl     : '',
+            tr      : false,
+            trj     : '',
+            trs     : '',
+            stp     : '',
+            stpl    : '',
+            np      : '',
+            nka     : '',
+            tka     : '',
+            nkp     : '',
+            tkp     : '',
+            wk      : '',
+            lat     : null,
+            lon     : null,
+            provinsi: r.provinsi || '',
+            scn_id  : r.scn || '',
+            scn     : r.scn || '',
+            irp     : 'Aktif',
+            hari    : 999,
+            _tema   : null,
+            _sumber : 'form_lain', // penanda: tidak ada di DataAwal
+          };
+        }
+      });
+    }
+
+    extractFromForm(obsRows);
+    extractFromForm(rencanaRows);
+    extractFromForm(diaryRows);
+    extractFromForm(evalMenengahRows);
+    extractFromForm(evalAkhirRows);
+
+    return Object.values(map);
+  }
+
   // ── HITUNG STATISTIK DARI DATA REAL ──────────────────────
   function calcStats(anak, obs) {
     const now = new Date();
@@ -361,12 +434,16 @@ const API = (() => {
     const cached   = ssGet(scnId + '_DataAwal');
     const lastSync = cached ? cached.lastSync : null;
 
-    const anak         = normalizeDataAwal(awalRows);
+    const anakAwal     = normalizeDataAwal(awalRows);
     const obs          = normalizeObs(obsRows);
     const perencanaan  = rencanaRows;
     const diary        = diaryRows;
     const evalMenengah = evalMenengahRows;
     const evalAkhir    = evalAkhirRows;
+
+    // Union unik anak dari semua 6 form — untuk dashboard coordinator & MEL
+    const anak = mergeAnakFromAllForms(anakAwal, obsRows, perencanaan, diary, evalMenengah, evalAkhir);
+
     calcStats(anak, obs);
     const workers = buildWorkers(anak, obs, perencanaan||[], diary||[], evalMenengah||[], evalAkhir||[]);
     const itt     = calcITT(anak, obs);
@@ -501,15 +578,18 @@ const API = (() => {
     const awalRows = Array.isArray(rawAwal) ? rawAwal : (rawAwal.data || []);
     const obsRows  = Array.isArray(rawObs)  ? rawObs  : (rawObs.data  || []);
 
-    const anak    = normalizeDataAwal(awalRows);
-    const obs     = normalizeObs(obsRows);
-    calcStats(anak, obs);
+    const anakAwal = normalizeDataAwal(awalRows);
+    const obs      = normalizeObs(obsRows);
 
     const perencanaan  = Array.isArray(rawRencana)      ? rawRencana      : (rawRencana?.data      || []);
     const diary        = Array.isArray(rawDiary)        ? rawDiary        : (rawDiary?.data        || []);
     const evalMenengah = Array.isArray(rawEvalMenengah) ? rawEvalMenengah : (rawEvalMenengah?.data || []);
     const evalAkhir    = Array.isArray(rawEvalAkhir)    ? rawEvalAkhir    : (rawEvalAkhir?.data    || []);
 
+    // Union unik anak dari semua 6 form — untuk dashboard coordinator & MEL
+    const anak = mergeAnakFromAllForms(anakAwal, obsRows, perencanaan, diary, evalMenengah, evalAkhir);
+
+    calcStats(anak, obs);
     const workers = buildWorkers(anak, obs, perencanaan, diary, evalMenengah, evalAkhir);
     const itt     = calcITT(anak, obs);
 

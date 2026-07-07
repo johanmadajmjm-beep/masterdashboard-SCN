@@ -10,15 +10,21 @@
   <style>
     /* ── LAYOUT ── */
     .ra-wrap{display:flex;height:calc(100vh - 56px);overflow:hidden}
-    .ra-list-panel{width:320px;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column}
+    /* List panel: full width saat detail belum dibuka */
+    .ra-list-panel{
+      width:100%;background:#fff;
+      border-right:1px solid #E5E7EB;
+      display:flex;flex-direction:column;
+      transition:width .25s cubic-bezier(.4,0,.2,1);
+    }
+    .ra-wrap.detail-open .ra-list-panel{width:320px;flex-shrink:0}
     /* Detail panel: tersembunyi default, muncul saat anak diklik */
     .ra-detail-panel{
       width:0;flex-shrink:0;overflow:hidden;background:#F8FAFC;
       border-left:0 solid #E5E7EB;
       transition:width .25s cubic-bezier(.4,0,.2,1);
-      display:flex;flex-direction:column;
     }
-    .ra-detail-panel.open{
+    .ra-wrap.detail-open .ra-detail-panel{
       width:calc(100% - 320px);
       border-left-width:1px;
       overflow-y:auto;
@@ -214,7 +220,7 @@
   </div>
 </header>
 
-<div class="ra-wrap">
+<div class="ra-wrap" id="ra-wrap">
   <!-- LIST PANEL -->
   <div class="ra-list-panel" id="ra-list-panel">
 
@@ -301,6 +307,25 @@ const LC = {
 function scColor(v){ return v<=3?'#dc2626':v<=5?'#d97706':v<=7?'#f59e0b':'#16a34a'; }
 function scBg(v){ return v<=3?'#fee2e2':v<=5?'#fef3c7':v<=7?'#fffbeb':'#dcfce7'; }
 function inits(nama){ return (nama||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase(); }
+
+// Hitung jumlah form yang dimiliki anak (0–6)
+function countForms(a) {
+  const d = ALL_DATA;
+  if (!d) return 0;
+  const k = (a.nama||'').toLowerCase().trim();
+  let n = 0;
+  if (a._sumber==='DataAwal' || a.sp!=null || a.ragam!=='—') n++;
+  if ((d.obs||[]).some(o=>(o.na||'').toLowerCase().trim()===k)) n++;
+  if ((d.perencanaan||[]).some(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k)) n++;
+  if ((d.diary||[]).some(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k)) n++;
+  if ((d.evalMenengah||[]).some(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k)) n++;
+  if ((d.evalAkhir||[]).some(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k)) n++;
+  return n;
+}
+
+function formColor(n) {
+  return n>=6?'#15803d':n>=4?'#F97316':n>=2?'#d97706':'#dc2626';
+}
 
 // ── BUILD UNION ANAK ───────────────────────────────────────────
 // Union unik nama dari 6 form, DataAwal sebagai master data
@@ -394,9 +419,8 @@ function renderItem(a, i) {
   const ragamShort = (a.ragam||'—').split(' ')[0];
 
   if (CURR_VIEW === 'xl') {
-    const spHtml = a.sp!=null
-      ? `<span class="ra-item-skor" style="color:${scColor(a.sp)}">Skor Anak: ${a.sp}/10</span>`
-      : '';
+    const nForm = countForms(a);
+    const fcol  = formColor(nForm);
     return `<div class="ra-item-xl${ac}" onclick="selectAnak(${i})">
       <div class="ra-avatar" style="background:${rColor}18;color:${rColor}">${inits(a.nama)}</div>
       <div class="ra-item-xl-body">
@@ -405,39 +429,41 @@ function renderItem(a, i) {
           <span>${a.cbr||'—'}</span>
           ${a.desa&&a.desa!=='—'?`<span>📍 ${a.desa}</span>`:''}
         </div>
-        ${spHtml}
         <div class="ra-item-chips">
           <span class="ra-chip" style="background:${rColor}18;color:${rColor}">${ragamShort}</span>
           ${a.level&&a.level!=='—'?`<span class="ra-chip" style="background:${LC[a.level]||'#9ca3af'}18;color:${LC[a.level]||'#9ca3af'}">${a.level.split(' ')[0]}</span>`:''}
-          ${a._sumber!=='DataAwal'?`<span class="ra-chip" style="background:#f1f5f9;color:#64748b">${a._sumber}</span>`:''}
+          <span class="ra-chip" style="background:${fcol}18;color:${fcol}">${nForm}/6 form</span>
         </div>
       </div>
     </div>`;
   }
 
   if (CURR_VIEW === 'md') {
+    const nFormMd = countForms(a);
     return `<div class="ra-item-md${ac}" onclick="selectAnak(${i})">
       <div class="ra-avatar-md" style="background:${rColor}18;color:${rColor}">${inits(a.nama)}</div>
       <div class="ra-item-md-body">
         <div class="ra-item-md-name">${a.nama}</div>
-        <div class="ra-item-md-sub">${a.cbr||'—'} · ${ragamShort}${a.sp!=null?' · Skor '+a.sp:''}</div>
+        <div class="ra-item-md-sub">${a.cbr||'—'} · ${ragamShort} · <span style="color:${formColor(nFormMd)};font-weight:700">${nFormMd}/6 form</span></div>
       </div>
     </div>`;
   }
 
   if (CURR_VIEW === 'sm') {
+    const nFormSm = countForms(a);
     return `<div class="ra-item-sm${ac}" onclick="selectAnak(${i})">
       <div class="ra-dot" style="background:${rColor}"></div>
       <div class="ra-item-sm-name">${a.nama}</div>
-      ${a.sp!=null?`<span style="font-size:.65rem;font-weight:700;color:${scColor(a.sp)}">${a.sp}</span>`:''}
+      <span style="font-size:.63rem;font-weight:700;color:${formColor(nFormSm)}">${nFormSm}/6</span>
     </div>`;
   }
 
   // lst
+  const nFormLst = countForms(a);
   return `<div class="ra-item-lst${ac}" onclick="selectAnak(${i})">
     <div class="ra-dot" style="background:${rColor}"></div>
     <div class="ra-item-lst-name">${a.nama}</div>
-    ${a.sp!=null?`<div class="ra-item-lst-skor" style="color:${scColor(a.sp)}">${a.sp}</div>`:''}
+    <div class="ra-item-lst-skor" style="color:${formColor(nFormLst)}">${nFormLst}/6</div>
   </div>`;
 }
 
@@ -494,8 +520,8 @@ function renderDetail(a) {
   ACTIVE_FORM_TAB = defaultTab;
 
   // Buka panel
+  document.getElementById('ra-wrap').classList.add('detail-open');
   const panel = document.getElementById('ra-detail');
-  panel.classList.add('open');
 
   panel.innerHTML = `
     <!-- CLOSE + NAMA -->
@@ -553,8 +579,8 @@ function switchFormTab(id) {
 }
 
 function closeDetail() {
+  document.getElementById('ra-wrap').classList.remove('detail-open');
   const panel = document.getElementById('ra-detail');
-  panel.classList.remove('open');
   panel.innerHTML = '';
   ACTIVE_IDX = null;
   renderList();
@@ -836,8 +862,8 @@ if (SESSION) {
         populateFilters(ALL_ANAK);
         ACTIVE_IDX = null;
         applyFilter();
+        document.getElementById('ra-wrap').classList.remove('detail-open');
         const detailPanel = document.getElementById('ra-detail');
-        detailPanel.classList.remove('open');
         detailPanel.innerHTML = '';
       }
     }

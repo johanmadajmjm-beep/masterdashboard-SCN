@@ -22,6 +22,59 @@ const API = (() => {
   // ── CACHE ─────────────────────────────────────────────────
   const CACHE_TTL_MS = 2 * 60 * 1000; // 2 menit
 
+  // ── LOADING MODAL ─────────────────────────────────────────
+  function showLoading(scnLabel) {
+    let el = document.getElementById('_api_loading_modal');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = '_api_loading_modal';
+      el.innerHTML = `
+        <div id="_api_loading_backdrop" style="
+          position:fixed;inset:0;background:rgba(15,23,42,.45);
+          z-index:9999;display:flex;align-items:center;justify-content:center;
+          backdrop-filter:blur(2px);animation:_fadeIn .15s ease
+        ">
+          <div style="
+            background:#fff;border-radius:16px;padding:28px 36px;
+            display:flex;flex-direction:column;align-items:center;gap:16px;
+            box-shadow:0 20px 60px rgba(0,0,0,.18);min-width:220px;
+          ">
+            <div style="position:relative;width:44px;height:44px">
+              <svg style="animation:_spin 1s linear infinite;width:44px;height:44px"
+                viewBox="0 0 44 44" fill="none">
+                <circle cx="22" cy="22" r="18" stroke="#f1f5f9" stroke-width="4"/>
+                <path d="M22 4a18 18 0 0 1 18 18" stroke="#F97316" stroke-width="4"
+                  stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div style="text-align:center">
+              <div id="_api_loading_label" style="
+                font-size:.85rem;font-weight:700;color:#1e293b;margin-bottom:4px
+              ">Memuat data...</div>
+              <div id="_api_loading_sub" style="font-size:.72rem;color:#94a3b8">
+                Mengambil data dari server
+              </div>
+            </div>
+          </div>
+        </div>
+        <style>
+          @keyframes _fadeIn { from{opacity:0} to{opacity:1} }
+          @keyframes _spin   { to{transform:rotate(360deg)} }
+        </style>`;
+      document.body.appendChild(el);
+    }
+    const label = document.getElementById('_api_loading_label');
+    const sub   = document.getElementById('_api_loading_sub');
+    if (label) label.textContent = scnLabel ? `Memuat ${scnLabel}...` : 'Memuat data...';
+    if (sub)   sub.textContent   = 'Mengambil 6 form dari server';
+    el.style.display = 'block';
+  }
+
+  function hideLoading() {
+    const el = document.getElementById('_api_loading_modal');
+    if (el) el.style.display = 'none';
+  }
+
   function getCached(key) {
     try {
       const raw = sessionStorage.getItem('mel_cache_' + key);
@@ -44,9 +97,19 @@ const API = (() => {
   function clearCache(scnId) {
     try {
       const prefix = 'mel_cache_';
-      Object.keys(sessionStorage)
-        .filter(k => k.startsWith(prefix + (scnId || '')))
-        .forEach(k => sessionStorage.removeItem(k));
+      if (scnId) {
+        // Hapus cache SCN tertentu DAN cache 'all'
+        // supaya saat switch SCN, data lama tidak muncul
+        sessionStorage.removeItem(prefix + scnId);
+        sessionStorage.removeItem(prefix + 'all');
+      } else {
+        // Hapus semua cache
+        Object.keys(sessionStorage)
+          .filter(k => k.startsWith(prefix))
+          .forEach(k => sessionStorage.removeItem(k));
+      }
+      // Reset active SCN tracker
+      _activeScnId = undefined;
     } catch(e) {}
   }
 
@@ -375,21 +438,29 @@ const API = (() => {
     return buildResult(scnId, rawAwal, rawObs, rawRencana, rawDiary, rawEvalMenengah, rawEvalAkhir, lastSync);
   }
 
+  // ── ACTIVE SCN TRACKER — cegah race condition ────────────
+  let _activeScnId = undefined;
+
   // ── PUBLIC: get(scnId) ─────────────────────────────────────
   async function get(scnId) {
+    _activeScnId = scnId;
+
     const cacheKey = scnId || 'all';
     const cached   = getCached(cacheKey);
 
-    // Ada cache — tampilkan langsung
+    // Ada cache valid — tampilkan langsung tanpa loading
     if (cached && cached.data) {
       if (isStale(cached)) {
-        // Stale — revalidate di background
+        // Stale — revalidate di background (tanpa loading modal)
+        const requestedScnId = scnId;
         setTimeout(async () => {
           try {
-            const fresh = await load(scnId);
+            const fresh = await load(requestedScnId);
             if (fresh) {
-              setCached(cacheKey, fresh);
-              if (window.renderPage) window.renderPage(fresh, scnId);
+              setCached(requestedScnId || 'all', fresh);
+              if (_activeScnId === requestedScnId && window.renderPage) {
+                window.renderPage(fresh, requestedScnId);
+              }
             }
           } catch(e) { console.warn('[API] Background revalidate gagal:', e.message); }
         }, 0);
@@ -397,22 +468,38 @@ const API = (() => {
       return cached.data;
     }
 
-    // Tidak ada cache — fetch fresh
-    const result = await load(scnId);
-    if (result) setCached(cacheKey, result);
+    // Tidak ada cache — fetch fresh, tampilkan loading
+    const scnLabel = scnId
+      ? `SCN ${scnId.charAt(0).toUpperCase()+scnId.slice(1)}`
+      : 'Semua SCN';
+    showLoading(scnLabel);
 
-    if (!result) {
-      setBadge(false, null);
-      return {
-        meta        : { scn: scnId ? `SCN ${scnId}` : 'Semua SCN', project: 'BEN', tahun: 2026 },
-        workers     : [], anak: [], obs: [],
-        aktivitas   : [], stakeholder: {}, cerita: [],
-        perencanaan : [], diary: [], evalMenengah: [], evalAkhir: [],
-        itt         : { Y1_Q2: {} },
-      };
+    try {
+      const result = await load(scnId);
+
+      // Validasi race condition
+      if (_activeScnId !== scnId) {
+        console.warn('[API] SCN berubah saat fetch, abaikan response');
+        return null;
+      }
+
+      if (result) setCached(cacheKey, result);
+
+      if (!result) {
+        setBadge(false, null);
+        return {
+          meta        : { scn: scnLabel, project: 'BEN', tahun: 2026 },
+          workers     : [], anak: [], obs: [],
+          aktivitas   : [], stakeholder: {}, cerita: [],
+          perencanaan : [], diary: [], evalMenengah: [], evalAkhir: [],
+          itt         : { Y1_Q2: {} },
+        };
+      }
+
+      return result;
+    } finally {
+      hideLoading();
     }
-
-    return result;
   }
 
   // ── TEMA (Gemini — sudah di-attach GAS ke DataAwal) ────────

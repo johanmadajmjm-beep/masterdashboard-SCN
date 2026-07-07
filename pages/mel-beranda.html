@@ -146,9 +146,20 @@ function buildUI(){
   const d      = KOBO_D;
   const anak   = d.anak||[];
   const workers= d.workers||[];
-  const total  = anak.length;
 
-  // KPI data
+  // ── TOTAL UNIK dari 6 form ──
+  // Union nama anak dari semua form — anak yang hanya ada di perencanaan/eval
+  // tetap dihitung, yang sama hanya dihitung sekali
+  const namaUnik = new Set();
+  (d.anak||[]).forEach(a => { if(a.nama&&a.nama!=='—') namaUnik.add(a.nama.toLowerCase().trim()); });
+  (d.obs||[]).forEach(r => { const n=(r.na||'').toLowerCase().trim(); if(n&&n!=='—') namaUnik.add(n); });
+  (d.perencanaan||[]).forEach(r => { const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') namaUnik.add(n); });
+  (d.diary||[]).forEach(r => { const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') namaUnik.add(n); });
+  (d.evalMenengah||[]).forEach(r => { const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') namaUnik.add(n); });
+  (d.evalAkhir||[]).forEach(r => { const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') namaUnik.add(n); });
+  const total = namaUnik.size;
+
+  // KPI data — gender dari DataAwal (yang punya data lengkap)
   const lkAnak = anak.filter(a=>a.gender==='L').length;
   const prAnak = anak.filter(a=>a.gender==='P').length;
 
@@ -184,7 +195,7 @@ function buildUI(){
       <div class="kpi-card" style="--kc:#F97316">
         <div class="kpi-val">${total}${tipLLP(lkAnak,prAnak)}</div>
         <div class="kpi-lbl">Total Beneficiary</div>
-        <div class="kpi-sub">${d.meta?.scn||'—'}</div>
+        <div class="kpi-sub">${d.meta?.scn||'Semua SCN'}</div>
       </div>
       <div class="kpi-card" style="--kc:#2563eb">
         <div class="kpi-val">${totalStk}${totalStk>0?tipLLP(stkL,stkP):''}</div>
@@ -228,25 +239,59 @@ function buildUI(){
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:20px">
       ${(()=>{
         const scnFilter = (typeof AUTH !== 'undefined') ? AUTH.getScnFilter() : null;
-        const scnList = scnFilter
-          ? [scnFilter]
-          : ['manggarai','kupang','tts','banyuwangi','jember','situbondo','palu','sigi'];
-        const SCN_FULL = {manggarai:'Manggarai',kupang:'Kupang',tts:'TTS',banyuwangi:'Banyuwangi',jember:'Jember',situbondo:'Situbondo',palu:'Palu',sigi:'Sigi'};
-        return scnList.map(scnId=>{
-          const scnAnak = anak.filter(a=>(a.scn||'').toLowerCase()===scnId);
-          const n = scnAnak.length;
-          const hasObs = n>0 ? Math.round((d.obs||[]).filter(o=>(o.scn||'').toLowerCase()===scnId).length / Math.max(n,1) * 100) : 0;
-          const avgSp = n>0 ? (scnAnak.map(a=>a.sp).filter(v=>v!=null).reduce((a,b)=>a+b,0)/Math.max(scnAnak.map(a=>a.sp).filter(v=>v!=null).length,1)).toFixed(1) : '—';
-          const kritis = scnAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
-          const statusColor = n===0?'#94a3b8':kritis>3?'#dc2626':hasObs<50?'#d97706':'#16a34a';
-          const statusLabel = n===0?'Belum ada data':kritis>3?'Perlu perhatian':hasObs<50?'Dalam proses':'Berjalan baik';
-          return `<div style="background:#fff;border:1px solid #e5e7eb;border-left:3px solid ${statusColor};border-radius:10px;padding:12px">
-            <div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#374151;margin-bottom:6px">SCN ${SCN_FULL[scnId]||scnId}</div>
-            <div style="font-size:1.3rem;font-weight:800;color:${statusColor};line-height:1">${n}</div>
+        const SCN_FULL  = {manggarai:'Manggarai',kupang:'Kupang',tts:'TTS',banyuwangi:'Banyuwangi',jember:'Jember',situbondo:'Situbondo',palu:'Palu',sigi:'Sigi'};
+        const ALL_SCN   = ['manggarai','kupang','tts','banyuwangi','jember','situbondo','palu','sigi'];
+
+        function scnCard(sid, anakSCN, obsSCN, d, scnFilter) {
+          // Hitung unik nama dari 6 form untuk SCN ini
+          const namaSet = new Set();
+          anakSCN.forEach(a=>{ if(a.nama&&a.nama!=='—') namaSet.add(a.nama.toLowerCase().trim()); });
+          // Jika filter aktif: form lain sudah difilter GAS, langsung pakai semua
+          // Jika semua SCN: filter manual per sid
+          function addForm(arr) {
+            arr.forEach(r=>{
+              const scnR = (r.scn||'').toLowerCase().trim();
+              if (scnFilter || scnR===sid) {
+                const nm=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim();
+                if(nm&&nm!=='—') namaSet.add(nm);
+              }
+            });
+          }
+          if (!scnFilter) {
+            addForm(d.perencanaan||[]);
+            addForm(d.diary||[]);
+            addForm(d.evalMenengah||[]);
+            addForm(d.evalAkhir||[]);
+          } else {
+            (d.perencanaan||[]).forEach(r=>{ const nm=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(nm&&nm!=='—') namaSet.add(nm); });
+            (d.diary||[]).forEach(r=>{ const nm=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(nm&&nm!=='—') namaSet.add(nm); });
+            (d.evalMenengah||[]).forEach(r=>{ const nm=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(nm&&nm!=='—') namaSet.add(nm); });
+            (d.evalAkhir||[]).forEach(r=>{ const nm=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(nm&&nm!=='—') namaSet.add(nm); });
+          }
+          const n     = namaSet.size;
+          const hasObs= n>0 ? Math.round(obsSCN.length / Math.max(n,1) * 100) : 0;
+          const kritis= anakSCN.filter(a=>a.sp!=null&&a.sp<=3).length;
+          const sc    = n===0?'#94a3b8':kritis>3?'#dc2626':hasObs<50?'#d97706':'#16a34a';
+          const sl    = n===0?'Belum ada data':kritis>3?'Perlu perhatian':hasObs<50?'Dalam proses':'Berjalan baik';
+          return \`<div style="background:#fff;border:1px solid #e5e7eb;border-left:3px solid \${sc};border-radius:10px;padding:12px">
+            <div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#374151;margin-bottom:6px">SCN \${SCN_FULL[sid]||sid}</div>
+            <div style="font-size:1.3rem;font-weight:800;color:\${sc};line-height:1">\${n}</div>
             <div style="font-size:.62rem;color:#9ca3af;margin-bottom:6px">anak dampingan</div>
-            <div style="font-size:.65rem;font-weight:600;color:${statusColor};background:${statusColor}15;padding:2px 8px;border-radius:999px;display:inline-block">${statusLabel}</div>
-          </div>`;
-        }).join('');
+            <div style="font-size:.65rem;font-weight:600;color:\${sc};background:\${sc}15;padding:2px 8px;border-radius:999px;display:inline-block">\${sl}</div>
+          </div>\`;
+        }
+
+        if (scnFilter) {
+          // Filter aktif — 1 card, pakai semua data dari d (sudah difilter GAS)
+          return scnCard(scnFilter, anak, d.obs||[], d, scnFilter);
+        } else {
+          // Semua SCN — 8 card, filter per SCN dari d.anak
+          return ALL_SCN.map(sid => {
+            const anakSCN = anak.filter(a=>(a.scn||'').toLowerCase()===sid);
+            const obsSCN  = (d.obs||[]).filter(o=>(o.scn||'').toLowerCase()===sid);
+            return scnCard(sid, anakSCN, obsSCN, d, null);
+          }).join('');
+        }
       })()}
     </div>
 

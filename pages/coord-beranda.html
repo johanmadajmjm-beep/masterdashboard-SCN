@@ -797,11 +797,52 @@ function renderRagam(){
   const a_ragam = window._cbAnakAll||[];
 
   window.onRagamFilterChange = function(){ renderRagam(); };
-  window.showRagamDetail     = function(r){ document.getElementById('flt-ragam-tab').value=r; renderRagam(); };
   window.closeRagamDetail    = function(){
     document.getElementById('ragam-detail-panel').style.display='none';
     document.getElementById('flt-ragam-tab').value='';
     renderRagam();
+  };
+  window.showRagamDetail = function(ragam){
+    document.getElementById('flt-ragam-tab').value = ragam;
+    renderRagam();
+
+    // Kumpulkan anak dengan ragam ini
+    const anakRagam = (window._cbAnakAll||[]).filter(x=>x.ragam===ragam);
+    const color     = RC[ragam]||'#94a3b8';
+
+    // Hitung sub-kategori dari field rgd (dipisah koma)
+    const detailCnt = {};
+    anakRagam.forEach(x=>{
+      if(!x.rgd){ detailCnt['(tidak diisi)']=(detailCnt['(tidak diisi)']||0)+1; return; }
+      x.rgd.split(',').forEach(d=>{
+        const dk = d.trim();
+        if(dk) detailCnt[dk]=(detailCnt[dk]||0)+1;
+      });
+    });
+
+    const sorted = Object.entries(detailCnt).sort((a,b)=>b[1]-a[1]);
+    const maxVal = sorted.length ? sorted[0][1] : 1;
+    const totalRagam = anakRagam.length||1;
+
+    // Isi panel
+    document.getElementById('ragam-detail-panel-title').textContent = ragam;
+    document.getElementById('ragam-detail-panel-body').innerHTML = sorted.length
+      ? `<div style="padding:4px 0">
+          ${sorted.map(([label,ct])=>`
+            <div style="padding:10px 16px;border-bottom:1px solid #f8fafc">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                <span style="font-size:.76rem;font-weight:600;color:#1e293b">${label}</span>
+                <span style="font-size:.76rem;font-weight:800;color:${color}">${ct} <span style="font-size:.65rem;font-weight:400;color:#94a3b8">anak</span></span>
+              </div>
+              <div style="height:5px;background:#f1f5f9;border-radius:3px">
+                <div style="height:5px;background:${color};border-radius:3px;width:${Math.round(ct/maxVal*100)}%;transition:width .4s"></div>
+              </div>
+              <div style="font-size:.65rem;color:#94a3b8;margin-top:4px">${Math.round(ct/totalRagam*100)}% dari ${ragam}</div>
+            </div>`).join('')}
+        </div>`
+      : '<div style="padding:20px;text-align:center;color:#94a3b8;font-size:.76rem">Tidak ada data detail ragam</div>';
+
+    document.getElementById('ragam-detail-panel').style.display='block';
   };
 
   const selRagam  = document.getElementById('flt-ragam-tab').value;

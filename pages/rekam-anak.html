@@ -10,9 +10,19 @@
   <style>
     /* ── LAYOUT ── */
     .ra-wrap{display:flex;height:calc(100vh - 56px);overflow:hidden}
-    .ra-list-panel{width:300px;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;transition:width .2s}
-    .ra-list-panel.collapsed{width:0;overflow:hidden}
-    .ra-detail-panel{flex:1;overflow-y:auto;background:#F8FAFC}
+    .ra-list-panel{width:320px;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column}
+    /* Detail panel: tersembunyi default, muncul saat anak diklik */
+    .ra-detail-panel{
+      width:0;flex-shrink:0;overflow:hidden;background:#F8FAFC;
+      border-left:0 solid #E5E7EB;
+      transition:width .25s cubic-bezier(.4,0,.2,1);
+      display:flex;flex-direction:column;
+    }
+    .ra-detail-panel.open{
+      width:calc(100% - 320px);
+      border-left-width:1px;
+      overflow-y:auto;
+    }
     .ra-detail-panel::-webkit-scrollbar{width:4px}
     .ra-detail-panel::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:2px}
 
@@ -78,6 +88,41 @@
 
     /* ── DETAIL ── */
     .ra-empty-detail{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#9CA3AF;gap:12px}
+
+    /* ── FORM TABS ── */
+    .ra-tabs{display:flex;gap:0;border-bottom:2px solid #E5E7EB;background:#fff;flex-shrink:0;overflow-x:auto;padding:0 16px;position:sticky;top:0;z-index:5}
+    .ra-tab-btn{
+      display:flex;align-items:center;gap:5px;
+      padding:10px 14px;font-size:.72rem;font-weight:600;
+      border:none;border-bottom:3px solid transparent;
+      background:none;cursor:pointer;font-family:inherit;
+      color:#94A3B8;white-space:nowrap;flex-shrink:0;
+      margin-bottom:-2px;transition:all .15s;
+    }
+    .ra-tab-btn:hover{color:#374151}
+    .ra-tab-btn.has{color:#15803d}
+    .ra-tab-btn.has:hover{color:#15803d}
+    .ra-tab-btn.active{border-bottom-color:#F97316;color:#F97316}
+    .ra-tab-btn.active.has{border-bottom-color:#15803d;color:#15803d}
+    .ra-tab-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .ra-tab-dot.has{background:#15803d}
+    .ra-tab-dot.no{background:#D1D5DB}
+    .ra-tab-pane{display:none;padding:16px 20px}
+    .ra-tab-pane.active{display:block}
+
+    /* ── CLOSE BTN ── */
+    .ra-detail-header-bar{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:10px 16px 0;flex-shrink:0;
+    }
+    .ra-close-btn{
+      padding:5px 10px;border:1px solid #E5E7EB;border-radius:7px;
+      background:#fff;cursor:pointer;color:#6B7280;
+      display:flex;align-items:center;gap:5px;
+      font-size:.7rem;font-family:inherit;transition:.12s;
+    }
+    .ra-close-btn:hover{background:#F9FAFB;color:#1F2937}
+    .ra-close-btn svg{width:12px;height:12px}
     .ra-empty-detail svg{width:48px;height:48px;opacity:.2}
     .ra-empty-detail p{font-size:.8rem}
 
@@ -222,18 +267,8 @@
     <div class="ra-list" id="ra-list"></div>
   </div>
 
-  <!-- DETAIL PANEL -->
-  <div class="ra-detail-panel" id="ra-detail">
-    <div class="ra-empty-detail">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-      <p>Pilih nama anak untuk melihat rekam jejaknya</p>
-    </div>
-  </div>
+  <!-- DETAIL PANEL — tersembunyi, muncul saat anak diklik -->
+  <div class="ra-detail-panel" id="ra-detail"></div>
 </div>
 </div></div>
 
@@ -336,8 +371,10 @@ function applyFilter() {
 function onRagamChange() {
   const ragam  = document.getElementById('flt-ragam').value;
   const detSel = document.getElementById('flt-detail');
+  // Refresh opsi detail sesuai ragam yang dipilih
+  refreshDetailOptions(ragam);
   detSel.style.display = ragam ? 'block' : 'none';
-  if (!ragam) { detSel.value=''; }
+  detSel.value = '';
   applyFilter();
 }
 
@@ -419,109 +456,108 @@ function selectAnak(idx) {
   const a = FILTERED[idx];
   if (!a) return;
   renderDetail(a);
+  // Scroll anak yang diklik ke tengah list
+  setTimeout(() => {
+    const activeEl = document.querySelector('.ra-item-xl.active,.ra-item-md.active,.ra-item-sm.active,.ra-item-lst.active');
+    if (activeEl) activeEl.scrollIntoView({ block:'nearest', behavior:'smooth' });
+  }, 50);
 }
+
+let ACTIVE_FORM_TAB = 'awal';
 
 function renderDetail(a) {
   const d = ALL_DATA;
   const k = (a.nama||'').toLowerCase().trim();
 
-  // Cari data dari masing-masing form
   const obsData   = (d.obs||[]).filter(o=>(o.na||'').toLowerCase().trim()===k);
   const planData  = (d.perencanaan||[]).filter(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k);
   const diaryData = (d.diary||[]).filter(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k);
   const evalMData = (d.evalMenengah||[]).filter(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k);
   const evalAData = (d.evalAkhir||[]).filter(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k);
 
-  const rColor = RC[a.ragam]||'#94a3b8';
-  const lColor = LC[a.level]||'#94a3b8';
+  const hasAwal = a._sumber==='DataAwal' || a.sp!=null || a.ragam!=='—';
+  const rColor  = RC[a.ragam]||'#94a3b8';
+  const lColor  = LC[a.level]||'#94a3b8';
 
-  // Form badges
-  const formBadge = (label, has) =>
-    `<span class="ra-form-badge ${has?'has':'no'}">${has?'✓':'○'} ${label}</span>`;
+  // Form tab definiton
+  const FORMS = [
+    { id:'awal',   label:'Data Awal',      icon:'📋', has: hasAwal },
+    { id:'obs',    label:'Observasi',      icon:'👁',  has: obsData.length>0 },
+    { id:'plan',   label:'Perencanaan',    icon:'📝', has: planData.length>0 },
+    { id:'diary',  label:'Buku Harian',    icon:'📔', has: diaryData.length>0 },
+    { id:'evalm',  label:'Eval. Menengah', icon:'📊', has: evalMData.length>0 },
+    { id:'evala',  label:'Eval. Akhir',    icon:'🏁', has: evalAData.length>0 },
+  ];
 
-  document.getElementById('ra-detail').innerHTML = `
-  <div class="ra-detail-inner">
+  // Default: buka tab pertama yang punya data, atau Data Awal
+  const defaultTab = FORMS.find(f=>f.has)?.id || 'awal';
+  ACTIVE_FORM_TAB = defaultTab;
 
-    <!-- HEADER -->
-    <div class="ra-detail-header">
-      <div class="ra-detail-avatar" style="background:${rColor}18;color:${rColor}">${inits(a.nama)}</div>
-      <div style="flex:1;min-width:0">
-        <div class="ra-detail-name">${a.nama}</div>
-        <div class="ra-detail-meta">
-          ${a.cbr&&a.cbr!=='—'?`<span class="ra-meta-tag">👤 ${a.cbr}</span>`:''}
-          ${a.ragam&&a.ragam!=='—'?`<span class="ra-meta-tag" style="background:${rColor}18;color:${rColor}">${a.ragam}</span>`:''}
-          ${a.level&&a.level!=='—'?`<span class="ra-meta-tag" style="background:${lColor}18;color:${lColor}">${a.level.split('(')[0].trim()}</span>`:''}
-          ${a.gender&&a.gender!=='—'?`<span class="ra-meta-tag">${a.gender==='P'?'👧':'👦'} ${a.gender==='P'?'Perempuan':'Laki-laki'}</span>`:''}
-          ${a.usia?`<span class="ra-meta-tag">🎂 ${a.usia} th</span>`:''}
-          ${a.desa&&a.desa!=='—'?`<span class="ra-meta-tag">📍 ${a.desa}</span>`:''}
-        </div>
-        <div class="ra-skor-row">
-          ${a.sp!=null?`<div class="ra-skor-box" style="background:${scBg(a.sp)}">
-            <div class="ra-skor-val" style="color:${scColor(a.sp)}">${a.sp}</div>
-            <div class="ra-skor-lbl">Skor Anak</div>
-          </div>`:''}
-          ${a.sa!=null?`<div class="ra-skor-box" style="background:${scBg(a.sa)}">
-            <div class="ra-skor-val" style="color:${scColor(a.sa)}">${a.sa}</div>
-            <div class="ra-skor-lbl">Skor Pengasuh</div>
-          </div>`:''}
-          ${!a.sp&&!a.sa?`<div style="font-size:.72rem;color:#9CA3AF">Skor belum diisi</div>`:''}
+  // Buka panel
+  const panel = document.getElementById('ra-detail');
+  panel.classList.add('open');
+
+  panel.innerHTML = `
+    <!-- CLOSE + NAMA -->
+    <div class="ra-detail-header-bar">
+      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+        <div style="width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex-shrink:0;background:${rColor}18;color:${rColor}">${inits(a.nama)}</div>
+        <div style="min-width:0">
+          <div style="font-size:.88rem;font-weight:800;color:#1F2937;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.nama}</div>
+          <div style="font-size:.62rem;color:#9CA3AF;margin-top:1px;display:flex;gap:6px;flex-wrap:wrap">
+            ${a.cbr&&a.cbr!=='—'?`<span>👤 ${a.cbr}</span>`:''}
+            ${a.ragam&&a.ragam!=='—'?`<span style="color:${rColor}">${a.ragam}</span>`:''}
+            ${a.sp!=null?`<span style="color:${scColor(a.sp)};font-weight:700">Skor ${a.sp}/10</span>`:''}
+          </div>
         </div>
       </div>
+      <button class="ra-close-btn" onclick="closeDetail()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Tutup
+      </button>
     </div>
 
-    <!-- FORM BADGES -->
-    <div class="ra-form-badges">
-      ${formBadge('Data Awal',   a._sumber==='DataAwal'||a.sp!=null||a.ragam!=='—')}
-      ${formBadge('Observasi',   obsData.length>0)}
-      ${formBadge('Perencanaan', planData.length>0)}
-      ${formBadge('Buku Harian', diaryData.length>0)}
-      ${formBadge('Eval Menengah', evalMData.length>0)}
-      ${formBadge('Eval Akhir',  evalAData.length>0)}
+    <!-- 6 FORM TABS -->
+    <div class="ra-tabs" id="ra-tabs">
+      ${FORMS.map(f=>`
+        <button class="ra-tab-btn ${f.has?'has':''} ${f.id===defaultTab?'active':''}"
+          id="ra-tab-${f.id}" onclick="switchFormTab('${f.id}')">
+          <span class="ra-tab-dot ${f.has?'has':'no'}"></span>
+          ${f.icon} ${f.label}
+        </button>`).join('')}
     </div>
 
-    <!-- ACCORDION: DATA AWAL -->
-    ${accSection('📋','Data Awal','#FFF7ED','#F97316',
-      a._sumber==='DataAwal'?'Ada':'Tidak Ada',
-      a._sumber==='DataAwal'?'has':'no',
-      renderDataAwal(a)
-    )}
+    <!-- TAB PANES -->
+    <div id="ra-pane-awal"  class="ra-tab-pane ${defaultTab==='awal' ?'active':''}">${renderDataAwal(a)}</div>
+    <div id="ra-pane-obs"   class="ra-tab-pane ${defaultTab==='obs'  ?'active':''}">${renderObservasi(obsData)}</div>
+    <div id="ra-pane-plan"  class="ra-tab-pane ${defaultTab==='plan' ?'active':''}">${renderPerencanaan(planData)}</div>
+    <div id="ra-pane-diary" class="ra-tab-pane ${defaultTab==='diary'?'active':''}">${renderDiary(diaryData)}</div>
+    <div id="ra-pane-evalm" class="ra-tab-pane ${defaultTab==='evalm'?'active':''}">${renderEvalMenengah(evalMData)}</div>
+    <div id="ra-pane-evala" class="ra-tab-pane ${defaultTab==='evala'?'active':''}">${renderEvalAkhir(evalAData)}</div>
+  `;
+}
 
-    <!-- ACCORDION: OBSERVASI -->
-    ${accSection('👁','Observasi','#EFF6FF','#2563eb',
-      obsData.length>0?obsData.length+' record':'Belum ada',
-      obsData.length>0?'has':'no',
-      renderObservasi(obsData)
-    )}
+function switchFormTab(id) {
+  ACTIVE_FORM_TAB = id;
+  // Tab buttons
+  document.querySelectorAll('.ra-tab-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('ra-tab-'+id);
+  if (btn) btn.classList.add('active');
+  // Panes
+  ['awal','obs','plan','diary','evalm','evala'].forEach(p => {
+    const el = document.getElementById('ra-pane-'+p);
+    if (el) el.classList.toggle('active', p===id);
+  });
+  // Scroll to top
+  document.getElementById('ra-detail').scrollTop = 0;
+}
 
-    <!-- ACCORDION: PERENCANAAN -->
-    ${accSection('📝','Perencanaan','#F0FDF4','#16a34a',
-      planData.length>0?planData.length+' record':'Belum ada',
-      planData.length>0?'has':'no',
-      renderPerencanaan(planData)
-    )}
-
-    <!-- ACCORDION: BUKU HARIAN -->
-    ${accSection('📔','Buku Harian','#F5F3FF','#7c3aed',
-      diaryData.length>0?diaryData.length+' record':'Belum ada',
-      diaryData.length>0?'has':'no',
-      renderDiary(diaryData)
-    )}
-
-    <!-- ACCORDION: EVAL MENENGAH -->
-    ${accSection('📊','Evaluasi Menengah','#FFFBEB','#d97706',
-      evalMData.length>0?evalMData.length+' record':'Belum ada',
-      evalMData.length>0?'has':'no',
-      renderEvalMenengah(evalMData)
-    )}
-
-    <!-- ACCORDION: EVAL AKHIR -->
-    ${accSection('🏁','Evaluasi Akhir','#F0FDF4','#059669',
-      evalAData.length>0?evalAData.length+' record':'Belum ada',
-      evalAData.length>0?'has':'no',
-      renderEvalAkhir(evalAData)
-    )}
-
-  </div>`;
+function closeDetail() {
+  const panel = document.getElementById('ra-detail');
+  panel.classList.remove('open');
+  panel.innerHTML = '';
+  ACTIVE_IDX = null;
+  renderList();
 }
 
 function accSection(icon, title, bg, color, badge, badgeType, content) {
@@ -739,6 +775,9 @@ function renderEvalAkhir(evalArr) {
 }
 
 // ── POPULATE FILTERS ───────────────────────────────────────────
+// Map ragam → set detail ragam yang relevan
+let RAGAM_DETAIL_MAP = {};
+
 function populateFilters(anak) {
   // CBR Worker
   const cbrs = [...new Set(anak.map(a=>a.cbr).filter(c=>c&&c!=='—'))].sort();
@@ -749,13 +788,14 @@ function populateFilters(anak) {
     cbrSel.appendChild(opt);
   });
 
-  // Detail ragam
-  const details = [...new Set(anak.flatMap(a=>(a.rgd||'').split(',').map(d=>d.trim()).filter(Boolean)))].sort();
-  const detSel = document.getElementById('flt-detail');
-  details.forEach(d => {
-    const opt = document.createElement('option');
-    opt.value = d; opt.textContent = d;
-    detSel.appendChild(opt);
+  // Bangun map: ragam → detail ragam yang relevan
+  RAGAM_DETAIL_MAP = {};
+  anak.forEach(a => {
+    if (!a.ragam || a.ragam==='—') return;
+    if (!RAGAM_DETAIL_MAP[a.ragam]) RAGAM_DETAIL_MAP[a.ragam] = new Set();
+    (a.rgd||'').split(',').map(d=>d.trim()).filter(Boolean).forEach(d => {
+      RAGAM_DETAIL_MAP[a.ragam].add(d);
+    });
   });
 
   // Jika worker: set dan lock filter CBR
@@ -764,6 +804,19 @@ function populateFilters(anak) {
     cbrSel.disabled = true;
     cbrSel.title = 'Filter dikunci untuk CBR Worker Anda';
   }
+}
+
+// Isi ulang dropdown detail sesuai ragam yang dipilih
+function refreshDetailOptions(ragam) {
+  const detSel = document.getElementById('flt-detail');
+  detSel.innerHTML = '<option value="">Semua Detail Ragam</option>';
+  if (!ragam) return;
+  const details = [...(RAGAM_DETAIL_MAP[ragam]||new Set())].sort();
+  details.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d; opt.textContent = d;
+    detSel.appendChild(opt);
+  });
 }
 
 // ── INIT ─────────────────────────────────────────────────────
@@ -783,14 +836,9 @@ if (SESSION) {
         populateFilters(ALL_ANAK);
         ACTIVE_IDX = null;
         applyFilter();
-        document.getElementById('ra-detail').innerHTML = `
-          <div class="ra-empty-detail">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-            </svg>
-            <p>Pilih nama anak untuk melihat rekam jejaknya</p>
-          </div>`;
+        const detailPanel = document.getElementById('ra-detail');
+        detailPanel.classList.remove('open');
+        detailPanel.innerHTML = '';
       }
     }
   });

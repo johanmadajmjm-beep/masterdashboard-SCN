@@ -268,7 +268,19 @@ function renderAll(){
   const allWork   = scns.flatMap(id=>(KOBO[id].workers||[]).map(w=>({...w,scn:id})));
 
   // ── KPI agregasi semua sumber ─────────────────────────────
-  const total    = allAnak.length;
+  // Total = union unik nama dari 6 form semua SCN yang aktif
+  const _namaUnik = new Set();
+  scns.forEach(id => {
+    const D = KOBO[id];
+    if (!D) return;
+    (D.anak||[]).forEach(a=>{ const n=(a.nama||'').toLowerCase().trim(); if(n&&n!=='—') _namaUnik.add(n); });
+    (D.obs||[]).forEach(r=>{ const n=(r.na||'').toLowerCase().trim(); if(n&&n!=='—') _namaUnik.add(n); });
+    (D.perencanaan||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') _namaUnik.add(n); });
+    (D.diary||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') _namaUnik.add(n); });
+    (D.evalMenengah||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') _namaUnik.add(n); });
+    (D.evalAkhir||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') _namaUnik.add(n); });
+  });
+  const total    = _namaUnik.size;
   const kritis   = allAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
   const telat    = allAnak.filter(a=>a.hari>30).length;
   const tanpaObs = allAnak.filter(a=>{const k=a.nama.toLowerCase();return!allObs.some(o=>o.na&&o.na.toLowerCase()===k);}).length;

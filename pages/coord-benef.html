@@ -159,6 +159,19 @@ function setView(v) {
 
 let SORT_KEY = 'jabatan', SORT_ASC = true;
 
+
+  // Union unik nama anak dari semua 6 form
+  function countUnikBenef(d) {
+    const s = new Set();
+    (d.anak||[]).forEach(a=>{ const n=(a.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
+    (d.obs||[]).forEach(r=>{ const n=(r.na||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
+    (d.perencanaan||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
+    (d.diary||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
+    (d.evalMenengah||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
+    (d.evalAkhir||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
+    return s.size;
+  }
+
 function renderPage(d, scnId) {
   const anak = (d.anak || []).map(a => ({
     nama    : a.nama || '—',
@@ -182,14 +195,14 @@ function renderPage(d, scnId) {
 
   ALL_BENEF = [...anak, ...workers];
 
-  // KPI
-  const totalAnak   = anak.length;
+  // KPI — total anak = union unik dari 6 form
+  const totalAnakUnik = countUnikBenef(d);
   const totalWorker = workers.length;
   const totalLK     = anak.filter(a => a.gender === 'L').length;
   const totalPR     = anak.filter(a => a.gender === 'P').length;
   document.getElementById('kpi-bar').innerHTML = [
     { v: ALL_BENEF.length, l: 'Total Benef',  c: '#F97316' },
-    { v: totalAnak,        l: 'Anak',          c: '#EA6C0A' },
+    { v: totalAnakUnik,    l: 'Anak',          c: '#EA6C0A' },
     { v: totalWorker,      l: 'CBR Worker',    c: '#1D4ED8' },
     { v: totalLK,          l: 'Laki-laki',     c: '#2563EB' },
     { v: totalPR,          l: 'Perempuan',     c: '#BE185D' },

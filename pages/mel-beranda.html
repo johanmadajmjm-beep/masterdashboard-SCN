@@ -273,12 +273,12 @@ function buildUI(){
           const kritis= anakSCN.filter(a=>a.sp!=null&&a.sp<=3).length;
           const sc    = n===0?'#94a3b8':kritis>3?'#dc2626':hasObs<50?'#d97706':'#16a34a';
           const sl    = n===0?'Belum ada data':kritis>3?'Perlu perhatian':hasObs<50?'Dalam proses':'Berjalan baik';
-          return \`<div style="background:#fff;border:1px solid #e5e7eb;border-left:3px solid \${sc};border-radius:10px;padding:12px">
-            <div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#374151;margin-bottom:6px">SCN \${SCN_FULL[sid]||sid}</div>
-            <div style="font-size:1.3rem;font-weight:800;color:\${sc};line-height:1">\${n}</div>
+          return `<div style="background:#fff;border:1px solid #e5e7eb;border-left:3px solid ${sc};border-radius:10px;padding:12px">
+            <div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#374151;margin-bottom:6px">SCN ${SCN_FULL[sid]||sid}</div>
+            <div style="font-size:1.3rem;font-weight:800;color:${sc};line-height:1">${n}</div>
             <div style="font-size:.62rem;color:#9ca3af;margin-bottom:6px">anak dampingan</div>
-            <div style="font-size:.65rem;font-weight:600;color:\${sc};background:\${sc}15;padding:2px 8px;border-radius:999px;display:inline-block">\${sl}</div>
-          </div>\`;
+            <div style="font-size:.65rem;font-weight:600;color:${sc};background:${sc}15;padding:2px 8px;border-radius:999px;display:inline-block">${sl}</div>
+          </div>`;
         }
 
         if (scnFilter) {

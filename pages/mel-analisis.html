@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <style>html,body{background:#F8FAFC}</style><script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+  <style>html,body{background:#F8FAFC}</style>
+  <script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>MEL — Analisis & Trend | MEL NLR Indonesia</title>
   <link rel="stylesheet" href="../css/main.css"/>
@@ -9,732 +10,1280 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
     /* ── LAYOUT ── */
-    .an-section{margin-bottom:24px}
-    .an-section-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #f1f5f9;display:flex;align-items:center;gap:8px}
-    .an-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .an-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-    .an-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-    @media(max-width:1100px){.an-grid-3{grid-template-columns:1fr 1fr}}
-    @media(max-width:900px){.an-grid-2,.an-grid-3,.an-grid-4{grid-template-columns:1fr}}
+    .page{padding:0}
+    .an-page{padding:16px 20px}
+
+    /* ── TABS ── */
+    .tab-bar{display:flex;gap:0;border-bottom:2px solid #e9eef6;background:#fff;padding:0 20px;overflow-x:auto;flex-shrink:0;position:sticky;top:0;z-index:10}
+    .tab-btn{display:flex;align-items:center;gap:7px;padding:12px 18px;font-size:.78rem;font-weight:600;color:#64748b;background:none;border:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;font-family:inherit;white-space:nowrap;flex-shrink:0}
+    .tab-btn:hover{color:#F97316;background:#fff7ed30}
+    .tab-btn.active{color:#F97316;border-bottom-color:#F97316}
+    .tab-pane{display:none}.tab-pane.active{display:block}
+
+    /* ── SECTION ── */
+    .an-section{margin-bottom:20px}
+    .an-section-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #f1f5f9;display:flex;align-items:center;gap:8px}
+
+    /* ── GRID ── */
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+    .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    @media(max-width:1100px){.g3{grid-template-columns:1fr 1fr}}
+    @media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
 
     /* ── CARD ── */
-    .an-card{background:#fff;border:1px solid #e9eef6;border-radius:12px;overflow:hidden}
-    .an-card-head{padding:13px 18px 10px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;gap:8px}
-    .an-card-title{font-size:.84rem;font-weight:700;color:#0f172a}
-    .an-card-sub{font-size:.67rem;color:#94a3b8}
-    .an-card-body{padding:16px 18px}
-    .an-card-body.no-pad{padding:0}
-
-    /* ── DATA SOURCE BADGE ── */
-    .src-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:.6rem;font-weight:700}
-    .src-kobo{background:#eff6ff;color:#1d4ed8}
-    .src-ben{background:#fff7ed;color:#c2410c}
-    .src-empty{background:#f1f5f9;color:#94a3b8}
+    .card{background:#fff;border:1px solid #e9eef6;border-radius:12px;overflow:hidden}
+    .card-head{padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .card-title{font-size:.82rem;font-weight:700;color:#0f172a}
+    .card-sub{font-size:.65rem;color:#94a3b8}
+    .card-body{padding:14px 16px}
+    .card-body.np{padding:0}
 
     /* ── KPI STRIP ── */
-    .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px}
-    .kpi-tile{background:#fff;border:1px solid #e9eef6;border-radius:10px;padding:13px 15px;display:flex;align-items:center;gap:11px}
-    .kpi-tile-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem}
-    .kpi-tile-num{font-size:1.25rem;font-weight:800;line-height:1;font-family:'JetBrains Mono',monospace}
-    .kpi-tile-lbl{font-size:.62rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
-    .kpi-tile-sub{font-size:.6rem;color:#94a3b8;margin-top:1px}
+    .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px}
+    .kpi-tile{background:#fff;border:1px solid #e9eef6;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+    .kpi-ico{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.95rem}
+    .kpi-num{font-size:1.2rem;font-weight:800;line-height:1}
+    .kpi-lbl{font-size:.58rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+    .kpi-sub{font-size:.58rem;color:#cbd5e1;margin-top:1px}
 
+    /* ── BADGE ── */
+    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:.6rem;font-weight:700}
+    .badge-kobo{background:#eff6ff;color:#1d4ed8}
+    .badge-ben{background:#fff7ed;color:#c2410c}
+    .badge-red{background:#fee2e2;color:#dc2626}
+    .badge-yellow{background:#fef3c7;color:#b45309}
+    .badge-green{background:#dcfce7;color:#15803d}
+    .badge-gray{background:#f1f5f9;color:#64748b}
 
+    /* ── ALERT BOARD ── */
+    .alert-card{border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px}
+    .alert-card.red{background:#fef2f2;border:1px solid #fecaca}
+    .alert-card.yellow{background:#fffbeb;border:1px solid #fde68a}
+    .alert-card.blue{background:#eff6ff;border:1px solid #bfdbfe}
+    .alert-card.green{background:#f0fdf4;border:1px solid #bbf7d0}
+    .alert-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+    .alert-title{font-size:.78rem;font-weight:700;margin-bottom:3px}
+    .alert-desc{font-size:.7rem;color:#64748b;line-height:1.5}
+    .alert-count{font-size:1.4rem;font-weight:800;line-height:1;flex-shrink:0;text-align:right;min-width:40px}
 
     /* ── HEATMAP ── */
     .hm-wrap{overflow-x:auto}
     .hm-table{border-collapse:separate;border-spacing:3px;font-size:.68rem;width:100%}
-    .hm-table th{padding:5px 8px;text-align:center;font-weight:700;color:#94a3b8;white-space:nowrap;font-size:.65rem}
-    .hm-table th.hm-scn-col{text-align:left}
-    .hm-table td{height:32px;border-radius:6px;text-align:center;vertical-align:middle;font-weight:700;transition:transform .1s;cursor:default;font-size:.72rem}
-    .hm-table td:hover{transform:scale(1.06)}
-    .hm-scn{background:none!important;color:#334155!important;font-weight:700;text-align:left!important;width:110px;white-space:nowrap;padding:0 8px 0 0}
+    .hm-table th{padding:5px 8px;text-align:center;font-weight:700;color:#94a3b8;white-space:nowrap;font-size:.62rem}
+    .hm-table th.left{text-align:left}
+    .hm-table td{height:30px;border-radius:5px;text-align:center;vertical-align:middle;font-weight:700;font-size:.7rem;cursor:default;transition:transform .1s}
+    .hm-table td:hover{transform:scale(1.08)}
+    .hm-scn{background:none!important;color:#334155!important;font-weight:700;text-align:left!important;white-space:nowrap;padding:0 10px 0 0}
+    .hm-legend{display:flex;align-items:center;gap:8px;font-size:.62rem;color:#94a3b8;margin-bottom:8px;flex-wrap:wrap}
+    .hm-dot{width:11px;height:11px;border-radius:2px;display:inline-block;flex-shrink:0}
 
     /* ── RANK ── */
-    .rank-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f1f5f9}
+    .rank-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9}
     .rank-row:last-child{border-bottom:none}
-    .rank-badge{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0}
+    .rank-medal{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0}
     .rank-info{flex:1;min-width:0}
-    .rank-name{font-weight:700;font-size:.8rem;color:#0f172a}
-    .rank-prov{font-size:.67rem;color:#94a3b8}
-    .prog-track{height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;margin-top:3px}
-    .prog-fill{height:100%;border-radius:3px}
-    .rank-pct{font-size:.9rem;font-weight:800;font-family:'JetBrains Mono',monospace;text-align:right;width:42px}
+    .rank-name{font-weight:700;font-size:.78rem;color:#0f172a}
+    .rank-prov{font-size:.63rem;color:#94a3b8}
+    .prog-track{height:5px;background:#f1f5f9;border-radius:3px;overflow:hidden;margin-top:3px}
+    .prog-fill{height:100%;border-radius:3px;transition:width .4s}
+    .rank-pct{font-size:.85rem;font-weight:800;width:38px;text-align:right;flex-shrink:0}
+
+    /* ── SIKLUS ── */
+    .siklus-table{width:100%;border-collapse:collapse;font-size:.72rem}
+    .siklus-table th{padding:8px 10px;text-align:center;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;background:#f8fafc;border-bottom:1px solid #e9eef6;white-space:nowrap}
+    .siklus-table th:first-child{text-align:left}
+    .siklus-table td{padding:7px 10px;border-bottom:1px solid #f8fafc;text-align:center;vertical-align:middle}
+    .siklus-table td:first-child{text-align:left;font-weight:600;color:#334155}
+    .siklus-table tr:hover td{background:#fafbfd}
+    .siklus-dot{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:.6rem;font-weight:700}
+    .siklus-dot.yes{background:#dcfce7;color:#15803d}
+    .siklus-dot.no{background:#fee2e2;color:#dc2626}
+    .siklus-dot.na{background:#f1f5f9;color:#94a3b8}
 
     /* ── ICF ── */
-    .icf-domain-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-    .icf-domain-label{font-size:.71rem;font-weight:600;color:#334155;width:155px;flex-shrink:0}
-    .icf-domain-bars{flex:1;display:flex;flex-direction:column;gap:3px}
+    .icf-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+    .icf-lbl{font-size:.69rem;font-weight:600;color:#334155;width:160px;flex-shrink:0}
+    .icf-bars{flex:1;display:flex;flex-direction:column;gap:3px}
     .icf-bar-wrap{display:flex;align-items:center;gap:6px}
-    .icf-bar-track{flex:1;height:7px;background:#f1f5f9;border-radius:4px;overflow:hidden}
-    .icf-bar-fill{height:100%;border-radius:4px}
-    .icf-bar-label{font-size:.61rem;color:#94a3b8;width:55px;flex-shrink:0}
-    .icf-bar-num{font-size:.64rem;font-weight:700;width:26px;text-align:right;flex-shrink:0}
+    .icf-bar-track{flex:1;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden}
+    .icf-bar-fill{height:100%;border-radius:3px}
+    .icf-bar-lbl{font-size:.59rem;color:#94a3b8;width:52px;flex-shrink:0}
+    .icf-bar-num{font-size:.62rem;font-weight:700;width:24px;text-align:right;flex-shrink:0}
 
-    /* ── EMPTY STATE ── */
-    .empty-section{background:#f8fafc;border:1px dashed #e2e8f0;border-radius:10px;padding:24px;text-align:center;color:#94a3b8;font-size:.78rem}
-    .empty-section-icon{font-size:1.5rem;margin-bottom:6px}
+    /* ── TEMA NARASI ── */
+    .tema-cloud{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0}
+    .tema-chip{padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:600;cursor:default}
 
-    /* ── SUMMARY ROW ── */
-    .summary-row{display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap}
-    .summary-item{background:#f8fafc;border-radius:8px;padding:8px 14px;text-align:center;flex:1;min-width:80px}
-    .summary-val{font-size:1.1rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:#F97316}
-    .summary-lbl{font-size:.62rem;color:#94a3b8;font-weight:600;text-transform:uppercase;margin-top:2px}
+    /* ── CERITA ── */
+    .cerita-card{border-left:3px solid #F97316;padding:12px 14px;margin-bottom:10px;background:#fff;border-radius:0 10px 10px 0;border:1px solid #e9eef6;border-left:3px solid #F97316}
+    .cerita-nama{font-size:.78rem;font-weight:700;color:#0f172a;margin-bottom:2px}
+    .cerita-meta{font-size:.63rem;color:#94a3b8;margin-bottom:8px;display:flex;gap:10px;flex-wrap:wrap}
+    .cerita-isi{font-size:.74rem;color:#334155;line-height:1.7}
 
-    /* ── TABLE ── */
-    .an-table{width:100%;border-collapse:collapse;font-size:.77rem}
-    .an-table th{padding:8px 12px;text-align:left;font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;background:#f8fafc;border-bottom:1px solid #e9eef6;white-space:nowrap}
-    .an-table td{padding:9px 12px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
-    .an-table tr:last-child td{border-bottom:none}
-    .an-table tr:hover td{background:#fafbfd}
-    .an-pill{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.63rem;font-weight:700}
-    .tbl-wrap{overflow-x:auto}
+    /* ── LESSON ── */
+    .lesson-item{border-left:3px solid #F97316;padding:10px 14px;margin-bottom:8px;background:#fff9f5;border-radius:0 8px 8px 0}
+    .lesson-keg{font-size:.7rem;font-weight:700;color:#92400e;margin-bottom:3px}
+    .lesson-meta{font-size:.62rem;color:#94a3b8;margin-bottom:5px}
+    .lesson-txt{font-size:.73rem;color:#334155;line-height:1.6}
+
+    /* ── INSIGHT BOX ── */
+    .insight-box{background:#fff9f5;border:1px solid #fed7aa;border-left:4px solid #F97316;border-radius:10px;padding:12px 16px;margin-top:16px}
+    .insight-title{font-size:.7rem;font-weight:800;color:#F97316;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+    .insight-list{list-style:none;padding:0;margin:0}
+    .insight-list li{font-size:.74rem;color:#334155;padding:4px 0;border-bottom:1px solid #fde8d0;display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+    .insight-list li:last-child{border-bottom:none}
+    .insight-list li::before{content:'→';color:#F97316;font-weight:700;flex-shrink:0;margin-top:1px}
+
+    /* ── TABEL KELENGKAPAN ── */
+    .lengkap-table{width:100%;border-collapse:collapse;font-size:.72rem}
+    .lengkap-table th{padding:8px 12px;text-align:center;font-size:.6rem;font-weight:700;text-transform:uppercase;color:#94a3b8;background:#f8fafc;border-bottom:1px solid #e9eef6;white-space:nowrap}
+    .lengkap-table th:first-child{text-align:left}
+    .lengkap-table td{padding:8px 12px;border-bottom:1px solid #f8fafc;text-align:center;vertical-align:middle}
+    .lengkap-table td:first-child{text-align:left;font-weight:700;color:#334155}
+    .lengkap-table tr:hover td{background:#fafbfd}
+    .pct-cell{display:inline-flex;flex-direction:column;align-items:center;gap:2px;min-width:44px}
+    .pct-num{font-size:.72rem;font-weight:700}
+    .pct-bar{width:40px;height:4px;background:#f1f5f9;border-radius:2px;overflow:hidden}
+    .pct-fill{height:100%;border-radius:2px}
+
+    /* ── AKTOR ── */
+    .aktor-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f8fafc}
+    .aktor-row:last-child{border-bottom:none}
+    .aktor-name{font-size:.74rem;font-weight:600;color:#334155;flex:1}
+    .aktor-bar-wrap{width:120px;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden}
+    .aktor-bar-fill{height:100%;border-radius:3px;background:#F97316}
+    .aktor-count{font-size:.72rem;font-weight:700;color:#F97316;width:30px;text-align:right}
+
+    /* ── CHART WRAP ── */
+    .ch{position:relative}
+    .ch-md{height:200px}
+    .ch-lg{height:240px}
+    .ch-sm{height:160px}
 
     /* ── LOADING ── */
-    .an-loading{display:flex;align-items:center;justify-content:center;height:200px;color:#94a3b8;font-size:.82rem;gap:10px}
-    .spin{width:20px;height:20px;border:2px solid #e2e8f0;border-top-color:#F97316;border-radius:50%;animation:spin .7s linear infinite}
+    .an-loading{display:flex;align-items:center;justify-content:center;height:300px;color:#94a3b8;font-size:.82rem;gap:10px;flex-direction:column}
+    .spin{width:24px;height:24px;border:3px solid #e2e8f0;border-top-color:#F97316;border-radius:50%;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ── HM LEGEND ── */
-    .hm-legend{display:flex;align-items:center;gap:8px;font-size:.63rem;color:#94a3b8;margin-bottom:10px}
-    .hm-legend-dot{width:12px;height:12px;border-radius:3px;display:inline-block}
-
-    /* ── TAB PANEL ── */
-    .tab-bar{display:flex;gap:0;border-bottom:2px solid #e9eef6;margin-bottom:22px;overflow-x:auto}
-    .tab-btn{display:flex;align-items:center;gap:7px;padding:11px 20px;font-size:.8rem;font-weight:600;color:#64748b;background:none;border:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;font-family:inherit;white-space:nowrap;flex-shrink:0}
-    .tab-btn:hover{color:#F97316;background:#fff7ed20}
-    .tab-btn.active{color:#F97316;border-bottom-color:#F97316;background:#fff7ed30}
-    .tab-btn .tab-icon{font-size:1rem}
-    .tab-pane{display:none}
-    .tab-pane.active{display:block}
-
-    /* ── LESSON LEARNT ── */
-    .lesson-item{border-left:3px solid #F97316;padding:10px 14px;margin-bottom:10px;background:#fff7ed;border-radius:0 8px 8px 0}
-    .lesson-keg{font-size:.7rem;font-weight:700;color:#92400e;margin-bottom:4px}
-    .lesson-scn{font-size:.63rem;color:#94a3b8;margin-bottom:6px}
-    .lesson-text{font-size:.75rem;color:#334155;line-height:1.65}
+    /* ── EMPTY ── */
+    .empty{background:#f8fafc;border:1px dashed #e2e8f0;border-radius:10px;padding:24px;text-align:center;color:#94a3b8;font-size:.76rem}
+    .empty-icon{font-size:1.6rem;margin-bottom:6px}
   </style>
 </head>
 <body>
-<div class="app">
-  <div class="main">
-    <header class="topbar">
-      <div class="topbar-left">
-        <div class="topbar-breadcrumb">MEL <span class="sep">›</span><span class="current">Analisis & Trend</span><span class="bc-info" title="Analisis komprehensif program CBR — 8 sumber data: beneficiary, observasi, perencanaan, diary, evaluasi, stakeholder, dan monitoring kegiatan." style="margin-left:6px;cursor:default;color:#94a3b8;font-size:.75rem;border:1px solid #e2e8f0;border-radius:999px;padding:0 6px;line-height:1.6;font-weight:500;user-select:none" aria-label="Info halaman">?</span></div>
-      </div>
-      <div class="topbar-right">
-        <span class="scn-badge" id="scn-badge" style="display:none">—</span>
-        <span id="data-source-badge" style="display:none;font-size:.7rem;padding:3px 10px;border-radius:999px;font-weight:600"></span>
-        <span id="sync-time" style="display:none;font-size:.7rem;color:#94a3b8"></span>
-        <span class="topbar-date" id="topbar-date">—</span>
-      </div>
-    </header>
-    <div class="page">
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="topbar-breadcrumb">MEL <span class="sep">›</span><span class="current">Analisis & Trend</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+    <span id="sync-time" style="font-size:.65rem;color:#9ca3af;display:none"></span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
 
-      <div class="tab-bar" id="tab-bar" style="display:none">
-        <button class="tab-btn active" onclick="switchTab('ringkasan')">
-          <span class="tab-icon">📊</span> Ringkasan Eksekutif
-        </button>
-        <button class="tab-btn" onclick="switchTab('beneficiary')">
-          <span class="tab-icon">👶</span> Beneficiary & Outcome
-        </button>
-        <button class="tab-btn" onclick="switchTab('implementasi')">
-          <span class="tab-icon">⚙️</span> Implementasi Program
-        </button>
-        <button class="tab-btn" onclick="switchTab('jaringan')">
-          <span class="tab-icon">🌐</span> Jaringan & Pembelajaran
-        </button>
-      </div>
-      <div id="page-content">
-        <div class="an-loading"><div class="spin"></div> Memuat data analisis...</div>
-      </div>
-    </div>
+<div class="page">
+  <!-- TAB BAR -->
+  <div class="tab-bar" id="tab-bar" style="display:none">
+    <button class="tab-btn active" onclick="switchTab('situasi')">🔴 Situasi & Peringatan</button>
+    <button class="tab-btn" onclick="switchTab('capaian')">📈 Capaian & Tren</button>
+    <button class="tab-btn" onclick="switchTab('siklus')">🔄 Siklus Intervensi</button>
+    <button class="tab-btn" onclick="switchTab('kualitatif')">🔬 Analisis Kualitatif</button>
+    <button class="tab-btn" onclick="switchTab('ekosistem')">🤝 Ekosistem Program</button>
+  </div>
+  <div id="page-content" class="an-page">
+    <div class="an-loading"><div class="spin"></div>Memuat data analisis...</div>
   </div>
 </div>
+</div></div>
 
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
 <script src="../js/api-ben.js"></script>
 <script>
+// ── KONSTANTA ──────────────────────────────────────────────────
 const SCN_IDS   = ['manggarai','banyuwangi','jember','situbondo','kupang','tts','palu','sigi'];
-const SCN_LABEL = ['Manggarai','Banyuwangi','Jember','Situbondo','Kupang','TTS','Palu','Sigi'];
+const SCN_LBL   = {manggarai:'Manggarai',banyuwangi:'Banyuwangi',jember:'Jember',situbondo:'Situbondo',kupang:'Kupang',tts:'TTS',palu:'Palu',sigi:'Sigi'};
 const PROV_MAP  = {manggarai:'NTT',kupang:'NTT',tts:'NTT',banyuwangi:'Jatim',jember:'Jatim',situbondo:'Jatim',palu:'Sulteng',sigi:'Sulteng'};
 const OUTCOMES  = ['O1','O2','O3','O4','O5','O6','O7'];
-const OUT_LBL   = {O1:'Inklusi Anak',O2:'Pengasuh',O3:'CBR Worker',O4:'Pihak Terlibat',O5:'Kesehatan',O6:'Pendidikan',O7:'Penghidupan'};
-const PALETTE   = ['#F97316','#1E293B','#EA6C00','#475569','#C05500','#94A3B8','#7C3600','#CBD5E1'];
+const OUT_LBL   = {O1:'Inklusi',O2:'Pengasuh',O3:'Worker',O4:'Pihak',O5:'Kesehatan',O6:'Pendidikan',O7:'Penghidupan'};
+const PAL       = ['#F97316','#2563eb','#16a34a','#d97706','#7c3aed','#dc2626','#0891b2','#84cc16'];
+const RC        = {Fisik:'#F97316',Intelektual:'#2563eb','Sensorik (penglihatan)':'#16a34a','Sensorik (pendengaran dan bicara)':'#d97706',Ganda:'#7c3aed',Lainnya:'#94a3b8'};
 
-// ── STATE ────────────────────────────────────────────────────
-const KOBO  = {}; // data dari API.get() per SCN
-let BEN_STK = []; // DataStakeholder dari api-ben
-let BEN_MON = []; // DataMonthly dari api-ben
+// ── STATE ──────────────────────────────────────────────────────
+let D = null;        // data dari API (sudah merge 6 form + filter SCN)
+let BEN_STK = [];
+let BEN_MON = [];
+let ACTIVE_TAB = 'situasi';
+let CHARTS = {};
 
-// ── HELPERS ──────────────────────────────────────────────────
-function avg(arr){ return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0; }
-function num(v){ return parseInt(v)||0; }
-function pctBg(v){ return v>=80?'#dcfce7':v>=50?'#dbeafe':v>=25?'#fef3c7':'#fee2e2'; }
-function pctColor(v){ return v>=80?'#15803d':v>=50?'#1d4ed8':v>=25?'#b45309':'#b91c1c'; }
-function scColor(v){ return v>=7?'#16a34a':v>=5?'#F97316':v>=4?'#d97706':'#dc2626'; }
+// ── HELPERS ────────────────────────────────────────────────────
+const avg = arr => { const v=arr.filter(x=>x!=null&&!isNaN(x)); return v.length?v.reduce((a,b)=>a+b,0)/v.length:0; };
+const num = v => parseInt(v)||0;
+const pctBg   = v => v>=80?'#dcfce7':v>=50?'#dbeafe':v>=25?'#fef3c7':'#fee2e2';
+const pctColor= v => v>=80?'#15803d':v>=50?'#1d4ed8':v>=25?'#b45309':'#b91c1c';
+const scColor = v => v>=7?'#16a34a':v>=5?'#F97316':v>=4?'#d97706':'#dc2626';
 
-function mkChart(id,type,data,opts){
-  const el=document.getElementById(id); if(!el)return null;
-  const ex=Chart.getChart(id); if(ex)ex.destroy();
-  return new Chart(el.getContext('2d'),{type,data,options:opts});
+function mk(id, type, data, opts) {
+  if (CHARTS[id]) { CHARTS[id].destroy(); delete CHARTS[id]; }
+  const el = document.getElementById(id); if (!el) return;
+  CHARTS[id] = new Chart(el, { type, data, options: opts });
 }
-const CD = {
-  responsive:true,maintainAspectRatio:false,
-  plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#d1d5db',padding:10,cornerRadius:8}},
-  scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}}}
+
+const BASE = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af',padding:10,cornerRadius:8} },
+  scales:{
+    x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:10}}},
+    y:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:10}},beginAtZero:true}
+  }
 };
 
-// ── ICF ──────────────────────────────────────────────────────
-const THEMES_ICF = {
-  struktur:[
-    {label:'Mental & Saraf',keywords_pos:['mental baik','kognitif baik','paham instruksi'],keywords_neg:['gangguan mental','cerebral palsy','down syndrome','autisme','keterlambatan','kognitif terganggu']},
-    {label:'Gerak & Motorik',keywords_pos:['bisa berjalan','gerak baik','motorik baik'],keywords_neg:['tidak bisa berjalan','lumpuh','kaku','kursi roda','paraplegia','pincang']},
-    {label:'Fungsi Indra',keywords_pos:['penglihatan baik','pendengaran baik'],keywords_neg:['gangguan penglihatan','gangguan pendengaran','tuli','tunanetra','tunarungu']},
-    {label:'Komunikasi',keywords_pos:['bicara lancar','komunikasi baik'],keywords_neg:['tidak bisa bicara','bicara tidak jelas','bisu']},
-    {label:'Kejang & Epilepsi',keywords_pos:['tidak ada kejang','terkontrol'],keywords_neg:['epilepsi','kejang','sering kejang']},
-  ],
-  kegiatan:[
-    {label:'Pendidikan & Belajar',keywords_pos:['bersekolah','sekolah','belajar','slb'],keywords_neg:['tidak sekolah','belum sekolah','putus sekolah']},
-    {label:'Mobilitas',keywords_pos:['bergerak mandiri','mobilitas baik'],keywords_neg:['tidak bisa berjalan','kursi roda','merangkak','digendong']},
-    {label:'Perawatan Diri',keywords_pos:['mandiri mandi','mengurus diri'],keywords_neg:['bantuan total','disuapi','dimandikan']},
-    {label:'Interaksi Sosial',keywords_pos:['bermain bersama','punya teman'],keywords_neg:['tidak punya teman','isolasi sosial']},
-    {label:'Partisipasi',keywords_pos:['ikut kegiatan','aktif di komunitas'],keywords_neg:['tidak ikut kegiatan','tidak keluar rumah']},
-  ],
-  lingkungan:[
-    {label:'Dukungan Keluarga',keywords_pos:['keluarga mendukung','keluarga peduli'],keywords_neg:['tidak mendukung','diabaikan','kurang perhatian']},
-    {label:'Akses Kesehatan',keywords_pos:['bpjs aktif','puskesmas dekat'],keywords_neg:['tidak punya bpjs','jauh dari puskesmas','akses sulit']},
-    {label:'Sikap Masyarakat',keywords_pos:['diterima masyarakat'],keywords_neg:['stigma','dikucilkan','diskriminasi']},
-    {label:'Kondisi Ekonomi',keywords_pos:['ekonomi baik','penghasilan cukup'],keywords_neg:['keluarga miskin','tidak mampu','penghasilan rendah']},
-    {label:'Bantuan Pemerintah',keywords_pos:['pkh','kip','bantuan sosial'],keywords_neg:['tidak menerima bantuan','belum dapat bantuan']},
-  ]
-};
-
-function scoreICF(text,theme){
-  const t=(text||'').toLowerCase();
-  let pos=0,neg=0;
-  theme.keywords_pos.forEach(k=>{if(t.includes(k))pos++;});
-  theme.keywords_neg.forEach(k=>{if(t.includes(k))neg++;});
-  return {pos,neg};
+// Hitung union unik nama dari 6 form
+function namaUnik(d) {
+  const s = new Set();
+  const add = (arr, ...fields) => arr.forEach(r => {
+    const n = (fields.map(f=>r[f]||'').find(v=>v)||'').toLowerCase().trim();
+    if (n && n !== '—') s.add(n);
+  });
+  add(d.anak||[], 'nama');
+  add(d.obs||[], 'na');
+  add(d.perencanaan||[], 'nama_anak','na','nama');
+  add(d.diary||[], 'nama_anak','na','nama');
+  add(d.evalMenengah||[], 'nama_anak','na','nama');
+  add(d.evalAkhir||[], 'nama_anak','na','nama');
+  return s;
 }
-function analyzeICF(obs,domainKey,fieldKey){
-  const res={};
-  THEMES_ICF[domainKey].forEach(th=>{res[th.label]={pos:0,neg:0};});
-  obs.forEach(o=>{
-    const text=o[fieldKey]||'';
-    if(!text)return;
-    THEMES_ICF[domainKey].forEach(th=>{
-      const s=scoreICF(text,th);
-      res[th.label].pos+=s.pos;
-      res[th.label].neg+=s.neg;
+
+// Frekuensi kata dari array teks
+function wordFreq(texts, stopwords) {
+  const freq = {};
+  const sw = new Set(stopwords||['yang','dan','di','ke','dari','dengan','untuk','tidak','ada','ini','itu','atau','jika','sudah','belum','saat','anak','pengasuh','cbr','worker','dalam','pada','oleh','agar','lebih','juga','bisa','masih','serta']);
+  texts.forEach(t => {
+    if (!t) return;
+    t.toLowerCase().replace(/[^a-z\s]/g,'').split(/\s+/).forEach(w => {
+      if (w.length > 3 && !sw.has(w)) freq[w] = (freq[w]||0) + 1;
     });
   });
-  return res;
+  return Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,20);
 }
 
-function calcITTpct(anak,obs){
-  const t=anak.length||1;
-  const punyaObs=anak.filter(a=>{const k=a.nama.toLowerCase();return obs.some(o=>o.na&&o.na.toLowerCase()===k);}).length;
-  const terapi=anak.filter(a=>a.tr).length;
-  const skorBaik=anak.filter(a=>a.sp!=null&&a.sp>=5).length;
+// Kalkulasi ITT sederhana dari data
+function calcITTpct(anak, obs) {
+  const total = anak.length||1;
+  const punyaObs = anak.filter(a=>{
+    const k=a.nama.toLowerCase();
+    return obs.some(o=>o.na&&o.na.toLowerCase()===k);
+  }).length;
+  const terapi = anak.filter(a=>a.tr).length;
+  const skorBaik = anak.filter(a=>a.sp!=null&&a.sp>=5).length;
+  const pct = v => Math.min(100, Math.round(v/total*100));
   return {
-    O1:Math.round(skorBaik/t*100),
-    O2:Math.round(punyaObs/t*100),
-    O3:Math.round(anak.filter(a=>a.cbr).length/t*100),
-    O4:Math.min(100,Math.round(punyaObs/t*120)),
-    O5:Math.round(anak.filter(a=>a.ob).length/t*100),
-    O6:Math.round(anak.filter(a=>a.usia<=17).length/t*100),
-    O7:Math.round(terapi/t*100),
+    O1: pct(skorBaik), O2: pct(anak.filter(a=>a.sa!=null&&a.sa>=5).length),
+    O3: pct(punyaObs), O4: pct(anak.filter(a=>a.ep===false).length),
+    O5: pct(terapi),   O6: pct(anak.filter(a=>a.ob).length),
+    O7: pct(anak.filter(a=>a.tr).length),
   };
 }
 
-// ── MAIN RENDER ───────────────────────────────────────────────
-function renderPage(d, scnId){
-  if(!d) return;
-  const sid = scnId||'manggarai';
-  KOBO[sid] = d;
-  renderAll();
+// ── RENDER PAGE ────────────────────────────────────────────────
+function renderPage(d, scnId) {
+  if (!d) return;
+  D = d;
+  document.getElementById('tab-bar').style.display = 'flex';
+  switchTab('situasi');
 }
 
-function renderAll(){
-  // Filter SCN jika ada filter aktif
-  const scnFilter = (typeof AUTH !== 'undefined') ? AUTH.getScnFilter() : null;
-  const allScns   = Object.keys(KOBO);
-  const scns      = scnFilter ? allScns.filter(id=>id===scnFilter) : allScns;
-  const allAnak   = scns.flatMap(id=>KOBO[id].anak||[]);
-  const allObs    = scns.flatMap(id=>KOBO[id].obs||[]);
-  const allWork   = scns.flatMap(id=>(KOBO[id].workers||[]).map(w=>({...w,scn:id})));
-
-  // ── KPI agregasi semua sumber ─────────────────────────────
-  // Total = union unik nama dari 6 form semua SCN yang aktif
-  const _namaUnik = new Set();
-  scns.forEach(id => {
-    const D = KOBO[id];
-    if (!D) return;
-    (D.anak||[]).forEach(a=>{ const n=(a.nama||'').toLowerCase().trim(); if(n&&n!=='—') _namaUnik.add(n); });
-    (D.obs||[]).forEach(r=>{ const n=(r.na||'').toLowerCase().trim(); if(n&&n!=='—') _namaUnik.add(n); });
-    (D.perencanaan||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') _namaUnik.add(n); });
-    (D.diary||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') _namaUnik.add(n); });
-    (D.evalMenengah||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') _namaUnik.add(n); });
-    (D.evalAkhir||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') _namaUnik.add(n); });
+// ── TAB SWITCH ─────────────────────────────────────────────────
+function switchTab(tab) {
+  ACTIVE_TAB = tab;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    const tabs = ['situasi','capaian','siklus','kualitatif','ekosistem'];
+    b.classList.toggle('active', tabs[i]===tab);
   });
-  const total    = _namaUnik.size;
-  const kritis   = allAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
-  const telat    = allAnak.filter(a=>a.hari>30).length;
-  const tanpaObs = allAnak.filter(a=>{const k=a.nama.toLowerCase();return!allObs.some(o=>o.na&&o.na.toLowerCase()===k);}).length;
-  const coverage = total>0?Math.round((total-tanpaObs)/total*100):0;
-  const avgSp    = avg(allAnak.filter(a=>a.sp!=null).map(a=>a.sp)).toFixed(1);
-  const avgSa    = avg(allAnak.filter(a=>a.sa!=null).map(a=>a.sa)).toFixed(1);
-  const totalStk = BEN_STK.length;
-  const totalKeg = new Set(BEN_MON.map(r=>r.nama_kegiatan).filter(Boolean)).size;
-  const totalPes = BEN_MON.reduce((s,r)=>s+num(r.total),0);
+  renderTab(tab);
+}
 
+function renderTab(tab) {
+  const pc = document.getElementById('page-content');
+  pc.className = 'an-page';
+  // Destroy semua chart sebelum render ulang
+  Object.keys(CHARTS).forEach(k => { try { CHARTS[k].destroy(); } catch(e){} });
+  CHARTS = {};
 
+  switch(tab) {
+    case 'situasi':    renderSituasi();    break;
+    case 'capaian':    renderCapaian();    break;
+    case 'siklus':     renderSiklus();     break;
+    case 'kualitatif': renderKualitatif(); break;
+    case 'ekosistem':  renderEkosistem();  break;
+  }
+}
 
-  // ── LESSON LEARNT dari DataMonthly ───────────────────────
-  const lessons = BEN_MON.filter(r=>r.lesson_learnt).slice(0,5);
+// ══════════════════════════════════════════════════════════════
+// TAB 1: SITUASI & PERINGATAN
+// ══════════════════════════════════════════════════════════════
+function renderSituasi() {
+  const d = D;
+  const anak      = d.anak||[];
+  const obs       = d.obs||[];
+  const plan      = d.perencanaan||[];
+  const diary     = d.diary||[];
+  const evalMen   = d.evalMenengah||[];
+  const evalAkh   = d.evalAkhir||[];
+  const totalUnik = namaUnik(d).size;
 
-  // ── EVAL MENENGAH (belum ada data → placeholder) ─────────
-  const hasEvalMen  = false; // update saat data tersedia
-  const hasDiary    = false;
-  const hasRencana  = false;
-  const hasEvalAkh  = false;
+  // Set nama dari semua form
+  const namaObs    = new Set(obs.map(o=>(o.na||'').toLowerCase().trim()).filter(Boolean));
+  const namaPlan   = new Set(plan.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()).filter(Boolean));
+  const namaDiary  = new Set(diary.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()).filter(Boolean));
+  const namaEvalM  = new Set(evalMen.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()).filter(Boolean));
+  const namaEvalA  = new Set(evalAkh.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()).filter(Boolean));
 
-  // Tampilkan tab bar
-  document.getElementById('tab-bar').style.display='flex';
+  // Alert counts
+  const kritis        = anak.filter(a=>a.sp!=null&&a.sp<=3);
+  const belumObs      = anak.filter(a=>!namaObs.has((a.nama||'').toLowerCase().trim()));
+  const planTanpaEval = anak.filter(a=>{
+    const k=(a.nama||'').toLowerCase().trim();
+    return namaPlan.has(k) && !namaEvalM.has(k) && !namaEvalA.has(k);
+  });
+  const tanpaPlan     = anak.filter(a=>!namaPlan.has((a.nama||'').toLowerCase().trim()));
+  const diaryGap      = anak.filter(a=>{
+    const k=(a.nama||'').toLowerCase().trim();
+    return namaPlan.has(k) && !namaDiary.has(k);
+  });
+
+  // Coverage 6 form
+  const covAwal  = anak.length;
+  const covObs   = new Set(obs.map(o=>(o.na||'').toLowerCase())).size;
+  const covPlan  = namaPlan.size;
+  const covDiary = namaDiary.size;
+  const covEvalM = namaEvalM.size;
+  const covEvalA = namaEvalA.size;
+  const pctOf = (n) => totalUnik>0?Math.round(n/totalUnik*100):0;
+
+  // Wellbeing avg
+  const spArr = anak.filter(a=>a.sp!=null).map(a=>a.sp);
+  const avgSP = spArr.length ? avg(spArr).toFixed(1) : '—';
+
   document.getElementById('page-content').innerHTML = `
-
-    <!-- ══ TAB 1: RINGKASAN EKSEKUTIF ══ -->
-    <div class="tab-pane active" id="tab-ringkasan">
-
-    <!-- ── KPI 3 SUMBER ── -->
+    <!-- KPI -->
     <div class="kpi-strip">
-      ${kpi('👶','#fff7ed','#F97316',total,'Total Beneficiary',(scnFilter?'SCN '+scnFilter.toUpperCase():scns.length+' SCN aktif'))}
-      ${kpi('📊','#fff7ed','#EA6C00',avgSp+'/10','Avg Skor Anak','Cantrill Ladder')}
-      ${kpi('💚','#f0fdf4','#16a34a',avgSa+'/10','Avg Skor Pengasuh','Cantrill Ladder')}
-      ${kpi('📸','#eff6ff','#2563eb',coverage+'%','Coverage Observasi',total-tanpaObs+' sudah diobservasi')}
-      ${kpi('🚨','#fef2f2','#dc2626',kritis,'Kondisi Kritis','skor ≤ 3')}
-      ${kpi('👥','#fff7ed','#F97316',totalStk,'Total Stakeholder','dari BEN Uploader')}
-      ${kpi('📋','#f1f5f9','#475569',totalKeg,'Kegiatan','monitoring aktif')}
-      ${kpi('🎯','#f0fdf4','#16a34a',totalPes,'Total Peserta','lintas kegiatan')}
+      ${kpiTile('👶','#fff7ed','#F97316',totalUnik,'Total Beneficiary','Union 6 form')}
+      ${kpiTile('📊','#fff7ed','#EA6C00',avgSP+'/10','Avg Skor Anak','Cantrill Ladder')}
+      ${kpiTile('🚨','#fef2f2','#dc2626',kritis.length,'Kondisi Kritis','skor ≤ 3')}
+      ${kpiTile('📋','#f0fdf4','#16a34a',pctOf(covObs)+'%','Coverage Observasi',covObs+' dari '+totalUnik+' anak')}
+      ${kpiTile('📝','#eff6ff','#2563eb',pctOf(covPlan)+'%','Ada Perencanaan',covPlan+' anak')}
+      ${kpiTile('🏁','#f5f3ff','#7c3aed',pctOf(covEvalA)+'%','Evaluasi Akhir',covEvalA+' anak')}
     </div>
 
-    <!-- ── SEKSI 1: ITT ── -->
+    <!-- ALERT BOARD -->
     <div class="an-section">
-      <div class="an-section-title">📈 Capaian ITT — Perbandingan Antar SCN <span class="src-badge src-kobo">KoboToolbox</span></div>
-      <div class="an-grid-2">
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Heatmap Capaian per Outcome</span><span class="an-card-sub">% capaian terhadap target Y1</span></div>
-          <div class="an-card-body">
-            <div class="hm-legend">
-              <span class="hm-legend-dot" style="background:#fee2e2"></span>&lt;25%
-              <span class="hm-legend-dot" style="background:#fef3c7;margin-left:6px"></span>25–49%
-              <span class="hm-legend-dot" style="background:#dbeafe;margin-left:6px"></span>50–79%
-              <span class="hm-legend-dot" style="background:#dcfce7;margin-left:6px"></span>≥80%
+      <div class="an-section-title">🚨 Peringatan & Tindak Lanjut <span class="badge badge-kobo">KoboToolbox · 6 Form</span></div>
+      <div class="g2">
+        <div>
+          ${alertCard('red','🔴','Anak Kondisi Kritis (Skor ≤ 3)',kritis.length,'Perlu pendampingan intensif segera',kritis.slice(0,5).map(a=>`<b>${a.nama}</b> — skor ${a.sp} · ${a.cbr||'—'}`).join('<br>'))}
+          ${alertCard('yellow','🟡','Belum Pernah Diobservasi',belumObs.length,'Observasi ICF belum dilakukan sama sekali',belumObs.slice(0,4).map(a=>`<b>${a.nama}</b> · ${a.cbr||'—'}`).join('<br>'))}
+          ${alertCard('blue','🔵','Ada Perencanaan Tapi Belum Dievaluasi',planTanpaEval.length,'Siklus intervensi belum ditutup',planTanpaEval.slice(0,4).map(a=>`<b>${a.nama}</b> · ${a.cbr||'—'}`).join('<br>'))}
+        </div>
+        <div>
+          ${alertCard('yellow','📔','Ada Perencanaan Tapi Belum Ada Diary',diaryGap.length,'Kunjungan lapangan belum dicatat',diaryGap.slice(0,4).map(a=>`<b>${a.nama}</b> · ${a.cbr||'—'}`).join('<br>'))}
+          ${alertCard('red','📋','Belum Ada Perencanaan',tanpaPlan.length,'IRP belum dibuat untuk anak ini',tanpaPlan.slice(0,4).map(a=>`<b>${a.nama}</b> · ${a.cbr||'—'}`).join('<br>'))}
+          ${alertCard('green','✅','Siklus Lengkap',namaEvalA.size,'Sudah ada evaluasi akhir','Anak dengan siklus intervensi selesai lengkap')}
+        </div>
+      </div>
+    </div>
+
+    <!-- KELENGKAPAN 6 FORM -->
+    <div class="an-section">
+      <div class="an-section-title">📁 Kelengkapan Data 6 Form <span class="badge badge-kobo">per Form</span></div>
+      <div class="card">
+        <div class="card-body np">
+          <table class="lengkap-table">
+            <thead><tr>
+              <th>Form</th>
+              <th>Jumlah Anak</th>
+              <th>% dari Total</th>
+              <th>Gap</th>
+              <th>Status</th>
+            </tr></thead>
+            <tbody>
+              ${[
+                {label:'📋 Data Awal',    n:covAwal,  color:'#F97316'},
+                {label:'👁 Observasi',    n:covObs,   color:'#2563eb'},
+                {label:'📝 Perencanaan',  n:covPlan,  color:'#16a34a'},
+                {label:'📔 Buku Harian',  n:covDiary, color:'#9333ea'},
+                {label:'📊 Eval. Menengah',n:covEvalM,color:'#d97706'},
+                {label:'🏁 Eval. Akhir', n:covEvalA, color:'#059669'},
+              ].map(f => {
+                const pct = pctOf(f.n);
+                const gap = totalUnik - f.n;
+                const status = pct>=80?'<span class="badge badge-green">Baik</span>':pct>=50?'<span class="badge badge-yellow">Sedang</span>':'<span class="badge badge-red">Perlu Perhatian</span>';
+                return `<tr>
+                  <td style="font-weight:600;color:${f.color}">${f.label}</td>
+                  <td style="font-weight:700;text-align:center">${f.n}</td>
+                  <td style="text-align:center">
+                    <div class="pct-cell">
+                      <span class="pct-num" style="color:${pctColor(pct)}">${pct}%</span>
+                      <div class="pct-bar"><div class="pct-fill" style="width:${pct}%;background:${f.color}"></div></div>
+                    </div>
+                  </td>
+                  <td style="text-align:center;color:#94a3b8;font-size:.72rem">${gap>0?gap+' belum':'—'}</td>
+                  <td style="text-align:center">${status}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    ${insightBox('situasi', anak, kritis, belumObs, planTanpaEval, tanpaPlan, totalUnik)}
+  `;
+}
+
+function alertCard(type, icon, title, count, desc, detail) {
+  const colors = {red:'#dc2626',yellow:'#b45309',blue:'#1d4ed8',green:'#15803d'};
+  const c = colors[type]||'#64748b';
+  return `<div class="alert-card ${type}">
+    <div class="alert-icon">${icon}</div>
+    <div style="flex:1;min-width:0">
+      <div class="alert-title" style="color:${c}">${title}</div>
+      <div class="alert-desc">${desc}</div>
+      ${detail&&count>0?`<div style="font-size:.65rem;color:#64748b;margin-top:6px;line-height:1.6">${detail}${count>5?`<br><span style="color:#94a3b8">...dan ${count-5} lainnya</span>`:''}</div>`:''}
+    </div>
+    <div class="alert-count" style="color:${c}">${count}</div>
+  </div>`;
+}
+
+function kpiTile(icon, bg, color, val, lbl, sub) {
+  return `<div class="kpi-tile">
+    <div class="kpi-ico" style="background:${bg};color:${color}">${icon}</div>
+    <div>
+      <div class="kpi-num" style="color:${color}">${val}</div>
+      <div class="kpi-lbl">${lbl}</div>
+      <div class="kpi-sub">${sub}</div>
+    </div>
+  </div>`;
+}
+
+function insightBox(tab, anak, kritis, belumObs, planTanpaEval, tanpaPlan, total) {
+  const insights = [];
+  if (kritis.length > 0)
+    insights.push(`<b>${kritis.length} anak</b> dalam kondisi kritis (skor ≤ 3) perlu pendampingan intensif segera.`);
+  if (belumObs.length > total * 0.3)
+    insights.push(`Coverage observasi masih rendah — <b>${belumObs.length} anak</b> (${Math.round(belumObs.length/total*100)}%) belum pernah diobservasi.`);
+  if (planTanpaEval.length > 0)
+    insights.push(`<b>${planTanpaEval.length} anak</b> sudah punya perencanaan tapi belum ada evaluasi — siklus intervensi perlu ditutup.`);
+  if (tanpaPlan.length > total * 0.4)
+    insights.push(`<b>${tanpaPlan.length} anak</b> belum punya perencanaan — IRP perlu segera dibuat untuk memulai intervensi.`);
+  if (insights.length === 0)
+    insights.push('Semua indikator dalam kondisi baik. Pertahankan kualitas pendampingan.');
+  return `<div class="insight-box">
+    <div class="insight-title">💡 Rekomendasi Tindakan</div>
+    <ul class="insight-list">${insights.map(i=>`<li>${i}</li>`).join('')}</ul>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// TAB 2: CAPAIAN & TREN
+// ══════════════════════════════════════════════════════════════
+function renderCapaian() {
+  const d    = D;
+  const anak = d.anak||[];
+  const obs  = d.obs||[];
+  const evalAkh = d.evalAkhir||[];
+  const evalMen = d.evalMenengah||[];
+  const total = namaUnik(d).size||1;
+
+  // ITT per SCN — pakai data yang ada
+  const scnFilter = (typeof AUTH !== 'undefined') ? AUTH.getScnFilter() : null;
+  const scnList   = scnFilter ? [scnFilter] : SCN_IDS;
+
+  // % tujuan tercapai dari eval akhir
+  const tercapaiArr = evalAkh.filter(r=>r.tercapai_tujuan_1);
+  const tercapai = tercapaiArr.filter(r=>(r.tercapai_tujuan_1||'').toLowerCase()==='ya').length;
+  const pctTercapai = tercapaiArr.length>0?Math.round(tercapai/tercapaiArr.length*100):0;
+
+  // Skor eval menengah rata-rata
+  const skorEvalM = evalMen.map(r=>parseFloat(r.score_tujuan_1)||0).filter(v=>v>0);
+  const avgEvalM  = skorEvalM.length?avg(skorEvalM).toFixed(1):'—';
+
+  // Distribusi skor anak
+  const kritis = anak.filter(a=>a.sp!=null&&a.sp<=3).length;
+  const sedang  = anak.filter(a=>a.sp!=null&&a.sp>=4&&a.sp<=6).length;
+  const baik    = anak.filter(a=>a.sp!=null&&a.sp>=7).length;
+  const belumSp = anak.filter(a=>a.sp==null).length;
+
+  // Ragam distribusi
+  const ragamMap = {};
+  anak.forEach(a=>{ const r=a.ragam||'Lainnya'; ragamMap[r]=(ragamMap[r]||0)+1; });
+  const ragamEntries = Object.entries(ragamMap).sort((a,b)=>b[1]-a[1]);
+
+  // Kelompok usia
+  const GU = ['0-5 th','6-12 th','13-17 th','18-24 th','25+ th'];
+  const guMap = {};
+  anak.forEach(a=>{ const g=a.gu||'?'; guMap[g]=(guMap[g]||0)+1; });
+
+  // Level disabilitas
+  const levMap = {};
+  anak.forEach(a=>{ const l=(a.level||'—').split(' ')[0]; levMap[l]=(levMap[l]||0)+1; });
+
+  document.getElementById('page-content').innerHTML = `
+    <!-- KPI Capaian -->
+    <div class="kpi-strip">
+      ${kpiTile('📊','#fff7ed','#F97316',total,'Total Beneficiary','Union 6 form')}
+      ${kpiTile('💚','#f0fdf4','#16a34a',avg(anak.filter(a=>a.sp!=null).map(a=>a.sp)).toFixed(1)+'/10','Avg Skor Anak','Cantrill')}
+      ${kpiTile('💛','#fffbeb','#d97706',avg(anak.filter(a=>a.sa!=null).map(a=>a.sa)).toFixed(1)+'/10','Avg Skor Pengasuh','Cantrill')}
+      ${kpiTile('🏁','#f5f3ff','#7c3aed',pctTercapai+'%','Tujuan Tercapai','dari Eval Akhir')}
+      ${kpiTile('📊','#eff6ff','#2563eb',avgEvalM+'/10','Skor Eval Menengah','rata-rata tujuan 1')}
+      ${kpiTile('🚨','#fef2f2','#dc2626',kritis,'Kondisi Kritis','skor ≤ 3')}
+    </div>
+
+    <!-- HEATMAP ITT -->
+    <div class="an-section">
+      <div class="an-section-title">📈 Heatmap Capaian ITT per SCN <span class="badge badge-kobo">Estimasi dari data KoboToolbox</span></div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Capaian per Outcome</span><span class="card-sub">% estimasi terhadap target</span></div>
+          <div class="card-body np">
+            <div class="hm-legend" style="padding:12px 16px 0">
+              <span class="hm-dot" style="background:#fee2e2"></span>&lt;25%
+              <span class="hm-dot" style="background:#fef3c7;margin-left:6px"></span>25–49%
+              <span class="hm-dot" style="background:#dbeafe;margin-left:6px"></span>50–79%
+              <span class="hm-dot" style="background:#dcfce7;margin-left:6px"></span>≥80%
             </div>
-            <div class="hm-wrap"><table class="hm-table" id="hm-itt"></table></div>
+            <div class="hm-wrap" style="padding:8px 16px 16px">
+              <table class="hm-table" id="hm-itt"></table>
+            </div>
           </div>
         </div>
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Ranking SCN</span><span class="an-card-sub">Rata-rata capaian semua outcome</span></div>
-          <div class="an-card-body" id="ranking-list"></div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Ranking SCN</span><span class="card-sub">Rata-rata capaian semua outcome</span></div>
+          <div class="card-body" id="ranking-list"></div>
         </div>
       </div>
     </div>
 
-    </div><!-- /tab-ringkasan -->
-
-    <!-- ══ TAB 2: BENEFICIARY & OUTCOME ══ -->
-    <div class="tab-pane" id="tab-beneficiary">
-    <!-- ── SEKSI 2: WELLBEING ── -->
+    <!-- DISTRIBUSI ANAK -->
     <div class="an-section">
-      <div class="an-section-title">💚 Wellbeing Beneficiary <span class="src-badge src-kobo">KoboToolbox · Data Awal</span></div>
-      <div class="an-grid-2" style="margin-bottom:16px">
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Skor Cantrill Anak per SCN</span><span class="an-card-sub">≥7 baik · ≤3 kritis</span></div>
-          <div class="an-card-body" style="height:200px;position:relative"><canvas id="chart-sp-scn"></canvas></div>
+      <div class="an-section-title">👶 Profil Beneficiary <span class="badge badge-kobo">DataAwal · KoboToolbox</span></div>
+      <div class="g3">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Distribusi Skor Anak</span></div>
+          <div class="card-body"><div class="ch ch-sm"><canvas id="ch-skor-dist"></canvas></div></div>
         </div>
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Skor Cantrill Pengasuh per SCN</span></div>
-          <div class="an-card-body" style="height:200px;position:relative"><canvas id="chart-sa-scn"></canvas></div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Ragam Disabilitas</span></div>
+          <div class="card-body"><div class="ch ch-sm"><canvas id="ch-ragam"></canvas></div></div>
         </div>
-      </div>
-      <div class="an-grid-3">
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Distribusi Skor Anak</span></div>
-          <div class="an-card-body" style="height:170px;position:relative"><canvas id="chart-sp-dist"></canvas></div>
-        </div>
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Kelompok Usia</span></div>
-          <div class="an-card-body" style="height:170px;position:relative"><canvas id="chart-usia"></canvas></div>
-        </div>
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Ragam Disabilitas</span></div>
-          <div class="an-card-body" style="height:170px;position:relative"><canvas id="chart-ragam"></canvas></div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Kelompok Usia & Level</span></div>
+          <div class="card-body"><div class="ch ch-sm"><canvas id="ch-usia"></canvas></div></div>
         </div>
       </div>
     </div>
 
-    <!-- ── SEKSI 3: ICF ── -->
+    <!-- EVAL AKHIR -->
     <div class="an-section">
-      <div class="an-section-title">🔬 Temuan ICF — Observasi Lapangan <span class="src-badge src-kobo">KoboToolbox · Observasi</span></div>
-      <div class="an-grid-3">
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Struktur & Fungsi Tubuh</span><span class="an-card-sub">Baik vs Terganggu</span></div>
-          <div class="an-card-body" id="icf-struktur"></div>
+      <div class="an-section-title">🏁 Hasil Evaluasi Akhir <span class="badge badge-kobo">DataEvalAkhir · ${evalAkh.length} record</span></div>
+      ${evalAkh.length > 0 ? `
+      <div class="g2">
+        <div class="card">
+          <div class="card-head"><span class="card-title">% Tujuan Tercapai</span><span class="card-sub">dari ${tercapaiArr.length} evaluasi</span></div>
+          <div class="card-body"><div class="ch ch-md"><canvas id="ch-eval-tercapai"></canvas></div></div>
         </div>
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Kegiatan & Partisipasi</span><span class="an-card-sub">Mampu vs Terbatas</span></div>
-          <div class="an-card-body" id="icf-kegiatan"></div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Skor Tujuan — Eval Menengah</span><span class="card-sub">distribusi skor 1-10</span></div>
+          <div class="card-body"><div class="ch ch-md"><canvas id="ch-eval-skor"></canvas></div></div>
         </div>
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Faktor Lingkungan</span><span class="an-card-sub">Dukungan vs Hambatan</span></div>
-          <div class="an-card-body" id="icf-lingkungan"></div>
-        </div>
-      </div>
+      </div>` : `<div class="empty"><div class="empty-icon">📭</div>Belum ada data Evaluasi Akhir</div>`}
     </div>
-
-    </div><!-- /tab-beneficiary -->
-
-    <!-- ══ TAB 3: IMPLEMENTASI PROGRAM ══ -->
-    <div class="tab-pane" id="tab-implementasi">
-    <!-- ── SEKSI 4: IMPLEMENTASI ── -->
-    <div class="an-section">
-      <div class="an-section-title">⚙️ Kualitas Implementasi <span class="src-badge src-kobo">KoboToolbox · Data Awal + Observasi</span></div>
-      <div class="an-grid-2">
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Coverage Kunjungan per SCN</span></div>
-          <div class="an-card-body" style="height:200px;position:relative"><canvas id="chart-coverage"></canvas></div>
-        </div>
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Kondisi Khusus per SCN</span><span class="an-card-sub">Epilepsi · Pengobatan · Terapi</span></div>
-          <div class="an-card-body" style="height:200px;position:relative"><canvas id="chart-kondisi"></canvas></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── SEKSI 5: CBR WORKER ── -->
-    <div class="an-section">
-      <div class="an-section-title">👷 Kinerja CBR Worker <span class="src-badge src-kobo">KoboToolbox · Observasi</span></div>
-      <div class="an-card">
-        <div class="an-card-head"><span class="an-card-title">Perbandingan Kinerja Worker</span><span class="an-card-sub">Caseload · Kunjungan bulan ini · Terlambat</span></div>
-        <div class="an-card-body" style="height:240px;position:relative"><canvas id="chart-worker"></canvas></div>
-      </div>
-    </div>
-
-
-    <!-- ── PLACEHOLDER: 4 FORM LAINNYA DI TAB 3 ── -->
-    <div class="an-section">
-      <div class="an-section-title">📁 Data Belum Tersedia <span class="src-badge src-kobo">KoboToolbox · 4 Form Lainnya</span></div>
-      <div class="an-grid-4">
-        ${placeholderCard('📝','Perencanaan','DataRencana','Kesulitan pengasuh, rencana intervensi per anak')}
-        ${placeholderCard('📔','Buku Harian','DataDiary','Frekuensi kunjungan, konsistensi pencatatan CBR worker')}
-        ${placeholderCard('📊','Evaluasi Menengah','DataEvalMenengah','Skor tujuan rata-rata, perubahan teridentifikasi')}
-        ${placeholderCard('🏁','Evaluasi Akhir','DataEvalAkhir','% tujuan tercapai, alasan kegagalan terbanyak')}
-      </div>
-    </div>
-    </div><!-- /tab-implementasi -->
-
-    <!-- ══ TAB 4: JARINGAN & PEMBELAJARAN ══ -->
-    <div class="tab-pane" id="tab-jaringan">
-    <!-- ── SEKSI 6: STAKEHOLDER ── -->
-    <div class="an-section">
-      <div class="an-section-title">🤝 Jaringan Stakeholder <span class="src-badge src-ben">BEN Uploader · DataStakeholder</span></div>
-      ${totalStk > 0 ? `
-      <div class="an-grid-2">
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Distribusi per Kategori</span></div>
-          <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-stk-kat"></canvas></div>
-        </div>
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Stakeholder per SCN</span></div>
-          <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-stk-scn"></canvas></div>
-        </div>
-      </div>` : emptySection('Belum ada data stakeholder','Upload data melalui MEL SCN Tools')}
-    </div>
-
-    <!-- ── SEKSI 7: KEGIATAN ── -->
-    <div class="an-section">
-      <div class="an-section-title">📋 Monitoring Kegiatan <span class="src-badge src-ben">BEN Uploader · DataMonthly</span></div>
-      ${BEN_MON.length > 0 ? `
-      <div class="an-grid-2" style="margin-bottom:16px">
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Peserta per Kategori</span></div>
-          <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-mon-kat"></canvas></div>
-        </div>
-        <div class="an-card">
-          <div class="an-card-head"><span class="an-card-title">Distribusi Outcome Kegiatan</span></div>
-          <div class="an-card-body" style="height:220px;position:relative"><canvas id="chart-mon-out"></canvas></div>
-        </div>
-      </div>
-      ${lessons.length > 0 ? `
-      <div class="an-card">
-        <div class="an-card-head"><span class="an-card-title">Lesson Learnt Terkini</span><span class="an-card-sub">${lessons.length} kegiatan</span></div>
-        <div class="an-card-body">
-          ${lessons.map(r=>`
-          <div class="lesson-item">
-            <div class="lesson-keg">${r.nama_kegiatan||'—'}</div>
-            <div class="lesson-scn">${r.scn||''} · ${r.tanggal||''}</div>
-            <div class="lesson-text">${r.lesson_learnt}</div>
-          </div>`).join('')}
-        </div>
-      </div>` : ''}` : emptySection('Belum ada data monitoring kegiatan','Upload data melalui MEL SCN Tools')}
-    </div>
-
-
-    </div><!-- /tab-jaringan -->
   `;
 
-  // Render semua charts
-  renderITT(scns, allAnak, allObs);
-  renderWellbeing(scns, allAnak);
-  renderICF(allObs);
-  renderImplementasi(scns, allAnak, allObs);
-  renderWorker(allWork);
-  if(totalStk>0) renderStakeholder();
-  if(BEN_MON.length>0) renderMonitoring();
+  // Render charts
+  setTimeout(() => {
+    // Heatmap ITT
+    renderHeatmapITT(anak, obs, scnList, d);
+
+    // Skor distribusi
+    mk('ch-skor-dist','doughnut',{
+      labels:['Kritis (≤3)','Sedang (4–6)','Baik (≥7)','Belum diisi'],
+      datasets:[{data:[kritis,sedang,baik,belumSp],backgroundColor:['#dc2626','#d97706','#16a34a','#e5e7eb'],borderColor:'#fff',borderWidth:2}]
+    },{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{font:{size:10},padding:8}}}});
+
+    // Ragam
+    mk('ch-ragam','bar',{
+      labels:ragamEntries.map(([k])=>k.split(' ')[0]),
+      datasets:[{data:ragamEntries.map(([,v])=>v),backgroundColor:ragamEntries.map(([k])=>RC[k]||'#94a3b8'),borderRadius:5,borderSkipped:false}]
+    },{...BASE,layout:{padding:{top:16}}});
+
+    // Usia
+    mk('ch-usia','bar',{
+      labels:GU,
+      datasets:[{data:GU.map(g=>guMap[g]||0),backgroundColor:PAL,borderRadius:5,borderSkipped:false}]
+    },{...BASE,layout:{padding:{top:16}}});
+
+    // Eval tercapai
+    if (evalAkh.length > 0) {
+      const tidakTercapai = tercapaiArr.length - tercapai;
+      mk('ch-eval-tercapai','doughnut',{
+        labels:['Tercapai','Tidak Tercapai'],
+        datasets:[{data:[tercapai,tidakTercapai],backgroundColor:['#16a34a','#dc2626'],borderColor:'#fff',borderWidth:2}]
+      },{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{font:{size:11},padding:12}}}});
+
+      // Distribusi skor eval menengah
+      const bins = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0};
+      evalMen.forEach(r=>{ const s=parseInt(r.score_tujuan_1)||0; if(bins[s]!==undefined) bins[s]++; });
+      mk('ch-eval-skor','bar',{
+        labels:Object.keys(bins),
+        datasets:[{data:Object.values(bins),backgroundColor:Object.keys(bins).map(k=>scColor(parseInt(k))+'cc'),borderRadius:4,borderSkipped:false}]
+      },{...BASE,layout:{padding:{top:16}}});
+    }
+  }, 100);
 }
 
-function kpi(icon,bg,color,val,lbl,sub){
-  return `<div class="kpi-tile">
-    <div class="kpi-tile-ico" style="background:${bg};color:${color}">${icon}</div>
-    <div><div class="kpi-tile-num" style="color:${color}">${val}</div>
-    <div class="kpi-tile-lbl">${lbl}</div><div class="kpi-tile-sub">${sub}</div></div>
-  </div>`;
-}
-function emptySection(title,sub){
-  return `<div class="empty-section"><div class="empty-section-icon">📭</div><strong>${title}</strong><br><span style="font-size:.72rem">${sub}</span></div>`;
-}
-function placeholderCard(icon,title,sheet,desc){
-  return `<div class="an-card">
-    <div class="an-card-head"><span class="an-card-title">${title}</span><span class="src-badge src-empty">${sheet}</span></div>
-    <div class="an-card-body">
-      <div class="empty-section" style="padding:16px">
-        <div class="empty-section-icon">${icon}</div>
-        <div style="font-size:.73rem;color:#475569;font-weight:600;margin-bottom:4px">${title}</div>
-        <div style="font-size:.68rem;color:#94a3b8">${desc}</div>
-        <div style="margin-top:8px;font-size:.65rem;color:#cbd5e1">Menunggu data dari KoboToolbox</div>
-      </div>
-    </div>
-  </div>`;
-}
+function renderHeatmapITT(anak, obs, scnList, d) {
+  const tbl = document.getElementById('hm-itt');
+  const rl  = document.getElementById('ranking-list');
+  if (!tbl||!rl) return;
 
-// ── RENDER ITT ────────────────────────────────────────────────
-function renderITT(scns, allAnak, allObs){
-  const tbl=document.getElementById('hm-itt');
-  if(!tbl)return;
-  let html='<thead><tr><th class="hm-scn-col">SCN</th>';
-  OUTCOMES.forEach(o=>{html+=`<th>${OUT_LBL[o]}</th>`;});
-  html+='<th>Avg</th></tr></thead><tbody>';
-  const rankData=[];
-  scns.forEach(id=>{
-    const d=KOBO[id];
-    const pcts=calcITTpct(d.anak||[],d.obs||[]);
-    const avgP=Math.round(Object.values(pcts).reduce((a,b)=>a+b,0)/OUTCOMES.length);
-    rankData.push({id,label:SCN_LABEL[SCN_IDS.indexOf(id)]||id,prov:PROV_MAP[id]||'',avg:avgP,pcts});
-    html+=`<tr><td class="hm-scn">${SCN_LABEL[SCN_IDS.indexOf(id)]||id}</td>`;
-    OUTCOMES.forEach(o=>{
-      const v=pcts[o]||0;
-      html+=`<td style="background:${pctBg(v)};color:${pctColor(v)}">${v}%</td>`;
+  // Pakai data yang tersedia — estimasi ITT dari field data
+  let html = '<thead><tr><th class="left">SCN</th>';
+  OUTCOMES.forEach(o => { html+=`<th>${OUT_LBL[o]}</th>`; });
+  html += '<th>Avg</th></tr></thead><tbody>';
+
+  const ranks = [];
+  // Jika hanya 1 SCN aktif atau semua SCN
+  const renderRows = scnList.length===1
+    ? [{ id: scnList[0], anak, obs }]
+    : scnList.map(id => ({ id, anak: anak.filter(a=>(a.scn||'').toLowerCase()===id), obs: obs.filter(o=>(o.scn||'').toLowerCase()===id) }));
+
+  renderRows.forEach(({id, anak:a, obs:o}) => {
+    const pcts = calcITTpct(a, o);
+    const avgP = Math.round(Object.values(pcts).reduce((s,v)=>s+v,0)/OUTCOMES.length);
+    ranks.push({ id, lbl:SCN_LBL[id]||id, prov:PROV_MAP[id]||'', avg:avgP, pcts });
+    html += `<tr><td class="hm-scn">${SCN_LBL[id]||id}</td>`;
+    OUTCOMES.forEach(o => {
+      const v = pcts[o]||0;
+      html += `<td style="background:${pctBg(v)};color:${pctColor(v)}">${v}%</td>`;
     });
-    html+=`<td style="background:${pctBg(avgP)};color:${pctColor(avgP)};font-weight:800">${avgP}%</td></tr>`;
+    html += `<td style="background:${pctBg(avgP)};color:${pctColor(avgP)};font-weight:800">${avgP}%</td></tr>`;
   });
-  tbl.innerHTML=html+'</tbody>';
-  rankData.sort((a,b)=>b.avg-a.avg);
-  const rl=document.getElementById('ranking-list');
-  if(!rl)return;
-  const medals=['🥇','🥈','🥉'];
-  rl.innerHTML=rankData.map((s,i)=>`
+  tbl.innerHTML = html + '</tbody>';
+
+  ranks.sort((a,b)=>b.avg-a.avg);
+  const medals = ['🥇','🥈','🥉'];
+  rl.innerHTML = ranks.map((s,i) => `
     <div class="rank-row">
-      <div class="rank-badge" style="background:${i<3?'#fef3c7':'#f3f4f6'};color:${i<3?'#92400e':'#94a3b8'}">${medals[i]||i+1}</div>
-      <div class="rank-info"><div class="rank-name">${s.label}</div><div class="rank-prov">${s.prov}</div></div>
-      <div style="width:70px"><div class="prog-track"><div class="prog-fill" style="width:${s.avg}%;background:${pctColor(s.avg)}"></div></div></div>
+      <div class="rank-medal" style="background:${i<3?'#fef3c7':'#f3f4f6'};color:${i<3?'#92400e':'#94a3b8'}">${medals[i]||i+1}</div>
+      <div class="rank-info">
+        <div class="rank-name">${s.lbl}</div>
+        <div class="rank-prov">${s.prov}</div>
+        <div class="prog-track"><div class="prog-fill" style="width:${s.avg}%;background:${pctColor(s.avg)}"></div></div>
+      </div>
       <div class="rank-pct" style="color:${pctColor(s.avg)}">${s.avg}%</div>
     </div>`).join('');
 }
 
-// ── RENDER WELLBEING ──────────────────────────────────────────
-function renderWellbeing(scns, allAnak){
-  const spL=[],spD=[],spC=[],saL=[],saD=[],saC=[];
-  scns.forEach(id=>{
-    const lbl=SCN_LABEL[SCN_IDS.indexOf(id)]||id;
-    const spArr=(KOBO[id].anak||[]).filter(a=>a.sp!=null).map(a=>a.sp);
-    const saArr=(KOBO[id].anak||[]).filter(a=>a.sa!=null).map(a=>a.sa);
-    if(spArr.length){const v=parseFloat(avg(spArr).toFixed(1));spL.push(lbl);spD.push(v);spC.push(scColor(v)+'cc');}
-    if(saArr.length){const v=parseFloat(avg(saArr).toFixed(1));saL.push(lbl);saD.push(v);saC.push(scColor(v)+'cc');}
+// ══════════════════════════════════════════════════════════════
+// TAB 3: SIKLUS INTERVENSI
+// ══════════════════════════════════════════════════════════════
+function renderSiklus() {
+  const d    = D;
+  const anak = d.anak||[];
+  const obs  = d.obs||[];
+  const plan = d.perencanaan||[];
+  const diary= d.diary||[];
+  const evalM= d.evalMenengah||[];
+  const evalA= d.evalAkhir||[];
+
+  const namaObs   = new Set(obs.map(o=>(o.na||'').toLowerCase().trim()));
+  const namaPlan  = new Set(plan.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+  const namaDiary = new Set(diary.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+  const namaEvalM = new Set(evalM.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+  const namaEvalA = new Set(evalA.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+
+  // Semua nama unik dari 6 form
+  const allNama = namaUnik(d);
+
+  // Hitung status siklus setiap anak
+  const statusMap = { full:0, inProgress:0, early:0, none:0 };
+  allNama.forEach(nama => {
+    const hasObs   = namaObs.has(nama);
+    const hasPlan  = namaPlan.has(nama);
+    const hasDiary = namaDiary.has(nama);
+    const hasEvalM = namaEvalM.has(nama);
+    const hasEvalA = namaEvalA.has(nama);
+    if (hasEvalA) statusMap.full++;
+    else if (hasEvalM || hasDiary) statusMap.inProgress++;
+    else if (hasObs || hasPlan) statusMap.early++;
+    else statusMap.none++;
   });
-  mkChart('chart-sp-scn','bar',{labels:spL,datasets:[{data:spD,backgroundColor:spC,borderRadius:6,borderSkipped:false}]},
-    {...CD,scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{...CD.scales.y,min:0,max:10,ticks:{callback:v=>v+'/10'}}}});
-  mkChart('chart-sa-scn','bar',{labels:saL,datasets:[{data:saD,backgroundColor:saC,borderRadius:6,borderSkipped:false}]},
-    {...CD,scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{...CD.scales.y,min:0,max:10,ticks:{callback:v=>v+'/10'}}}});
-  // Distribusi
-  const kritis=allAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
-  const sedang=allAnak.filter(a=>a.sp!=null&&a.sp>=4&&a.sp<=6).length;
-  const baik=allAnak.filter(a=>a.sp!=null&&a.sp>=7).length;
-  const belum=allAnak.filter(a=>a.sp==null).length;
-  mkChart('chart-sp-dist','doughnut',{labels:['Kritis','Sedang','Baik','Belum'],
-    datasets:[{data:[kritis,sedang,baik,belum],backgroundColor:['#dc2626','#d97706','#16a34a','#e5e7eb'],borderColor:'#fff',borderWidth:2}]},
-    {responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{font:{size:10},padding:8}}}});
-  // Usia
-  const AGO=['0-5 th','6-12 th','13-17 th','18-24 th','25+ th'];
-  const guC={};allAnak.forEach(a=>{const g=a.gu||'?';guC[g]=(guC[g]||0)+1;});
-  mkChart('chart-usia','bar',{labels:AGO,datasets:[{data:AGO.map(g=>guC[g]||0),backgroundColor:['#F97316','#FB923C','#FDBA74','#1E293B','#475569'],borderRadius:6,borderSkipped:false}]},CD);
-  // Ragam
-  const RC={'Fisik':'#F97316','Intelektual':'#1E293B','Sensorik (penglihatan)':'#FB923C','Sensorik (pendengaran dan bicara)':'#FDBA74','Ganda':'#475569','Lainnya':'#94A3B8'};
-  const rC={};allAnak.forEach(a=>{const r=a.ragam||'Lainnya';rC[r]=(rC[r]||0)+1;});
-  const rK=Object.keys(rC).filter(k=>rC[k]>0);
-  mkChart('chart-ragam','bar',{labels:rK.map(k=>k.split(' ')[0]),datasets:[{data:rK.map(k=>rC[k]),backgroundColor:rK.map(k=>RC[k]||'#94A3B8'),borderRadius:6,borderSkipped:false}]},CD);
+
+  // Tabel siklus per anak (dari DataAwal yang ada info lengkap)
+  // Sort: yang paling kritis dulu
+  const anakSorted = [...anak].sort((a,b) => (a.sp??10)-(b.sp??10));
+
+  // Ringkasan per CBR worker
+  const workerMap = {};
+  anak.forEach(a => {
+    const w = a.cbr||'—';
+    if (!workerMap[w]) workerMap[w] = {nama:w, anak:0, obsCount:0, planCount:0, diaryCount:0, evalMCount:0, evalACount:0};
+    const k = (a.nama||'').toLowerCase().trim();
+    workerMap[w].anak++;
+    if (namaObs.has(k))   workerMap[w].obsCount++;
+    if (namaPlan.has(k))  workerMap[w].planCount++;
+    if (namaDiary.has(k)) workerMap[w].diaryCount++;
+    if (namaEvalM.has(k)) workerMap[w].evalMCount++;
+    if (namaEvalA.has(k)) workerMap[w].evalACount++;
+  });
+  const workers = Object.values(workerMap).sort((a,b)=>b.anak-a.anak);
+
+  document.getElementById('page-content').innerHTML = `
+    <!-- Status Siklus -->
+    <div class="an-section">
+      <div class="an-section-title">🔄 Status Siklus Intervensi <span class="badge badge-kobo">${allNama.size} anak total</span></div>
+      <div class="g4" style="margin-bottom:16px">
+        ${siklarCard('🏁','Siklus Lengkap',statusMap.full,allNama.size,'#16a34a','Sudah evaluasi akhir')}
+        ${siklarCard('📊','Dalam Proses',statusMap.inProgress,allNama.size,'#F97316','Ada diary/eval menengah')}
+        ${siklarCard('🌱','Tahap Awal',statusMap.early,allNama.size,'#2563eb','Ada obs/perencanaan')}
+        ${siklarCard('⏳','Belum Mulai',statusMap.none,allNama.size,'#dc2626','Hanya di 1 form')}
+      </div>
+    </div>
+
+    <!-- Tabel siklus per CBR Worker -->
+    <div class="an-section">
+      <div class="an-section-title">👷 Kelengkapan Siklus per CBR Worker</div>
+      <div class="card">
+        <div class="card-body np">
+          <div style="overflow-x:auto">
+            <table class="siklus-table">
+              <thead><tr>
+                <th>CBR Worker</th>
+                <th>Anak</th>
+                <th>Observasi</th>
+                <th>Perencanaan</th>
+                <th>Buku Harian</th>
+                <th>Eval Menengah</th>
+                <th>Eval Akhir</th>
+                <th>Siklus Lengkap</th>
+              </tr></thead>
+              <tbody>
+                ${workers.map(w => {
+                  const pct = n => w.anak>0?Math.round(n/w.anak*100):0;
+                  const cell = (n,tot) => `<td><div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+                    <span style="font-weight:700;color:${pctColor(pct(n))}">${n}</span>
+                    <span style="font-size:.58rem;color:#94a3b8">${pct(n)}%</span>
+                  </div></td>`;
+                  return `<tr>
+                    <td>${w.nama}</td>
+                    <td style="text-align:center;font-weight:700">${w.anak}</td>
+                    ${cell(w.obsCount,w.anak)}
+                    ${cell(w.planCount,w.anak)}
+                    ${cell(w.diaryCount,w.anak)}
+                    ${cell(w.evalMCount,w.anak)}
+                    ${cell(w.evalACount,w.anak)}
+                    <td><div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+                      <span style="font-weight:700;color:${pctColor(pct(w.evalACount))}">${w.evalACount}</span>
+                      <div class="pct-bar" style="width:44px"><div class="pct-fill" style="width:${pct(w.evalACount)}%;background:${pctColor(pct(w.evalACount))}"></div></div>
+                    </div></td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabel siklus per anak -->
+    <div class="an-section">
+      <div class="an-section-title">👶 Status Siklus per Anak <span class="badge badge-gray">dari DataAwal · diurutkan skor terendah</span></div>
+      <div class="card">
+        <div class="card-body np">
+          <div style="overflow-x:auto;max-height:400px">
+            <table class="siklus-table">
+              <thead style="position:sticky;top:0;z-index:1"><tr>
+                <th>Nama Anak</th>
+                <th>Worker</th>
+                <th>Skor</th>
+                <th>Data Awal</th>
+                <th>Obs</th>
+                <th>Rencana</th>
+                <th>Diary</th>
+                <th>Eval M</th>
+                <th>Eval A</th>
+              </tr></thead>
+              <tbody>
+                ${anakSorted.map(a => {
+                  const k = (a.nama||'').toLowerCase().trim();
+                  const dot = (has) => has
+                    ? '<span class="siklus-dot yes">✓</span>'
+                    : '<span class="siklus-dot no">✗</span>';
+                  const spCol = a.sp!=null?scColor(a.sp):'#94a3b8';
+                  return `<tr>
+                    <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.nama||'—'}</td>
+                    <td style="font-size:.68rem;color:#64748b">${(a.cbr||'—').split(' ').slice(-1)[0]}</td>
+                    <td style="font-weight:700;color:${spCol}">${a.sp!=null?a.sp:'—'}</td>
+                    <td><span class="siklus-dot yes">✓</span></td>
+                    <td>${dot(namaObs.has(k))}</td>
+                    <td>${dot(namaPlan.has(k))}</td>
+                    <td>${dot(namaDiary.has(k))}</td>
+                    <td>${dot(namaEvalM.has(k))}</td>
+                    <td>${dot(namaEvalA.has(k))}</td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
-// ── RENDER ICF ────────────────────────────────────────────────
-function renderICF(allObs){
-  [{key:'struktur',fk:'st',el:'icf-struktur',posL:'Baik',negL:'Terganggu',posC:'#16a34a',negC:'#dc2626'},
-   {key:'kegiatan',fk:'kg',el:'icf-kegiatan',posL:'Mampu',negL:'Terbatas',posC:'#2563eb',negC:'#d97706'},
-   {key:'lingkungan',fk:'lg',el:'icf-lingkungan',posL:'Dukungan',negL:'Hambatan',posC:'#7c3aed',negC:'#b91c1c'},
-  ].forEach(dom=>{
-    const res=analyzeICF(allObs,dom.key,dom.fk);
-    const el=document.getElementById(dom.el);if(!el)return;
-    el.innerHTML=THEMES_ICF[dom.key].map(t=>{
-      const r=res[t.label]||{pos:0,neg:0};
-      const tot=r.pos+r.neg||1;
-      return `<div class="icf-domain-row">
-        <div class="icf-domain-label">${t.label}</div>
-        <div class="icf-domain-bars">
-          <div class="icf-bar-wrap"><div class="icf-bar-label" style="color:${dom.posC}">${dom.posL}</div><div class="icf-bar-track"><div class="icf-bar-fill" style="width:${Math.round(r.pos/tot*100)}%;background:${dom.posC}"></div></div><div class="icf-bar-num" style="color:${dom.posC}">${r.pos}</div></div>
-          <div class="icf-bar-wrap"><div class="icf-bar-label" style="color:${dom.negC}">${dom.negL}</div><div class="icf-bar-track"><div class="icf-bar-fill" style="width:${Math.round(r.neg/tot*100)}%;background:${dom.negC}"></div></div><div class="icf-bar-num" style="color:${dom.negC}">${r.neg}</div></div>
-        </div></div>`;
-    }).join('');
-  });
+function siklarCard(icon, label, n, total, color, desc) {
+  const pct = total>0?Math.round(n/total*100):0;
+  return `<div class="card">
+    <div class="card-body" style="text-align:center">
+      <div style="font-size:1.4rem;margin-bottom:6px">${icon}</div>
+      <div style="font-size:1.6rem;font-weight:800;color:${color};line-height:1">${n}</div>
+      <div style="font-size:.58rem;color:#94a3b8;margin:2px 0">${pct}% dari total</div>
+      <div style="font-size:.72rem;font-weight:700;color:#334155;margin-top:4px">${label}</div>
+      <div style="font-size:.65rem;color:#94a3b8;margin-top:2px">${desc}</div>
+      <div class="pct-bar" style="width:100%;margin-top:8px"><div class="pct-fill" style="width:${pct}%;background:${color}"></div></div>
+    </div>
+  </div>`;
 }
 
-// ── RENDER IMPLEMENTASI ───────────────────────────────────────
-function renderImplementasi(scns, allAnak, allObs){
-  const labels=[],kunj=[],late=[],epD=[],obD=[],trD=[];
-  scns.forEach(id=>{
-    const anak=KOBO[id].anak||[];
-    const works=KOBO[id].workers||[];
-    const lbl=SCN_LABEL[SCN_IDS.indexOf(id)]||id;
-    const t=anak.length||1;
-    labels.push(lbl);
-    kunj.push(works.reduce((s,w)=>s+w.kunjungan_bulan,0));
-    late.push(works.reduce((s,w)=>s+w.late,0));
-    epD.push(Math.round(anak.filter(a=>a.ep).length/t*100));
-    obD.push(Math.round(anak.filter(a=>a.ob).length/t*100));
-    trD.push(Math.round(anak.filter(a=>a.tr).length/t*100));
+// ══════════════════════════════════════════════════════════════
+// TAB 4: ANALISIS KUALITATIF
+// ══════════════════════════════════════════════════════════════
+function renderKualitatif() {
+  const d    = D;
+  const anak = d.anak||[];
+  const obs  = d.obs||[];
+  const plan = d.perencanaan||[];
+  const evalM= d.evalMenengah||[];
+  const evalA= d.evalAkhir||[];
+
+  // Tema Gemini dari _tema field
+  const temaStats = { nka:{}, tka:{}, nkp:{}, tkp:{} };
+  anak.forEach(a => {
+    if (!a._tema) return;
+    ['nka','tka','nkp','tkp'].forEach(field => {
+      (a._tema[field]||[]).forEach(t => {
+        const k = t.kategori||'Lainnya';
+        temaStats[field][k] = (temaStats[field][k]||0)+1;
+      });
+    });
   });
-  mkChart('chart-coverage','bar',{labels,datasets:[
-    {label:'Kunjungan Bulan Ini',data:kunj,backgroundColor:'#F97316cc',borderRadius:4},
-    {label:'Belum Dikunjungi >30 hari',data:late,backgroundColor:'#dc2626cc',borderRadius:4},
-  ]},{...CD,plugins:{...CD.plugins,legend:{display:true,position:'top',labels:{font:{size:10}}}}});
-  mkChart('chart-kondisi','bar',{labels,datasets:[
-    {label:'Epilepsi (%)',data:epD,backgroundColor:'#dc2626cc',borderRadius:4},
-    {label:'Pengobatan (%)',data:obD,backgroundColor:'#2563ebcc',borderRadius:4},
-    {label:'Terapi (%)',data:trD,backgroundColor:'#16a34acc',borderRadius:4},
-  ]},{...CD,plugins:{...CD.plugins,legend:{display:true,position:'top',labels:{font:{size:10}}}},
-    scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{...CD.scales.y,min:0,max:100,ticks:{callback:v=>v+'%'}}}});
+  const hasTema = Object.values(temaStats).some(v=>Object.keys(v).length>0);
+
+  // ICF analysis
+  const THEMES_ICF = {
+    struktur:[
+      {label:'Mental & Saraf',pos:['kognitif baik','paham instruksi'],neg:['cerebral palsy','down syndrome','autisme','keterlambatan']},
+      {label:'Gerak & Motorik',pos:['bisa berjalan','gerak baik','motorik baik'],neg:['tidak bisa berjalan','lumpuh','kaku','kursi roda']},
+      {label:'Fungsi Indra',pos:['penglihatan baik','pendengaran baik'],neg:['gangguan penglihatan','gangguan pendengaran','tuli','tunanetra']},
+      {label:'Komunikasi',pos:['bicara lancar','komunikasi baik'],neg:['tidak bisa bicara','bisu']},
+    ],
+    kegiatan:[
+      {label:'Pendidikan',pos:['bersekolah','sekolah','belajar'],neg:['tidak sekolah','putus sekolah']},
+      {label:'Mobilitas',pos:['bergerak mandiri','mobilitas baik'],neg:['tidak bisa berjalan','kursi roda','digendong']},
+      {label:'Perawatan Diri',pos:['mandiri mandi','mengurus diri'],neg:['bantuan total','disuapi','dimandikan']},
+      {label:'Interaksi Sosial',pos:['bermain bersama','punya teman'],neg:['tidak punya teman','isolasi']},
+    ],
+    lingkungan:[
+      {label:'Dukungan Keluarga',pos:['keluarga mendukung','keluarga peduli'],neg:['tidak mendukung','diabaikan']},
+      {label:'Akses Kesehatan',pos:['bpjs aktif','puskesmas dekat'],neg:['tidak punya bpjs','akses sulit']},
+      {label:'Sikap Masyarakat',pos:['diterima masyarakat'],neg:['stigma','dikucilkan','diskriminasi']},
+    ]
+  };
+
+  function scoreICF(text, theme) {
+    const t=(text||'').toLowerCase();
+    return { pos:theme.pos.filter(k=>t.includes(k)).length, neg:theme.neg.filter(k=>t.includes(k)).length };
+  }
+
+  const icfResult = {};
+  Object.keys(THEMES_ICF).forEach(dom => {
+    icfResult[dom] = {};
+    THEMES_ICF[dom].forEach(th => {
+      icfResult[dom][th.label] = {pos:0,neg:0};
+      obs.forEach(o => {
+        const text = dom==='struktur'?o.st:dom==='kegiatan'?o.kg:o.lg;
+        const s = scoreICF(text,th);
+        icfResult[dom][th.label].pos += s.pos;
+        icfResult[dom][th.label].neg += s.neg;
+      });
+    });
+  });
+
+  // Word frequency dari berbagai field
+  const kesulitanPengasuh = plan.map(r=>r.kesulitan_pengasuh||'').filter(Boolean);
+  const perubahanEval     = evalM.map(r=>r.perubahan_1||'').filter(Boolean);
+  const alasanTidak       = evalA.map(r=>r.alasan_tidak_1||'').filter(Boolean);
+  const lessonMon         = BEN_MON.map(r=>r.lesson_learnt||'').filter(Boolean);
+
+  const wfKesulitan = wordFreq(kesulitanPengasuh);
+  const wfPerubahan = wordFreq(perubahanEval);
+  const wfAlasan    = wordFreq(alasanTidak);
+  const wfLesson    = wordFreq(lessonMon);
+
+  // Aktor yang paling banyak dilibatkan dari perencanaan
+  const aktorCount = {};
+  const AKTOR_FIELDS = ['ayah','ibu','saudara_kandung','kakek_nenek_serumah','guru_kelas','bidan_desa','kepala_desa','scn','cbr_worker_lain','kader_posyandu'];
+  plan.forEach(r => {
+    AKTOR_FIELDS.forEach(ak => {
+      const v = r['rencana_'+ak+'_t1']||r['rencana_'+ak+'_t2']||r['rencana_'+ak+'_t3'];
+      if (v && v!=='0' && v!=='') aktorCount[ak]=(aktorCount[ak]||0)+1;
+    });
+  });
+  const aktorEntries = Object.entries(aktorCount).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxAktor = aktorEntries[0]?.[1]||1;
+
+  const AKTOR_LBL = {ayah:'Ayah',ibu:'Ibu',saudara_kandung:'Saudara Kandung',kakek_nenek_serumah:'Kakek/Nenek',guru_kelas:'Guru Kelas',bidan_desa:'Bidan Desa',kepala_desa:'Kepala Desa',scn:'SCN',cbr_worker_lain:'CBR Worker Lain',kader_posyandu:'Kader Posyandu'};
+
+  document.getElementById('page-content').innerHTML = `
+    <!-- TEMA GEMINI -->
+    ${hasTema ? `
+    <div class="an-section">
+      <div class="an-section-title">🧠 Tema Narasi (Analisis Gemini AI) <span class="badge badge-kobo">DataAwal · field nka/tka/nkp/tkp</span></div>
+      <div class="g2">
+        ${temaCloud('💪 Faktor Membantu Anak', temaStats.nka, '#16a34a')}
+        ${temaCloud('⚠️ Faktor Menyulitkan Anak', temaStats.tka, '#dc2626')}
+        ${temaCloud('💚 Faktor Membantu Pengasuh', temaStats.nkp, '#2563eb')}
+        ${temaCloud('💔 Faktor Menyulitkan Pengasuh', temaStats.tkp, '#d97706')}
+      </div>
+    </div>` : ''}
+
+    <!-- ICF -->
+    <div class="an-section">
+      <div class="an-section-title">🔬 Temuan ICF dari Observasi Lapangan <span class="badge badge-kobo">${obs.length} observasi</span></div>
+      <div class="g3">
+        ${icfSection('Struktur & Fungsi Tubuh','st',icfResult.struktur,'#1a6fd4')}
+        ${icfSection('Kegiatan & Partisipasi','kg',icfResult.kegiatan,'#10b8a6')}
+        ${icfSection('Faktor Lingkungan','lg',icfResult.lingkungan,'#d97706')}
+      </div>
+    </div>
+
+    <!-- WORD FREQ -->
+    <div class="an-section">
+      <div class="an-section-title">💬 Pola Kata dari Narasi Lapangan <span class="badge badge-kobo">Frekuensi kata · DataRencana + Evaluasi</span></div>
+      <div class="g2">
+        ${wordFreqCard('😔 Kesulitan Pengasuh', wfKesulitan, '#dc2626', kesulitanPengasuh.length+' perencanaan')}
+        ${wordFreqCard('🔄 Perubahan Teridentifikasi', wfPerubahan, '#F97316', perubahanEval.length+' eval menengah')}
+        ${wordFreqCard('❌ Alasan Tujuan Tidak Tercapai', wfAlasan, '#d97706', alasanTidak.length+' eval akhir')}
+        ${wordFreqCard('💡 Lesson Learnt Kegiatan', wfLesson, '#16a34a', lessonMon.length+' monitoring')}
+      </div>
+    </div>
+
+    <!-- AKTOR PERENCANAAN -->
+    ${plan.length>0 ? `
+    <div class="an-section">
+      <div class="an-section-title">👥 Aktor yang Dilibatkan dalam Perencanaan <span class="badge badge-kobo">DataRencana · ${plan.length} record</span></div>
+      <div class="card" style="max-width:500px">
+        <div class="card-head"><span class="card-title">Top 10 Aktor</span><span class="card-sub">berdasarkan frekuensi keterlibatan</span></div>
+        <div class="card-body">
+          ${aktorEntries.map(([k,v])=>`
+            <div class="aktor-row">
+              <div class="aktor-name">${AKTOR_LBL[k]||k}</div>
+              <div class="aktor-bar-wrap"><div class="aktor-bar-fill" style="width:${Math.round(v/maxAktor*100)}%"></div></div>
+              <div class="aktor-count">${v}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>` : ''}
+
+    <!-- CERITA -->
+    ${renderCerita(d)}
+  `;
 }
 
-// ── RENDER WORKER ─────────────────────────────────────────────
-function renderWorker(allWork){
-  const labels=[],anakD=[],kunjD=[],lateD=[];
-  allWork.forEach(w=>{
-    labels.push(w.nama.split(' ').slice(-1)[0]+' ('+(SCN_LABEL[SCN_IDS.indexOf(w.scn)]||w.scn)+')');
-    anakD.push(w.anak);kunjD.push(w.kunjungan_bulan);lateD.push(w.late);
-  });
-  mkChart('chart-worker','bar',{labels,datasets:[
-    {label:'Caseload',data:anakD,backgroundColor:'#F97316cc',borderRadius:4},
-    {label:'Kunjungan',data:kunjD,backgroundColor:'#1E293Bcc',borderRadius:4},
-    {label:'Terlambat',data:lateD,backgroundColor:'#dc2626cc',borderRadius:4},
-  ]},{...CD,plugins:{...CD.plugins,legend:{display:true,position:'top',labels:{font:{size:10}}}},
-    scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:30}},y:{...CD.scales.y}}});
+function temaCloud(title, data, color) {
+  const entries = Object.entries(data).sort((a,b)=>b[1]-a[1]);
+  if (!entries.length) return `<div class="card"><div class="card-head"><span class="card-title">${title}</span></div><div class="card-body"><div class="empty"><div class="empty-icon">🔍</div>Belum ada data tema</div></div></div>`;
+  const maxV = entries[0][1];
+  return `<div class="card">
+    <div class="card-head"><span class="card-title">${title}</span><span class="card-sub">${entries.length} kategori</span></div>
+    <div class="card-body">
+      <div class="tema-cloud">
+        ${entries.map(([k,v])=>{
+          const opacity = 0.3 + (v/maxV)*0.7;
+          const size = 0.65 + (v/maxV)*0.2;
+          return `<span class="tema-chip" style="background:${color}18;color:${color};font-size:${size}rem;opacity:${opacity+0.2}">${k} <strong>(${v})</strong></span>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
 }
 
-// ── RENDER STAKEHOLDER ────────────────────────────────────────
-function renderStakeholder(){
-  const katC={};
-  BEN_STK.forEach(r=>{const k=r.kategori||'Lainnya';katC[k]=(katC[k]||0)+1;});
-  const katE=Object.entries(katC).sort((a,b)=>b[1]-a[1]);
-  mkChart('chart-stk-kat','bar',{
-    labels:katE.map(([k])=>k.split(' ').slice(-1)[0]),
-    datasets:[{data:katE.map(([,v])=>v),backgroundColor:katE.map((_,i)=>PALETTE[i%PALETTE.length]),borderRadius:5,borderSkipped:false}]
-  },{...CD,indexAxis:'y',scales:{x:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}});
-
-  const scnC={};
-  BEN_STK.forEach(r=>{const s=r.scn||'?';scnC[s]=(scnC[s]||0)+1;});
-  const scnE=Object.entries(scnC).sort((a,b)=>b[1]-a[1]);
-  const maxV=scnE[0]?.[1]||1;
-  mkChart('chart-stk-scn','bar',{
-    labels:scnE.map(([k])=>SCN_LABEL[SCN_IDS.indexOf(k)]||k),
-    datasets:[{data:scnE.map(([,v])=>v),backgroundColor:scnE.map(([,v])=>{const r=v/maxV;return r>0.8?'#F97316':r>0.5?'#EA6C00':r>0.3?'#C05500':'#94A3B8';}),borderRadius:5,borderSkipped:false}]
-  },{...CD,scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}}}});
+function icfSection(title, key, data, color) {
+  const entries = Object.entries(data);
+  const total = entries.reduce((s,[,v])=>s+v.pos+v.neg,0)||1;
+  return `<div class="card">
+    <div class="card-head"><span class="card-title">${title}</span></div>
+    <div class="card-body">
+      ${entries.map(([lbl,v])=>{
+        const tot = v.pos+v.neg||1;
+        return `<div class="icf-row">
+          <div class="icf-lbl">${lbl}</div>
+          <div class="icf-bars">
+            <div class="icf-bar-wrap">
+              <div class="icf-bar-lbl" style="color:#16a34a">Positif</div>
+              <div class="icf-bar-track"><div class="icf-bar-fill" style="width:${Math.round(v.pos/tot*100)}%;background:#16a34a"></div></div>
+              <div class="icf-bar-num" style="color:#16a34a">${v.pos}</div>
+            </div>
+            <div class="icf-bar-wrap">
+              <div class="icf-bar-lbl" style="color:#dc2626">Negatif</div>
+              <div class="icf-bar-track"><div class="icf-bar-fill" style="width:${Math.round(v.neg/tot*100)}%;background:#dc2626"></div></div>
+              <div class="icf-bar-num" style="color:#dc2626">${v.neg}</div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
 }
 
-// ── RENDER MONITORING ─────────────────────────────────────────
-function renderMonitoring(){
-  const pesKat=[
-    {l:'CBR Worker',v:BEN_MON.reduce((s,r)=>s+num(r.cbr),0)},
-    {l:'Guru',v:BEN_MON.reduce((s,r)=>s+num(r.guru),0)},
-    {l:'Pengasuh',v:BEN_MON.reduce((s,r)=>s+num(r.pengasuh),0)},
-    {l:'Nakes',v:BEN_MON.reduce((s,r)=>s+num(r.nakes),0)},
-    {l:'Staff Mitra',v:BEN_MON.reduce((s,r)=>s+num(r.staff),0)},
-    {l:'Pemerintah',v:BEN_MON.reduce((s,r)=>s+num(r.pemerintah),0)},
-    {l:'Lainnya',v:BEN_MON.reduce((s,r)=>s+num(r.lainnya),0)},
-  ].filter(k=>k.v>0).sort((a,b)=>b.v-a.v);
-  mkChart('chart-mon-kat','bar',{
-    labels:pesKat.map(k=>k.l),
-    datasets:[{data:pesKat.map(k=>k.v),backgroundColor:pesKat.map((_,i)=>PALETTE[i%PALETTE.length]),borderRadius:5,borderSkipped:false}]
-  },{...CD,indexAxis:'y',scales:{x:{grid:{color:'#f3f4f6'},ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}});
-
-  const outC={};
-  BEN_MON.forEach(r=>{const o=r.outcome||'Lainnya';outC[o]=(outC[o]||0)+1;});
-  const outE=Object.entries(outC).sort((a,b)=>b[1]-a[1]);
-  const outTotal=outE.reduce((s,[,v])=>s+v,0);
-  mkChart('chart-mon-out','doughnut',{
-    labels:outE.map(([k,v])=>`${k} (${Math.round(v/outTotal*100)}%)`),
-    datasets:[{data:outE.map(([,v])=>v),backgroundColor:outE.map((_,i)=>PALETTE[i%PALETTE.length]),borderColor:'#fff',borderWidth:3}]
-  },{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{font:{size:10},padding:10,usePointStyle:true}}}});
+function wordFreqCard(title, entries, color, sub) {
+  if (!entries.length) return `<div class="card"><div class="card-head"><span class="card-title">${title}</span></div><div class="card-body"><div class="empty"><div class="empty-icon">📭</div>Belum ada data</div></div></div>`;
+  const max = entries[0][1];
+  return `<div class="card">
+    <div class="card-head"><span class="card-title">${title}</span><span class="card-sub">${sub}</span></div>
+    <div class="card-body">
+      ${entries.slice(0,10).map(([w,v])=>`
+        <div class="aktor-row">
+          <div class="aktor-name">${w}</div>
+          <div class="aktor-bar-wrap" style="background:#f8fafc">
+            <div class="aktor-bar-fill" style="width:${Math.round(v/max*100)}%;background:${color}88"></div>
+          </div>
+          <div class="aktor-count" style="color:${color}">${v}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
 }
 
-// ── TAB SWITCH ───────────────────────────────────────────────
-function switchTab(tab){
-  const tabs = ['ringkasan','beneficiary','implementasi','jaringan'];
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
-    b.classList.toggle('active', tabs[i]===tab);
-  });
-  document.querySelectorAll('.tab-pane').forEach(p=>{
-    p.classList.toggle('active', p.id==='tab-'+tab);
-  });
+function renderCerita(d) {
+  const cerita = [...(d.cerita||[])];
+  if (!cerita.length) return `
+    <div class="an-section">
+      <div class="an-section-title">📖 Cerita Perubahan & Sukses</div>
+      <div class="empty"><div class="empty-icon">📭</div>Belum ada cerita perubahan atau cerita sukses</div>
+    </div>`;
+  return `
+    <div class="an-section">
+      <div class="an-section-title">📖 Cerita Perubahan & Sukses <span class="badge badge-kobo">${cerita.length} cerita</span></div>
+      <div class="g2">
+        ${cerita.slice(0,6).map(c=>`
+          <div class="cerita-card">
+            <div class="cerita-nama">${c.nama||c.judul||'—'}</div>
+            <div class="cerita-meta">
+              ${c.scn?`<span>📍 ${c.scn}</span>`:''}
+              ${c.cbr?`<span>👤 ${c.cbr}</span>`:''}
+              ${c.tgl?`<span>📅 ${c.tgl}</span>`:''}
+            </div>
+            <div class="cerita-isi">${c.isi||c.cerita||'—'}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// TAB 5: EKOSISTEM PROGRAM
+// ══════════════════════════════════════════════════════════════
+function renderEkosistem() {
+  const d     = D;
+  const anak  = d.anak||[];
+  const workers = d.workers||[];
+
+  document.getElementById('page-content').innerHTML = `
+    <!-- KPI Ekosistem -->
+    <div class="kpi-strip">
+      ${kpiTile('👷','#fff7ed','#F97316',workers.length,'CBR Worker','aktif dalam program')}
+      ${kpiTile('👥','#eff6ff','#2563eb',BEN_STK.length,'Total Stakeholder','dari BEN Uploader')}
+      ${kpiTile('📋','#f0fdf4','#16a34a',new Set(BEN_MON.map(r=>r.nama_kegiatan).filter(Boolean)).size,'Total Kegiatan','monitoring aktif')}
+      ${kpiTile('🎯','#f5f3ff','#7c3aed',BEN_MON.reduce((s,r)=>s+num(r.total),0),'Total Peserta','lintas kegiatan')}
+      ${kpiTile('🏢','#fafafa','#475569',new Set(BEN_STK.map(r=>(r.instansi||'').trim()).filter(Boolean)).size,'Instansi Terlibat','stakeholder')}
+    </div>
+
+    <!-- STAKEHOLDER -->
+    <div class="an-section">
+      <div class="an-section-title">🤝 Jaringan Stakeholder <span class="badge badge-ben">BEN Uploader · DataStakeholder</span></div>
+      ${BEN_STK.length > 0 ? `
+      <div class="g2">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Distribusi per Kategori</span></div>
+          <div class="card-body"><div class="ch ch-md"><canvas id="ch-stk-kat"></canvas></div></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Distribusi per SCN</span></div>
+          <div class="card-body"><div class="ch ch-md"><canvas id="ch-stk-scn"></canvas></div></div>
+        </div>
+      </div>` : `<div class="empty"><div class="empty-icon">📭</div>Belum ada data stakeholder. Upload melalui MEL SCN Tools.</div>`}
+    </div>
+
+    <!-- CBR WORKER -->
+    <div class="an-section">
+      <div class="an-section-title">👷 Kinerja CBR Worker <span class="badge badge-kobo">KoboToolbox · DataAwal + Observasi</span></div>
+      <div class="card">
+        <div class="card-body np">
+          <div style="overflow-x:auto">
+            <table class="siklus-table">
+              <thead><tr>
+                <th>Nama Worker</th>
+                <th>Anak</th>
+                <th>Kunjungan Bln Ini</th>
+                <th>Avg Skor Anak</th>
+                <th>Kritis</th>
+                <th>Epilepsi</th>
+                <th>Pernah Terapi</th>
+              </tr></thead>
+              <tbody>
+                ${workers.map(w => {
+                  const myAnak = anak.filter(a=>a.cbr===w.nama);
+                  const spArr  = myAnak.filter(a=>a.sp!=null).map(a=>a.sp);
+                  const avSP   = spArr.length?avg(spArr).toFixed(1):'—';
+                  const kritis = myAnak.filter(a=>a.sp!=null&&a.sp<=3).length;
+                  const ep     = myAnak.filter(a=>a.ep).length;
+                  const tr     = myAnak.filter(a=>a.tr).length;
+                  const spCol  = avSP!=='—'?scColor(parseFloat(avSP)):'#94a3b8';
+                  return `<tr>
+                    <td>${w.nama}</td>
+                    <td style="text-align:center;font-weight:700">${w.anak}</td>
+                    <td style="text-align:center">${w.kunjungan_bulan}</td>
+                    <td style="text-align:center;font-weight:700;color:${spCol}">${avSP}</td>
+                    <td style="text-align:center;color:${kritis>0?'#dc2626':'#94a3b8'};font-weight:${kritis>0?700:400}">${kritis}</td>
+                    <td style="text-align:center;color:#94a3b8">${ep}</td>
+                    <td style="text-align:center;color:#16a34a">${tr}</td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MONITORING KEGIATAN -->
+    <div class="an-section">
+      <div class="an-section-title">📋 Monitoring Kegiatan <span class="badge badge-ben">BEN Uploader · DataMonthly</span></div>
+      ${BEN_MON.length > 0 ? `
+      <div class="g2" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Peserta per Kategori</span></div>
+          <div class="card-body"><div class="ch ch-md"><canvas id="ch-mon-kat"></canvas></div></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Distribusi Outcome Kegiatan</span></div>
+          <div class="card-body"><div class="ch ch-md"><canvas id="ch-mon-out"></canvas></div></div>
+        </div>
+      </div>
+      ${renderLessonLearnt()}
+      ` : `<div class="empty"><div class="empty-icon">📭</div>Belum ada data monitoring. Upload melalui MEL SCN Tools.</div>`}
+    </div>
+  `;
+
+  setTimeout(() => {
+    if (BEN_STK.length > 0) {
+      const katC={};
+      BEN_STK.forEach(r=>{const k=r.kategori||'Lainnya';katC[k]=(katC[k]||0)+1;});
+      const katE=Object.entries(katC).sort((a,b)=>b[1]-a[1]);
+      mk('ch-stk-kat','bar',{
+        labels:katE.map(([k])=>k),
+        datasets:[{data:katE.map(([,v])=>v),backgroundColor:PAL,borderRadius:5,borderSkipped:false}]
+      },{...BASE,indexAxis:'y'});
+
+      const scnC={};
+      BEN_STK.forEach(r=>{const s=r.scn||'?';scnC[s]=(scnC[s]||0)+1;});
+      const scnE=Object.entries(scnC).sort((a,b)=>b[1]-a[1]);
+      mk('ch-stk-scn','bar',{
+        labels:scnE.map(([k])=>SCN_LBL[k]||k),
+        datasets:[{data:scnE.map(([,v])=>v),backgroundColor:PAL,borderRadius:5,borderSkipped:false}]
+      },{...BASE});
+    }
+
+    if (BEN_MON.length > 0) {
+      const pesKat=[
+        {l:'CBR Worker',v:BEN_MON.reduce((s,r)=>s+num(r.cbr),0)},
+        {l:'Guru',v:BEN_MON.reduce((s,r)=>s+num(r.guru),0)},
+        {l:'Pengasuh',v:BEN_MON.reduce((s,r)=>s+num(r.pengasuh),0)},
+        {l:'Nakes',v:BEN_MON.reduce((s,r)=>s+num(r.nakes),0)},
+        {l:'Pemerintah',v:BEN_MON.reduce((s,r)=>s+num(r.pemerintah),0)},
+        {l:'Lainnya',v:BEN_MON.reduce((s,r)=>s+num(r.lainnya),0)},
+      ].filter(k=>k.v>0).sort((a,b)=>b.v-a.v);
+      mk('ch-mon-kat','bar',{
+        labels:pesKat.map(k=>k.l),
+        datasets:[{data:pesKat.map(k=>k.v),backgroundColor:PAL,borderRadius:5,borderSkipped:false}]
+      },{...BASE,indexAxis:'y'});
+
+      const outC={};
+      BEN_MON.forEach(r=>{const o=r.outcome||'Lainnya';outC[o]=(outC[o]||0)+1;});
+      const outE=Object.entries(outC).sort((a,b)=>b[1]-a[1]);
+      const outTot=outE.reduce((s,[,v])=>s+v,0);
+      mk('ch-mon-out','doughnut',{
+        labels:outE.map(([k,v])=>`${k} (${Math.round(v/outTot*100)}%)`),
+        datasets:[{data:outE.map(([,v])=>v),backgroundColor:PAL,borderColor:'#fff',borderWidth:3}]
+      },{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{font:{size:10},padding:8}}}});
+    }
+  }, 100);
+}
+
+function renderLessonLearnt() {
+  const lessons = [...BEN_MON].filter(r=>r.lesson_learnt).sort((a,b)=>(b.tanggal||'').localeCompare(a.tanggal||'')).slice(0,6);
+  if (!lessons.length) return '';
+  return `<div class="card">
+    <div class="card-head"><span class="card-title">💡 Lesson Learnt Terkini</span><span class="card-sub">${lessons.length} kegiatan</span></div>
+    <div class="card-body">
+      ${lessons.map(r=>`
+        <div class="lesson-item">
+          <div class="lesson-keg">${r.nama_kegiatan||'—'}</div>
+          <div class="lesson-meta">${r.scn?'📍 '+r.scn:''} ${r.tanggal?'· 📅 '+r.tanggal:''}</div>
+          <div class="lesson-txt">${r.lesson_learnt}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
 }
 
 // ── INIT ─────────────────────────────────────────────────────
 buildSidebar();
 const SESSION = AUTH.requireAuth('../index.html');
-if(SESSION){
-  if(!AUTH.isSuperAdmin()){
-    window.location.href='mel-beranda.html';
+if (SESSION) {
+  if (!AUTH.canAccessMel()) {
+    window.location.href = 'mel-beranda.html';
   } else {
-    AUTH.applySession({onScnSwitch:function(scnId){}});
+    AUTH.applySession({
+      onScnSwitch: async function(scnId) {
+        const d = await API.get(scnId);
+        if (d) renderPage(d, scnId);
+      }
+    });
     AUTH.initSidebar('mel','m-analisis');
 
-    // Fetch semua sumber data paralel
+    // Fetch data paralel: API + BEN
+    const scnId = AUTH.getScnFilter();
     Promise.all([
-      API.get('manggarai'),
-      API_BEN.get('stakeholder', null),
-      API_BEN.get('monthly', null),
-    ]).then(([koboData, stkData, monData])=>{
+      API.get(scnId),
+      API_BEN.get('stakeholder', scnId),
+      API_BEN.get('monthly', scnId),
+    ]).then(([koboData, stkData, monData]) => {
       BEN_STK = stkData||[];
       BEN_MON = monData||[];
-      if(koboData){
-        KOBO['manggarai'] = koboData;
-        renderAll();
+      if (koboData) {
+        renderPage(koboData, scnId);
       } else {
-        document.getElementById('page-content').innerHTML='<div class="an-loading">Tidak ada data tersedia</div>';
+        document.getElementById('page-content').innerHTML =
+          '<div class="an-loading">Tidak ada data tersedia</div>';
       }
     });
   }
 }
 </script>
-</body>
-</html>
+</body></html>

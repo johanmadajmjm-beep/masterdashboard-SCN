@@ -30,7 +30,7 @@
 
     .ld-wrap{display:flex;flex:1;overflow:hidden;background:#fff;border:1px solid #e9eef6;border-radius:14px}
     .ld-list{width:100%;min-width:0;flex-shrink:0;border-right:1px solid #e9eef6;display:flex;flex-direction:column;overflow:hidden;transition:width .25s ease}
-    .ld-wrap.detail-open .ld-list{width:320px;min-width:320px}
+    .ld-wrap.detail-open .ld-list{width:460px;min-width:460px}
     .ld-items{flex:1;overflow-y:auto}
     .ld-items::-webkit-scrollbar{width:4px}
     .ld-items::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:2px}
@@ -39,14 +39,34 @@
     .ld-detail::-webkit-scrollbar{width:5px}
     .ld-detail::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:3px}
 
-    /* ── KEGIATAN LIST ── */
-    .keg-list-item{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;transition:background .12s;border-left:3px solid transparent}
-    .keg-list-item:last-child{border-bottom:none}
-    .keg-list-item:hover{background:#fff7ed}
-    .keg-list-item.active{background:#fff7ed;border-left:3px solid #F97316}
+    /* ── KEGIATAN TABLE ── */
+    .keg-table{width:100%;border-collapse:collapse;table-layout:fixed}
+    .keg-table thead{position:sticky;top:0;z-index:2}
+    .keg-table thead tr{background:#f8fafc;border-bottom:2px solid #e9eef6}
+    .keg-table th{padding:9px 12px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;text-align:left;white-space:nowrap;user-select:none}
+    .keg-table th.sortable{cursor:pointer;transition:color .12s}
+    .keg-table th.sortable:hover{color:#F97316}
+    .keg-table th.sort-asc,.keg-table th.sort-desc{color:#F97316}
+    .sort-icon{display:inline-flex;flex-direction:column;gap:1px;vertical-align:middle;margin-left:4px;opacity:.35}
+    .sort-icon svg{display:block}
+    .keg-table th.sort-asc .sort-icon,.keg-table th.sort-desc .sort-icon{opacity:1}
+    .col-outcome{width:76px}
+    .col-output{width:76px}
+    .col-kegiatan{width:auto}
+    .col-tanggal{width:110px}
+    .keg-table tbody tr{border-bottom:1px solid #f1f5f9;cursor:pointer;transition:background .1s;border-left:3px solid transparent}
+    .keg-table tbody tr:last-child{border-bottom:none}
+    .keg-table tbody tr:hover{background:#fff7ed}
+    .keg-table tbody tr.active{background:#fff7ed;border-left:3px solid #F97316}
+    .keg-table td{padding:10px 12px;vertical-align:middle}
+    .code-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:.62rem;font-weight:700;letter-spacing:.03em;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+    .code-pill.outcome{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+    .code-pill.output{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+    .code-pill.empty{background:#f8fafc;color:#cbd5e1;border:1px solid #f1f5f9}
+    .keg-name-cell{font-size:.76rem;font-weight:600;color:#0f172a;line-height:1.4}
+    .keg-meta-cell{font-size:.65rem;color:#94a3b8;margin-top:2px}
+    .keg-tgl-cell{font-size:.7rem;color:#475569;white-space:nowrap}
     .scn-dot{width:30px;height:30px;border-radius:8px;color:#fff;font-size:.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .keg-list-name{font-size:.76rem;font-weight:600;color:#0f172a;line-height:1.4;margin-bottom:3px}
-    .keg-list-meta{font-size:.66rem;color:#94a3b8}
 
     /* ── DETAIL PANEL ── */
     .detail-header{padding:16px 20px;background:#fff7ed;border-bottom:1px solid #fed7aa}
@@ -328,31 +348,101 @@ function renderChartOutcome(outCount){
   });
 }
 
+// ── SORT STATE ───────────────────────────────────────────────
+let SORT_COL = null; // 'outcome' | 'output' | 'kegiatan' | 'tanggal'
+let SORT_DIR = 'asc';
+
+function sortIcon(col){
+  const isAsc  = SORT_COL===col && SORT_DIR==='asc';
+  const isDesc = SORT_COL===col && SORT_DIR==='desc';
+  const upClr  = isAsc  ? '#F97316' : '#cbd5e1';
+  const dnClr  = isDesc ? '#F97316' : '#cbd5e1';
+  return `<span class="sort-icon">
+    <svg width="7" height="5" viewBox="0 0 7 5"><path d="M3.5 0L7 5H0z" fill="${upClr}"/></svg>
+    <svg width="7" height="5" viewBox="0 0 7 5"><path d="M3.5 5L0 0h7z" fill="${dnClr}"/></svg>
+  </span>`;
+}
+
+function toggleSort(col){
+  if(SORT_COL===col){ SORT_DIR = SORT_DIR==='asc'?'desc':'asc'; }
+  else { SORT_COL=col; SORT_DIR='asc'; }
+  renderKegList(ALL_DATA);
+}
+
 // ── KEG LIST ─────────────────────────────────────────────────
 function renderKegList(data){
-  document.getElementById('keg-list').innerHTML = data.map((r,i)=>{
-    const scn   = r.scn||'';
-    // warna dot per SCN: oranye untuk manggarai, hitam untuk lainnya
-    const dotBg = scn==='manggarai'?'#F97316':scn?'#1E293B':'#94a3b8';
-    const badge = SCN_LBL[scn]||scn.toUpperCase().slice(0,3)||'—';
-    return `
-    <div class="keg-list-item" id="keg-item-${i}" onclick="selectKeg(${i})">
-      <div class="scn-dot" style="background:${dotBg}">${badge}</div>
-      <div>
-        <div class="keg-list-name">${r.nama_kegiatan||'(tanpa judul)'}</div>
-        <div class="keg-list-meta">${fmtTgl(r.tanggal)} · ${r.lokasi||'—'}</div>
-      </div>
-    </div>`;
-  }).join('');
+  // Terapkan sort
+  let rows = [...data.entries()]; // [originalIdx, row]
+  if(SORT_COL){
+    rows.sort(([,a],[,b])=>{
+      let va, vb;
+      if(SORT_COL==='outcome')  { va=a.outcome||''; vb=b.outcome||''; }
+      else if(SORT_COL==='output')   { va=a.output||'';  vb=b.output||''; }
+      else if(SORT_COL==='kegiatan') { va=a.nama_kegiatan||''; vb=b.nama_kegiatan||''; }
+      else if(SORT_COL==='tanggal')  { va=a.tanggal||''; vb=b.tanggal||''; }
+      const cmp = va.localeCompare(vb, 'id', {numeric:true});
+      return SORT_DIR==='asc'?cmp:-cmp;
+    });
+  }
+
+  const thCls = col => `sortable${SORT_COL===col?' sort-'+SORT_DIR:''}`;
+
+  document.getElementById('keg-list').innerHTML = `
+  <table class="keg-table">
+    <thead>
+      <tr>
+        <th class="col-outcome ${thCls('outcome')}" onclick="toggleSort('outcome')">
+          Outcome ${sortIcon('outcome')}
+        </th>
+        <th class="col-output ${thCls('output')}" onclick="toggleSort('output')">
+          Output ${sortIcon('output')}
+        </th>
+        <th class="col-kegiatan ${thCls('kegiatan')}" onclick="toggleSort('kegiatan')">
+          Kegiatan ${sortIcon('kegiatan')}
+        </th>
+        <th class="col-tanggal ${thCls('tanggal')}" onclick="toggleSort('tanggal')">
+          Tanggal ${sortIcon('tanggal')}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows.map(([origIdx, r])=>{
+        const scn   = r.scn||'';
+        const dotBg = scn==='manggarai'?'#F97316':scn?'#1E293B':'#94a3b8';
+        const badge = SCN_LBL[scn]||scn.toUpperCase().slice(0,3)||'—';
+        const ocPill = r.outcome
+          ? `<span class="code-pill outcome">${r.outcome}</span>`
+          : `<span class="code-pill empty">—</span>`;
+        const opPill = r.output
+          ? `<span class="code-pill output">${r.output}</span>`
+          : `<span class="code-pill empty">—</span>`;
+        return `
+        <tr id="keg-item-${origIdx}" onclick="selectKeg(${origIdx})" class="${origIdx===ACTIVE_IDX?'active':''}">
+          <td>${ocPill}</td>
+          <td>${opPill}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="scn-dot" style="background:${dotBg};flex-shrink:0">${badge}</div>
+              <div>
+                <div class="keg-name-cell">${r.nama_kegiatan||'(tanpa judul)'}</div>
+                <div class="keg-meta-cell">${r.lokasi||'—'}</div>
+              </div>
+            </div>
+          </td>
+          <td class="keg-tgl-cell">${fmtTgl(r.tanggal)}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
 }
 
 // ── SELECT KEG ───────────────────────────────────────────────
 function selectKeg(i){
-  // Update active state
-  document.querySelectorAll('.keg-list-item').forEach(el=>el.classList.remove('active'));
+  ACTIVE_IDX = i;
+  // Update active state pada semua row tabel
+  document.querySelectorAll('.keg-table tbody tr').forEach(el=>el.classList.remove('active'));
   const item = document.getElementById('keg-item-'+i);
   if(item) item.classList.add('active');
-  ACTIVE_IDX = i;
   renderDetail(i);
 }
 
@@ -433,8 +523,8 @@ function renderDetail(i){
 // ── CLOSE DETAIL ─────────────────────────────────────────────
 function closeDetail(){
   document.getElementById('ld-wrap').classList.remove('detail-open');
-  document.querySelectorAll('.keg-list-item').forEach(el=>el.classList.remove('active'));
   ACTIVE_IDX = -1;
+  renderKegList(ALL_DATA);
 }
 
 // ── EXPORT ───────────────────────────────────────────────────

@@ -185,6 +185,32 @@ function fmtTgl(v){
 
 function destroyChart(c){ if(c){try{c.destroy();}catch(e){}} return null; }
 
+// Normalise outcome: "2" / 2 / "O2" → "O2"
+function fmtOutcome(v){
+  if(!v && v!==0) return '';
+  const s = String(v).trim();
+  if(/^O\d+$/i.test(s)) return s.toUpperCase();   // sudah "O2"
+  if(/^\d+$/.test(s))   return 'O'+s;             // angka "2" → "O2"
+  return s;
+}
+
+// Normalise output: bisa string bersih "4.3.1" atau ISO timestamp "2001-04-03T16:00:00.000Z"
+function fmtOutput(v){
+  if(!v) return '';
+  const s = String(v).trim();
+  // Deteksi ISO timestamp — konversi balik ke format x.y
+  // "2001-04-03T16:00:00.000Z" → tahun=2001=tidak valid, bulan=4, tgl=3 → "4.3"
+  // Tapi ini tidak bisa recover nilai asli dengan benar, tampilkan apa adanya setelah strip
+  if(s.match(/^\d{4}-\d{2}-\d{2}T/)){
+    // Ambil bulan dan tanggal sebagai fallback visual
+    const parts = s.split('-');
+    const bln = parseInt(parts[1]);
+    const tgl = parseInt(parts[2]);
+    return bln+'.'+tgl; // misal "4.3" — mendekati nilai asli
+  }
+  return s;
+}
+
 // Oranye monokromatik — makin banyak makin gelap (dari terang ke gelap)
 function monoOrange(n){
   const stops=['#FDBA74','#FB923C','#F97316','#EA6C00','#C05500','#9A4400','#7C3600'];
@@ -410,11 +436,13 @@ function renderKegList(data){
         const scn   = r.scn||'';
         const dotBg = scn==='manggarai'?'#F97316':scn?'#1E293B':'#94a3b8';
         const badge = SCN_LBL[scn]||scn.toUpperCase().slice(0,3)||'—';
-        const ocPill = r.outcome
-          ? `<span class="code-pill outcome">${r.outcome}</span>`
+        const ocVal  = fmtOutcome(r.outcome);
+        const opVal  = fmtOutput(r.output);
+        const ocPill = ocVal
+          ? `<span class="code-pill outcome">${ocVal}</span>`
           : `<span class="code-pill empty">—</span>`;
-        const opPill = r.output
-          ? `<span class="code-pill output">${r.output}</span>`
+        const opPill = opVal
+          ? `<span class="code-pill output">${opVal}</span>`
           : `<span class="code-pill empty">—</span>`;
         return `
         <tr id="keg-item-${origIdx}" onclick="selectKeg(${origIdx})" class="${origIdx===ACTIVE_IDX?'active':''}">
@@ -456,7 +484,7 @@ function renderDetail(i){
   const scn    = r.scn||'';
   const dotBg  = scn==='manggarai'?'#F97316':scn?'#1E293B':'#94a3b8';
   const badge  = SCN_LBL[scn]||scn.toUpperCase().slice(0,3)||'—';
-  const outC   = r.outcome==='O1'?'#F97316':r.outcome?'#1E293B':'#94a3b8';
+  const _oc = fmtOutcome(r.outcome); const outC = _oc==='O1'?'#F97316':_oc?'#1E293B':'#94a3b8';
 
   const narasiFields = [
     {icon:'📋', bg:'#fff7ed', lbl:'Tangible Output',        val:r.tangible_output},
@@ -474,7 +502,7 @@ function renderDetail(i){
       </button>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
         <div class="scn-dot" style="background:${dotBg};width:28px;height:28px;font-size:.58rem">${badge}</div>
-        <span class="outcome-pill" style="background:${outC}18;color:${outC}">${r.outcome||'—'}</span>
+        <span class="outcome-pill" style="background:${outC}18;color:${outC}">${fmtOutcome(r.outcome)||'—'}</span>
         <span style="font-size:.7rem;color:#92400e">${fmtTgl(r.tanggal)}</span>
         <span style="font-size:.7rem;color:#92400e;margin-left:auto">📍 ${r.lokasi||'—'}</span>
       </div>

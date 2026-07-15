@@ -681,6 +681,7 @@ function renderPage(d,scnId){
   window._lastRenderArgs = [d,scnId];
   if(!d||!d.anak)return;
   ALL=d.anak;
+  window._D = d; // simpan untuk alert
   renderAnak();
   renderFormSummary(d);
   renderSkor();
@@ -801,11 +802,29 @@ function renderAnak(){
 
   // ALERT
   const telat=a.filter(x=>x.hari>30).length, tanpa=a.filter(x=>x.hari===999).length;
+
+  // Alert tambahan: anak sudah diobservasi tapi belum punya IRP
+  const d = window._D || {};
+  const namaPlan  = new Set((d.perencanaan||[]).map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+  const namaObs   = new Set((d.obs||[]).map(o=>(o.na||'').toLowerCase().trim()));
+  const belumIRP  = a.filter(x => namaObs.has((x.nama||'').toLowerCase().trim()) && !namaPlan.has((x.nama||'').toLowerCase().trim()));
+
+  // Alert: anak dengan skor eval menengah rendah (< 5) tapi belum ada eval akhir
+  const namaEvalM = new Set((d.evalMenengah||[]).map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+  const namaEvalA = new Set((d.evalAkhir||[]).map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+  const skorRendahBelumEvalA = (d.evalMenengah||[]).filter(r => {
+    const skor = parseFloat(r.score_tujuan_1)||0;
+    const namaKey = (r.nama_anak||r.na||'').toLowerCase().trim();
+    return skor > 0 && skor < 5 && !namaEvalA.has(namaKey);
+  });
+
   if(document.getElementById('alert-items')) document.getElementById('alert-items').innerHTML=[
     kritis>0?`<div class="alert-item"><div class="alert-dot red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="alert-main">${kritis} anak dalam kondisi kritis</div><div class="alert-sub">Skor ≤ 3 — perlu intervensi segera</div></div></div>`:'',
     telat>0?`<div class="alert-item"><div class="alert-dot amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="alert-main">${telat} anak belum dikunjungi >30 hari</div><div class="alert-sub">${n?Math.round(telat/n*100):0}% dari total anak</div></div></div>`:'',
     tanpa>0?`<div class="alert-item"><div class="alert-dot blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div><div class="alert-main">${tanpa} anak belum ada observasi</div><div class="alert-sub">Belum pernah dikunjungi</div></div></div>`:'',
-  ].filter(Boolean).join('')||`<div class="alert-item"><div class="alert-main" style="color:#059669">✓ Tidak ada kondisi kritis</div></div>`;
+    belumIRP.length>0?`<div class="alert-item"><div class="alert-dot amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div><div><div class="alert-main">${belumIRP.length} anak sudah diobservasi tapi belum ada IRP</div><div class="alert-sub">Perlu segera dibuat Rencana Intervensi (IRP)</div></div></div>`:'',
+    skorRendahBelumEvalA.length>0?`<div class="alert-item"><div class="alert-dot red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div class="alert-main">${skorRendahBelumEvalA.length} anak skor eval menengah rendah, belum dievaluasi akhir</div><div class="alert-sub">Skor tujuan &lt; 5 — perlu tindak lanjut dan evaluasi akhir</div></div></div>`:'',
+  ].filter(Boolean).join('')||`<div class="alert-item"><div class="alert-main" style="color:#059669">✓ Tidak ada kondisi yang perlu perhatian segera</div></div>`;
 
   // NARASI — render default naik tangga
   var _narasi = {anak: ALL, peng: ALL};

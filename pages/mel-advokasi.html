@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <style>html,body{background:#F8FAFC}</style>
+  <script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MEL — Logbook Advokasi | MEL NLR</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    .page{padding:16px 20px}
+    .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px}
+    .kpi-box{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px;border-left:3px solid var(--kc,#F97316)}
+    .kpi-v{font-size:1.6rem;font-weight:800;color:var(--kc,#F97316);line-height:1}
+    .kpi-l{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;margin:5px 0 2px}
+    .kpi-s{font-size:.68rem;color:#9ca3af}
+    .section-title{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #f1f5f9}
+    .card{background:#fff;border:1px solid #e9eef6;border-radius:12px;overflow:hidden;margin-bottom:14px}
+    .card-head{padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
+    .card-title{font-size:.82rem;font-weight:700;color:#0f172a}
+    .card-body{padding:14px 16px}
+    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:.6rem;font-weight:700}
+    .badge-green{background:#dcfce7;color:#15803d}
+    .badge-blue{background:#dbeafe;color:#1d4ed8}
+    .badge-orange{background:#fff7ed;color:#c2410c}
+    .badge-gray{background:#f1f5f9;color:#64748b}
+    .adv-card{background:#fff;border:1px solid #e9eef6;border-radius:10px;padding:14px 16px;margin-bottom:10px;border-left:3px solid var(--ac,#F97316)}
+    .adv-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .adv-title{font-size:.78rem;font-weight:700;color:#0f172a}
+    .adv-meta{font-size:.62rem;color:#94a3b8;margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
+    .adv-body{font-size:.72rem;color:#475569;line-height:1.6}
+    .form-section{background:#fff;border:1px solid #e9eef6;border-radius:12px;padding:18px 20px;margin-bottom:18px}
+    .form-title{font-size:.82rem;font-weight:700;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+    @media(max-width:600px){.form-row{grid-template-columns:1fr}}
+    .form-group{display:flex;flex-direction:column;gap:4px}
+    .form-group label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b}
+    .form-group input,.form-group select,.form-group textarea{padding:8px 10px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.75rem;color:#334155;outline:none;transition:border .15s;background:#fff}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#F97316}
+    .form-group textarea{resize:vertical;min-height:72px}
+    .btn-primary{padding:9px 18px;background:#F97316;color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.76rem;font-weight:700;cursor:pointer;transition:background .15s}
+    .btn-primary:hover{background:#ea6c00}
+    .btn-secondary{padding:9px 18px;background:#f8fafc;color:#64748b;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:.76rem;font-weight:600;cursor:pointer}
+    .empty{background:#f8fafc;border:1px dashed #e2e8f0;border-radius:10px;padding:24px;text-align:center;color:#94a3b8;font-size:.76rem}
+    .target-pct{font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:999px}
+  </style>
+</head>
+<body>
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="topbar-breadcrumb">MEL <span class="sep">›</span><span class="current">Logbook Advokasi</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- TARGET ITT -->
+  <div style="background:#fff9f5;border:1px solid #fed7aa;border-left:4px solid #F97316;border-radius:10px;padding:14px 16px;margin-bottom:18px">
+    <div style="font-size:.7rem;font-weight:800;color:#F97316;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📋 Target ITT Terkait</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      ${[
+        {kode:'IOF.1', label:'Aksi L&A kepada duty bearers', target:'1/tahun', color:'#F97316'},
+        {kode:'O7',    label:'Kebijakan inklusif diadopsi',  target:'1 kebijakan', color:'#7c3aed'},
+        {kode:'IO7.1', label:'DPO perkuat advokasi',         target:'2 DPO', color:'#2563eb'},
+        {kode:'IO7.2', label:'Kebijakan diharmonisasi',      target:'2 kebijakan', color:'#16a34a'},
+      ].map(t=>`
+        <div style="background:#fff;border:1px solid #e9eef6;border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:8px;min-width:160px">
+          <span style="font-size:.58rem;font-weight:800;padding:2px 6px;border-radius:999px;background:${t.color}18;color:${t.color}">${t.kode}</span>
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:#334155">${t.label}</div>
+            <div style="font-size:.6rem;color:#94a3b8">Target: ${t.target}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-row" id="kpi-adv">
+    <div class="kpi-box" style="--kc:#F97316"><div class="kpi-v" id="kv-total">0</div><div class="kpi-l">Total Aksi Advokasi</div><div class="kpi-s">IOF.1 — L&A actions</div></div>
+    <div class="kpi-box" style="--kc:#2563eb"><div class="kpi-v" id="kv-db">0</div><div class="kpi-l">Duty Bearer Dijangkau</div><div class="kpi-s">unik per level</div></div>
+    <div class="kpi-box" style="--kc:#16a34a"><div class="kpi-v" id="kv-kebijakan">0</div><div class="kpi-l">Kebijakan Terpengaruh</div><div class="kpi-s">O7 — kebijakan inklusif</div></div>
+    <div class="kpi-box" style="--kc:#7c3aed"><div class="kpi-v" id="kv-tindak">0</div><div class="kpi-l">Ada Tindak Lanjut</div><div class="kpi-s">dari duty bearer</div></div>
+  </div>
+
+  <!-- FORM INPUT -->
+  <div class="form-section">
+    <div class="form-title">➕ Tambah Aksi Advokasi <span style="font-size:.65rem;font-weight:400;color:#94a3b8">— Logbook IOF.1</span></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tanggal Aksi</label>
+        <input type="date" id="f-tgl" />
+      </div>
+      <div class="form-group">
+        <label>Jenis Aksi</label>
+        <select id="f-jenis">
+          <option value="">Pilih jenis...</option>
+          <option>Audiensi / Pertemuan Formal</option>
+          <option>Policy Brief / Dokumen Advokasi</option>
+          <option>Pemantauan Anggaran</option>
+          <option>Dengar Pendapat (Hearing)</option>
+          <option>Kampanye / Media</option>
+          <option>Lokakarya Kebijakan</option>
+          <option>Surat / Korespondensi Resmi</option>
+          <option>Lainnya</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Duty Bearer Sasaran</label>
+        <select id="f-db">
+          <option value="">Pilih duty bearer...</option>
+          <option>Bupati / Walikota</option>
+          <option>Dinas Sosial Kabupaten</option>
+          <option>Dinas Kesehatan Kabupaten</option>
+          <option>Dinas Pendidikan Kabupaten</option>
+          <option>Kepala Desa / Lurah</option>
+          <option>DPRD Kabupaten</option>
+          <option>Kementerian / Pusat</option>
+          <option>Lainnya</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Level</label>
+        <select id="f-level">
+          <option value="">Pilih level...</option>
+          <option>Desa / Kelurahan</option>
+          <option>Kecamatan</option>
+          <option>Kabupaten / Kota</option>
+          <option>Provinsi</option>
+          <option>Nasional</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Isu / Topik Advokasi</label>
+        <input type="text" id="f-isu" placeholder="mis. Penganggaran CBR di APBDes, Perda Disabilitas..." />
+      </div>
+      <div class="form-group">
+        <label>Ada Tindak Lanjut dari Duty Bearer?</label>
+        <select id="f-tl">
+          <option value="">Pilih...</option>
+          <option value="ya">Ya — ada tindak lanjut</option>
+          <option value="proses">Dalam proses</option>
+          <option value="tidak">Belum ada tindak lanjut</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label>Deskripsi Aksi & Hasil</label>
+      <textarea id="f-deskripsi" placeholder="Jelaskan aksi advokasi yang dilakukan, siapa yang hadir, apa hasil/kesepakatan yang dicapai..."></textarea>
+    </div>
+    <div class="form-group" style="margin-bottom:0">
+      <label>Bukti / Dokumen (opsional)</label>
+      <input type="text" id="f-bukti" placeholder="Nama file atau link dokumen (MoM, foto, surat...)"/>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn-primary" onclick="tambahAksi()">💾 Simpan Aksi</button>
+      <button class="btn-secondary" onclick="resetForm()">Reset</button>
+    </div>
+  </div>
+
+  <!-- DAFTAR AKSI -->
+  <div class="section-title">📋 Daftar Aksi Advokasi</div>
+  <div id="adv-list"></div>
+
+</div>
+</div></div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script>
+
+// Storage lokal (IndexedDB lite via localStorage)
+const STORE_KEY = 'mel_advokasi_v1';
+let DATA = [];
+
+function load() {
+  try { DATA = JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); } catch(e) { DATA = []; }
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); } catch(e) {}
+}
+
+function resetForm() {
+  ['f-tgl','f-jenis','f-db','f-level','f-isu','f-tl','f-deskripsi','f-bukti'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
+function tambahAksi() {
+  const tgl   = document.getElementById('f-tgl').value;
+  const jenis = document.getElementById('f-jenis').value;
+  const db    = document.getElementById('f-db').value;
+  const level = document.getElementById('f-level').value;
+  const isu   = document.getElementById('f-isu').value;
+  const tl    = document.getElementById('f-tl').value;
+  const desk  = document.getElementById('f-deskripsi').value;
+  const bukti = document.getElementById('f-bukti').value;
+
+  if (!tgl || !jenis || !db || !isu) {
+    alert('Tanggal, Jenis Aksi, Duty Bearer, dan Isu wajib diisi.');
+    return;
+  }
+
+  DATA.push({ id: Date.now(), tgl, jenis, db, level, isu, tl, desk, bukti, scn: window._SCN || '' });
+  DATA.sort((a,b) => b.tgl.localeCompare(a.tgl));
+  save();
+  resetForm();
+  render();
+}
+
+function hapus(id) {
+  if (!confirm('Hapus aksi ini?')) return;
+  DATA = DATA.filter(d => d.id !== id);
+  save();
+  render();
+}
+
+const TL_LABELS = {
+  ya: { label:'Ada Tindak Lanjut', cls:'badge-green' },
+  proses: { label:'Dalam Proses', cls:'badge-orange' },
+  tidak: { label:'Belum Ada TL', cls:'badge-gray' },
+};
+const JENIS_COLOR = {
+  'Audiensi / Pertemuan Formal': '#F97316',
+  'Policy Brief / Dokumen Advokasi': '#2563eb',
+  'Pemantauan Anggaran': '#7c3aed',
+  'Kampanye / Media': '#16a34a',
+};
+
+function render() {
+  // KPI
+  const total     = DATA.length;
+  const dbUnik    = new Set(DATA.map(d=>d.db+d.level)).size;
+  const kebijakan = DATA.filter(d=>d.jenis&&(d.jenis.toLowerCase().includes('kebijakan')||d.jenis.toLowerCase().includes('brief'))).length;
+  const tindak    = DATA.filter(d=>d.tl==='ya').length;
+
+  document.getElementById('kv-total').textContent     = total;
+  document.getElementById('kv-db').textContent        = dbUnik;
+  document.getElementById('kv-kebijakan').textContent = kebijakan;
+  document.getElementById('kv-tindak').textContent    = tindak;
+
+  const list = document.getElementById('adv-list');
+  if (!DATA.length) {
+    list.innerHTML = `<div class="empty"><div style="font-size:1.6rem;margin-bottom:8px">📋</div><div>Belum ada aksi advokasi yang dicatat.<br>Gunakan form di atas untuk mulai mencatat.</div></div>`;
+    return;
+  }
+
+  list.innerHTML = DATA.map(d => {
+    const tlInfo = TL_LABELS[d.tl] || TL_LABELS['tidak'];
+    const color  = JENIS_COLOR[d.jenis] || '#64748b';
+    return `
+      <div class="adv-card" style="--ac:${color}">
+        <div class="adv-header">
+          <div>
+            <div class="adv-title">${d.isu}</div>
+            <div class="adv-meta">
+              <span>📅 ${d.tgl}</span>
+              <span>🏛 ${d.db}</span>
+              ${d.level?`<span>📍 ${d.level}</span>`:''}
+              <span class="badge badge-blue">${d.jenis}</span>
+              <span class="badge ${tlInfo.cls}">${tlInfo.label}</span>
+            </div>
+          </div>
+          <button onclick="hapus(${d.id})" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:.72rem;flex-shrink:0" title="Hapus">✕</button>
+        </div>
+        ${d.desk?`<div class="adv-body">${d.desk}</div>`:''}
+        ${d.bukti?`<div style="margin-top:6px;font-size:.62rem;color:#94a3b8">📎 ${d.bukti}</div>`:''}
+      </div>`;
+  }).join('');
+}
+
+buildSidebar();
+const SESSION = AUTH.requireAuth('../index.html');
+if (SESSION) {
+  if (!AUTH.canAccessMel()) { window.location.href = 'mel-beranda.html'; }
+  AUTH.applySession({});
+  AUTH.initSidebar('mel', 'm-advokasi');
+  window._SCN = AUTH.getScnFilter() || '';
+  load();
+  render();
+  // Set default tanggal hari ini
+  const tglEl = document.getElementById('f-tgl');
+  if (tglEl) tglEl.value = new Date().toISOString().split('T')[0];
+}
+</script>
+</body>
+</html>

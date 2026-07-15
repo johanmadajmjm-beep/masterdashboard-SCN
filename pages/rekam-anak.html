@@ -527,12 +527,13 @@ function renderDetail(a) {
 
   // Form tab definiton
   const FORMS = [
-    { id:'awal',   label:'Data Awal',      icon:'📋', has: hasAwal },
-    { id:'obs',    label:'Observasi',      icon:'👁',  has: obsData.length>0 },
-    { id:'plan',   label:'Perencanaan',    icon:'📝', has: planData.length>0 },
-    { id:'diary',  label:'Buku Harian',    icon:'📔', has: diaryData.length>0 },
-    { id:'evalm',  label:'Eval. Menengah', icon:'📊', has: evalMData.length>0 },
-    { id:'evala',  label:'Eval. Akhir',    icon:'🏁', has: evalAData.length>0 },
+    { id:'awal',    label:'Data Awal',      icon:'📋', has: hasAwal },
+    { id:'progres', label:'Progres IRP',    icon:'🗂', has: planData.length>0 || evalMData.length>0 || evalAData.length>0 },
+    { id:'obs',     label:'Observasi',      icon:'👁',  has: obsData.length>0 },
+    { id:'plan',    label:'Perencanaan',    icon:'📝', has: planData.length>0 },
+    { id:'diary',   label:'Buku Harian',    icon:'📔', has: diaryData.length>0 },
+    { id:'evalm',   label:'Eval. Menengah', icon:'📊', has: evalMData.length>0 },
+    { id:'evala',   label:'Eval. Akhir',    icon:'🏁', has: evalAData.length>0 },
   ];
 
   // Default: buka tab pertama yang punya data, atau Data Awal
@@ -574,6 +575,7 @@ function renderDetail(a) {
     </div>
 
     <!-- TAB PANES -->
+    <div id="ra-pane-progres" class="ra-tab-pane ${defaultTab==='progres'?'active':''}">${renderProgresIRP(a, obsData, planData, diaryData, evalMData, evalAData)}</div>
     <div id="ra-pane-awal"  class="ra-tab-pane ${defaultTab==='awal' ?'active':''}">${renderDataAwal(a)}</div>
     <div id="ra-pane-obs"   class="ra-tab-pane ${defaultTab==='obs'  ?'active':''}">${renderObservasi(obsData)}</div>
     <div id="ra-pane-plan"  class="ra-tab-pane ${defaultTab==='plan' ?'active':''}">${renderPerencanaan(planData)}</div>
@@ -644,6 +646,162 @@ function frow(lbl, val) {
 function fquote(val) {
   if (!val || val==='—' || val==='') return '';
   return `<div class="f-quote">${val}</div>`;
+}
+
+// ── PROGRES IRP — TIMELINE KRONOLOGIS ─────────────────────────
+function renderProgresIRP(a, obsArr, planArr, diaryArr, evalMArr, evalAArr) {
+  const sp   = a.sp  != null ? a.sp  : null;
+  const sa   = a.sa  != null ? a.sa  : null;
+  const spColor = v => v>=7?'#16a34a':v>=5?'#F97316':v>=4?'#d97706':'#dc2626';
+
+  // Susun timeline dari semua event yang ada
+  const events = [];
+
+  // Data Awal
+  if (a._sumber === 'DataAwal' || a.sp != null) {
+    events.push({
+      tgl: a.tl || null,
+      icon: '📋', color: '#F97316', label: 'Data Awal Terdokumentasi',
+      detail: [
+        sp!=null ? `Skor anak: <b style="color:${spColor(sp)}">${sp}/10</b>` : null,
+        sa!=null ? `Skor pengasuh: <b style="color:${spColor(sa)}">${sa}/10</b>` : null,
+        a.ragam && a.ragam!=='—' ? `Ragam: ${a.ragam}` : null,
+        a.level && a.level!=='—' ? `Level: ${a.level}` : null,
+      ].filter(Boolean)
+    });
+  }
+
+  // Observasi
+  obsArr.forEach(o => {
+    events.push({
+      tgl: o.tgl || null,
+      icon: '👁', color: '#2563eb', label: 'Observasi ICF',
+      detail: [
+        o.st ? `Struktur Tubuh: ${o.st.substring(0,80)}${o.st.length>80?'…':''}` : null,
+        o.kg ? `Kegiatan: ${o.kg.substring(0,80)}${o.kg.length>80?'…':''}` : null,
+        o.lg ? `Lingkungan: ${o.lg.substring(0,80)}${o.lg.length>80?'…':''}` : null,
+      ].filter(Boolean)
+    });
+  });
+
+  // Perencanaan
+  planArr.forEach(p => {
+    const tujuan = [p.tujuan_1, p.tujuan_2, p.tujuan_3].filter(Boolean);
+    events.push({
+      tgl: p.tanggal_rencana || p.tanggal_submit || null,
+      icon: '📝', color: '#16a34a', label: 'Perencanaan IRP Disusun',
+      detail: tujuan.map((t,i) => `Tujuan ${i+1}: ${t.substring(0,100)}${t.length>100?'…':''}`)
+    });
+  });
+
+  // Buku Harian — ringkas per submission
+  diaryArr.forEach(d => {
+    const entries = [];
+    for (let i=1; i<=10; i++) {
+      const tgl = d['tgl_diary_'+i], isi = d['isi_diary_'+i];
+      if (tgl||isi) entries.push((tgl||'')+': '+(isi||'').substring(0,60));
+    }
+    events.push({
+      tgl: d.tanggal_submit || null,
+      icon: '📔', color: '#9333ea', label: 'Buku Harian Dicatat',
+      detail: entries.slice(0,3).concat(entries.length>3?[`...dan ${entries.length-3} entri lainnya`]:[])
+    });
+  });
+
+  // Evaluasi Menengah
+  evalMArr.forEach(e => {
+    const skor1 = parseFloat(e.score_tujuan_1)||null;
+    const skor2 = parseFloat(e.score_tujuan_2)||null;
+    const skor3 = parseFloat(e.score_tujuan_3)||null;
+    events.push({
+      tgl: e.tanggal_eval || e.tanggal_submit || null,
+      icon: '📊', color: '#d97706', label: 'Evaluasi Menengah',
+      detail: [
+        skor1!=null ? `Skor Tujuan 1: <b style="color:${spColor(skor1)}">${skor1}/10</b>` : null,
+        skor2!=null ? `Skor Tujuan 2: <b style="color:${spColor(skor2)}">${skor2}/10</b>` : null,
+        skor3!=null ? `Skor Tujuan 3: <b style="color:${spColor(skor3)}">${skor3}/10</b>` : null,
+        e.perubahan_1 ? `Perubahan: ${(e.perubahan_1||'').substring(0,100)}` : null,
+      ].filter(Boolean)
+    });
+  });
+
+  // Evaluasi Akhir
+  evalAArr.forEach(e => {
+    const t1 = (e.tercapai_tujuan_1||'').toLowerCase();
+    const t2 = (e.tercapai_tujuan_2||'').toLowerCase();
+    const t3 = (e.tercapai_tujuan_3||'').toLowerCase();
+    const tercapai = [t1,t2,t3].filter(v=>v==='ya').length;
+    const total    = [t1,t2,t3].filter(Boolean).length;
+    events.push({
+      tgl: e.tanggal_eval || e.tanggal_submit || null,
+      icon: '🏁', color: '#059669', label: 'Evaluasi Akhir',
+      detail: [
+        total>0 ? `Tujuan tercapai: <b style="color:${tercapai===total?'#059669':'#dc2626'}">${tercapai} dari ${total}</b>` : null,
+        e.penjelasan_ya_1 ? `Penjelasan: ${(e.penjelasan_ya_1||'').substring(0,100)}` : null,
+        e.saran_1 ? `Saran: ${(e.saran_1||'').substring(0,100)}` : null,
+      ].filter(Boolean)
+    });
+  });
+
+  // Urutkan berdasarkan tanggal
+  events.sort((a,b) => {
+    if (!a.tgl && !b.tgl) return 0;
+    if (!a.tgl) return 1;
+    if (!b.tgl) return -1;
+    return a.tgl.localeCompare(b.tgl);
+  });
+
+  if (!events.length) {
+    return `<div class="f-empty">Belum ada data progres untuk anak ini.</div>`;
+  }
+
+  // Hitung % siklus selesai
+  const steps = [
+    { label:'Data Awal', done: a._sumber==='DataAwal'||a.sp!=null },
+    { label:'Observasi', done: obsArr.length>0 },
+    { label:'Perencanaan', done: planArr.length>0 },
+    { label:'Buku Harian', done: diaryArr.length>0 },
+    { label:'Eval. Menengah', done: evalMArr.length>0 },
+    { label:'Eval. Akhir', done: evalAArr.length>0 },
+  ];
+  const doneCount = steps.filter(s=>s.done).length;
+  const pct = Math.round(doneCount/steps.length*100);
+  const pctColor = pct===100?'#059669':pct>=67?'#F97316':pct>=33?'#d97706':'#dc2626';
+
+  return `
+    <!-- PROGRESS BAR SIKLUS -->
+    <div style="background:#f8fafc;border:1px solid #e9eef6;border-radius:10px;padding:14px 16px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:.72rem;font-weight:700;color:#334155">Kelengkapan Siklus IRP</span>
+        <span style="font-size:.85rem;font-weight:800;color:${pctColor}">${pct}%</span>
+      </div>
+      <div style="display:flex;gap:4px;margin-bottom:10px">
+        ${steps.map(s=>`<div style="flex:1;height:6px;border-radius:3px;background:${s.done?pctColor:'#e2e8f0'}" title="${s.label}"></div>`).join('')}
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${steps.map(s=>`<span style="font-size:.6rem;font-weight:600;padding:2px 8px;border-radius:999px;background:${s.done?pctColor+'18':'#f1f5f9'};color:${s.done?pctColor:'#94a3b8'}">${s.done?'✓':''} ${s.label}</span>`).join('')}
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div style="position:relative;padding-left:24px">
+      <div style="position:absolute;left:10px;top:0;bottom:0;width:2px;background:#e9eef6;border-radius:1px"></div>
+      ${events.map((ev, idx) => `
+        <div style="position:relative;margin-bottom:${idx<events.length-1?'16px':'0'}">
+          <div style="position:absolute;left:-20px;top:3px;width:20px;height:20px;border-radius:50%;background:${ev.color}18;border:2px solid ${ev.color};display:flex;align-items:center;justify-content:center;font-size:.6rem">${ev.icon}</div>
+          <div style="background:#fff;border:1px solid #e9eef6;border-left:3px solid ${ev.color};border-radius:0 8px 8px 0;padding:10px 12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:.75rem;font-weight:700;color:#0f172a">${ev.label}</span>
+              ${ev.tgl?`<span style="font-size:.62rem;color:#94a3b8">${ev.tgl}</span>`:''}
+            </div>
+            ${ev.detail.length?`<ul style="margin:0;padding-left:14px;list-style:disc">
+              ${ev.detail.map(d=>`<li style="font-size:.68rem;color:#475569;line-height:1.6">${d}</li>`).join('')}
+            </ul>`:''}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
 }
 
 function renderDataAwal(a) {

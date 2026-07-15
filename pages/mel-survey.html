@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <style>html,body{background:#F8FAFC}</style>
+  <script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MEL — Mid-Eval Survey | MEL NLR</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    .page{padding:16px 20px}
+    .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px}
+    .kpi-box{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px;border-left:3px solid var(--kc,#F97316)}
+    .kpi-v{font-size:1.6rem;font-weight:800;color:var(--kc,#F97316);line-height:1}
+    .kpi-l{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;margin:5px 0 2px}
+    .kpi-s{font-size:.68rem;color:#9ca3af}
+    .section-title{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #f1f5f9}
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media(max-width:800px){.g2{grid-template-columns:1fr}}
+    .card{background:#fff;border:1px solid #e9eef6;border-radius:12px;overflow:hidden}
+    .card-head{padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
+    .card-title{font-size:.82rem;font-weight:700;color:#0f172a}
+    .card-body{padding:14px 16px}
+    .ch{position:relative;height:200px}
+    .ind-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f8fafc}
+    .ind-row:last-child{border-bottom:none}
+    .ind-label{flex:1;font-size:.74rem;color:#334155;line-height:1.4}
+    .ind-pct{font-size:.85rem;font-weight:800;min-width:42px;text-align:right}
+    .prog-track{flex:0 0 80px;height:5px;background:#f1f5f9;border-radius:3px;overflow:hidden}
+    .prog-fill{height:100%;border-radius:3px}
+    .notice-box{background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #2563eb;border-radius:10px;padding:16px 18px;margin-bottom:18px}
+    .notice-title{font-size:.78rem;font-weight:700;color:#1d4ed8;margin-bottom:6px}
+    .notice-text{font-size:.72rem;color:#334155;line-height:1.6}
+    .tbl{width:100%;border-collapse:collapse;font-size:.72rem}
+    .tbl th{padding:8px 12px;text-align:left;font-size:.6rem;font-weight:700;text-transform:uppercase;color:#94a3b8;background:#f8fafc;border-bottom:1px solid #e9eef6;white-space:nowrap}
+    .tbl td{padding:8px 12px;border-bottom:1px solid #f8fafc;vertical-align:middle}
+    .tbl tr:hover td{background:#fafbfd}
+    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:.6rem;font-weight:700}
+    .badge-green{background:#dcfce7;color:#15803d}
+    .badge-yellow{background:#fef3c7;color:#b45309}
+    .badge-red{background:#fee2e2;color:#dc2626}
+    .badge-gray{background:#f1f5f9;color:#64748b}
+  </style>
+</head>
+<body>
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="topbar-breadcrumb">MEL <span class="sep">›</span><span class="current">Mid-Eval Survey</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
+
+<div class="page" id="page-content">
+  <div style="display:flex;align-items:center;justify-content:center;height:300px;color:#94a3b8">Memuat data...</div>
+</div>
+</div></div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/api.js"></script>
+<script>
+let CHARTS = {};
+function mk(id, type, data, opts) {
+  if (CHARTS[id]) { try{CHARTS[id].destroy();}catch(e){} }
+  const el = document.getElementById(id); if (!el) return;
+  CHARTS[id] = new Chart(el, {type, data, options: opts});
+}
+const BASE = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},
+  scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:10}}},y:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:10}},beginAtZero:true}}
+};
+
+function pctColor(v) {
+  return v>=80?'#059669':v>=50?'#2563eb':v>=25?'#d97706':'#dc2626';
+}
+function scColor(v) {
+  return v>=7?'#16a34a':v>=5?'#F97316':v>=4?'#d97706':'#dc2626';
+}
+
+function renderPage(d) {
+  if (!d) return;
+  const anak   = d.anak || [];
+  const evalM  = d.evalMenengah || [];
+  const evalA  = d.evalAkhir || [];
+  const total  = anak.length || 1;
+
+  // === Proksi dari data yang ada ===
+  const sudahEvalM = new Set(evalM.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+  const sudahEvalA = new Set(evalA.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+
+  // Skor anak
+  const spArr = anak.filter(a=>a.sp!=null).map(a=>a.sp);
+  const avgSp = spArr.length ? (spArr.reduce((s,v)=>s+v,0)/spArr.length).toFixed(1) : '—';
+
+  // Skor pengasuh
+  const saArr = anak.filter(a=>a.sa!=null).map(a=>a.sa);
+  const avgSa = saArr.length ? (saArr.reduce((s,v)=>s+v,0)/saArr.length).toFixed(1) : '—';
+
+  // Distribusi skor anak
+  const skorDist = {
+    'Kritis (1-3)': anak.filter(a=>a.sp!=null&&a.sp<=3).length,
+    'Rendah (4-5)': anak.filter(a=>a.sp!=null&&a.sp>=4&&a.sp<=5).length,
+    'Sedang (6-7)': anak.filter(a=>a.sp!=null&&a.sp>=6&&a.sp<=7).length,
+    'Baik (8-10)' : anak.filter(a=>a.sp!=null&&a.sp>=8).length,
+    'Belum diisi' : anak.filter(a=>a.sp==null).length,
+  };
+
+  // Skor eval menengah
+  const skorEvalM1 = evalM.map(r=>parseFloat(r.score_tujuan_1)||0).filter(v=>v>0);
+  const skorEvalM2 = evalM.map(r=>parseFloat(r.score_tujuan_2)||0).filter(v=>v>0);
+  const skorEvalM3 = evalM.map(r=>parseFloat(r.score_tujuan_3)||0).filter(v=>v>0);
+  const avgEM1 = skorEvalM1.length ? (skorEvalM1.reduce((s,v)=>s+v,0)/skorEvalM1.length).toFixed(1) : '—';
+  const avgEM2 = skorEvalM2.length ? (skorEvalM2.reduce((s,v)=>s+v,0)/skorEvalM2.length).toFixed(1) : '—';
+  const avgEM3 = skorEvalM3.length ? (skorEvalM3.reduce((s,v)=>s+v,0)/skorEvalM3.length).toFixed(1) : '—';
+
+  // % tujuan tercapai
+  const totalEvalA = evalA.length;
+  const tercapai1 = evalA.filter(r=>(r.tercapai_tujuan_1||'').toLowerCase()==='ya').length;
+  const tercapai2 = evalA.filter(r=>(r.tercapai_tujuan_2||'').toLowerCase()==='ya').length;
+  const tercapai3 = evalA.filter(r=>(r.tercapai_tujuan_3||'').toLowerCase()==='ya').length;
+
+  // Coverage
+  const covEM = Math.round(sudahEvalM.size/total*100);
+  const covEA = Math.round(sudahEvalA.size/total*100);
+
+  // Indikator ITT yang bisa diproksi
+  const indikators = [
+    { label:'O5.1 — CYWD rasa kendali meningkat (Cantrill Anak)', nilai: avgSp, satuan:'/10', pct: spArr.length?Math.round(parseFloat(avgSp)/10*100):null, sumber:'DataAwal · Skor Anak' },
+    { label:'IOC.1 — Kapasitas pengasuh (Cantrill Pengasuh)', nilai: avgSa, satuan:'/10', pct: saArr.length?Math.round(parseFloat(avgSa)/10*100):null, sumber:'DataAwal · Skor Pengasuh' },
+    { label:'IOD.1 — Skor tujuan 1 (Eval Menengah)', nilai: avgEM1, satuan:'/10', pct: skorEvalM1.length?Math.round(parseFloat(avgEM1)/10*100):null, sumber:'DataEvalMenengah' },
+    { label:'IOD.1 — Skor tujuan 2 (Eval Menengah)', nilai: avgEM2, satuan:'/10', pct: skorEvalM2.length?Math.round(parseFloat(avgEM2)/10*100):null, sumber:'DataEvalMenengah' },
+    { label:'IOD.1 — Skor tujuan 3 (Eval Menengah)', nilai: avgEM3, satuan:'/10', pct: skorEvalM3.length?Math.round(parseFloat(avgEM3)/10*100):null, sumber:'DataEvalMenengah' },
+    { label:'O1.1 — % tujuan 1 tercapai (Eval Akhir)', nilai: totalEvalA>0?tercapai1:'—', satuan:' anak', pct: totalEvalA>0?Math.round(tercapai1/totalEvalA*100):null, sumber:'DataEvalAkhir' },
+    { label:'O1.1 — % tujuan 2 tercapai (Eval Akhir)', nilai: totalEvalA>0?tercapai2:'—', satuan:' anak', pct: totalEvalA>0?Math.round(tercapai2/totalEvalA*100):null, sumber:'DataEvalAkhir' },
+    { label:'O1.1 — % tujuan 3 tercapai (Eval Akhir)', nilai: totalEvalA>0?tercapai3:'—', satuan:' anak', pct: totalEvalA>0?Math.round(tercapai3/totalEvalA*100):null, sumber:'DataEvalAkhir' },
+  ];
+
+  // Tabel detail per anak (eval menengah)
+  const evalMDetail = evalM.map(r => ({
+    nama   : r.nama_anak || r.na || '—',
+    cbr    : r.cbr_worker || r.cb || '—',
+    tgl    : r.tanggal_eval || r.tanggal_submit || '—',
+    skor1  : parseFloat(r.score_tujuan_1)||null,
+    skor2  : parseFloat(r.score_tujuan_2)||null,
+    skor3  : parseFloat(r.score_tujuan_3)||null,
+    sudahEA: sudahEvalA.has((r.nama_anak||r.na||'').toLowerCase().trim()),
+  })).sort((a,b)=>(a.skor1||10)-(b.skor1||10));
+
+  document.getElementById('page-content').innerHTML = `
+    <!-- NOTICE -->
+    <div class="notice-box">
+      <div class="notice-title">📋 Tentang Halaman Ini</div>
+      <div class="notice-text">
+        Halaman ini menampilkan <b>proksi indikator mid-eval</b> dari data yang sudah ada (6 form KoboToolbox).
+        Untuk mengisi indikator survey formal (O5.1, IOC.1, IOD.2), diperlukan form survey tambahan di KoboToolbox
+        yang akan disambungkan ke dashboard ini secara otomatis.
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="kpi-row">
+      <div class="kpi-box" style="--kc:#F97316">
+        <div class="kpi-v">${avgSp}</div>
+        <div class="kpi-l">Avg Skor Anak</div>
+        <div class="kpi-s">Cantrill Ladder · ${spArr.length} anak</div>
+      </div>
+      <div class="kpi-box" style="--kc:#2563eb">
+        <div class="kpi-v">${avgSa}</div>
+        <div class="kpi-l">Avg Skor Pengasuh</div>
+        <div class="kpi-s">Cantrill Ladder · ${saArr.length} pengasuh</div>
+      </div>
+      <div class="kpi-box" style="--kc:#16a34a">
+        <div class="kpi-v">${sudahEvalM.size}</div>
+        <div class="kpi-l">Sudah Eval Menengah</div>
+        <div class="kpi-s">${covEM}% dari ${total} anak</div>
+      </div>
+      <div class="kpi-box" style="--kc:#7c3aed">
+        <div class="kpi-v">${sudahEvalA.size}</div>
+        <div class="kpi-l">Sudah Eval Akhir</div>
+        <div class="kpi-s">${covEA}% dari ${total} anak</div>
+      </div>
+    </div>
+
+    <!-- INDIKATOR ITT PROKSI -->
+    <div class="section-title">📊 Proksi Indikator ITT dari Data Existing</div>
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-body">
+        ${indikators.map(ind => {
+          const pct = ind.pct;
+          const col = pct!=null ? pctColor(pct) : '#d1d5db';
+          return `<div class="ind-row">
+            <div class="ind-label">
+              <div style="font-weight:600">${ind.label}</div>
+              <div style="font-size:.62rem;color:#94a3b8;margin-top:2px">📊 ${ind.sumber}</div>
+            </div>
+            <div class="prog-track">
+              <div class="prog-fill" style="width:${pct||0}%;background:${col}"></div>
+            </div>
+            <div class="ind-pct" style="color:${col}">${ind.nilai!=='—'?ind.nilai+ind.satuan:'—'}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- CHART & DISTRIBUSI -->
+    <div class="g2">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Distribusi Skor Anak (Cantrill)</span></div>
+        <div class="card-body"><div class="ch"><canvas id="ch-skor"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Hasil Evaluasi Akhir (Tujuan Tercapai)</span></div>
+        <div class="card-body"><div class="ch"><canvas id="ch-eval"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- TABEL DETAIL EVAL MENENGAH -->
+    ${evalMDetail.length ? `
+    <div class="section-title" style="margin-top:20px">📋 Detail Evaluasi Menengah per Anak</div>
+    <div class="card">
+      <div style="overflow-x:auto">
+        <table class="tbl">
+          <thead><tr>
+            <th>Nama Anak</th><th>CBR Worker</th><th>Tgl Eval</th>
+            <th>Skor T1</th><th>Skor T2</th><th>Skor T3</th><th>Status</th>
+          </tr></thead>
+          <tbody>
+            ${evalMDetail.map(r => {
+              const avg3 = [r.skor1,r.skor2,r.skor3].filter(v=>v!=null);
+              const avgV = avg3.length ? (avg3.reduce((s,v)=>s+v,0)/avg3.length).toFixed(1) : null;
+              const col  = avgV ? scColor(parseFloat(avgV)) : '#94a3b8';
+              return `<tr>
+                <td style="font-weight:600">${r.nama}</td>
+                <td style="color:#64748b;font-size:.68rem">${r.cbr}</td>
+                <td style="color:#94a3b8">${r.tgl}</td>
+                <td style="text-align:center;font-weight:700;color:${r.skor1?scColor(r.skor1):'#d1d5db'}">${r.skor1||'—'}</td>
+                <td style="text-align:center;font-weight:700;color:${r.skor2?scColor(r.skor2):'#d1d5db'}">${r.skor2||'—'}</td>
+                <td style="text-align:center;font-weight:700;color:${r.skor3?scColor(r.skor3):'#d1d5db'}">${r.skor3||'—'}</td>
+                <td>${r.sudahEA?'<span class="badge badge-green">✓ Eval Akhir</span>':'<span class="badge badge-gray">Belum Eval Akhir</span>'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>` : ''}
+
+    <!-- INDIKATOR YANG BUTUH FORM BARU -->
+    <div style="background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:16px 18px;margin-top:18px">
+      <div style="font-size:.72rem;font-weight:700;color:#64748b;margin-bottom:10px">⏳ Indikator yang Membutuhkan Form Survey Tambahan</div>
+      ${[
+        { kode:'O5.1', label:'CYWD rasa kendali meningkat', form:'Form Survey Pemberdayaan CYWD (KoboToolbox)' },
+        { kode:'O5.2', label:'CYWD peran aktif di komunitas', form:'Form Survey Pemberdayaan CYWD (KoboToolbox)' },
+        { kode:'IOD.1', label:'CYWD bisa ungkapkan keinginan efektif', form:'Form Asesmen Pemberdayaan (KoboToolbox)' },
+        { kode:'IOD.2', label:'CYWD tahu hak-hak mereka', form:'Form Survey Pengetahuan Hak (KoboToolbox)' },
+        { kode:'IOC.1', label:'Pengasuh kapasitas meningkat (diverifikasi)', form:'Form Survey Pengasuh — Mid Evaluation' },
+        { kode:'IOC.2', label:'Pengasuh income meningkat', form:'Form Survey Ekonomi Pengasuh' },
+      ].map(i=>`
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid #e9eef6">
+          <span style="font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:999px;background:#fef3c7;color:#92400e;flex-shrink:0">${i.kode}</span>
+          <div style="flex:1">
+            <div style="font-size:.72rem;color:#334155">${i.label}</div>
+            <div style="font-size:.62rem;color:#94a3b8;margin-top:1px">📋 Sumber: ${i.form}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+  `;
+
+  // Charts
+  setTimeout(() => {
+    const distColors = ['#dc2626','#d97706','#f59e0b','#16a34a','#e5e7eb'];
+    mk('ch-skor','doughnut',{
+      labels: Object.keys(skorDist),
+      datasets:[{data:Object.values(skorDist),backgroundColor:distColors,borderColor:'#fff',borderWidth:2}]
+    },{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{font:{size:10},padding:8}}}});
+
+    if (totalEvalA > 0) {
+      mk('ch-eval','bar',{
+        labels:['Tujuan 1','Tujuan 2','Tujuan 3'],
+        datasets:[
+          {label:'Tercapai',   data:[tercapai1,tercapai2,tercapai3],    backgroundColor:'#16a34a',borderRadius:5,borderSkipped:false},
+          {label:'Blm Tercapai',data:[totalEvalA-tercapai1,totalEvalA-tercapai2,totalEvalA-tercapai3],backgroundColor:'#dc2626',borderRadius:5,borderSkipped:false},
+        ]
+      },{...BASE,plugins:{legend:{display:true,position:'top',labels:{font:{size:10},padding:8}},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}}});
+    }
+  }, 100);
+}
+
+buildSidebar();
+const SESSION = AUTH.requireAuth('../index.html');
+if (SESSION) {
+  if (!AUTH.canAccessMel()) { window.location.href = 'mel-beranda.html'; }
+  AUTH.applySession({
+    onScnSwitch: async function(scnId) {
+      const d = await API.get(scnId);
+      if (d) renderPage(d);
+    }
+  });
+  AUTH.initSidebar('mel', 'm-survey');
+  API.get(AUTH.getScnFilter()).then(d => renderPage(d));
+}
+</script>
+</body>
+</html>

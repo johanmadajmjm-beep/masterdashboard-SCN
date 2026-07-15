@@ -526,9 +526,9 @@ function switchTab(scnId) {
 // RENDER ITT PER SCN
 // ══════════════════════════════════════════════════════════
 function renderITT(scnId) {
-  // Data target & capaian per SCN — placeholder, diisi dari GSheet nanti
-  // Format: { kode: { target: number|null, capaian: number|null } }
-  const capData = {}; // kosong — siap disambungkan ke GSheet
+  // capData dari data nyata (6 form KoboToolbox) + placeholder untuk data eksternal
+  // Lookup: cari berdasarkan kode indikator atau kombinasi outcome-kode
+  const capData = _capDataCache || {};
 
   const container = document.getElementById('itt-container');
   const byO = {};
@@ -549,11 +549,15 @@ function renderITT(scnId) {
         </div>`;
       }
 
-      const d = capData[ind.kode] || {};
-      const tgtVal = d.target != null ? d.target : ind.target;
-      const capVal = d.capaian != null ? d.capaian : ind.capaian;
+      const capKey = ind.o + '|' + ind.kode;
+      const dc = capData[capKey] || capData[ind.kode] || {};
+      const tgtVal = dc.target != null ? dc.target : ind.target;
+      const capVal = dc.capaian != null ? dc.capaian : ind.capaian;
+      const sumber = dc.sumber || '';
       const pct = (capVal != null && tgtVal) ? Math.min(Math.round(capVal/tgtVal*100),100) : null;
       const pctColor = pct==null?'#D1D5DB':pct>=80?'#059669':pct>=50?'#2563EB':pct>=25?'#D97706':'#DC2626';
+      const isProxi = sumber && !sumber.startsWith('⏳');
+      const isWaiting = sumber && sumber.startsWith('⏳');
 
       const tipeTag = ind.tipe ? `<span style="font-size:.54rem;font-weight:700;padding:1px 5px;border-radius:999px;white-space:nowrap;background:${ind.tipe==='Standard LF'?'#DBEAFE':'#FEF3C7'};color:${ind.tipe==='Standard LF'?'#1D4ED8':'#92400E'}">${ind.tipe}</span>` : '';
 
@@ -562,15 +566,24 @@ function renderITT(scnId) {
       const pctDisp = pct!=null?`<span style="font-size:.73rem;font-weight:800;font-family:monospace;color:${pctColor}">${pct}%</span>`:`<span style="font-size:.7rem;color:#D1D5DB">—</span>`;
       const bar = pct!=null?`<div style="width:54px;height:4px;background:#F3F4F6;border-radius:2px;overflow:hidden;flex-shrink:0"><div style="width:${pct}%;height:100%;background:${pctColor};border-radius:2px"></div></div>`:'';
 
-      return `<div style="background:${st.bg};border-bottom:1px solid ${st.border};padding:7px 16px 7px ${16+st.indent}px;display:flex;align-items:center;gap:8px">
-        <span style="font-size:.57rem;font-weight:800;color:#9CA3AF;background:#F3F4F6;padding:1px 6px;border-radius:999px;flex-shrink:0;white-space:nowrap">${ind.kode}</span>
-        <span style="font-size:.72rem;font-weight:${st.bold?'600':'400'};color:#1F2937;flex:1;line-height:1.4">${ind.label}</span>
-        ${tipeTag}
-        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:170px;justify-content:flex-end">
-          <span style="font-size:.58rem;color:#9CA3AF">Target</span>${tgtDisp}
-          <span style="font-size:.58rem;color:#9CA3AF">Capaian</span>${capDisp}
-          ${bar}${pctDisp}
+      const sumberTag = isWaiting
+        ? `<span style="font-size:.55rem;color:#D97706;background:#FEF3C7;padding:1px 6px;border-radius:4px;flex-shrink:0">⏳ Data belum tersedia</span>`
+        : isProxi
+        ? `<span style="font-size:.55rem;color:#6B7280;background:#F3F4F6;padding:1px 6px;border-radius:4px;flex-shrink:0" title="${sumber}">📊 Proksi</span>`
+        : '';
+
+      return `<div style="background:${st.bg};border-bottom:1px solid ${st.border};padding:7px 16px 7px ${16+st.indent}px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:.57rem;font-weight:800;color:#9CA3AF;background:#F3F4F6;padding:1px 6px;border-radius:999px;flex-shrink:0;white-space:nowrap">${ind.kode}</span>
+          <span style="font-size:.72rem;font-weight:${st.bold?'600':'400'};color:#1F2937;flex:1;line-height:1.4">${ind.label}</span>
+          ${tipeTag}
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:170px;justify-content:flex-end">
+            <span style="font-size:.58rem;color:#9CA3AF">Target</span>${tgtDisp}
+            <span style="font-size:.58rem;color:#9CA3AF">Capaian</span>${capDisp}
+            ${bar}${pctDisp}
+          </div>
         </div>
+        ${sumber ? `<div style="padding:3px 0 0 ${26}px;display:flex;align-items:center;gap:6px">${sumberTag}<span style="font-size:.6rem;color:#9CA3AF">${sumber.replace('⏳ ','')}</span></div>` : ''}
       </div>`;
     }).join('');
 
@@ -623,9 +636,116 @@ function toggleAll(open) {
 // ══════════════════════════════════════════════════════════
 // RENDER PAGE (dipanggil dari AUTH/API)
 // ══════════════════════════════════════════════════════════
+// ── HITUNG CAPAIAN DARI DATA NYATA ─────────────────────────
+function hitungCapData(d) {
+  if (!d) return {};
+  const anak      = d.anak      || [];
+  const obs       = d.obs       || [];
+  const plan      = d.perencanaan || [];
+  const diary     = d.diary     || [];
+  const evalM     = d.evalMenengah || [];
+  const evalA     = d.evalAkhir || [];
+  const workers   = d.workers   || [];
+  const total     = anak.length || 1;
+
+  // Set nama per form untuk matching
+  const namaObs   = new Set(obs.map(o=>(o.na||'').toLowerCase().trim()));
+  const namaPlan  = new Set(plan.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+  const namaDiary = new Set(diary.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+  const namaEvalM = new Set(evalM.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+  const namaEvalA = new Set(evalAkh => evalAkh.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+
+  // Helper
+  const pctAnakObs  = anak.filter(a=>namaObs.has((a.nama||'').toLowerCase().trim())).length;
+  const pctAnakPlan = anak.filter(a=>namaPlan.has((a.nama||'').toLowerCase().trim())).length;
+  const pctAnakDiary= anak.filter(a=>namaDiary.has((a.nama||'').toLowerCase().trim())).length;
+  const pctAnakEM   = anak.filter(a=>namaEvalM.has((a.nama||'').toLowerCase().trim())).length;
+  const pctAnakEA   = evalA.length;
+
+  // Avg skor anak (Cantrill) — proxy O5.1
+  const spArr = anak.filter(a=>a.sp!=null).map(a=>a.sp);
+  const avgSp = spArr.length ? Math.round(spArr.reduce((s,v)=>s+v,0)/spArr.length) : null;
+
+  // Avg skor pengasuh — proxy IOC.1
+  const saArr = anak.filter(a=>a.sa!=null).map(a=>a.sa);
+  const avgSa = saArr.length ? Math.round(saArr.reduce((s,v)=>s+v,0)/saArr.length) : null;
+
+  // % tujuan tercapai dari eval akhir — proxy O1.1
+  const tercapai = evalA.filter(r=>(r.tercapai_tujuan_1||'').toLowerCase()==='ya').length;
+
+  // Skor eval menengah rata-rata — proxy IOD.1
+  const skorEM = evalM.map(r=>parseFloat(r.score_tujuan_1)||0).filter(v=>v>0);
+  const avgEM  = skorEM.length ? Math.round(skorEM.reduce((s,v)=>s+v,0)/skorEM.length) : null;
+
+  // Aktor unik dari perencanaan — proxy IOB.1 (keterlibatan jaringan)
+  const AKTOR_FIELDS = [
+    'rencana_bidan_desa_t1','rencana_perawat_puskesmas_t1','rencana_dokter_puskesmas_t1',
+    'rencana_fisioterapis_t1','rencana_kepala_desa_t1','rencana_dinsos_t1',
+    'rencana_dinkes_t1','rencana_dindik_t1','rencana_scn_t1',
+  ];
+  const rujukanCount = plan.reduce((sum, r) => {
+    return sum + AKTOR_FIELDS.filter(f => r[f] && r[f]!=='0' && r[f]!=='').length;
+  }, 0);
+
+  // CBR Worker aktif (punya diary) — proxy IOB.2
+  const workerAktif = workers.filter(w => {
+    const myDiary = diary.filter(r=>(r.cbr_worker||r.cb||'')===w.nama);
+    return myDiary.length > 0;
+  }).length;
+
+  // CYWD punya IRP (ada di DataRencana) — IOA.1
+  const punyaIRP = pctAnakPlan;
+
+  // CYWD punya obs — proxy IOE.1
+  const punyaObs = pctAnakObs;
+
+  // Pernah terapi — proxy IO kesehatan
+  const punyaTerapi = anak.filter(a=>a.tr).length;
+
+  // Pernah berobat — proxy IO4.x
+  const punyaOb = anak.filter(a=>a.ob).length;
+
+  // Anak ikut kegiatan (wk terisi) — proxy IOE.1
+  const punyaWk = anak.filter(a=>a.wk).length;
+
+  // Key = kode indikator dari ITT array (o+'|'+kode untuk disambiguasi)
+  return {
+    // Outcome 1 — CYWD Berdaya
+    'O1|O5.1'  : { capaian: avgSp,       sumber: 'Skor Anak (Cantrill) — proksi dari DataAwal' },
+    'O1|O5.2'  : { capaian: punyaWk,     sumber: 'Anak dengan waktu kunjungan tercatat — DataAwal' },
+    'O1|IOA.1' : { capaian: punyaIRP,    sumber: 'Anak dengan IRP (DataRencana)' },
+    'O1|IOD.1' : { capaian: avgEM,       sumber: 'Rata-rata skor tujuan — DataEvalMenengah' },
+    'O1|IOD.2' : { capaian: pctAnakEM,   sumber: 'Anak sudah evaluasi menengah — DataEvalMenengah' },
+    'O1|IOE.1' : { capaian: punyaObs,    sumber: 'Anak sudah diobservasi — DataObs' },
+    // Outcome 2 — Keluarga
+    'O2|IOC.1' : { capaian: avgSa,       sumber: 'Skor Pengasuh (Cantrill) — proksi dari DataAwal' },
+    'O2|IOC.2' : { capaian: null,        sumber: '⏳ Butuh form survey ekonomi pengasuh' },
+    // Outcome 3 — DPO & CBR Worker
+    'O3|IOB.1' : { capaian: rujukanCount,sumber: 'Keterlibatan aktor eksternal di DataRencana' },
+    'O3|IOB.2' : { capaian: workerAktif, sumber: 'CBR Worker dengan diary aktif' },
+    'O3|IOA.2' : { capaian: workers.length, sumber: 'Total CBR Worker terdaftar' },
+    // Outcome 4 — Kesehatan
+    'O4|O1.2'  : { capaian: punyaTerapi, sumber: 'Anak pernah terapi — DataAwal (proksi)' },
+    'O4|IOD.3' : { capaian: null,        sumber: '⏳ Butuh form survey SRHR' },
+    // Outcome 5 — Pendidikan
+    'O5|O2.1'  : { capaian: pctAnakEA,   sumber: 'Anak sudah evaluasi akhir — DataEvalAkhir' },
+    'O5|O2.2'  : { capaian: null,        sumber: '⏳ Butuh form monitoring sekolah' },
+    // Outcome 6 — Livelihood
+    'O6|O3.1'  : { capaian: null,        sumber: '⏳ Butuh form monitoring livelihood' },
+    'O6|IOC.2' : { capaian: null,        sumber: '⏳ Butuh survey ekonomi pengasuh' },
+    // Outcome 7 — Kebijakan
+    'O7|IOF.1' : { capaian: null,        sumber: '⏳ Butuh input dari mel-advokasi' },
+    'O7|IOF.2' : { capaian: null,        sumber: '⏳ Butuh input dari mel-safeguarding' },
+  };
+}
+
+let _capDataCache = {};
+
 function renderPage(d, scnId) {
   CURRENT_SCN_FILTER = scnId || null;
   if (scnId) ACTIVE_SCN_TAB = scnId;
+  // Hitung capaian dari data nyata
+  _capDataCache = d ? hitungCapData(d) : {};
   renderTabs(CURRENT_SCN_FILTER);
   renderITT(ACTIVE_SCN_TAB);
 }
@@ -641,7 +761,8 @@ if (SESSION) {
     }
   });
   AUTH.initSidebar('mel', 'm-itt');
-  renderPage({}, AUTH.getScnFilter());
+  const scnId = AUTH.getScnFilter();
+  API.get(scnId).then(d => renderPage(d||{}, scnId));
 }
 </script>
 </body>

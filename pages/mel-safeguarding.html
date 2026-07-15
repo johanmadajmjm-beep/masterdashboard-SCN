@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <style>html,body{background:#F8FAFC}</style>
+  <script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MEL — Safeguarding | MEL NLR</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <style>
+    .page{padding:16px 20px}
+    .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px}
+    .kpi-box{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px;border-left:3px solid var(--kc,#dc2626)}
+    .kpi-v{font-size:1.6rem;font-weight:800;color:var(--kc,#dc2626);line-height:1}
+    .kpi-l{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;margin:5px 0 2px}
+    .kpi-s{font-size:.68rem;color:#9ca3af}
+    .section-title{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #f1f5f9}
+    .card{background:#fff;border:1px solid #e9eef6;border-radius:12px;overflow:hidden;margin-bottom:14px}
+    .card-head{padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
+    .card-title{font-size:.82rem;font-weight:700;color:#0f172a}
+    .card-body{padding:14px 16px}
+    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:.6rem;font-weight:700}
+    .badge-red{background:#fee2e2;color:#dc2626}
+    .badge-yellow{background:#fef3c7;color:#b45309}
+    .badge-green{background:#dcfce7;color:#15803d}
+    .badge-blue{background:#dbeafe;color:#1d4ed8}
+    .badge-gray{background:#f1f5f9;color:#64748b}
+    .form-section{background:#fff;border:1px solid #e9eef6;border-radius:12px;padding:18px 20px;margin-bottom:18px}
+    .form-title{font-size:.82rem;font-weight:700;color:#0f172a;margin-bottom:14px}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+    @media(max-width:600px){.form-row{grid-template-columns:1fr}}
+    .form-group{display:flex;flex-direction:column;gap:4px}
+    .form-group label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b}
+    .form-group input,.form-group select,.form-group textarea{padding:8px 10px;border:1px solid #e5e7eb;border-radius:6px;font-family:inherit;font-size:.75rem;color:#334155;outline:none;transition:border .15s;background:#fff}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#dc2626}
+    .form-group textarea{resize:vertical;min-height:72px}
+    .btn-primary{padding:9px 18px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.76rem;font-weight:700;cursor:pointer}
+    .btn-secondary{padding:9px 18px;background:#f8fafc;color:#64748b;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:.76rem;font-weight:600;cursor:pointer}
+    .kasus-card{background:#fff;border:1px solid #e9eef6;border-radius:10px;padding:14px 16px;margin-bottom:10px;border-left:3px solid var(--kc,#dc2626)}
+    .kasus-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .kasus-id{font-size:.6rem;font-weight:800;color:#94a3b8;font-family:monospace}
+    .kasus-tipe{font-size:.75rem;font-weight:700;color:#0f172a}
+    .kasus-meta{font-size:.62rem;color:#94a3b8;margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
+    .kasus-body{font-size:.72rem;color:#475569;line-height:1.6;margin-top:8px}
+    .tl-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid #f8fafc}
+    .tl-item:last-child{border-bottom:none}
+    .tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+    .empty{background:#f8fafc;border:1px dashed #e2e8f0;border-radius:10px;padding:24px;text-align:center;color:#94a3b8;font-size:.76rem}
+    .warning-box{background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #dc2626;border-radius:10px;padding:14px 16px;margin-bottom:18px}
+  </style>
+</head>
+<body>
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="topbar-breadcrumb">MEL <span class="sep">›</span><span class="current">Safeguarding & Perlindungan</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- WARNING -->
+  <div class="warning-box">
+    <div style="font-size:.75rem;font-weight:700;color:#dc2626;margin-bottom:4px">🔒 Akses Terbatas — Data Rahasia</div>
+    <div style="font-size:.71rem;color:#334155;line-height:1.6">
+      Halaman ini hanya dapat diakses oleh <b>MEL Officer</b> dan <b>Superadmin</b>.
+      Data kasus bersifat konfidensial dan disimpan lokal di perangkat ini.
+      Untuk pelaporan formal ke NLR Indonesia, gunakan sistem pelaporan resmi yang telah ditetapkan.
+    </div>
+  </div>
+
+  <!-- TARGET ITT -->
+  <div style="background:#fff9f5;border:1px solid #fed7aa;border-left:4px solid #F97316;border-radius:10px;padding:12px 16px;margin-bottom:18px">
+    <div style="font-size:.7rem;font-weight:800;color:#F97316;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">📋 Indikator ITT Terkait</div>
+    <div style="font-size:.72rem;color:#334155;line-height:1.6">
+      <b>IOF.2</b> — Jumlah kasus insiden perlindungan anak yang dilaporkan kepada organisasi mitra dan <b>ditindaklanjuti</b>.
+      <br><span style="color:#94a3b8;font-size:.65rem">Kasus harus dicatat, dilaporkan, dan ada tindak lanjut yang terdokumentasi.</span>
+    </div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-row">
+    <div class="kpi-box" style="--kc:#dc2626"><div class="kpi-v" id="kv-total">0</div><div class="kpi-l">Total Kasus Dilaporkan</div><div class="kpi-s">IOF.2 — kasus terdokumentasi</div></div>
+    <div class="kpi-box" style="--kc:#16a34a"><div class="kpi-v" id="kv-selesai">0</div><div class="kpi-l">Kasus Ditindaklanjuti</div><div class="kpi-s">sudah ada tindak lanjut</div></div>
+    <div class="kpi-box" style="--kc:#d97706"><div class="kpi-v" id="kv-proses">0</div><div class="kpi-l">Kasus Dalam Proses</div><div class="kpi-s">sedang ditangani</div></div>
+    <div class="kpi-box" style="--kc:#94a3b8"><div class="kpi-v" id="kv-menunggu">0</div><div class="kpi-l">Belum Ada TL</div><div class="kpi-s">perlu tindak lanjut segera</div></div>
+  </div>
+
+  <!-- FORM INPUT -->
+  <div class="form-section">
+    <div class="form-title">🔴 Laporkan Kasus Baru <span style="font-size:.65rem;font-weight:400;color:#94a3b8">— IOF.2</span></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tanggal Kejadian</label>
+        <input type="date" id="f-tgl"/>
+      </div>
+      <div class="form-group">
+        <label>Tanggal Dilaporkan</label>
+        <input type="date" id="f-tgl-lapor"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Jenis Kasus</label>
+        <select id="f-jenis">
+          <option value="">Pilih jenis...</option>
+          <optgroup label="Perlindungan">
+            <option>Kekerasan Fisik</option>
+            <option>Kekerasan Emosional / Psikologis</option>
+            <option>Kekerasan Seksual</option>
+            <option>Penelantaran (Neglect)</option>
+            <option>Eksploitasi</option>
+          </optgroup>
+          <optgroup label="Safeguarding">
+            <option>Pelanggaran Kode Etik</option>
+            <option>Perilaku Tidak Pantas Staf</option>
+            <option>Risiko Perlindungan Lainnya</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="f-status">
+          <option value="menunggu">Belum ada tindak lanjut</option>
+          <option value="proses">Dalam proses penanganan</option>
+          <option value="selesai">Sudah ditindaklanjuti</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>SCN / Lokasi</label>
+        <input type="text" id="f-lokasi" placeholder="mis. SCN Manggarai, Desa X"/>
+      </div>
+      <div class="form-group">
+        <label>Tindak Lanjut yang Dilakukan</label>
+        <select id="f-tl">
+          <option value="">Pilih...</option>
+          <option>Investigasi internal</option>
+          <option>Rujukan ke pihak berwenang</option>
+          <option>Dukungan psikososial</option>
+          <option>Pelatihan pencegahan</option>
+          <option>Penyesuaian kebijakan</option>
+          <option>Lebih dari satu tindakan</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label>Deskripsi Kasus (tanpa identitas korban)</label>
+      <textarea id="f-desk" placeholder="Jelaskan situasi kasus tanpa menyebut nama atau identitas yang dapat mengidentifikasi korban..."></textarea>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label>Dokumentasi / Referensi (opsional)</label>
+      <input type="text" id="f-dok" placeholder="Nomor laporan, nama file, atau referensi dokumen..."/>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-primary" onclick="tambahKasus()">🔴 Simpan Kasus</button>
+      <button class="btn-secondary" onclick="resetForm()">Reset</button>
+    </div>
+  </div>
+
+  <!-- DAFTAR KASUS -->
+  <div class="section-title">📋 Daftar Kasus Terdokumentasi (IOF.2)</div>
+  <div id="kasus-list"></div>
+
+</div>
+</div></div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script>
+
+const STORE_KEY = 'mel_safeguarding_v1';
+let DATA = [];
+
+function load() {
+  try { DATA = JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); } catch(e) { DATA = []; }
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); } catch(e) {}
+}
+
+function resetForm() {
+  ['f-tgl','f-tgl-lapor','f-jenis','f-status','f-lokasi','f-tl','f-desk','f-dok'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = el.tagName==='SELECT'?(id==='f-status'?'menunggu':''):'';
+  });
+}
+
+function tambahKasus() {
+  const tgl      = document.getElementById('f-tgl').value;
+  const tglLapor = document.getElementById('f-tgl-lapor').value;
+  const jenis    = document.getElementById('f-jenis').value;
+  const status   = document.getElementById('f-status').value;
+  const lokasi   = document.getElementById('f-lokasi').value;
+  const tl       = document.getElementById('f-tl').value;
+  const desk     = document.getElementById('f-desk').value;
+  const dok      = document.getElementById('f-dok').value;
+
+  if (!tgl || !jenis) { alert('Tanggal kejadian dan jenis kasus wajib diisi.'); return; }
+
+  const id = 'SG-' + Date.now().toString().slice(-6);
+  DATA.push({ id, tgl, tglLapor, jenis, status, lokasi, tl, desk, dok, createdAt: new Date().toISOString() });
+  DATA.sort((a,b)=>b.tgl.localeCompare(a.tgl));
+  save();
+  resetForm();
+  render();
+}
+
+function updateStatus(id, status) {
+  const item = DATA.find(d=>d.id===id);
+  if (item) { item.status = status; save(); render(); }
+}
+
+function hapus(id) {
+  if (!confirm('Hapus kasus ini secara permanen?')) return;
+  DATA = DATA.filter(d=>d.id!==id);
+  save();
+  render();
+}
+
+const STATUS_DEF = {
+  selesai  : { label:'Sudah Ditindaklanjuti', cls:'badge-green', color:'#16a34a' },
+  proses   : { label:'Dalam Proses',          cls:'badge-yellow', color:'#d97706' },
+  menunggu : { label:'Belum Ada TL',          cls:'badge-red',    color:'#dc2626' },
+};
+
+const JENIS_COLOR = {
+  'Kekerasan Fisik'        : '#dc2626',
+  'Kekerasan Seksual'      : '#7c3aed',
+  'Kekerasan Emosional / Psikologis': '#d97706',
+  'Penelantaran (Neglect)' : '#d97706',
+};
+
+function render() {
+  const total     = DATA.length;
+  const selesai   = DATA.filter(d=>d.status==='selesai').length;
+  const proses    = DATA.filter(d=>d.status==='proses').length;
+  const menunggu  = DATA.filter(d=>d.status==='menunggu').length;
+
+  document.getElementById('kv-total').textContent    = total;
+  document.getElementById('kv-selesai').textContent  = selesai;
+  document.getElementById('kv-proses').textContent   = proses;
+  document.getElementById('kv-menunggu').textContent = menunggu;
+
+  const list = document.getElementById('kasus-list');
+  if (!DATA.length) {
+    list.innerHTML = `<div class="empty"><div style="font-size:1.6rem;margin-bottom:8px">🛡️</div><div>Tidak ada kasus yang dilaporkan.<br>Gunakan form di atas untuk mencatat kasus baru.</div></div>`;
+    return;
+  }
+
+  list.innerHTML = DATA.map(d => {
+    const st    = STATUS_DEF[d.status] || STATUS_DEF.menunggu;
+    const color = JENIS_COLOR[d.jenis] || '#dc2626';
+    return `
+      <div class="kasus-card" style="--kc:${color}">
+        <div class="kasus-header">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <span class="kasus-id">${d.id}</span>
+              <span class="badge ${st.cls}">${st.label}</span>
+            </div>
+            <div class="kasus-tipe">${d.jenis}</div>
+            <div class="kasus-meta">
+              <span>📅 Kejadian: ${d.tgl}</span>
+              ${d.tglLapor?`<span>📋 Dilaporkan: ${d.tglLapor}</span>`:''}
+              ${d.lokasi?`<span>📍 ${d.lokasi}</span>`:''}
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0">
+            <select onchange="updateStatus('${d.id}',this.value)" style="padding:3px 6px;border:1px solid #e5e7eb;border-radius:6px;font-size:.62rem;font-family:inherit;color:#334155">
+              <option value="menunggu" ${d.status==='menunggu'?'selected':''}>Belum Ada TL</option>
+              <option value="proses"   ${d.status==='proses'?'selected':''}>Dalam Proses</option>
+              <option value="selesai"  ${d.status==='selesai'?'selected':''}>Selesai</option>
+            </select>
+            <button onclick="hapus('${d.id}')" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:.72rem" title="Hapus">✕</button>
+          </div>
+        </div>
+        ${d.desk?`<div class="kasus-body">${d.desk}</div>`:''}
+        ${d.tl?`<div style="margin-top:8px;font-size:.65rem;color:#475569"><b>Tindak Lanjut:</b> ${d.tl}</div>`:''}
+        ${d.dok?`<div style="margin-top:4px;font-size:.62rem;color:#94a3b8">📎 ${d.dok}</div>`:''}
+      </div>`;
+  }).join('');
+}
+
+buildSidebar();
+const SESSION = AUTH.requireAuth('../index.html');
+if (SESSION) {
+  if (!AUTH.canAccessMel()) { window.location.href = 'mel-beranda.html'; }
+  AUTH.applySession({});
+  AUTH.initSidebar('mel', 'm-safeguarding');
+  load();
+  render();
+  const tglEl = document.getElementById('f-tgl');
+  const tglLEl = document.getElementById('f-tgl-lapor');
+  const today = new Date().toISOString().split('T')[0];
+  if (tglEl) tglEl.value = today;
+  if (tglLEl) tglLEl.value = today;
+}
+</script>
+</body>
+</html>

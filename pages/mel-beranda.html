@@ -147,17 +147,8 @@ function buildUI(){
   const anak   = d.anak||[];
   const workers= d.workers||[];
 
-  // ── TOTAL UNIK dari 6 form ──
-  // Union nama anak dari semua form — anak yang hanya ada di perencanaan/eval
-  // tetap dihitung, yang sama hanya dihitung sekali
-  const namaUnik = new Set();
-  (d.anak||[]).forEach(a => { if(a.nama&&a.nama!=='—') namaUnik.add(a.nama.toLowerCase().trim()); });
-  (d.obs||[]).forEach(r => { const n=(r.na||'').toLowerCase().trim(); if(n&&n!=='—') namaUnik.add(n); });
-  (d.perencanaan||[]).forEach(r => { const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') namaUnik.add(n); });
-  (d.diary||[]).forEach(r => { const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') namaUnik.add(n); });
-  (d.evalMenengah||[]).forEach(r => { const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') namaUnik.add(n); });
-  (d.evalAkhir||[]).forEach(r => { const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') namaUnik.add(n); });
-  const total = namaUnik.size;
+  // ── TOTAL = DataAwal sebagai acuan (bukan union 6 form) ──
+  const total = anak.length;
 
   // KPI data — gender dari DataAwal (yang punya data lengkap)
   const lkAnak = anak.filter(a=>a.gender==='L').length;

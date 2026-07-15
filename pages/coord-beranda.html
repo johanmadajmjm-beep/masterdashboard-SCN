@@ -793,25 +793,13 @@ function renderRagam(){
 
 // ── RENDER PAGE (dipanggil saat data API tiba) ─────────────
 
-  // Union unik nama anak dari semua 6 form
-  function countUnikBenef(d) {
-    const s = new Set();
-    (d.anak||[]).forEach(a=>{ const n=(a.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
-    (d.obs||[]).forEach(r=>{ const n=(r.na||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
-    (d.perencanaan||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
-    (d.diary||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
-    (d.evalMenengah||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
-    (d.evalAkhir||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
-    return s.size;
-  }
-
 function renderPage(d, scnId){
   if(!d) return;
   const anak    = d.anak||[];
   const workers = d.workers||[];
   const obs     = d.obs||[];
-  // Total = union unik nama dari 6 form
-  const total   = countUnikBenef(d);
+  // Acuan total = DataAwal (bukan union 6 form)
+  const total   = anak.length;
 
   const obsMap={};
   obs.forEach(o=>{ if(o.na) obsMap[o.na.toLowerCase()]=o; });

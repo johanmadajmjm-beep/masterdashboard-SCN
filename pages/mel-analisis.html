@@ -350,9 +350,10 @@ function renderSituasi() {
   const diary     = d.diary||[];
   const evalMen   = d.evalMenengah||[];
   const evalAkh   = d.evalAkhir||[];
-  const totalUnik = namaUnik(d).size;
+  // Acuan total = DataAwal (200 anak), bukan union 6 form
+  const totalUnik = anak.length;
 
-  // Set nama dari semua form
+  // Set nama dari semua form — untuk cek kehadiran per form
   const namaObs    = new Set(obs.map(o=>(o.na||'').toLowerCase().trim()).filter(Boolean));
   const namaPlan   = new Set(plan.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()).filter(Boolean));
   const namaDiary  = new Set(diary.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()).filter(Boolean));
@@ -388,10 +389,10 @@ function renderSituasi() {
   document.getElementById('page-content').innerHTML = `
     <!-- KPI -->
     <div class="kpi-strip">
-      ${kpiTile('👶','#fff7ed','#F97316',totalUnik,'Total Beneficiary','Union 6 form')}
+      ${kpiTile('👶','#fff7ed','#F97316',totalUnik,'Total Beneficiary','DataAwal')}
       ${kpiTile('📊','#fff7ed','#EA6C00',avgSP+'/10','Avg Skor Anak','Cantrill Ladder')}
       ${kpiTile('🚨','#fef2f2','#dc2626',kritis.length,'Kondisi Kritis','skor ≤ 3')}
-      ${kpiTile('📋','#f0fdf4','#16a34a',pctOf(covObs)+'%','Coverage Observasi',covObs+' dari '+totalUnik+' anak')}
+      ${kpiTile('📋','#f0fdf4','#16a34a',pctOf(covObs)+'%','Coverage Observasi',covObs+' dari '+totalUnik+' anak (DataAwal)')}
       ${kpiTile('📝','#eff6ff','#2563eb',pctOf(covPlan)+'%','Ada Perencanaan',covPlan+' anak')}
       ${kpiTile('🏁','#f5f3ff','#7c3aed',pctOf(covEvalA)+'%','Evaluasi Akhir',covEvalA+' anak')}
     </div>
@@ -513,7 +514,7 @@ function renderCapaian() {
   const obs  = d.obs||[];
   const evalAkh = d.evalAkhir||[];
   const evalMen = d.evalMenengah||[];
-  const total = namaUnik(d).size||1;
+  const total = anak.length||1; // acuan = DataAwal
 
   // ITT per SCN — pakai data yang ada
   const scnFilter = (typeof AUTH !== 'undefined') ? AUTH.getScnFilter() : null;
@@ -551,7 +552,7 @@ function renderCapaian() {
   document.getElementById('page-content').innerHTML = `
     <!-- KPI Capaian -->
     <div class="kpi-strip">
-      ${kpiTile('📊','#fff7ed','#F97316',total,'Total Beneficiary','Union 6 form')}
+      ${kpiTile('📊','#fff7ed','#F97316',total,'Total Beneficiary','DataAwal')}
       ${kpiTile('💚','#f0fdf4','#16a34a',(()=>{const v=anak.filter(a=>a.sp!=null).map(a=>a.sp);return v.length?avg(v).toFixed(1):'—';})()+ '/10','Avg Skor Anak','Cantrill')}
       ${kpiTile('💛','#fffbeb','#d97706',(()=>{const v=anak.filter(a=>a.sa!=null).map(a=>a.sa);return v.length?avg(v).toFixed(1):'—';})()+ '/10','Avg Skor Pengasuh','Cantrill')}
       ${kpiTile('🏁','#f5f3ff','#7c3aed',pctTercapai+'%','Tujuan Tercapai','dari Eval Akhir')}
@@ -763,8 +764,8 @@ function renderSiklus() {
   const namaEvalM = new Set(evalM.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
   const namaEvalA = new Set(evalA.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
 
-  // Semua nama unik dari 6 form
-  const allNama = namaUnik(d);
+  // Acuan = nama anak dari DataAwal, bukan union 6 form
+  const allNama = new Set(anak.map(a=>(a.nama||'').toLowerCase().trim()).filter(Boolean));
 
   // Hitung status siklus setiap anak
   const statusMap = { full:0, inProgress:0, early:0, none:0 };

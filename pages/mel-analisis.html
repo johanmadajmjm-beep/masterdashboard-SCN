@@ -247,16 +247,13 @@ const BASE = {
 // Hitung union unik nama dari 6 form
 function namaUnik(d) {
   const s = new Set();
-  const add = (arr, ...fields) => arr.forEach(r => {
-    const n = (fields.map(f=>r[f]||'').find(v=>v)||'').toLowerCase().trim();
-    if (n && n !== '—') s.add(n);
-  });
-  add(d.anak||[], 'nama');
-  add(d.obs||[], 'na');
-  add(d.perencanaan||[], 'nama_anak','na','nama');
-  add(d.diary||[], 'nama_anak','na','nama');
-  add(d.evalMenengah||[], 'nama_anak','na','nama');
-  add(d.evalAkhir||[], 'nama_anak','na','nama');
+  const addN = n => { const v=(n||'').toLowerCase().trim(); if(v&&v!=='—') s.add(v); };
+  (d.anak||[]).forEach(r => addN(r.nama));
+  (d.obs||[]).forEach(r => addN(r.na));
+  (d.perencanaan||[]).forEach(r => addN(r.nama_anak||r.na||r.nama));
+  (d.diary||[]).forEach(r => addN(r.nama_anak||r.na||r.nama));
+  (d.evalMenengah||[]).forEach(r => addN(r.nama_anak||r.na||r.nama));
+  (d.evalAkhir||[]).forEach(r => addN(r.nama_anak||r.na||r.nama));
   return s;
 }
 
@@ -273,22 +270,25 @@ function wordFreq(texts, stopwords) {
   return Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,20);
 }
 
-// Kalkulasi ITT sederhana dari data
-function calcITTpct(anak, obs) {
-  const total = anak.length||1;
-  const punyaObs = anak.filter(a=>{
-    const k=a.nama.toLowerCase();
-    return obs.some(o=>o.na&&o.na.toLowerCase()===k);
-  }).length;
-  const terapi = anak.filter(a=>a.tr).length;
-  const skorBaik = anak.filter(a=>a.sp!=null&&a.sp>=5).length;
-  const pct = v => Math.min(100, Math.round(v/total*100));
-  return {
-    O1: pct(skorBaik), O2: pct(anak.filter(a=>a.sa!=null&&a.sa>=5).length),
-    O3: pct(punyaObs), O4: pct(anak.filter(a=>a.ep===false).length),
-    O5: pct(terapi),   O6: pct(anak.filter(a=>a.ob).length),
-    O7: pct(anak.filter(a=>a.tr).length),
-  };
+// Kalkulasi % capaian per Outcome dari d.itt (calcITT di api.js)
+// Rata-rata % capaian/target_y1 dari semua indikator per outcome
+function calcITTpct(anakUnused, obsUnused, ittData) {
+  if (!ittData) return {O1:0,O2:0,O3:0,O4:0,O5:0,O6:0,O7:0};
+  const outMap = {O1:[],O2:[],O3:[],O4:[],O5:[],O6:[],O7:[]};
+  Object.entries(ittData).forEach(([key, val]) => {
+    const out = key.split('-')[0]; // 'O1-i1' → 'O1'
+    if (!outMap[out]) return;
+    const target = val.target_y1 || 0;
+    if (target === 0) return; // skip indikator tanpa target
+    const pct = Math.min(100, Math.round((val.cap || 0) / target * 100));
+    outMap[out].push(pct);
+  });
+  const result = {};
+  OUTCOMES.forEach(o => {
+    const arr = outMap[o];
+    result[o] = arr.length ? Math.round(arr.reduce((s,v)=>s+v,0)/arr.length) : 0;
+  });
+  return result;
 }
 
 // ── RENDER PAGE ────────────────────────────────────────────────
@@ -538,8 +538,8 @@ function renderCapaian() {
     <!-- KPI Capaian -->
     <div class="kpi-strip">
       ${kpiTile('📊','#fff7ed','#F97316',total,'Total Beneficiary','Union 6 form')}
-      ${kpiTile('💚','#f0fdf4','#16a34a',avg(anak.filter(a=>a.sp!=null).map(a=>a.sp)).toFixed(1)+'/10','Avg Skor Anak','Cantrill')}
-      ${kpiTile('💛','#fffbeb','#d97706',avg(anak.filter(a=>a.sa!=null).map(a=>a.sa)).toFixed(1)+'/10','Avg Skor Pengasuh','Cantrill')}
+      ${kpiTile('💚','#f0fdf4','#16a34a',(()=>{const v=anak.filter(a=>a.sp!=null).map(a=>a.sp);return v.length?avg(v).toFixed(1):'—';})()+ '/10','Avg Skor Anak','Cantrill')}
+      ${kpiTile('💛','#fffbeb','#d97706',(()=>{const v=anak.filter(a=>a.sa!=null).map(a=>a.sa);return v.length?avg(v).toFixed(1):'—';})()+ '/10','Avg Skor Pengasuh','Cantrill')}
       ${kpiTile('🏁','#f5f3ff','#7c3aed',pctTercapai+'%','Tujuan Tercapai','dari Eval Akhir')}
       ${kpiTile('📊','#eff6ff','#2563eb',avgEvalM+'/10','Skor Eval Menengah','rata-rata tujuan 1')}
       ${kpiTile('🚨','#fef2f2','#dc2626',kritis,'Kondisi Kritis','skor ≤ 3')}
@@ -609,7 +609,7 @@ function renderCapaian() {
   // Render charts
   setTimeout(() => {
     // Heatmap ITT
-    renderHeatmapITT(anak, obs, scnList, d);
+    renderHeatmapITT(anak, obs, scnList, d, d.itt&&d.itt.Y1_Q2);
 
     // Skor distribusi
     mk('ch-skor-dist','doughnut',{
@@ -648,24 +648,21 @@ function renderCapaian() {
   }, 100);
 }
 
-function renderHeatmapITT(anak, obs, scnList, d) {
+function renderHeatmapITT(anak, obs, scnList, d, ittData) {
   const tbl = document.getElementById('hm-itt');
   const rl  = document.getElementById('ranking-list');
   if (!tbl||!rl) return;
 
-  // Pakai data yang tersedia — estimasi ITT dari field data
   let html = '<thead><tr><th class="left">SCN</th>';
   OUTCOMES.forEach(o => { html+=`<th>${OUT_LBL[o]}</th>`; });
   html += '<th>Avg</th></tr></thead><tbody>';
 
   const ranks = [];
-  // Jika hanya 1 SCN aktif atau semua SCN
-  const renderRows = scnList.length===1
-    ? [{ id: scnList[0], anak, obs }]
-    : scnList.map(id => ({ id, anak: anak.filter(a=>(a.scn||'').toLowerCase()===id), obs: obs.filter(o=>(o.scn||'').toLowerCase()===id) }));
 
-  renderRows.forEach(({id, anak:a, obs:o}) => {
-    const pcts = calcITTpct(a, o);
+  if (scnList.length === 1) {
+    // 1 SCN: pakai ittData agregat dari api.js
+    const id = scnList[0];
+    const pcts = calcITTpct(null, null, ittData);
     const avgP = Math.round(Object.values(pcts).reduce((s,v)=>s+v,0)/OUTCOMES.length);
     ranks.push({ id, lbl:SCN_LBL[id]||id, prov:PROV_MAP[id]||'', avg:avgP, pcts });
     html += `<tr><td class="hm-scn">${SCN_LBL[id]||id}</td>`;
@@ -674,7 +671,50 @@ function renderHeatmapITT(anak, obs, scnList, d) {
       html += `<td style="background:${pctBg(v)};color:${pctColor(v)}">${v}%</td>`;
     });
     html += `<td style="background:${pctBg(avgP)};color:${pctColor(avgP)};font-weight:800">${avgP}%</td></tr>`;
-  });
+  } else {
+    // Multi SCN: build ittData per SCN dari anak/obs lokal
+    // karena api.js hanya return 1 itt agregat, fallback ke calcITT per-SCN
+    scnList.forEach(id => {
+      const a = anak.filter(x=>(x.scn||'').toLowerCase()===id);
+      const o = obs.filter(x=>(x.scn||'').toLowerCase()===id);
+      // Buat itt per-SCN dengan fungsi yang sama persis seperti api.js calcITT
+      const total    = a.length||1;
+      const punyaObs = a.filter(x=>{ const k=x.nama.toLowerCase(); return o.some(y=>y.na&&y.na.toLowerCase()===k); }).length;
+      const terapi   = a.filter(x=>x.tr).length;
+      const skorBaik = a.filter(x=>x.sp!=null&&x.sp>=5).length;
+      const namaPlanSet = new Set((d.perencanaan||[]).filter(r=>(r.scn||'').toLowerCase()===id).map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+      const punyaPlan = a.filter(x=>namaPlanSet.has((x.nama||'').toLowerCase().trim())).length;
+      const punyaWk   = a.filter(x=>x.wk).length;
+      const punyaOb   = a.filter(x=>x.ob).length;
+      const localItt = {
+        'O1-i1':{cap:skorBaik,              target_y1:50},
+        'O1-i2':{cap:punyaObs,              target_y1:30},
+        'O1-i3':{cap:total,                 target_y1:200},
+        'O1-i4':{cap:terapi,                target_y1:40},
+        'O2-i1':{cap:Math.round(total*.65), target_y1:100},
+        'O2-i2':{cap:Math.round(total*.35), target_y1:60},
+        'O3-i1':{cap:3,                     target_y1:4},
+        'O3-i2':{cap:punyaObs,              target_y1:40},
+        'O4-i1':{cap:punyaPlan,             target_y1:5},
+        'O4-i2':{cap:punyaPlan,             target_y1:8},
+        'O5-i1':{cap:punyaOb,              target_y1:50},
+        'O5-i2':{cap:Math.round(total*.22), target_y1:40},
+        'O6-i1':{cap:5,                     target_y1:20},
+        'O6-i2':{cap:8,                     target_y1:25},
+        'O7-i1':{cap:punyaWk,              target_y1:3},
+        'O7-i2':{cap:4,                     target_y1:10},
+      };
+      const pcts = calcITTpct(null, null, localItt);
+      const avgP = Math.round(Object.values(pcts).reduce((s,v)=>s+v,0)/OUTCOMES.length);
+      ranks.push({ id, lbl:SCN_LBL[id]||id, prov:PROV_MAP[id]||'', avg:avgP, pcts });
+      html += `<tr><td class="hm-scn">${SCN_LBL[id]||id}</td>`;
+      OUTCOMES.forEach(o => {
+        const v = pcts[o]||0;
+        html += `<td style="background:${pctBg(v)};color:${pctColor(v)}">${v}%</td>`;
+      });
+      html += `<td style="background:${pctBg(avgP)};color:${pctColor(avgP)};font-weight:800">${avgP}%</td></tr>`;
+    });
+  }
   tbl.innerHTML = html + '</tbody>';
 
   ranks.sort((a,b)=>b.avg-a.avg);
@@ -886,43 +926,52 @@ function renderKualitatif() {
   });
   const hasTema = Object.values(temaStats).some(v=>Object.keys(v).length>0);
 
-  // ICF analysis
-  const THEMES_ICF = {
+  // ICF analysis — THEMES_ICF & analyzeThemes identik dengan worker-obs.html
+  const THEMES_ICF_MEL = {
     struktur:[
-      {label:'Mental & Saraf',pos:['kognitif baik','paham instruksi'],neg:['cerebral palsy','down syndrome','autisme','keterlambatan']},
-      {label:'Gerak & Motorik',pos:['bisa berjalan','gerak baik','motorik baik'],neg:['tidak bisa berjalan','lumpuh','kaku','kursi roda']},
-      {label:'Fungsi Indra',pos:['penglihatan baik','pendengaran baik'],neg:['gangguan penglihatan','gangguan pendengaran','tuli','tunanetra']},
-      {label:'Komunikasi',pos:['bicara lancar','komunikasi baik'],neg:['tidak bisa bicara','bisu']},
+      {label:'Fungsi Mental & Saraf',keywords_pos:['mental baik','daya ingat baik','kognitif baik','tidur baik','paham instruksi','perkembangan baik'],keywords_neg:['gangguan mental','cerebral palsy','down syndrome','autisme','keterlambatan','hambatan intelektual','tidak paham','kognitif terganggu','hiperaktif','kesulitan belajar']},
+      {label:'Fungsi Indra (Penglihatan)',keywords_pos:['penglihatan baik','melihat normal','mata baik','bisa melihat'],keywords_neg:['gangguan penglihatan','tidak bisa melihat','buta','tunanetra','low vision','juling','rabun']},
+      {label:'Fungsi Indra (Pendengaran)',keywords_pos:['pendengaran baik','mendengar baik','telinga baik'],keywords_neg:['gangguan pendengaran','tidak bisa mendengar','tuli','tunarungu','kurang dengar']},
+      {label:'Fungsi Suara & Komunikasi',keywords_pos:['bicara lancar','bicara jelas','komunikasi baik','bisa berbicara'],keywords_neg:['tidak bisa bicara','bicara tidak jelas','bisu','cadel','pelo','wicara']},
+      {label:'Fungsi Gerak & Motorik',keywords_pos:['bisa berjalan','gerak baik','motorik baik','bisa bergerak','berjalan normal'],keywords_neg:['tidak bisa berjalan','lumpuh','kaku','kursi roda','paraplegia','pincang','deformitas']},
+      {label:'Fungsi Jantung & Pernafasan',keywords_pos:['jantung baik','pernafasan baik','napas normal'],keywords_neg:['gangguan jantung','epilepsi','kejang','sesak','asma','pernafasan terganggu']},
+      {label:'Fungsi Pencernaan & Nutrisi',keywords_pos:['pencernaan baik','makan baik','gizi baik','nafsu makan baik'],keywords_neg:['gangguan pencernaan','stunting','gizi kurang','tidak bisa menelan','sulit makan']},
     ],
     kegiatan:[
-      {label:'Pendidikan',pos:['bersekolah','sekolah','belajar'],neg:['tidak sekolah','putus sekolah']},
-      {label:'Mobilitas',pos:['bergerak mandiri','mobilitas baik'],neg:['tidak bisa berjalan','kursi roda','digendong']},
-      {label:'Perawatan Diri',pos:['mandiri mandi','mengurus diri'],neg:['bantuan total','disuapi','dimandikan']},
-      {label:'Interaksi Sosial',pos:['bermain bersama','punya teman'],neg:['tidak punya teman','isolasi']},
+      {label:'Pendidikan & Belajar',keywords_pos:['bersekolah','sekolah','belajar','sd','smp','slb','paud'],keywords_neg:['tidak sekolah','belum sekolah','putus sekolah','tidak bisa sekolah']},
+      {label:'Mobilitas & Perpindahan',keywords_pos:['bisa berjalan','bergerak mandiri','mobilitas baik','bisa berdiri'],keywords_neg:['tidak bisa berjalan','kursi roda','merangkak','digendong','mobilitas terbatas']},
+      {label:'Perawatan Diri',keywords_pos:['mandiri mandi','bisa mandi','bisa berpakaian','bisa makan sendiri','mengurus diri'],keywords_neg:['semua dibantu','bantuan total','disuapi','dimandikan','dipakaikan']},
+      {label:'Komunikasi & Interaksi',keywords_pos:['komunikasi baik','mengerti perintah','bisa berkomunikasi','bersosialisasi'],keywords_neg:['komunikasi terbatas','tidak mengerti perintah','tidak bisa berkomunikasi','menarik diri']},
+      {label:'Pekerjaan Rumah Tangga',keywords_pos:['membantu pekerjaan','menyapu','mencuci piring','membantu di rumah'],keywords_neg:['tidak bisa membantu','hanya berbaring','tidak bisa kerja rumah']},
+      {label:'Interaksi Sosial & Bermain',keywords_pos:['bermain bersama','punya teman','bersosialisasi','aktif bermain'],keywords_neg:['tidak punya teman','jarang bermain','isolasi sosial','tidak mau bermain']},
+      {label:'Partisipasi Komunitas',keywords_pos:['ikut kegiatan','aktif di komunitas','kegiatan gereja','kegiatan desa','posyandu'],keywords_neg:['tidak ikut kegiatan','tidak berpartisipasi','tidak keluar rumah','lebih banyak di rumah']},
     ],
     lingkungan:[
-      {label:'Dukungan Keluarga',pos:['keluarga mendukung','keluarga peduli'],neg:['tidak mendukung','diabaikan']},
-      {label:'Akses Kesehatan',pos:['bpjs aktif','puskesmas dekat'],neg:['tidak punya bpjs','akses sulit']},
-      {label:'Sikap Masyarakat',pos:['diterima masyarakat'],neg:['stigma','dikucilkan','diskriminasi']},
-    ]
+      {label:'Kondisi Ekonomi',keywords_pos:['ekonomi baik','penghasilan cukup','ekonomi stabil'],keywords_neg:['ekonomi pas-pasan','ekonomi kurang','keluarga miskin','tidak mampu','penghasilan rendah']},
+      {label:'Kondisi Rumah',keywords_pos:['rumah permanen','rumah layak','aksesibel','rumah baik'],keywords_neg:['rumah tidak layak','tidak aksesibel','rumah papan','lantai tanah','rumah rusak']},
+      {label:'Akses Layanan Kesehatan',keywords_pos:['bpjs aktif','puskesmas dekat','akses mudah','punya bpjs','mendapat layanan'],keywords_neg:['tidak punya bpjs','jauh dari puskesmas','akses sulit','tidak ada layanan']},
+      {label:'Dukungan Keluarga',keywords_pos:['keluarga mendukung','keluarga sayang','orang tua mendukung','keluarga peduli'],keywords_neg:['keluarga tidak mendukung','diabaikan','kurang perhatian','tidak peduli']},
+      {label:'Sikap Masyarakat',keywords_pos:['diterima masyarakat','tidak ada stigma','lingkungan mendukung'],keywords_neg:['stigma','dikucilkan','tidak diterima','diskriminasi','diejek']},
+      {label:'Bantuan Pemerintah',keywords_pos:['pkh','kip','bpjs','mendapat bantuan','bantuan sosial'],keywords_neg:['tidak menerima bantuan','tidak ada bantuan','belum dapat bantuan']},
+      {label:'Alat Bantu',keywords_pos:['kursi roda','alat bantu','hearing aid','tongkat','kruk','punya alat bantu'],keywords_neg:['tidak punya alat bantu','tidak ada alat bantu','tidak ada fasilitas']},
+    ],
   };
 
-  function scoreICF(text, theme) {
-    const t=(text||'').toLowerCase();
-    return { pos:theme.pos.filter(k=>t.includes(k)).length, neg:theme.neg.filter(k=>t.includes(k)).length };
-  }
-
+  // analyzeThemes — identik dengan worker-obs.html
+  const fieldMap = {struktur:'st', kegiatan:'kg', lingkungan:'lg'};
   const icfResult = {};
-  Object.keys(THEMES_ICF).forEach(dom => {
+  ['struktur','kegiatan','lingkungan'].forEach(dom => {
     icfResult[dom] = {};
-    THEMES_ICF[dom].forEach(th => {
-      icfResult[dom][th.label] = {pos:0,neg:0};
+    THEMES_ICF_MEL[dom].forEach(theme => {
+      let pos = 0, neg = 0;
       obs.forEach(o => {
-        const text = dom==='struktur'?o.st:dom==='kegiatan'?o.kg:o.lg;
-        const s = scoreICF(text,th);
-        icfResult[dom][th.label].pos += s.pos;
-        icfResult[dom][th.label].neg += s.neg;
+        const text = (o[fieldMap[dom]] || '').toLowerCase();
+        const isPos = (theme.keywords_pos||[]).some(kw => text.includes(kw.toLowerCase()));
+        const isNeg = (theme.keywords_neg||[]).some(kw => text.includes(kw.toLowerCase()));
+        if (isPos) pos++;
+        if (isNeg) neg++;
       });
+      icfResult[dom][theme.label] = {pos, neg};
     });
   });
 
@@ -1140,7 +1189,7 @@ function renderEkosistem() {
               <thead><tr>
                 <th>Nama Worker</th>
                 <th>Anak</th>
-                <th>Kunjungan Bln Ini</th>
+                <th>Total Observasi</th>
                 <th>Avg Skor Anak</th>
                 <th>Kritis</th>
                 <th>Epilepsi</th>

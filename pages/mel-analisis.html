@@ -260,7 +260,21 @@ function namaUnik(d) {
 // Frekuensi kata dari array teks
 function wordFreq(texts, stopwords) {
   const freq = {};
-  const sw = new Set(stopwords||['yang','dan','di','ke','dari','dengan','untuk','tidak','ada','ini','itu','atau','jika','sudah','belum','saat','anak','pengasuh','cbr','worker','dalam','pada','oleh','agar','lebih','juga','bisa','masih','serta']);
+  const sw = new Set(stopwords||[
+    'yang','dan','di','ke','dari','dengan','untuk','tidak','ada','ini','itu',
+    'atau','jika','sudah','belum','saat','dalam','pada','oleh','agar','lebih',
+    'juga','bisa','masih','serta','akan','telah','setelah','bahwa','namun',
+    'karena','melalui','sebagai','kepada','antara','setiap','semua','sangat',
+    'cukup','bagi','mereka','kami','kita','secara','tentang','mengenai','perlu',
+    'harus','dapat','hingga','sejak','seperti','yaitu','yakni','tersebut',
+    'sehingga','maka','walaupun','meskipun','supaya','ketika','dimana','kemudian',
+    'kegiatan','peserta','orang','organisasi','materi','program','mulai',
+    'dilakukan','dilaksanakan','disabilitas','terdapat','memiliki','melakukan',
+    'mengikuti','memberikan','mendapatkan','meningkatkan','masyarakat',
+    'diharapkan','disampaikan','dibahas','pelaksanaan','proses','hasil',
+    'waktu','tempat','tanggal','anak','pengasuh','cbr','worker','scn',
+    'ben','nlr','yayasan','indonesia',
+  ]);
   texts.forEach(t => {
     if (!t) return;
     t.toLowerCase().replace(/[^a-z\s]/g,'').split(/\s+/).forEach(w => {

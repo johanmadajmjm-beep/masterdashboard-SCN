@@ -29,7 +29,11 @@ function buildSidebar() {
     lock    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
     logout  : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
     chevron : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>`,
-    rekam   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>`,
+    rekam    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>`,
+    survey   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+    jejaring : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`,
+    advokasi : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>`,
+    shield   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
   };
 
   const scnId   = AUTH.getScnFilter ? AUTH.getScnFilter() : null;
@@ -94,7 +98,8 @@ function buildSidebar() {
         <a class="nav-sub-item" data-page="c-benef"   href="${base}/pages/coord-benef.html">${ICONS.benef} Beneficiary</a>` : ''}
         <a class="nav-sub-item" data-page="c-rtl"     href="${base}/pages/coord-rtl.html">${ICONS.rtl} RTL</a>
         ${role !== 'worker' ? `
-        <a class="nav-sub-item" data-page="c-pihak"   href="${base}/pages/coord-pihak.html">${ICONS.stake} Pihak Terlibat</a>` : ''}
+        <a class="nav-sub-item" data-page="c-pihak"    href="${base}/pages/coord-pihak.html">${ICONS.stake}    Pihak Terlibat</a>
+        <a class="nav-sub-item" data-page="c-jejaring" href="${base}/pages/coord-jejaring.html">${ICONS.jejaring} Jejaring Rujukan</a>` : ''}
       </div>
     </div>
 
@@ -113,7 +118,10 @@ function buildSidebar() {
         <a class="nav-sub-item" data-page="m-monthly" href="${base}/pages/mel-monthly.html">${ICONS.monthly} Monthly Monitoring</a>
         <a class="nav-sub-item" data-page="m-story"   href="${base}/pages/mel-cerita.html">${ICONS.story} Cerita Perubahan</a>
         <a class="nav-sub-item" data-page="m-sukses"  href="${base}/pages/mel-sukses.html">${ICONS.star} Cerita Sukses</a>
-        ${isAdmin ? `<a class="nav-sub-item" data-page="m-analisis" href="${base}/pages/mel-analisis.html">${ICONS.trend} Analisis & Trend</a>` : ''}
+        ${isAdmin ? `<a class="nav-sub-item" data-page="m-analisis"    href="${base}/pages/mel-analisis.html">${ICONS.trend}    Analisis & Trend</a>` : ''}
+        ${isAdmin ? `<a class="nav-sub-item" data-page="m-survey"      href="${base}/pages/mel-survey.html">${ICONS.survey}      Mid-Eval Survey</a>` : ''}
+        ${isAdmin ? `<a class="nav-sub-item" data-page="m-advokasi"    href="${base}/pages/mel-advokasi.html">${ICONS.advokasi}  Logbook Advokasi</a>` : ''}
+        ${isAdmin ? `<a class="nav-sub-item" data-page="m-safeguarding" href="${base}/pages/mel-safeguarding.html">${ICONS.shield} Safeguarding</a>` : ''}
       </div>
     </div>` : ''}
 
@@ -379,7 +387,7 @@ function buildBottomNav() {
       id    : 'coord',
       label : 'Koordinator',
       icon  : ICONS.benef,
-      pages : ['c-beranda','c-progress','c-worker','c-benef','c-rtl','c-pihak'],
+      pages : ['c-beranda','c-progress','c-worker','c-benef','c-rtl','c-pihak','c-jejaring'],
       items : role === 'worker'
         ? [{ page:'c-rtl', label:'RTL', icon:ICONS.rtl, href:`${base}/pages/coord-rtl.html` }]
         : [
@@ -387,14 +395,15 @@ function buildBottomNav() {
             { page:'c-worker',  label:'Worker',     icon:ICONS.worker,href:`${base}/pages/coord-worker.html` },
             { page:'c-benef',   label:'Beneficiary',icon:ICONS.benef, href:`${base}/pages/coord-benef.html` },
             { page:'c-rtl',     label:'RTL',        icon:ICONS.rtl,   href:`${base}/pages/coord-rtl.html` },
-            { page:'c-pihak',   label:'Pihak',      icon:ICONS.stake, href:`${base}/pages/coord-pihak.html` },
+            { page:'c-pihak',    label:'Pihak',    icon:ICONS.stake,    href:`${base}/pages/coord-pihak.html`    },
+            { page:'c-jejaring', label:'Jejaring', icon:ICONS.jejaring, href:`${base}/pages/coord-jejaring.html` },
           ],
     },
     ...(canMel ? [{
       id    : 'mel',
       label : 'MEL',
       icon  : ICONS.chart,
-      pages : ['m-beranda','m-itt','m-stake','m-monthly','m-story','m-sukses','m-analisis'],
+      pages : ['m-beranda','m-itt','m-stake','m-monthly','m-story','m-sukses','m-analisis','m-survey','m-advokasi','m-safeguarding'],
       items : [
         { page:'m-beranda', label:'Beranda',     icon:ICONS.home,    href:`${base}/pages/mel-beranda.html` },
         { page:'m-itt',     label:'ITT',         icon:ICONS.itt,     href:`${base}/pages/mel-itt.html` },
@@ -402,7 +411,10 @@ function buildBottomNav() {
         { page:'m-monthly', label:'Monthly',     icon:ICONS.monthly, href:`${base}/pages/mel-monthly.html` },
         { page:'m-story',   label:'Cerita',      icon:ICONS.story,   href:`${base}/pages/mel-cerita.html` },
         { page:'m-sukses',  label:'Sukses',      icon:ICONS.star,    href:`${base}/pages/mel-sukses.html` },
-        ...(isAdmin ? [{ page:'m-analisis', label:'Analisis', icon:ICONS.trend, href:`${base}/pages/mel-analisis.html` }] : []),
+        ...(isAdmin ? [{ page:'m-analisis',     label:'Analisis',   icon:ICONS.trend,    href:`${base}/pages/mel-analisis.html`     }] : []),
+        ...(isAdmin ? [{ page:'m-survey',       label:'Survey',     icon:ICONS.survey,   href:`${base}/pages/mel-survey.html`       }] : []),
+        ...(isAdmin ? [{ page:'m-advokasi',     label:'Advokasi',   icon:ICONS.advokasi, href:`${base}/pages/mel-advokasi.html`     }] : []),
+        ...(isAdmin ? [{ page:'m-safeguarding', label:'Safeguarding',icon:ICONS.shield,  href:`${base}/pages/mel-safeguarding.html` }] : []),
       ],
     }] : []),
     {

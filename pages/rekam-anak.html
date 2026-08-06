@@ -160,6 +160,31 @@
     .ra-pdf-btn:disabled{opacity:.55;cursor:wait}
     .ra-pdf-btn svg{width:12px;height:12px}
     .ra-detail-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+    /* Baris count + tombol export massal */
+    .ra-count-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 2px}
+    .ra-bulk-btn{
+      display:flex;align-items:center;gap:6px;flex-shrink:0;
+      padding:6px 11px;border:1px solid #F97316;border-radius:8px;
+      background:#F97316;color:#fff;cursor:pointer;
+      font-size:.7rem;font-weight:700;font-family:inherit;transition:.12s;
+    }
+    .ra-bulk-btn:hover{background:#EA580C;border-color:#EA580C}
+    .ra-bulk-btn:disabled{opacity:.55;cursor:wait}
+    .ra-bulk-btn svg{width:13px;height:13px}
+    /* Modal progress export massal */
+    #ra-bulk-modal{position:fixed;inset:0;z-index:9999;display:none;font-family:inherit}
+    #ra-bulk-modal .ra-bulk-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.45)}
+    #ra-bulk-modal .ra-bulk-card{
+      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+      width:min(90vw,360px);background:#fff;border-radius:14px;padding:20px 22px;
+      box-shadow:0 20px 50px rgba(0,0,0,.25);text-align:center;
+    }
+    #ra-bulk-modal .ra-bulk-title{font-size:.9rem;font-weight:800;color:#1F2937}
+    #ra-bulk-modal .ra-bulk-sub{font-size:.72rem;color:#6B7280;margin-top:4px;min-height:1em;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #ra-bulk-modal .ra-bulk-bar{height:8px;background:#F1F5F9;border-radius:999px;overflow:hidden;margin:14px 0 8px}
+    #ra-bulk-modal .ra-bulk-fill{height:100%;width:0;background:#F97316;border-radius:999px;transition:width .2s}
+    #ra-bulk-modal .ra-bulk-hint{font-size:.62rem;color:#9CA3AF}
     .ra-empty-detail svg{width:48px;height:48px;opacity:.2}
     .ra-empty-detail p{font-size:.8rem}
 
@@ -296,8 +321,15 @@
       </div>
     </div>
 
-    <!-- COUNT -->
-    <div class="ra-count" id="ra-count">Memuat...</div>
+    <!-- COUNT + EXPORT MASSAL -->
+    <div class="ra-count-bar">
+      <div class="ra-count" id="ra-count">Memuat...</div>
+      <button class="ra-bulk-btn" id="ra-bulk-btn" onclick="exportAllPDF()"
+              title="Export PDF semua anak (mengikuti filter aktif), dikelompokkan jadi 1 ZIP per CBR worker">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span id="ra-bulk-lbl">Export ZIP</span>
+      </button>
+    </div>
 
     <!-- LIST -->
     <div class="ra-list" id="ra-list"></div>
@@ -314,6 +346,7 @@
 <!-- Library PDF (khusus halaman ini) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 // ── STATE ──────────────────────────────────────────────────────
 let ALL_DATA   = null;
@@ -1199,40 +1232,24 @@ function pdfSanitizeCell(d){
   }
 }
 
-async function exportPDF(){
-  if (!CURRENT_ANAK) { alert('Pilih anak terlebih dahulu.'); return; }
-  if (!(window.jspdf && window.jspdf.jsPDF)) { alert('Pustaka PDF belum termuat. Periksa koneksi internet lalu coba lagi.'); return; }
+// ── DERIVE FORM DATA per anak (dari data ter-fetch) ────────────
+function deriveForms(d, a0){
+  const key = normNama(a0.nama);
+  const a = (d.anak||[]).find(x=>normNama(x.nama)===key) || a0;
+  const F = {
+    hasAwal: a._sumber==='DataAwal' || a.sp!=null || (a.ragam && a.ragam!=='—'),
+    obs:   (d.obs||[]).filter(o=>normNama(o.na)===key),
+    plan:  (d.perencanaan||[]).filter(r=>normNama(r.nama_anak||r.na)===key),
+    diary: (d.diary||[]).filter(r=>normNama(r.nama_anak||r.na)===key),
+    evalM: (d.evalMenengah||[]).filter(r=>normNama(r.nama_anak||r.na)===key),
+    evalA: (d.evalAkhir||[]).filter(r=>normNama(r.nama_anak||r.na)===key),
+  };
+  return { a, F };
+}
 
-  const btn = document.getElementById('ra-pdf-btn');
-  const lbl = document.getElementById('ra-pdf-lbl');
-  const lblOrig = lbl ? lbl.textContent : '';
-  if (btn) { btn.disabled = true; btn.querySelector('svg')?.setAttribute('style','opacity:.6'); }
-
-  try {
-    // ── Ambil DATA TERBARU: buang cache lalu fetch ulang dari server ──
-    if (lbl) lbl.textContent = 'Menyiapkan data…';
-    let a = CURRENT_ANAK, F = CURRENT_FORMS;
-    try {
-      const scn = (typeof AUTH!=='undefined' && AUTH.getScnFilter) ? AUTH.getScnFilter() : (CURRENT_ANAK.scn||null);
-      if (window.API && API.clearCache) API.clearCache(scn);
-      const d = (window.API && API.get) ? await API.get(scn) : null;
-      if (d) {
-        ALL_DATA = d; // segarkan state halaman juga
-        const key = normNama(CURRENT_ANAK.nama);
-        a = (d.anak||[]).find(x=>normNama(x.nama)===key) || CURRENT_ANAK;
-        F = {
-          hasAwal: a._sumber==='DataAwal' || a.sp!=null || (a.ragam && a.ragam!=='—'),
-          obs:   (d.obs||[]).filter(o=>normNama(o.na)===key),
-          plan:  (d.perencanaan||[]).filter(r=>normNama(r.nama_anak||r.na)===key),
-          diary: (d.diary||[]).filter(r=>normNama(r.nama_anak||r.na)===key),
-          evalM: (d.evalMenengah||[]).filter(r=>normNama(r.nama_anak||r.na)===key),
-          evalA: (d.evalAkhir||[]).filter(r=>normNama(r.nama_anak||r.na)===key),
-        };
-      }
-    } catch(e){ console.warn('[PDF] Gagal ambil data terbaru, memakai data yang termuat:', e.message); }
-    if (lbl) lbl.textContent = 'Membuat PDF…';
-
-    const { jsPDF } = window.jspdf;
+// ── BANGUN 1 DOKUMEN PDF (tidak menyimpan) — dipakai export tunggal & massal ──
+function buildChildDoc(a, F){
+const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit:'pt', format:'a4' });
     const PW  = doc.internal.pageSize.getWidth();
     const PH  = doc.internal.pageSize.getHeight();
@@ -1525,10 +1542,66 @@ async function exportPDF(){
       doc.text('BEN SCN · Rekam Anak: '+(a.nama||'—')+' · Dicetak: '+tgl, M, PH-18);
       doc.text('Halaman '+p+' dari '+total, PW-M, PH-18, { align:'right' });
     }
+    return doc;
+}
 
-    const safeName = (a.nama||'anak').replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_|_$/g,'');
+// ── UTIL ───────────────────────────────────────────────────────
+function pdfSafeName(s){ return ((s||'x').replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_|_$/g,'')) || 'x'; }
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const el = document.createElement('a');
+  el.href = url; el.download = filename;
+  document.body.appendChild(el); el.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); el.remove(); }, 1500);
+}
+function bulkProgress(show, pct, line1, line2){
+  let el = document.getElementById('ra-bulk-modal');
+  if (!show){ if (el) el.style.display='none'; return; }
+  if (!el){
+    el = document.createElement('div');
+    el.id = 'ra-bulk-modal';
+    el.innerHTML =
+      '<div class="ra-bulk-backdrop"></div>' +
+      '<div class="ra-bulk-card">' +
+        '<div class="ra-bulk-title" id="ra-bulk-l1">Menyiapkan…</div>' +
+        '<div class="ra-bulk-sub" id="ra-bulk-l2"></div>' +
+        '<div class="ra-bulk-bar"><div class="ra-bulk-fill" id="ra-bulk-fill"></div></div>' +
+        '<div class="ra-bulk-hint">Jangan tutup tab ini sampai selesai.</div>' +
+      '</div>';
+    document.body.appendChild(el);
+  }
+  el.style.display = 'block';
+  const l1=document.getElementById('ra-bulk-l1'), l2=document.getElementById('ra-bulk-l2'), f=document.getElementById('ra-bulk-fill');
+  if (l1 && line1!=null) l1.textContent = line1;
+  if (l2) l2.textContent = line2 || '';
+  if (f && pct!=null) f.style.width = Math.max(0, Math.min(100, pct)) + '%';
+}
+
+// ── EXPORT PDF TUNGGAL (dari panel detail) ─────────────────────
+async function exportPDF(){
+  if (!CURRENT_ANAK) { alert('Pilih anak terlebih dahulu.'); return; }
+  if (!(window.jspdf && window.jspdf.jsPDF)) { alert('Pustaka PDF belum termuat. Periksa koneksi internet lalu coba lagi.'); return; }
+
+  const btn = document.getElementById('ra-pdf-btn');
+  const lbl = document.getElementById('ra-pdf-lbl');
+  const lblOrig = lbl ? lbl.textContent : '';
+  if (btn) { btn.disabled = true; btn.querySelector('svg')?.setAttribute('style','opacity:.6'); }
+
+  try {
+    if (lbl) lbl.textContent = 'Menyiapkan data…';
+    let a = CURRENT_ANAK, F = CURRENT_FORMS;
+    try {
+      const scn = (typeof AUTH!=='undefined' && AUTH.getScnFilter) ? AUTH.getScnFilter() : (CURRENT_ANAK.scn||null);
+      if (window.API && API.clearCache) API.clearCache(scn);
+      const d = (window.API && API.get) ? await API.get(scn) : null;
+      if (d) { ALL_DATA = d; ({ a, F } = deriveForms(d, CURRENT_ANAK)); }
+    } catch(e){ console.warn('[PDF] Gagal ambil data terbaru, memakai data termuat:', e.message); }
+    if (lbl) lbl.textContent = 'Membuat PDF…';
+
+    const doc = buildChildDoc(a, F);
+    const now = new Date();
     const ymd = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-    doc.save('Rekam_'+safeName+'_'+ymd+'.pdf');
+    doc.save('Rekam_'+pdfSafeName(a.nama)+'_'+ymd+'.pdf');
   } catch(err){
     console.error('exportPDF error:', err);
     alert('Gagal membuat PDF: '+(err&&err.message?err.message:err));
@@ -1537,6 +1610,79 @@ async function exportPDF(){
     if (lbl) lbl.textContent = lblOrig || 'Export PDF';
   }
 }
+
+// ── EXPORT MASSAL: ZIP induk → 1 zip per CBR worker → PDF anak ──
+async function exportAllPDF(){
+  if (!(window.jspdf && window.jspdf.jsPDF)) { alert('Pustaka PDF belum termuat. Periksa koneksi internet lalu coba lagi.'); return; }
+  if (!window.JSZip) { alert('Pustaka ZIP belum termuat. Periksa koneksi internet lalu coba lagi.'); return; }
+
+  const btn = document.getElementById('ra-bulk-btn');
+  const lbl = document.getElementById('ra-bulk-lbl');
+  const lblOrig = lbl ? lbl.textContent : '';
+  if (btn) btn.disabled = true;
+
+  try {
+    bulkProgress(true, 0, 'Menyiapkan data terbaru…', '');
+
+    // Ambil data terbaru (bypass cache)
+    const scn = (typeof AUTH!=='undefined' && AUTH.getScnFilter) ? AUTH.getScnFilter() : null;
+    let d = ALL_DATA;
+    try {
+      if (window.API && API.clearCache) API.clearCache(scn);
+      const fresh = (window.API && API.get) ? await API.get(scn) : null;
+      if (fresh) { d = fresh; ALL_DATA = fresh; }
+    } catch(e){ console.warn('[BULK] Gagal ambil data terbaru, memakai data termuat:', e.message); }
+
+    // Segarkan daftar & hormati filter yang aktif (CBR / ragam / pencarian)
+    ALL_ANAK = filterByRole(buildUnionAnak(d));
+    applyFilter();
+    const targets = FILTERED.slice();
+    if (!targets.length){ bulkProgress(false); alert('Tidak ada anak untuk diekspor pada filter saat ini.'); return; }
+
+    // Kelompokkan per CBR worker
+    const byWorker = {};
+    targets.forEach(a => {
+      const w = (a.cbr && a.cbr!=='—') ? a.cbr : 'Tanpa CBR Worker';
+      (byWorker[w] || (byWorker[w]=[])).push(a);
+    });
+
+    const JSZip = window.JSZip;
+    const master = new JSZip();
+    const totalN = targets.length;
+    let done = 0;
+
+    for (const worker of Object.keys(byWorker).sort()){
+      const kids = byWorker[worker];
+      const wzip = new JSZip();
+      for (const a0 of kids){
+        const { a, F } = deriveForms(d, a0);
+        const doc = buildChildDoc(a, F);
+        wzip.file(pdfSafeName(a.nama)+'.pdf', doc.output('arraybuffer'));
+        done++;
+        bulkProgress(true, Math.round(done/totalN*100), 'Membuat PDF '+done+' / '+totalN, worker+' — '+(a.nama||''));
+        await new Promise(r=>setTimeout(r, 0)); // yield ke UI agar tidak beku
+      }
+      const wblob = await wzip.generateAsync({ type:'arraybuffer', compression:'DEFLATE', compressionOptions:{ level:6 } });
+      master.file(pdfSafeName(worker)+'.zip', wblob, { compression:'STORE' });
+    }
+
+    bulkProgress(true, 100, 'Mengemas ZIP induk…', '');
+    const now = new Date();
+    const ymd = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    const scnName = pdfSafeName((d && d.meta && d.meta.scn) || scn || 'SCN');
+    const blob = await master.generateAsync({ type:'blob', compression:'STORE' });
+    downloadBlob(blob, 'RekamAnak_'+scnName+'_'+ymd+'.zip');
+    bulkProgress(false);
+  } catch(err){
+    console.error('exportAllPDF error:', err);
+    bulkProgress(false);
+    alert('Gagal membuat ZIP: '+(err&&err.message?err.message:err));
+  } finally {
+    if (btn) btn.disabled = false;
+    if (lbl) lbl.textContent = lblOrig;
+  }
+}
+
 
 // ── POPULATE FILTERS ───────────────────────────────────────────
 // Map ragam → set detail ragam yang relevan

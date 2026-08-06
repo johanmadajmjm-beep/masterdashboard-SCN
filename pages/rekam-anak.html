@@ -343,18 +343,24 @@ function scColor(v){ return v<=3?'#dc2626':v<=5?'#d97706':v<=7?'#f59e0b':'#16a34
 function scBg(v){ return v<=3?'#fee2e2':v<=5?'#fef3c7':v<=7?'#fffbeb':'#dcfce7'; }
 function inits(nama){ return (nama||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase(); }
 
+// Kunci nama ternormalisasi untuk cocokkan antar-sheet (DataAwal, Rencana, Diary, Eval).
+// Tahan terhadap beda huruf besar/kecil, spasi ganda, dan beda tanda baca.
+function normNama(s){
+  return (s||'').toString().toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,' ').trim();
+}
+
 // Hitung jumlah form yang dimiliki anak (0–6)
 function countForms(a) {
   const d = ALL_DATA;
   if (!d) return 0;
-  const k = (a.nama||'').toLowerCase().trim();
+  const k = normNama(a.nama);
   let n = 0;
   if (a._sumber==='DataAwal' || a.sp!=null || a.ragam!=='—') n++;
-  if ((d.obs||[]).some(o=>(o.na||'').toLowerCase().trim()===k)) n++;
-  if ((d.perencanaan||[]).some(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k)) n++;
-  if ((d.diary||[]).some(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k)) n++;
-  if ((d.evalMenengah||[]).some(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k)) n++;
-  if ((d.evalAkhir||[]).some(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k)) n++;
+  if ((d.obs||[]).some(o=>normNama(o.na)===k)) n++;
+  if ((d.perencanaan||[]).some(r=>normNama(r.nama_anak||r.na)===k)) n++;
+  if ((d.diary||[]).some(r=>normNama(r.nama_anak||r.na)===k)) n++;
+  if ((d.evalMenengah||[]).some(r=>normNama(r.nama_anak||r.na)===k)) n++;
+  if ((d.evalAkhir||[]).some(r=>normNama(r.nama_anak||r.na)===k)) n++;
   return n;
 }
 
@@ -369,8 +375,8 @@ function buildUnionAnak(d) {
 
   // DataAwal — sumber data lengkap
   (d.anak||[]).forEach(a => {
-    const k = (a.nama||'').toLowerCase().trim();
-    if (!k || k==='—') return;
+    const k = normNama(a.nama);
+    if (!k) return;
     map[k] = { ...a, _sumber:'DataAwal' };
   });
 
@@ -378,8 +384,8 @@ function buildUnionAnak(d) {
   function addFrom(arr, label) {
     arr.forEach(r => {
       const nama = (r.nama_anak||r.na||r.nama||'').trim();
-      const k    = nama.toLowerCase();
-      if (!k || k==='—') return;
+      const k    = normNama(nama);
+      if (!k) return;
       if (!map[k]) {
         map[k] = {
           nama, cbr: r.cbr_worker||r.cb||r.cbr||'—',
@@ -528,13 +534,13 @@ let ACTIVE_FORM_TAB = 'awal';
 
 function renderDetail(a) {
   const d = ALL_DATA;
-  const k = (a.nama||'').toLowerCase().trim();
+  const k = normNama(a.nama);
 
-  const obsData   = (d.obs||[]).filter(o=>(o.na||'').toLowerCase().trim()===k);
-  const planData  = (d.perencanaan||[]).filter(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k);
-  const diaryData = (d.diary||[]).filter(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k);
-  const evalMData = (d.evalMenengah||[]).filter(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k);
-  const evalAData = (d.evalAkhir||[]).filter(r=>(r.nama_anak||r.na||'').toLowerCase().trim()===k);
+  const obsData   = (d.obs||[]).filter(o=>normNama(o.na)===k);
+  const planData  = (d.perencanaan||[]).filter(r=>normNama(r.nama_anak||r.na)===k);
+  const diaryData = (d.diary||[]).filter(r=>normNama(r.nama_anak||r.na)===k);
+  const evalMData = (d.evalMenengah||[]).filter(r=>normNama(r.nama_anak||r.na)===k);
+  const evalAData = (d.evalAkhir||[]).filter(r=>normNama(r.nama_anak||r.na)===k);
 
   const hasAwal = a._sumber==='DataAwal' || a.sp!=null || a.ragam!=='—';
   const rColor  = RC[a.ragam]||'#94a3b8';
@@ -580,7 +586,7 @@ function renderDetail(a) {
       <div class="ra-detail-actions">
         <button class="ra-pdf-btn" id="ra-pdf-btn" onclick="exportPDF()" title="Unduh laporan rekam anak (PDF)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
-          Export PDF
+          <span id="ra-pdf-lbl">Export PDF</span>
         </button>
         <button class="ra-close-btn" onclick="closeDetail()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -1165,16 +1171,39 @@ function pdfKatColor(kat){
            sosial:[124,58,237],pemberdayaan:[5,150,105]}[kat])||PDF_MUTE;
 }
 
-function exportPDF(){
+async function exportPDF(){
   if (!CURRENT_ANAK) { alert('Pilih anak terlebih dahulu.'); return; }
   if (!(window.jspdf && window.jspdf.jsPDF)) { alert('Pustaka PDF belum termuat. Periksa koneksi internet lalu coba lagi.'); return; }
 
   const btn = document.getElementById('ra-pdf-btn');
+  const lbl = document.getElementById('ra-pdf-lbl');
+  const lblOrig = lbl ? lbl.textContent : '';
   if (btn) { btn.disabled = true; btn.querySelector('svg')?.setAttribute('style','opacity:.6'); }
 
   try {
-    const a = CURRENT_ANAK;
-    const F = CURRENT_FORMS;
+    // ── Ambil DATA TERBARU: buang cache lalu fetch ulang dari server ──
+    if (lbl) lbl.textContent = 'Menyiapkan data…';
+    let a = CURRENT_ANAK, F = CURRENT_FORMS;
+    try {
+      const scn = (typeof AUTH!=='undefined' && AUTH.getScnFilter) ? AUTH.getScnFilter() : (CURRENT_ANAK.scn||null);
+      if (window.API && API.clearCache) API.clearCache(scn);
+      const d = (window.API && API.get) ? await API.get(scn) : null;
+      if (d) {
+        ALL_DATA = d; // segarkan state halaman juga
+        const key = normNama(CURRENT_ANAK.nama);
+        a = (d.anak||[]).find(x=>normNama(x.nama)===key) || CURRENT_ANAK;
+        F = {
+          hasAwal: a._sumber==='DataAwal' || a.sp!=null || (a.ragam && a.ragam!=='—'),
+          obs:   (d.obs||[]).filter(o=>normNama(o.na)===key),
+          plan:  (d.perencanaan||[]).filter(r=>normNama(r.nama_anak||r.na)===key),
+          diary: (d.diary||[]).filter(r=>normNama(r.nama_anak||r.na)===key),
+          evalM: (d.evalMenengah||[]).filter(r=>normNama(r.nama_anak||r.na)===key),
+          evalA: (d.evalAkhir||[]).filter(r=>normNama(r.nama_anak||r.na)===key),
+        };
+      }
+    } catch(e){ console.warn('[PDF] Gagal ambil data terbaru, memakai data yang termuat:', e.message); }
+    if (lbl) lbl.textContent = 'Membuat PDF…';
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit:'pt', format:'a4' });
     const PW  = doc.internal.pageSize.getWidth();
@@ -1476,6 +1505,7 @@ function exportPDF(){
     alert('Gagal membuat PDF: '+(err&&err.message?err.message:err));
   } finally {
     if (btn) { btn.disabled = false; btn.querySelector('svg')?.removeAttribute('style'); }
+    if (lbl) lbl.textContent = lblOrig || 'Export PDF';
   }
 }
 

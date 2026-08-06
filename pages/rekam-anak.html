@@ -1171,6 +1171,34 @@ function pdfKatColor(kat){
            sosial:[124,58,237],pemberdayaan:[5,150,105]}[kat])||PDF_MUTE;
 }
 
+// Bersihkan teks agar rapi di PDF: TAB & aneka spasi Unicode / non-breaking space
+// → spasi normal; hapus zero-width; kutip melengkung & dash → ASCII (agar ter-render
+// benar oleh Helvetica); rapatkan spasi ganda. Newline nyata dipertahankan.
+function pdfText(v){
+  if (v == null) return '';
+  return String(v)
+    .replace(/\r\n?/g, '\n')
+    .replace(/\t/g, ' ')
+    .replace(/[\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]/g, ' ')
+    .replace(/[\u200B-\u200D\uFEFF\u00AD]/g, '')
+    .replace(/[\u2018\u2019\u201A\u201B\u2032]/g, "'")
+    .replace(/[\u201C\u201D\u201E\u201F\u2033]/g, '"')
+    .replace(/[\u2013\u2014\u2212]/g, '-')
+    .replace(/\u2026/g, '...')
+    .replace(/[\u2022\u25CF\u25AA\u25E6\u00B7\u2043]/g, '- ')
+    .replace(/[ ]{2,}/g, ' ')
+    .replace(/[ ]*\n[ ]*/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+// Hook autotable: sanitasi teks tiap sel sebelum diukur & di-wrap.
+function pdfSanitizeCell(d){
+  const c = d.cell;
+  if (c && c.text != null){
+    c.text = Array.isArray(c.text) ? c.text.map(pdfText) : pdfText(c.text);
+  }
+}
+
 async function exportPDF(){
   if (!CURRENT_ANAK) { alert('Pilih anak terlebih dahulu.'); return; }
   if (!(window.jspdf && window.jspdf.jsPDF)) { alert('Pustaka PDF belum termuat. Periksa koneksi internet lalu coba lagi.'); return; }
@@ -1269,6 +1297,7 @@ async function exportPDF(){
                textColor:PDF_INK, lineColor:PDF_BORDER, lineWidth:.5, overflow:'linebreak' },
       headStyles:{ fillColor:PDF_ORANGE, textColor:255, fontStyle:'bold', fontSize:8 },
       margin:{ left:M, right:M },
+      didParseCell: pdfSanitizeCell,
     };
     function kvRows(rows){ return rows.filter(r=>r[1]!=null && String(r[1]).trim()!=='' && String(r[1])!=='—'); }
 
@@ -1287,7 +1316,7 @@ async function exportPDF(){
       head:[['Formulir','Status','Jumlah Entri']],
       body:formRows,
       columnStyles:{ 0:{cellWidth:CW*0.5}, 1:{cellWidth:CW*0.28}, 2:{cellWidth:CW*0.22, halign:'center'} },
-      didParseCell:(d)=>{ if(d.section==='body'&&d.column.index===1){ d.cell.styles.textColor = d.cell.raw==='Terisi'?[22,163,74]:[220,38,38]; d.cell.styles.fontStyle='bold'; } },
+      didParseCell:(d)=>{ pdfSanitizeCell(d); if(d.section==='body'&&d.column.index===1){ d.cell.styles.textColor = d.cell.raw==='Terisi'?[22,163,74]:[220,38,38]; d.cell.styles.fontStyle='bold'; } },
       foot:[['Total terisi', nTerisi+' / 6 formulir','']],
       footStyles:{ fillColor:[255,247,237], textColor:PDF_INK, fontStyle:'bold' },
     });
@@ -1377,7 +1406,7 @@ async function exportPDF(){
         body: rtlBody,
         headStyles:{ fillColor:[220,38,38], textColor:255, fontStyle:'bold', fontSize:8 },
         columnStyles:{ 0:{cellWidth:CW*0.11, fontStyle:'bold'}, 1:{cellWidth:CW*0.31}, 2:{cellWidth:CW*0.30}, 3:{cellWidth:CW*0.28} },
-        didParseCell:(d)=>{ if(d.section==='body'&&d.column.index===0){ const kat=rtlList[d.row.index]?.kat; if(kat) d.cell.styles.textColor = pdfKatColor(kat); } },
+        didParseCell:(d)=>{ pdfSanitizeCell(d); if(d.section==='body'&&d.column.index===0){ const kat=rtlList[d.row.index]?.kat; if(kat) d.cell.styles.textColor = pdfKatColor(kat); } },
       });
       afterTable();
     }
@@ -1478,7 +1507,7 @@ async function exportPDF(){
           body: body.length?body:[['—','—','Belum diisi']],
           headStyles:{ fillColor:[5,150,105], textColor:255, fontStyle:'bold', fontSize:8 },
           columnStyles:{ 0:{cellWidth:CW*0.14, fontStyle:'bold'}, 1:{cellWidth:CW*0.14, halign:'center'}, 2:{cellWidth:CW*0.72} },
-          didParseCell:(d)=>{ if(d.section==='body'&&d.column.index===1){ const v=String(d.cell.raw||'').toLowerCase(); if(v==='ya'){d.cell.styles.textColor=[22,163,74];d.cell.styles.fontStyle='bold';} else if(v&&v!=='—'){d.cell.styles.textColor=[220,38,38];d.cell.styles.fontStyle='bold';} } },
+          didParseCell:(d)=>{ pdfSanitizeCell(d); if(d.section==='body'&&d.column.index===1){ const v=String(d.cell.raw||'').toLowerCase(); if(v==='ya'){d.cell.styles.textColor=[22,163,74];d.cell.styles.fontStyle='bold';} else if(v&&v!=='—'){d.cell.styles.textColor=[220,38,38];d.cell.styles.fontStyle='bold';} } },
         });
         afterTable();
       });

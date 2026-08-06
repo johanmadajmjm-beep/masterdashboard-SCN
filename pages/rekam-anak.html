@@ -150,6 +150,16 @@
     }
     .ra-close-btn:hover{background:#F9FAFB;color:#1F2937}
     .ra-close-btn svg{width:12px;height:12px}
+    .ra-pdf-btn{
+      padding:5px 10px;border:1px solid #FDBA74;border-radius:7px;
+      background:#FFF7ED;cursor:pointer;color:#EA580C;
+      display:flex;align-items:center;gap:5px;
+      font-size:.7rem;font-weight:700;font-family:inherit;transition:.12s;
+    }
+    .ra-pdf-btn:hover{background:#FFEDD5;color:#C2410C}
+    .ra-pdf-btn:disabled{opacity:.55;cursor:wait}
+    .ra-pdf-btn svg{width:12px;height:12px}
+    .ra-detail-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
     .ra-empty-detail svg{width:48px;height:48px;opacity:.2}
     .ra-empty-detail p{font-size:.8rem}
 
@@ -301,6 +311,9 @@
 <script src="../js/auth.js"></script>
 <script src="../js/sidebar.js"></script>
 <script src="../js/api.js"></script>
+<!-- Library PDF (khusus halaman ini) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script>
 // ── STATE ──────────────────────────────────────────────────────
 let ALL_DATA   = null;
@@ -310,6 +323,8 @@ let ACTIVE_IDX = null;
 let CURR_VIEW  = 'xl';
 let MY_ROLE    = '';
 let MY_CBR     = '';
+let CURRENT_ANAK  = null;   // anak yang sedang dibuka di detail panel
+let CURRENT_FORMS = null;   // {hasAwal, obs, plan, diary, evalM, evalA}
 
 // ── KONSTANTA WARNA ────────────────────────────────────────────
 const RC = {
@@ -525,6 +540,10 @@ function renderDetail(a) {
   const rColor  = RC[a.ragam]||'#94a3b8';
   const lColor  = LC[a.level]||'#94a3b8';
 
+  // Simpan konteks anak aktif untuk Export PDF
+  CURRENT_ANAK  = a;
+  CURRENT_FORMS = { hasAwal, obs:obsData, plan:planData, diary:diaryData, evalM:evalMData, evalA:evalAData };
+
   // Form tab definiton
   const FORMS = [
     { id:'awal',    label:'Data Awal',      icon:'📋', has: hasAwal },
@@ -558,10 +577,16 @@ function renderDetail(a) {
           </div>
         </div>
       </div>
-      <button class="ra-close-btn" onclick="closeDetail()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        Tutup
-      </button>
+      <div class="ra-detail-actions">
+        <button class="ra-pdf-btn" id="ra-pdf-btn" onclick="exportPDF()" title="Unduh laporan rekam anak (PDF)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+          Export PDF
+        </button>
+        <button class="ra-close-btn" onclick="closeDetail()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Tutup
+        </button>
+      </div>
     </div>
 
     <!-- 6 FORM TABS -->
@@ -976,6 +1001,482 @@ function renderEvalAkhir(evalArr) {
       </div>`;
     }).join('')}
   `).join('');
+}
+
+// ════════════════════════════════════════════════════════════════
+// MESIN RTL (WHO CBR 5 ASPEK) — di-port dari coord-rtl.html
+// Menganalisis Data Awal + Observasi → Temuan, Rekomendasi, Pihak
+// ════════════════════════════════════════════════════════════════
+const AKTOR_LABEL_PDF = {ayah:"Ayah",ibu:"Ibu",saudara_kandung:"Saudara Kandung",kakek_nenek_serumah:"Kakek/Nenek (serumah)",paman_bibi:"Paman/Bibi",kakek_nenek_luar:"Kakek/Nenek (luar)",sepupu:"Sepupu",keluarga_besar_lain:"Keluarga Besar",tetangga:"Tetangga",teman_sebaya:"Teman Sebaya",kelompok_bermain:"Kelompok Bermain",warga_kampung:"Warga Kampung",tua_golo:"Tua Golo",tua_teno:"Tua Teno",tokoh_adat:"Tokoh Adat",wau:"Wau",pastor:"Pastor/Romo",suster_bruder:"Suster/Bruder",katekis:"Katekis",prodiakon:"Prodiakon",kelompok_doa:"Kelompok Doa/Legio Maria",pengurus_gereja:"Pengurus Gereja",guru_agama:"Guru Agama",guru_kelas:"Guru Kelas",wali_kelas:"Wali Kelas",kepala_sekolah:"Kepala Sekolah",gpk:"Guru Pendamping Khusus",guru_paud:"Guru PAUD/TK",pengelola_paud:"Pengelola PAUD",teman_sekelas:"Teman Sekelas",bidan_desa:"Bidan Desa",perawat_puskesmas:"Perawat Puskesmas",dokter_puskesmas:"Dokter Puskesmas",kader_posyandu:"Kader Posyandu",kader_posbindu:"Kader Posbindu",fisioterapis:"Fisioterapis",kepala_desa:"Kepala Desa",sekdes:"Sekretaris Desa",rt_rw:"Ketua RT/RW",kasi_kesra:"Kasi Kesejahteraan",pkk_desa:"PKK Desa",karang_taruna:"Karang Taruna",bpd:"BPD",dinsos:"Dinas Sosial",dinkes:"Dinas Kesehatan",dindik:"Dinas Pendidikan",uptd_sosial:"UPTD Sosial",p2tp2a:"P2TP2A",scn:"Sub Cluster Network",cbr_worker_lain:"CBR Worker Lain",kader_disabilitas:"Kader Disabilitas",kelompok_tani:"Kelompok Tani",koperasi:"Koperasi",omk:"OMK",org_perempuan:"Org. Perempuan",cbm_global:"CBM Global",ayo_indonesia:"Ayo Indonesia",jpm_kupang:"JPM Kupang",lsm_lokal:"LSM Lokal",yayasan_mitra:"Yayasan Mitra",pkh_officer:"Petugas PKH"};
+
+const RTL_KAT_LABEL = { kesehatan:'Kesehatan', pendidikan:'Pendidikan', penghidupan:'Penghidupan', sosial:'Sosial', pemberdayaan:'Pemberdayaan' };
+
+const RULES_KAT_RA = {
+  kesehatan:{ kw:["sakit","epilepsi","kejang","terapi","obat","gizi","nutrisi","susu","pampers","kursi roda","alat bantu","kacamata","alat dengar","standing table","cerebral palsy","kekakuan","otot","saraf","fisioterapi","puskesmas","dokter","bidan","perawat","rujukan","operasi","rawat","low vision","tuli","bisu","gangguan penglihatan","gangguan pendengaran","luka","nyeri","kaku","lemah","baring","tumbuh kembang","berat badan","toilet training","cebok","inkontinensia"],
+    rtlMap:{epilepsi:"Pastikan obat epilepsi tersedia rutin dan jadwalkan kontrol ke Puskesmas dalam 1 bulan.",tidak_obat:"Koordinasikan akses pengobatan rutin melalui Puskesmas dan Bidan Desa dalam 2 minggu.",tidak_terapi:"Ajukan rujukan terapi ke Puskesmas atau Dinas Kesehatan dalam 1 bulan.",alat_bantu:"Identifikasi kebutuhan alat bantu dan ajukan ke Dinas Sosial/CBM Global dalam 1 bulan.",gizi:"Koordinasikan dengan Kader Posyandu untuk pemantauan gizi dan akses nutrisi dalam 2 minggu.",def:"Jadwalkan pemeriksaan kesehatan rutin dan diskusikan langkah perawatan di rumah dalam 2 minggu."}},
+  pendidikan:{ kw:["sekolah","belajar","baca","tulis","hitung","slb","sdlb","smplb","smalb","inklusi","gpk","guru pendamping","pendidikan","kelas","pip","beasiswa","putus sekolah","tidak sekolah","belum sekolah","paud","tk","literasi","numerasi","bahasa isyarat","bisindo","braille"],
+    rtlMap:{belum_sekolah:"Koordinasikan dengan Dinas Pendidikan dan Kepala Sekolah untuk pendaftaran ke sekolah inklusi atau SLB dalam 1 bulan.",gpk:"Ajukan kebutuhan Guru Pendamping Khusus ke sekolah dan Dinas Pendidikan dalam 1 bulan.",def:"Diskusikan rencana pendidikan anak dengan keluarga dan koordinasikan dengan sekolah terdekat dalam 1 bulan."}},
+  penghidupan:{ kw:["penghasilan","pendapatan","ekonomi","panen","hasil kebun","cengkeh","kemiri","buruh","harian","upah","tenun","kain","parang","sawah","kebun","tani","kiriman","merantau","pkh","blt","sembako","beras","bansos","bantuan sosial","bpjs","jkn","dtks","pse","rumah","dinding","lantai","bambu","tanah","semi permanen","layak huni","air bersih","listrik","modal","usaha","kios","ternak","kambing","biaya","tidak ada uang","keuangan"],
+    rtlMap:{bantuan:"Verifikasi status PKH/BLT/BPJS dan koordinasikan dengan Kepala Desa untuk aktivasi dalam 2 minggu.",rumah:"Laporkan kondisi rumah tidak layak ke Kepala Desa dan Dinas Sosial untuk program renovasi dalam 1 bulan.",def:"Koordinasikan akses bantuan sosial dan layanan ekonomi dengan Kepala Desa dan Dinas Sosial dalam 1 bulan."}},
+  sosial:{ kw:["stigma","dikucilkan","bully","ejek","malu","minder","teman","bermain","bergaul","sosialisasi","interaksi","isolasi","sendirian","tidak keluar","jarang","adat","tua golo","gereja","pastor","doa","misa","komunitas","tetangga","warga","masyarakat","pengasuh tunggal","janda","duda","jaringan","dukungan","ditinggal","merantau","partisipasi"],
+    rtlMap:{stigma:"Lakukan edukasi kepada keluarga, tetangga, dan Tua Golo tentang disabilitas dan inklusivitas dalam 1 bulan.",isolasi:"Fasilitasi keterlibatan anak/pengasuh dalam kegiatan komunitas dalam 1 bulan.",tunggal:"Identifikasi anggota keluarga atau tetangga yang bisa membantu pengasuhan dalam 2 minggu.",def:"Diskusikan dengan Tua Golo dan pemuka gereja tentang dukungan sosial untuk keluarga dalam 1 bulan."}},
+  pemberdayaan:{ kw:["mandiri","kemandirian","percaya diri","kepercayaan diri","mandi sendiri","makan sendiri","pakai baju","berpakaian","toilet training","cebok sendiri","mobilitas","berjalan","berdiri","mimpi","cita-cita","harapan","masa depan","potensi","bakat","hak","advokasi","ktp","akta","kartu disabilitas","keterampilan","pelatihan","vokasi","produktif","emosi","perilaku","tantrum","regulasi"],
+    rtlMap:{kemandirian:"Latih pengasuh teknik stimulasi kemandirian (toilet training, makan, berpakaian) yang bisa dilakukan setiap hari.",percaya_diri:"Libatkan anak dalam kegiatan sederhana yang sesuai kemampuannya untuk membangun kepercayaan diri dalam 1 bulan.",hak:"Bantu keluarga mengurus dokumen hak disabilitas melalui Kepala Desa dalam 1 bulan.",def:"Rancang langkah kecil bersama keluarga untuk meningkatkan kemandirian anak dalam 1 bulan."}}
+};
+
+function hasKwRA(text,kws){ if(!text)return false; const t=String(text).toLowerCase(); return kws.some(k=>t.includes(k)); }
+function getAllTeksRA(a,obs){
+  return [a.nka||'',a.tka||'',a.nkp||'',a.tkp||'',
+    obs?obs.st||'':'',obs?obs.kg||'':'',obs?obs.pf||'':'',obs?obs.lg||'':''].join(' ');
+}
+function buildKatTemuanRA(kat,a,obs){
+  const rule=RULES_KAT_RA[kat];
+  const all=getAllTeksRA(a,obs);
+  const facts=[];
+  if(kat==='kesehatan'){
+    if(a.ep)facts.push('Epilepsi aktif');
+    if(!a.ob)facts.push('Tidak ada pengobatan rutin');
+    if(!a.tr&&(a.level||'').includes('Parah'))facts.push('Belum mendapat terapi meski level parah');
+  }
+  if(!hasKwRA(all,rule.kw)&&!facts.length)return null;
+  const sources=[a.nka||'',a.tka||'',a.nkp||'',a.tkp||'',
+    obs?obs.st||'':'',obs?obs.kg||'':'',obs?obs.pf||'':'',obs?obs.lg||'':''].filter(Boolean);
+  sources.forEach(src=>{
+    String(src).replace(/\n/g,'.').split(/[.;]/).forEach(s=>{
+      s=s.trim();
+      if(s.length>10&&hasKwRA(s,rule.kw)&&facts.length<4)facts.push(s);
+    });
+  });
+  return facts.length?facts.join('; '):null;
+}
+function buildKatRTLRA(kat,temuan,a){
+  const rtl=RULES_KAT_RA[kat].rtlMap;
+  const t=(temuan||'').toLowerCase();
+  if(kat==='kesehatan'){
+    if(a.ep)return rtl.epilepsi;
+    if(hasKwRA(t,['pengobatan','tidak ada obat']))return rtl.tidak_obat;
+    if(hasKwRA(t,['terapi','fisioterapi']))return rtl.tidak_terapi;
+    if(hasKwRA(t,['kursi roda','alat bantu','kacamata']))return rtl.alat_bantu;
+    if(hasKwRA(t,['gizi','nutrisi','susu']))return rtl.gizi;
+    return rtl.def;
+  }
+  if(kat==='pendidikan'){
+    if(hasKwRA(t,['belum sekolah','tidak sekolah','putus sekolah']))return rtl.belum_sekolah;
+    if(hasKwRA(t,['gpk','guru pendamping']))return rtl.gpk;
+    return rtl.def;
+  }
+  if(kat==='penghidupan'){
+    if(hasKwRA(t,['pkh','blt','bantuan','sembako','bpjs','dtks']))return rtl.bantuan;
+    if(hasKwRA(t,['rumah','dinding','lantai','bambu']))return rtl.rumah;
+    return rtl.def;
+  }
+  if(kat==='sosial'){
+    if(hasKwRA(t,['stigma','dikucilkan','bully','ejek']))return rtl.stigma;
+    if(hasKwRA(t,['isolasi','sendirian','tidak keluar']))return rtl.isolasi;
+    if(hasKwRA(t,['tunggal','janda','duda','merantau','ditinggal']))return rtl.tunggal;
+    return rtl.def;
+  }
+  if(kat==='pemberdayaan'){
+    if(hasKwRA(t,['toilet','cebok','mandi','makan','mandiri']))return rtl.kemandirian;
+    if(hasKwRA(t,['percaya diri','minder','malu']))return rtl.percaya_diri;
+    if(hasKwRA(t,['ktp','akta','dtks','hak']))return rtl.hak;
+    return rtl.def;
+  }
+  return rtl.def||'';
+}
+function buildKatPihakRA(kat,a,obs){
+  const base={
+    kesehatan:['dokter_puskesmas','perawat_puskesmas','bidan_desa','kader_posyandu','fisioterapis','dinkes'],
+    pendidikan:['guru_kelas','wali_kelas','kepala_sekolah','gpk','guru_paud','dindik','ayo_indonesia'],
+    penghidupan:['kepala_desa','kasi_kesra','pkk_desa','dinsos','uptd_sosial','pkh_officer','rt_rw','bpd'],
+    sosial:['tua_golo','tokoh_adat','pastor','katekis','kelompok_doa','rt_rw','warga_kampung','tetangga','karang_taruna','omk'],
+    pemberdayaan:['ibu','ayah','saudara_kandung','cbr_worker_lain','scn','kader_disabilitas','ayo_indonesia']
+  };
+  const list=[...base[kat]];
+  const all=getAllTeksRA(a,obs).toLowerCase();
+  if(kat==='kesehatan'){
+    list.push('ibu','ayah');
+    if(hasKwRA(all,['epilepsi','kejang']))list.push('dokter_puskesmas','dinkes');
+    if(hasKwRA(all,['terapi','fisioterapi']))list.push('fisioterapis','cbm_global','ayo_indonesia');
+    if(hasKwRA(all,['kursi roda','alat bantu','standing table']))list.push('dinsos','uptd_sosial','cbm_global');
+    if(hasKwRA(all,['gizi','nutrisi','susu']))list.push('kader_posyandu','pkk_desa');
+    if(hasKwRA(all,['bpjs','kartu']))list.push('kepala_desa','kasi_kesra');
+    if((a.level||'').includes('Parah'))list.push('pastor','tua_golo');
+  }
+  if(kat==='pendidikan'){
+    list.push('ibu','ayah','guru_agama');
+    if(hasKwRA(all,['belum sekolah','tidak sekolah']))list.push('kepala_sekolah','dindik','kasi_kesra','kepala_desa');
+    if(hasKwRA(all,['slb','sdlb']))list.push('dindik','gpk');
+    if(hasKwRA(all,['paud','tk']))list.push('guru_paud','pengelola_paud');
+  }
+  if(kat==='penghidupan'){
+    list.push('ibu','ayah','bpd');
+    if(hasKwRA(all,['pkh','blt','bantuan','dtks']))list.push('pkh_officer','kepala_desa','kasi_kesra','dinsos');
+    if(hasKwRA(all,['rumah','dinding','lantai','bambu']))list.push('dinsos','uptd_sosial','kepala_desa','karang_taruna');
+    if(hasKwRA(all,['panen','kebun','tani','ternak']))list.push('pkk_desa','kelompok_tani');
+  }
+  if(kat==='sosial'){
+    list.push('ibu','ayah','tetangga','pkk_desa');
+    if(hasKwRA(all,['stigma','dikucilkan','bully']))list.push('tua_golo','tokoh_adat','pastor','rt_rw','kepala_desa');
+    if(hasKwRA(all,['isolasi','sendirian','tidak keluar']))list.push('kelompok_doa','omk','karang_taruna','teman_sebaya');
+    if(hasKwRA(all,['tunggal','janda','duda','merantau','ditinggal']))list.push('tua_golo','paman_bibi','kakek_nenek_serumah','rt_rw');
+    if(hasKwRA(all,['gereja','pastor','doa','misa']))list.push('pastor','katekis','kelompok_doa');
+    if(hasKwRA(all,['adat','tua golo']))list.push('tua_golo','tokoh_adat');
+  }
+  if(kat==='pemberdayaan'){
+    list.push('ibu','ayah','saudara_kandung');
+    if(hasKwRA(all,['toilet','cebok','mandi','makan','mandiri']))list.push('bidan_desa','cbr_worker_lain');
+    if(hasKwRA(all,['percaya diri','minder','malu']))list.push('guru_kelas','teman_sebaya','pastor','tua_golo');
+    if(hasKwRA(all,['ktp','akta','dtks','hak']))list.push('kepala_desa','kasi_kesra','p2tp2a','dinsos');
+    if(hasKwRA(all,['keterampilan','pelatihan','vokasi']))list.push('ayo_indonesia','cbm_global','lsm_lokal');
+    if((a.level||'').includes('Parah'))list.push('fisioterapis','cbm_global','ayo_indonesia');
+  }
+  list.push('cbr_worker_lain','scn');
+  return [...new Set(list)].map(k=>AKTOR_LABEL_PDF[k]||k);
+}
+function analyzeRTL(a, obs){
+  const result=[];
+  ['kesehatan','pendidikan','penghidupan','sosial','pemberdayaan'].forEach(kat=>{
+    const temuan=buildKatTemuanRA(kat,a,obs);
+    if(!temuan)return;
+    result.push({
+      kat,
+      label: RTL_KAT_LABEL[kat],
+      temuan,
+      rtl: buildKatRTLRA(kat,temuan,a),
+      pihak: buildKatPihakRA(kat,a,obs)
+    });
+  });
+  return result;
+}
+
+// ════════════════════════════════════════════════════════════════
+// EXPORT PDF — Laporan Rekam Anak
+// Urutan: Header → Kelengkapan Formulir → Data Awal → Observasi →
+//         RTL → Perencanaan → Buku Harian → Eval Menengah → Eval Akhir
+// ════════════════════════════════════════════════════════════════
+const PDF_ORANGE = [249,115,22];
+const PDF_INK    = [31,41,55];
+const PDF_MUTE   = [107,114,128];
+const PDF_BORDER = [229,231,235];
+
+function pdfKatColor(kat){
+  return ({kesehatan:[220,38,38],pendidikan:[29,78,216],penghidupan:[217,119,6],
+           sosial:[124,58,237],pemberdayaan:[5,150,105]}[kat])||PDF_MUTE;
+}
+
+function exportPDF(){
+  if (!CURRENT_ANAK) { alert('Pilih anak terlebih dahulu.'); return; }
+  if (!(window.jspdf && window.jspdf.jsPDF)) { alert('Pustaka PDF belum termuat. Periksa koneksi internet lalu coba lagi.'); return; }
+
+  const btn = document.getElementById('ra-pdf-btn');
+  if (btn) { btn.disabled = true; btn.querySelector('svg')?.setAttribute('style','opacity:.6'); }
+
+  try {
+    const a = CURRENT_ANAK;
+    const F = CURRENT_FORMS;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit:'pt', format:'a4' });
+    const PW  = doc.internal.pageSize.getWidth();
+    const PH  = doc.internal.pageSize.getHeight();
+    const M   = 40;
+    const CW  = PW - M*2;
+
+    // merged obs untuk analisis RTL
+    const mObs = {
+      st: F.obs.map(o=>o.st).filter(Boolean).join(' '),
+      kg: F.obs.map(o=>o.kg).filter(Boolean).join(' '),
+      pf: F.obs.map(o=>o.pf).filter(Boolean).join(' '),
+      lg: F.obs.map(o=>o.lg).filter(Boolean).join(' '),
+    };
+
+    // ── HEADER BANNER ──────────────────────────────────────────
+    doc.setFillColor(...PDF_ORANGE);
+    doc.rect(0, 0, PW, 74, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','bold'); doc.setFontSize(14);
+    doc.text('BEN SCN — Laporan Rekam Anak', M, 30);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    doc.text('Bahan Diskusi & Rencana Tindak Lanjut Berbasis Data Pendataan', M, 46);
+    const scnTxt = (a.scn||a.provinsi||'—').toString().toUpperCase();
+    doc.text('SCN: '+scnTxt, M, 61);
+
+    let y = 96;
+
+    // ── IDENTITAS RINGKAS ──────────────────────────────────────
+    doc.setTextColor(...PDF_INK);
+    doc.setFont('helvetica','bold'); doc.setFontSize(15);
+    doc.text(a.nama||'—', M, y); y += 16;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    doc.setTextColor(...PDF_MUTE);
+    const jk   = a.gender==='P'?'Perempuan':a.gender==='L'?'Laki-Laki':'—';
+    const usia = a.usia!=null?(a.usia+' th'):'—';
+    const meta1 = [ (a.cbr&&a.cbr!=='—'?a.cbr+' · CBR Worker':''), 'Usia: '+usia, 'JK: '+jk,
+                    'Desa: '+(a.desa||'—'), 'Ragam: '+(a.ragam||'—'), 'Level: '+(a.level||'—') ]
+                    .filter(Boolean).join('  |  ');
+    doc.text(doc.splitTextToSize(meta1, CW), M, y);
+    y += (doc.splitTextToSize(meta1, CW).length * 11) + 4;
+    const skorTxt = 'Skor Anak: '+(a.sp!=null?a.sp+'/10':'—')+'    Skor Pengasuh: '+(a.sa!=null?a.sa+'/10':'—');
+    doc.setFont('helvetica','bold'); doc.setTextColor(...PDF_INK);
+    doc.text(skorTxt, M, y); y += 12;
+
+    // helper: judul seksi
+    function secTitle(txt, color){
+      color = color || PDF_ORANGE;
+      if (y + 34 > PH - 46) { doc.addPage(); y = 56; }
+      else y += 14;
+      doc.setFont('helvetica','bold'); doc.setFontSize(11);
+      doc.setTextColor(...color);
+      doc.text(txt, M, y);
+      doc.setDrawColor(...color); doc.setLineWidth(1.2);
+      doc.line(M, y+4, PW-M, y+4);
+      y += 12;
+    }
+    function afterTable(){ y = doc.lastAutoTable.finalY; }
+
+    const baseTable = {
+      theme:'grid',
+      styles:{ font:'helvetica', fontSize:8, cellPadding:4, valign:'top',
+               textColor:PDF_INK, lineColor:PDF_BORDER, lineWidth:.5, overflow:'linebreak' },
+      headStyles:{ fillColor:PDF_ORANGE, textColor:255, fontStyle:'bold', fontSize:8 },
+      margin:{ left:M, right:M },
+    };
+    function kvRows(rows){ return rows.filter(r=>r[1]!=null && String(r[1]).trim()!=='' && String(r[1])!=='—'); }
+
+    // ── 1. KELENGKAPAN FORMULIR ────────────────────────────────
+    secTitle('Ringkasan Kelengkapan Formulir');
+    const formRows = [
+      ['1. Data Awal',        F.hasAwal?'Terisi':'Belum',        F.hasAwal?'1':'0'],
+      ['2. Observasi',        F.obs.length?'Terisi':'Belum',     String(F.obs.length)],
+      ['3. Perencanaan (IRP)',F.plan.length?'Terisi':'Belum',    String(F.plan.length)],
+      ['4. Buku Harian',      F.diary.length?'Terisi':'Belum',   String(F.diary.length)],
+      ['5. Eval. Menengah',   F.evalM.length?'Terisi':'Belum',   String(F.evalM.length)],
+      ['6. Eval. Akhir',      F.evalA.length?'Terisi':'Belum',   String(F.evalA.length)],
+    ];
+    const nTerisi = [F.hasAwal, F.obs.length, F.plan.length, F.diary.length, F.evalM.length, F.evalA.length].filter(Boolean).length;
+    doc.autoTable({ ...baseTable, startY:y+4,
+      head:[['Formulir','Status','Jumlah Entri']],
+      body:formRows,
+      columnStyles:{ 0:{cellWidth:CW*0.5}, 1:{cellWidth:CW*0.28}, 2:{cellWidth:CW*0.22, halign:'center'} },
+      didParseCell:(d)=>{ if(d.section==='body'&&d.column.index===1){ d.cell.styles.textColor = d.cell.raw==='Terisi'?[22,163,74]:[220,38,38]; d.cell.styles.fontStyle='bold'; } },
+      foot:[['Total terisi', nTerisi+' / 6 formulir','']],
+      footStyles:{ fillColor:[255,247,237], textColor:PDF_INK, fontStyle:'bold' },
+    });
+    afterTable();
+
+    // ── 2. DATA AWAL ───────────────────────────────────────────
+    secTitle('1. Data Awal');
+    if (!F.hasAwal) {
+      doc.autoTable({ ...baseTable, startY:y+4, body:[['Data Awal belum tersedia. Anak pertama kali tercatat di form: '+(a._sumber||'—')]] });
+      afterTable();
+    } else {
+      const daRows = kvRows([
+        ['Tanggal Lahir', a.tl],
+        ['Usia', a.usia!=null?(a.usia+' tahun ('+(a.gu||'')+')'):null],
+        ['Jenis Kelamin', jk],
+        ['Kampung/Dusun', a.kampung],
+        ['Desa', a.desa],
+        ['Ragam Disabilitas', a.ragam],
+        ['Detail Ragam', a.rgd],
+        ['Level Dukungan', a.level],
+        ['Epilepsi', a.ep?'Ya':'Tidak'],
+        ['Pernah Pengobatan', a.ob?'Ya':'Tidak'],
+        ['Fasilitas Pengobatan', a.obf],
+        ['Layanan Pengobatan', a.obl],
+        ['Pernah Terapi', a.tr?'Ya':'Tidak'],
+        ['Jenis Terapi', a.trj],
+        ['Pelaksana Terapi', a.trs],
+        ['Skor Anak (Cantrill)', a.sp!=null?a.sp+'/10':null],
+        ['Skor Pengasuh (Cantrill)', a.sa!=null?a.sa+'/10':null],
+        ['Nama Pengasuh', a.np],
+        ['Status Pengasuh', a.stp],
+        ['Waktu Kunjungan CBR', a.wk],
+      ]);
+      doc.autoTable({ ...baseTable, startY:y+4, body:daRows,
+        columnStyles:{ 0:{cellWidth:CW*0.34, fontStyle:'bold', textColor:PDF_MUTE}, 1:{cellWidth:CW*0.66} } });
+      afterTable();
+      // Narasi Cantrill
+      const narasi = kvRows([
+        ['Yang membantu anak naik tangga', a.nka],
+        ['Yang menghambat anak', a.tka],
+        ['Yang membantu pengasuh naik tangga', a.nkp],
+        ['Yang menghambat pengasuh', a.tkp],
+      ]);
+      if (narasi.length) {
+        doc.autoTable({ ...baseTable, startY:y+6,
+          head:[['Narasi Cantrill Ladder','']],
+          body:narasi,
+          columnStyles:{ 0:{cellWidth:CW*0.34, fontStyle:'bold', textColor:PDF_MUTE}, 1:{cellWidth:CW*0.66} } });
+        afterTable();
+      }
+    }
+
+    // ── 3. OBSERVASI ───────────────────────────────────────────
+    secTitle('2. Observasi (ICF)');
+    if (!F.obs.length) {
+      doc.autoTable({ ...baseTable, startY:y+4, body:[['Belum ada data observasi untuk anak ini.']] });
+      afterTable();
+    } else {
+      F.obs.forEach((o,i)=>{
+        const rows = kvRows([
+          ['Struktur & Fungsi Tubuh', o.st],
+          ['Kegiatan & Partisipasi', o.kg],
+          ['Faktor Personal', o.pf],
+          ['Lingkungan', o.lg],
+        ]);
+        doc.autoTable({ ...baseTable, startY:(i===0?y+4:y+6),
+          head:[['Kunjungan '+(o.tgl||'—')+(o.cb?(' · '+o.cb):''),'']],
+          body: rows.length?rows:[['—','Temuan ICF belum diisi']],
+          columnStyles:{ 0:{cellWidth:CW*0.30, fontStyle:'bold', textColor:PDF_MUTE}, 1:{cellWidth:CW*0.70} } });
+        afterTable();
+      });
+    }
+
+    // ── 4. RENCANA TINDAK LANJUT (RTL) ─────────────────────────
+    secTitle('3. Rencana Tindak Lanjut (RTL) — Analisis 5 Aspek', [220,38,38]);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...PDF_MUTE);
+    doc.text('Dihasilkan otomatis dari analisis Data Awal & Observasi. Bahan diskusi rencana 3 bulan ke depan.', M, y+10);
+    y += 14;
+    const rtlList = analyzeRTL(a, mObs);
+    if (!rtlList.length) {
+      doc.autoTable({ ...baseTable, startY:y+4, body:[['Belum cukup data (Data Awal/Observasi) untuk menghasilkan analisis RTL.']] });
+      afterTable();
+    } else {
+      const rtlBody = rtlList.map(r=>[ r.label, r.temuan, r.rtl, r.pihak.join(', ') ]);
+      doc.autoTable({ ...baseTable, startY:y+4,
+        head:[['Aspek','Bahan Diskusi / Temuan','Rekomendasi & Tindak Lanjut','Pihak yang Dilibatkan']],
+        body: rtlBody,
+        headStyles:{ fillColor:[220,38,38], textColor:255, fontStyle:'bold', fontSize:8 },
+        columnStyles:{ 0:{cellWidth:CW*0.11, fontStyle:'bold'}, 1:{cellWidth:CW*0.31}, 2:{cellWidth:CW*0.30}, 3:{cellWidth:CW*0.28} },
+        didParseCell:(d)=>{ if(d.section==='body'&&d.column.index===0){ const kat=rtlList[d.row.index]?.kat; if(kat) d.cell.styles.textColor = pdfKatColor(kat); } },
+      });
+      afterTable();
+    }
+
+    // ── 5. PERENCANAAN (IRP) ───────────────────────────────────
+    secTitle('4. Perencanaan Awal (IRP)');
+    if (!F.plan.length) {
+      doc.autoTable({ ...baseTable, startY:y+4, body:[['Belum ada perencanaan untuk anak ini.']] });
+      afterTable();
+    } else {
+      F.plan.forEach((p,pi)=>{
+        const head = [['Perencanaan '+(p.tanggal_submit||p.tanggal_rencana||'')+(p.cbr_worker?(' · '+p.cbr_worker):''),'']];
+        const kes = kvRows([
+          ['Kesulitan pengasuh', p.kesulitan_pengasuh],
+          ['Kesulitan pekerja lapangan', p.kesulitan_pekerja],
+          ['Kesepakatan', p.kesulitan_kesepakatan],
+        ]);
+        if (kes.length){
+          doc.autoTable({ ...baseTable, startY:(pi===0?y+4:y+6), head, body:kes,
+            columnStyles:{ 0:{cellWidth:CW*0.30, fontStyle:'bold', textColor:PDF_MUTE}, 1:{cellWidth:CW*0.70} } });
+          afterTable();
+        }
+        [1,2,3].forEach(n=>{
+          const tj=p['tujuan_'+n]; if(!tj) return;
+          const tRows = kvRows([
+            ['Tujuan', tj],
+            ['Aktor', p['aktor_tujuan_'+n]],
+            ['Bagaimana', p['bagaimana_'+n]],
+            ['Dimana', p['dimana_'+n]],
+            ['Kapan', p['kapan_'+n]],
+            ['Rencana Aksi', p['aksi_'+n]],
+          ]);
+          doc.autoTable({ ...baseTable, startY:y+4,
+            head:[['Tujuan '+n,'']],
+            body:tRows,
+            headStyles:{ fillColor:[37,99,235], textColor:255, fontStyle:'bold', fontSize:8 },
+            columnStyles:{ 0:{cellWidth:CW*0.20, fontStyle:'bold', textColor:PDF_MUTE}, 1:{cellWidth:CW*0.80} } });
+          afterTable();
+        });
+      });
+    }
+
+    // ── 6. BUKU HARIAN ─────────────────────────────────────────
+    secTitle('5. Buku Harian');
+    if (!F.diary.length) {
+      doc.autoTable({ ...baseTable, startY:y+4, body:[['Belum ada buku harian untuk anak ini.']] });
+      afterTable();
+    } else {
+      F.diary.forEach((dr,di)=>{
+        const entries=[];
+        for(let n=1;n<=10;n++){ const isi=dr['isi_diary_'+n]; if(isi) entries.push([ dr['tgl_diary_'+n]||'—', isi ]); }
+        doc.autoTable({ ...baseTable, startY:(di===0?y+4:y+6),
+          head:[['Tanggal ('+(dr.tanggal_submit||'—')+')','Catatan Harian']],
+          body: entries.length?entries:[['—','Isi diary belum diisi']],
+          columnStyles:{ 0:{cellWidth:CW*0.20}, 1:{cellWidth:CW*0.80} } });
+        afterTable();
+      });
+    }
+
+    // ── 7. EVALUASI MENENGAH ───────────────────────────────────
+    secTitle('6. Evaluasi Menengah');
+    if (!F.evalM.length) {
+      doc.autoTable({ ...baseTable, startY:y+4, body:[['Belum ada evaluasi menengah untuk anak ini.']] });
+      afterTable();
+    } else {
+      F.evalM.forEach((e,ei)=>{
+        const body=[];
+        [1,2,3].forEach(n=>{
+          const skor=e['score_tujuan_'+n], al=e['alasan_score_'+n], pr=e['perubahan_'+n], py=e['penyebab_'+n], lj=e['lanjutan_'+n];
+          if(!skor&&!al&&!pr) return;
+          const det=[ al?('Alasan: '+al):'', pr?('Perubahan: '+pr):'', py?('Penyebab: '+py):'', lj?('Tindak Lanjut: '+lj):'' ].filter(Boolean).join('\n');
+          body.push([ 'Tujuan '+n, skor?(skor+'/10'):'—', det||'—' ]);
+        });
+        doc.autoTable({ ...baseTable, startY:(ei===0?y+4:y+6),
+          head:[['Tujuan ('+(e.tanggal_eval||e.tanggal_submit||'—')+')','Skor','Uraian']],
+          body: body.length?body:[['—','—','Belum diisi']],
+          columnStyles:{ 0:{cellWidth:CW*0.14, fontStyle:'bold'}, 1:{cellWidth:CW*0.12, halign:'center'}, 2:{cellWidth:CW*0.74} } });
+        afterTable();
+      });
+    }
+
+    // ── 8. EVALUASI AKHIR ──────────────────────────────────────
+    secTitle('7. Evaluasi Akhir');
+    if (!F.evalA.length) {
+      doc.autoTable({ ...baseTable, startY:y+4, body:[['Belum ada evaluasi akhir untuk anak ini.']] });
+      afterTable();
+    } else {
+      F.evalA.forEach((e,ei)=>{
+        const body=[];
+        [1,2,3].forEach(n=>{
+          const tc=e['tercapai_tujuan_'+n], pj=e['penjelasan_ya_'+n], at=e['alasan_tidak_'+n], sr=e['saran_'+n];
+          if(!tc&&!pj&&!at) return;
+          const det=[ pj?('Penjelasan: '+pj):'', at?('Alasan tidak tercapai: '+at):'', sr?('Saran: '+sr):'' ].filter(Boolean).join('\n');
+          body.push([ 'Tujuan '+n, tc||'—', det||'—' ]);
+        });
+        doc.autoTable({ ...baseTable, startY:(ei===0?y+4:y+6),
+          head:[['Tujuan ('+(e.tanggal_eval||e.tanggal_submit||'—')+')','Tercapai','Uraian']],
+          body: body.length?body:[['—','—','Belum diisi']],
+          headStyles:{ fillColor:[5,150,105], textColor:255, fontStyle:'bold', fontSize:8 },
+          columnStyles:{ 0:{cellWidth:CW*0.14, fontStyle:'bold'}, 1:{cellWidth:CW*0.14, halign:'center'}, 2:{cellWidth:CW*0.72} },
+          didParseCell:(d)=>{ if(d.section==='body'&&d.column.index===1){ const v=String(d.cell.raw||'').toLowerCase(); if(v==='ya'){d.cell.styles.textColor=[22,163,74];d.cell.styles.fontStyle='bold';} else if(v&&v!=='—'){d.cell.styles.textColor=[220,38,38];d.cell.styles.fontStyle='bold';} } },
+        });
+        afterTable();
+      });
+    }
+
+    // ── FOOTER SEMUA HALAMAN ───────────────────────────────────
+    const now = new Date();
+    const tgl = now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
+    const total = doc.internal.getNumberOfPages();
+    for (let p=1; p<=total; p++){
+      doc.setPage(p);
+      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...PDF_MUTE);
+      doc.setDrawColor(...PDF_BORDER); doc.setLineWidth(.5);
+      doc.line(M, PH-30, PW-M, PH-30);
+      doc.text('BEN SCN · Rekam Anak: '+(a.nama||'—')+' · Dicetak: '+tgl, M, PH-18);
+      doc.text('Halaman '+p+' dari '+total, PW-M, PH-18, { align:'right' });
+    }
+
+    const safeName = (a.nama||'anak').replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_|_$/g,'');
+    const ymd = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    doc.save('Rekam_'+safeName+'_'+ymd+'.pdf');
+  } catch(err){
+    console.error('exportPDF error:', err);
+    alert('Gagal membuat PDF: '+(err&&err.message?err.message:err));
+  } finally {
+    if (btn) { btn.disabled = false; btn.querySelector('svg')?.removeAttribute('style'); }
+  }
 }
 
 // ── POPULATE FILTERS ───────────────────────────────────────────

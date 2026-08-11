@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <style>html,body{background:#F8FAFC}</style>
+  <script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MEL — Analisis Perencanaan | MEL NLR Indonesia</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <style>
+    .page{padding:0}
+    .ap-page{padding:16px 20px}
+
+    /* ── TAB BAR ── */
+    .tab-bar{display:flex;gap:0;border-bottom:2px solid #e9eef6;background:#fff;padding:0 20px;overflow-x:auto;flex-shrink:0;position:sticky;top:0;z-index:10}
+    .tab-btn{display:flex;align-items:center;gap:7px;padding:12px 18px;font-size:.78rem;font-weight:600;color:#64748b;background:none;border:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;font-family:inherit;white-space:nowrap;flex-shrink:0}
+    .tab-btn:hover{color:#F97316;background:#fff7ed30}
+    .tab-btn.active{color:#F97316;border-bottom-color:#F97316}
+
+    /* ── LAYOUT: list + detail ── */
+    .ap-wrap{display:flex;height:calc(100vh - 108px);overflow:hidden}
+    .ap-list{width:100%;overflow-y:auto;background:#fff;border-right:1px solid #e9eef6;transition:width .2s,min-width .2s}
+    .ap-wrap.detail-open .ap-list{width:320px;min-width:320px}
+    @media(max-width:820px){.ap-wrap.detail-open .ap-list{display:none}}
+    .ap-detail{flex:1;overflow-y:auto;background:#F8FAFC;display:none}
+    .ap-wrap.detail-open .ap-detail{display:block}
+    .ap-list::-webkit-scrollbar,.ap-detail::-webkit-scrollbar{width:6px}
+    .ap-list::-webkit-scrollbar-thumb,.ap-detail::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
+
+    /* ── SUMMARY BAR ── */
+    .ap-summary{padding:14px 18px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    @media(max-width:820px){.ap-summary{grid-template-columns:1fr 1fr}}
+    .sum-card{background:#fff;border:1px solid #e9eef6;border-radius:12px;padding:12px 14px}
+    .sum-val{font-size:1.5rem;font-weight:800;line-height:1}
+    .sum-lbl{font-size:.66rem;color:#94a3b8;font-weight:600;margin-top:4px;text-transform:uppercase;letter-spacing:.04em}
+
+    /* ── LIST TOOLBAR ── */
+    .ap-toolbar{position:sticky;top:0;background:#fff;z-index:5;padding:10px 14px;border-bottom:1px solid #eef2f7;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .ap-search{flex:1;min-width:150px;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:.78rem;font-family:inherit;outline:none}
+    .ap-search:focus{border-color:#F97316}
+    .ap-filter{border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:.74rem;font-family:inherit;background:#fff;cursor:pointer;outline:none}
+
+    /* ── ITEM CARD ── */
+    .item-card{padding:11px 14px;border-bottom:1px solid #f3f4f6;cursor:pointer;transition:background .12s;display:flex;align-items:center;gap:11px}
+    .item-card:hover{background:#f8fafc}
+    .item-card.active{background:#fff7ed;box-shadow:inset 3px 0 0 #F97316}
+    .item-avatar{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;color:#fff}
+    .item-main{flex:1;min-width:0}
+    .item-name{font-weight:700;font-size:.82rem;color:#1F2937;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-sub{font-size:.68rem;color:#9CA3AF;margin-top:1px}
+    .item-score{flex-shrink:0;text-align:right}
+    .score-pill{font-size:.72rem;font-weight:800;padding:3px 8px;border-radius:999px;white-space:nowrap}
+
+    /* ── DETAIL ── */
+    .det-wrap{padding:18px 22px;max-width:960px}
+    .det-back{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:7px 12px;font-size:.74rem;font-weight:600;color:#475569;cursor:pointer;margin-bottom:14px;font-family:inherit}
+    .det-back:hover{background:#f8fafc}
+    .det-back svg{width:14px;height:14px}
+    .det-name{font-size:1.15rem;font-weight:800;color:#0f172a}
+    .det-meta{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 16px}
+    .det-chip{font-size:.66rem;font-weight:600;background:#fff;border:1px solid #e9eef6;color:#475569;padding:4px 9px;border-radius:999px}
+
+    .det-scoreboard{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+    @media(max-width:640px){.det-scoreboard{grid-template-columns:1fr}}
+    .sb-card{background:#fff;border:1px solid #e9eef6;border-radius:12px;padding:14px 16px}
+    .sb-head{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;margin-bottom:8px}
+    .sb-gauge{display:flex;align-items:baseline;gap:8px}
+    .sb-pct{font-size:1.8rem;font-weight:800;line-height:1}
+    .sb-desc{font-size:.72rem;color:#64748b;line-height:1.5;margin-top:8px}
+    .sb-track{height:6px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin-top:8px}
+    .sb-fill{height:100%;border-radius:4px;transition:width .4s}
+
+    .det-section{background:#fff;border:1px solid #e9eef6;border-radius:12px;margin-bottom:16px;overflow:hidden}
+    .det-section-head{padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:.8rem;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
+    .det-section-head svg{width:15px;height:15px;flex-shrink:0}
+    .det-section-body{padding:14px 16px}
+
+    /* ── MATCH ROW (problem → plan) ── */
+    .mrow{border:1px solid #eef2f7;border-radius:10px;padding:12px 14px;margin-bottom:10px}
+    .mrow:last-child{margin-bottom:0}
+    .mrow-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .mrow-dom{font-size:.78rem;font-weight:700;color:#1F2937;display:flex;align-items:center;gap:7px}
+    .mrow-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .mrow-badge{font-size:.64rem;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap}
+    .mrow-body{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:640px){.mrow-body{grid-template-columns:1fr}}
+    .mcol-lbl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;margin-bottom:4px}
+    .mcol-txt{font-size:.74rem;color:#374151;line-height:1.55;white-space:pre-wrap}
+    .mcol-empty{font-size:.72rem;color:#cbd5e1;font-style:italic}
+
+    /* ── GOAL TRACE (plan → execution) ── */
+    .goal{border:1px solid #eef2f7;border-radius:10px;padding:12px 14px;margin-bottom:12px}
+    .goal:last-child{margin-bottom:0}
+    .goal-head{font-size:.8rem;font-weight:700;color:#1F2937;margin-bottom:4px}
+    .goal-text{font-size:.74rem;color:#475569;line-height:1.5;margin-bottom:10px}
+    .trace{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    @media(max-width:640px){.trace{grid-template-columns:1fr}}
+    .trace-cell{border:1px solid #f1f5f9;border-radius:8px;padding:9px 10px;background:#fafbfc}
+    .trace-cell.hit{border-color:#bbf7d0;background:#f0fdf4}
+    .trace-cell.miss{border-color:#fecaca;background:#fef2f2}
+    .trace-lbl{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;display:flex;align-items:center;gap:5px;margin-bottom:5px}
+    .trace-status{font-size:.72rem;font-weight:700}
+    .trace-note{font-size:.66rem;color:#64748b;line-height:1.45;margin-top:3px;white-space:pre-wrap}
+    .trace-ico{width:12px;height:12px;flex-shrink:0}
+
+    /* ── FLAGS ── */
+    .flag{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:9px;margin-bottom:8px}
+    .flag:last-child{margin-bottom:0}
+    .flag.warn{background:#fffbeb;border:1px solid #fde68a}
+    .flag.bad{background:#fef2f2;border:1px solid #fecaca}
+    .flag.ok{background:#f0fdf4;border:1px solid #bbf7d0}
+    .flag-ico{font-size:1rem;flex-shrink:0;line-height:1.3}
+    .flag-txt{font-size:.72rem;color:#374151;line-height:1.5}
+    .flag-txt b{color:#111827}
+
+    .empty-state{text-align:center;padding:40px 20px;color:#9CA3AF}
+    .empty-state svg{width:40px;height:40px;opacity:.4;margin-bottom:10px}
+    .empty-state p{font-size:.82rem;font-weight:600}
+    .empty-state span{font-size:.72rem}
+
+    .ap-loading{text-align:center;padding:60px 20px;color:#94a3b8;font-size:.85rem}
+    .spin{width:26px;height:26px;border:3px solid #e9eef6;border-top-color:#F97316;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* legend for domain colors */
+    .dom-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.64rem;color:#94a3b8;padding:0 18px 10px}
+    .dom-legend span{display:inline-flex;align-items:center;gap:5px}
+    .dom-legend i{width:9px;height:9px;border-radius:50%;display:inline-block}
+  </style>
+</head>
+<body>
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="topbar-breadcrumb">MEL <span class="sep">›</span><span class="current">Analisis Perencanaan</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
+
+<div class="page">
+  <div class="tab-bar" id="tab-bar" style="display:none">
+    <button class="tab-btn active" id="tb-masalah" onclick="switchTab('masalah')">🎯 Masalah → Rencana</button>
+    <button class="tab-btn" id="tb-hasil" onclick="switchTab('hasil')">🔄 Rencana → Pelaksanaan &amp; Hasil</button>
+  </div>
+
+  <div id="ap-summary" class="ap-summary" style="display:none"></div>
+  <div id="dom-legend" class="dom-legend" style="display:none"></div>
+
+  <div id="page-content">
+    <div class="ap-loading"><div class="spin"></div>Memuat data analisis perencanaan...</div>
+  </div>
+</div>
+</div></div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/api.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   ANALISIS PERENCANAAN ANAK — MEL
+   Dua analisis rule-based (deterministik, tanpa API eksternal):
+   1) Kesesuaian Masalah (Data Awal + Observasi) → Perencanaan (IRP)
+   2) Kesesuaian Perencanaan → Pelaksanaan (Buku Harian) & Hasil
+      (Eval Menengah, Eval Akhir)
+   Join antar-sheet memakai normNama().
+═══════════════════════════════════════════════════════════════ */
+
+let D = null;
+let ACTIVE_TAB = 'masalah';
+let ROWS = [];              // hasil analisis per anak
+let CURRENT_KEY = null;
+
+/* ── util ─────────────────────────────────────────────────────── */
+function normNama(s){
+  return (s||'').toString().toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,' ').trim();
+}
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function txt(s){ return (s==null?'':String(s)).trim(); }
+function avatarColor(name){
+  const p=['#F97316','#2563eb','#0891b2','#16a34a','#7c3aed','#d97706','#dc2626','#0d9488'];
+  let h=0; for(const c of (name||'')) h=(h*31+c.charCodeAt(0))>>>0;
+  return p[h%p.length];
+}
+function initials(name){
+  const w=(name||'?').trim().split(/\s+/);
+  return ((w[0]?.[0]||'')+(w[1]?.[0]||'')).toUpperCase()||'?';
+}
+
+/* ── DOMAIN (WHO CBR / ICF) — pemetaan keyword ────────────────── */
+/* Setiap domain punya kata kunci "hambatan" (negatif). Kalau muncul
+   di Data Awal / Observasi → dianggap "ada masalah" pada domain itu.
+   Kata kunci yang sama dicari di Perencanaan → dianggap "ditangani". */
+const DOMAINS = [
+  { key:'motorik',   label:'Gerak & Motorik',       color:'#dc2626',
+    kw:['jalan','berjalan','motorik','gerak','lumpuh','kaku','kursi roda','pincang','tangan','kaki','duduk','berdiri','merangkak','deformitas','fisik','tremor','keseimbangan','lemah'] },
+  { key:'komunikasi',label:'Suara & Komunikasi',    color:'#2563eb',
+    kw:['bicara','wicara','komunikasi','bahasa','bisu','cadel','pelo','ucap','kata','suara','artikulasi','ekspresi','gagap'] },
+  { key:'sensorik',  label:'Indra (Lihat/Dengar)',  color:'#0891b2',
+    kw:['lihat','melihat','penglihatan','mata','buta','tunanetra','rabun','dengar','pendengaran','telinga','tuli','tunarungu','juling','low vision'] },
+  { key:'kognitif',  label:'Mental & Kognitif',     color:'#7c3aed',
+    kw:['mental','kognitif','belajar','ingat','paham','intelektual','konsentrasi','fokus','down syndrome','autis','autisme','keterlambatan','tunagrahita','emosi','perilaku','hiperaktif','iq'] },
+  { key:'kesehatan', label:'Kesehatan & Medis',     color:'#e11d48',
+    kw:['epilepsi','kejang','jantung','sesak','asma','napas','pernafasan','gizi','stunting','sakit','obat','medis','nutrisi','makan','menelan','pencernaan','nyeri','luka'] },
+  { key:'aktivitas', label:'Kegiatan & Kemandirian',color:'#16a34a',
+    kw:['mandiri','kegiatan','aktivitas','mck','mandi','makan sendiri','bantu diri','sekolah','main','bermain','tugas','partisipasi','pekerjaan rumah','berpakaian','toilet'] },
+  { key:'sosial',    label:'Sosial & Lingkungan',   color:'#d97706',
+    kw:['sosial','teman','masyarakat','stigma','diskriminasi','dikucilkan','diejek','keluarga','pengasuh','dukungan','lingkungan','akses','fasilitas','stimulasi'] },
+];
+
+/* Kumpulkan seluruh teks masalah dari Data Awal untuk 1 anak */
+function awalText(a){
+  if(!a) return '';
+  const parts=[
+    a.ragam, a.rgd, a.level,
+    a.obf, a.obl, a.trj, a.trs,
+    a.stp, a.stpl,
+    a.nka, a.tka, a.nkp, a.tkp,
+  ];
+  // catatan narasi tema (kalau ada dari GAS)
+  if(a._tema && typeof a._tema==='object'){
+    Object.values(a._tema).forEach(v=>{ if(v) parts.push(String(v)); });
+  }
+  return parts.filter(Boolean).join(' • ');
+}
+/* Kumpulkan seluruh teks observasi (4 domain ICF) untuk 1 anak */
+function obsText(obsList){
+  return (obsList||[]).map(o=>[o.st,o.kg,o.pf,o.lg].filter(Boolean).join(' ')).join(' • ');
+}
+/* Kumpulkan seluruh teks perencanaan (tujuan + kesulitan) untuk 1 anak */
+function planText(p){
+  if(!p) return '';
+  const parts=[p.kesulitan_pengasuh,p.kesulitan_pekerja,p.kesulitan_kesepakatan];
+  for(let n=1;n<=3;n++){
+    parts.push(p['tujuan_'+n],p['bagaimana_'+n],p['dimana_'+n],p['kapan_'+n],p['aksi_'+n]);
+  }
+  return parts.filter(Boolean).join(' • ');
+}
+/* Ambil daftar tujuan terisi dari 1 perencanaan */
+function planGoals(p){
+  const goals=[];
+  if(!p) return goals;
+  for(let n=1;n<=3;n++){
+    const t=txt(p['tujuan_'+n]);
+    const bg=txt(p['bagaimana_'+n]), dm=txt(p['dimana_'+n]), kp=txt(p['kapan_'+n]), ak=txt(p['aksi_'+n]);
+    if(t||bg||dm||kp||ak){
+      goals.push({ n, tujuan:t, bagaimana:bg, dimana:dm, kapan:kp, aksi:ak,
+                   full:[t,bg,dm,kp,ak].filter(Boolean).join(' ') });
+    }
+  }
+  return goals;
+}
+
+/* Deteksi domain yang tersentuh dalam sebuah teks (kembalikan set key).
+   Cocokkan sebagai kata/frasa utuh (word-boundary) agar tidak salah tangkap
+   substring — mis. 'mandi' di dalam 'mandiri', 'mata' di dalam 'semata'. */
+function kwMatch(text, kw){
+  // escape regex, izinkan frasa multi-kata, batas kata di kiri-kanan
+  const esc=kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return new RegExp('(^|[^a-z0-9])'+esc+'([^a-z0-9]|$)','i').test(text);
+}
+function detectDomains(text){
+  const t=(text||'').toLowerCase();
+  const hit={};
+  DOMAINS.forEach(d=>{
+    const found=d.kw.filter(k=>kwMatch(t,k));
+    if(found.length) hit[d.key]={ found };
+  });
+  return hit;
+}
+
+/* ── ANALISIS 1: MASALAH → RENCANA (per anak) ─────────────────── */
+function analyzeMatch(a, obsList, plan){
+  const src = (awalText(a)+' • '+obsText(obsList)).trim();
+  const problemDom = detectDomains(src);          // domain bermasalah
+  const planDom    = detectDomains(planText(plan));// domain yg direncanakan
+  const rows=[];
+  let covered=0, total=0;
+
+  DOMAINS.forEach(d=>{
+    const prob = problemDom[d.key];
+    if(!prob) return;                 // hanya tampilkan domain yg memang ada masalahnya
+    total++;
+    const inPlan = planDom[d.key];
+    if(inPlan) covered++;
+    rows.push({
+      key:d.key, label:d.label, color:d.color,
+      problemKw : prob.found,
+      addressed : !!inPlan,
+      planKw    : inPlan? inPlan.found : [],
+    });
+  });
+
+  // rencana tanpa dasar masalah (domain ada di plan tapi tak terdeteksi di masalah)
+  const planOnly=[];
+  Object.keys(planDom).forEach(k=>{
+    if(!problemDom[k]){
+      const d=DOMAINS.find(x=>x.key===k);
+      if(d) planOnly.push({ key:k, label:d.label, color:d.color, planKw:planDom[k].found });
+    }
+  });
+
+  const pct = total? Math.round(covered/total*100) : (plan? 100 : 0);
+  return { rows, planOnly, covered, total, pct, hasPlan:!!plan, hasProblem: total>0 };
+}
+
+/* ── ANALISIS 2: RENCANA → PELAKSANAAN & HASIL (per anak) ──────── */
+function analyzeExecution(plan, diaryList, evalMList, evalAList){
+  const goals = planGoals(plan);
+
+  // gabungan teks buku harian
+  const diaryAll = (diaryList||[]).map(e=>{
+    let s='';
+    for(let n=1;n<=10;n++){ if(e['isi_diary_'+n]) s+=' '+e['isi_diary_'+n]; }
+    return s;
+  }).join(' • ').toLowerCase();
+
+  const evalM = (evalMList||[])[0] || null;
+  const evalA = (evalAList||[])[0] || null;
+
+  const traced = goals.map(g=>{
+    // ── PELAKSANAAN (buku harian) ──
+    // cocokkan kata kunci bermakna dari tujuan ke isi diary
+    const kw = keywordsOf(g.full);
+    const diaryHits = kw.filter(k=>kwMatch(diaryAll,k));
+    const diaryHit = diaryHits.length>0;
+
+    // ── EVAL MENENGAH (skor tujuan n) ──
+    let midScore=null, midNote='';
+    if(evalM){
+      const sc=evalM['score_tujuan_'+g.n]||evalM['skor_t'+g.n];
+      if(sc!=null && txt(sc)!==''){ midScore=parseInt(sc); }
+      midNote = txt(evalM['alasan_score_'+g.n]||evalM['jelaskan_t'+g.n]||evalM['perubahan_'+g.n]||'');
+    }
+
+    // ── EVAL AKHIR (tercapai tujuan n) ──
+    let endStatus=null, endNote='';
+    if(evalA){
+      const st=txt(evalA['tercapai_tujuan_'+g.n]);
+      if(st){ endStatus=st; }
+      endNote = txt(evalA['penjelasan_ya_'+g.n]||evalA['alasan_tidak_'+g.n]||evalA['saran_'+g.n]||'');
+    }
+
+    return { g, diaryHit, diaryHits, midScore, midNote, endStatus, endNote,
+             hasMid: !!evalM, hasEnd: !!evalA };
+  });
+
+  // skor pelaksanaan keseluruhan: rata2 keterjejakan (diary + eval)
+  let steps=0, done=0;
+  traced.forEach(t=>{
+    steps+=3;
+    if(t.diaryHit) done++;
+    if(t.midScore!=null) done++;
+    if(t.endStatus!=null) done++;
+  });
+  const pct = steps? Math.round(done/steps*100) : 0;
+
+  return { goals:traced, pct, hasPlan:!!plan, hasDiary:(diaryList||[]).length>0,
+           hasMid:!!evalM, hasEnd:!!evalA, goalCount:goals.length };
+}
+
+/* Ekstrak kata kunci bermakna (>3 huruf, bukan stopword) dari teks tujuan */
+const STOP = new Set(['yang','dan','untuk','dengan','agar','anak','dapat','bisa','pada','dari','akan','atau','dalam','oleh','tidak','sudah','lebih','saat','ini','itu','ke','di','se','para','serta','juga','supaya','melalui','secara','tujuan','rencana','bagaimana','dimana','kapan','aksi']);
+function keywordsOf(text){
+  const words=(text||'').toLowerCase().replace(/[^a-z\s]/g,' ').split(/\s+/);
+  const out=[];
+  words.forEach(w=>{ if(w.length>3 && !STOP.has(w) && !out.includes(w)) out.push(w); });
+  return out.slice(0,12);
+}
+
+/* ── BUILD ROWS (semua anak) ──────────────────────────────────── */
+function buildRows(d){
+  const anak = d.anak||[];
+  const rows = anak.map(a=>{
+    const key = normNama(a.nama);
+    const obsList  = (d.obs||[]).filter(o=>normNama(o.na)===key);
+    const plan     = (d.perencanaan||[]).find(r=>normNama(r.nama_anak||r.na)===key) || null;
+    const diaryL   = (d.diary||[]).filter(r=>normNama(r.nama_anak||r.na)===key);
+    const evalML   = (d.evalMenengah||[]).filter(r=>normNama(r.nama_anak||r.na)===key);
+    const evalAL   = (d.evalAkhir||[]).filter(r=>normNama(r.nama_anak||r.na)===key);
+
+    const match = analyzeMatch(a, obsList, plan);
+    const exec  = analyzeExecution(plan, diaryL, evalML, evalAL);
+
+    return {
+      key, nama:a.nama, cbr:a.cbr, desa:a.desa, ragam:a.ragam, scn:a.scn,
+      a, obsList, plan, diaryL, evalML, evalAL,
+      match, exec,
+      hasPlan: !!plan,
+    };
+  });
+  return rows;
+}
+
+/* ── SUMMARY BAR ──────────────────────────────────────────────── */
+function renderSummary(){
+  const el=document.getElementById('ap-summary');
+  const withPlan = ROWS.filter(r=>r.hasPlan);
+  if(ACTIVE_TAB==='masalah'){
+    const anyProblem = ROWS.filter(r=>r.match.hasProblem);
+    const goodCov = withPlan.filter(r=>r.match.total>0 && r.match.pct>=80).length;
+    const gapCount= withPlan.reduce((s,r)=>s+(r.match.rows.filter(x=>!x.addressed).length),0);
+    const noPlan  = ROWS.filter(r=>!r.hasPlan).length;
+    el.innerHTML=`
+      ${sumCard(ROWS.length,'Total Anak','#0f172a')}
+      ${sumCard(goodCov,'Rencana Selaras (≥80%)','#16a34a')}
+      ${sumCard(gapCount,'Masalah Belum Direncanakan','#dc2626')}
+      ${sumCard(noPlan,'Belum Ada Rencana','#d97706')}`;
+  } else {
+    const evaluated = withPlan.filter(r=>r.exec.hasMid||r.exec.hasEnd).length;
+    const noFollow  = withPlan.reduce((s,r)=>s+r.exec.goals.filter(g=>!g.diaryHit).length,0);
+    const noEval    = withPlan.reduce((s,r)=>s+r.exec.goals.filter(g=>g.midScore==null&&g.endStatus==null).length,0);
+    el.innerHTML=`
+      ${sumCard(withPlan.length,'Anak Ber-Rencana','#0f172a')}
+      ${sumCard(evaluated,'Sudah Dievaluasi','#16a34a')}
+      ${sumCard(noFollow,'Tujuan Tanpa Jejak Diary','#d97706')}
+      ${sumCard(noEval,'Tujuan Belum Dievaluasi','#dc2626')}`;
+  }
+  el.style.display='grid';
+}
+function sumCard(v,l,c){
+  return `<div class="sum-card"><div class="sum-val" style="color:${c}">${v}</div><div class="sum-lbl">${l}</div></div>`;
+}
+
+/* ── LEGEND ───────────────────────────────────────────────────── */
+function renderLegend(){
+  const el=document.getElementById('dom-legend');
+  if(ACTIVE_TAB!=='masalah'){ el.style.display='none'; return; }
+  el.innerHTML='Domain WHO CBR / ICF: '+DOMAINS.map(d=>`<span><i style="background:${d.color}"></i>${d.label}</span>`).join('');
+  el.style.display='flex';
+}
+
+/* ── LIST ─────────────────────────────────────────────────────── */
+function pillColor(pct,hasPlan){
+  if(!hasPlan) return {bg:'#f1f5f9',fg:'#94a3b8',t:'Belum'};
+  if(pct>=80) return {bg:'#dcfce7',fg:'#15803d',t:pct+'%'};
+  if(pct>=50) return {bg:'#fef3c7',fg:'#b45309',t:pct+'%'};
+  return {bg:'#fee2e2',fg:'#b91c1c',t:pct+'%'};
+}
+function renderList(){
+  const q=(document.getElementById('ap-search')?.value||'').toLowerCase();
+  const f=document.getElementById('ap-filter')?.value||'all';
+  let list=ROWS.slice();
+
+  // filter
+  if(f==='noplan')   list=list.filter(r=>!r.hasPlan);
+  if(f==='gap')      list=list.filter(r=>r.hasPlan && (ACTIVE_TAB==='masalah'
+                        ? r.match.rows.some(x=>!x.addressed)
+                        : r.exec.goals.some(g=>!g.diaryHit || (g.midScore==null&&g.endStatus==null))));
+  if(f==='good')     list=list.filter(r=>r.hasPlan && (ACTIVE_TAB==='masalah'? r.match.pct>=80 : r.exec.pct>=80));
+  if(q) list=list.filter(r=>(r.nama||'').toLowerCase().includes(q)||(r.cbr||'').toLowerCase().includes(q));
+
+  // sort: yang bermasalah dulu
+  list.sort((a,b)=>{
+    const pa=ACTIVE_TAB==='masalah'?(a.hasPlan?a.match.pct:-1):(a.hasPlan?a.exec.pct:-1);
+    const pb=ACTIVE_TAB==='masalah'?(b.hasPlan?b.match.pct:-1):(b.hasPlan?b.exec.pct:-1);
+    return pa-pb;
+  });
+
+  const cards = list.map(r=>{
+    const pct = ACTIVE_TAB==='masalah'?(r.hasPlan?r.match.pct:0):(r.hasPlan?r.exec.pct:0);
+    const pc = pillColor(pct,r.hasPlan);
+    const active = r.key===CURRENT_KEY?'active':'';
+    return `<div class="item-card ${active}" onclick="openDetail('${r.key}',this)">
+      <div class="item-avatar" style="background:${avatarColor(r.nama)}">${initials(r.nama)}</div>
+      <div class="item-main">
+        <div class="item-name">${esc(r.nama)}</div>
+        <div class="item-sub">${esc(r.cbr||'—')} · ${esc(r.desa||'—')}</div>
+      </div>
+      <div class="item-score"><span class="score-pill" style="background:${pc.bg};color:${pc.fg}">${pc.t}</span></div>
+    </div>`;
+  }).join('');
+
+  const listHTML = list.length? cards : `<div class="empty-state"><p>Tidak ada anak yang cocok</p><span>Coba ubah pencarian atau filter.</span></div>`;
+
+  document.getElementById('ap-listbody').innerHTML = listHTML;
+}
+
+/* ── PAGE SHELL ───────────────────────────────────────────────── */
+function renderShell(){
+  document.getElementById('page-content').innerHTML=`
+    <div class="ap-wrap" id="ap-wrap">
+      <div class="ap-list">
+        <div class="ap-toolbar">
+          <input id="ap-search" class="ap-search" type="text" placeholder="Cari nama anak / CBR worker..." oninput="renderList()"/>
+          <select id="ap-filter" class="ap-filter" onchange="renderList()">
+            <option value="all">Semua</option>
+            <option value="gap">Ada Gap</option>
+            <option value="good">Selaras (≥80%)</option>
+            <option value="noplan">Belum Ada Rencana</option>
+          </select>
+        </div>
+        <div id="ap-listbody"></div>
+      </div>
+      <div class="ap-detail" id="ap-detail"></div>
+    </div>`;
+  renderList();
+}
+
+/* ── DETAIL ───────────────────────────────────────────────────── */
+function openDetail(key,el){
+  CURRENT_KEY=key;
+  document.querySelectorAll('.item-card').forEach(c=>c.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('ap-wrap').classList.add('detail-open');
+  const r=ROWS.find(x=>x.key===key);
+  if(!r) return;
+  document.getElementById('ap-detail').innerHTML =
+    ACTIVE_TAB==='masalah' ? detailMatch(r) : detailExec(r);
+  document.getElementById('ap-detail').scrollTop=0;
+}
+function closeDetail(){
+  CURRENT_KEY=null;
+  document.getElementById('ap-wrap').classList.remove('detail-open');
+  document.querySelectorAll('.item-card').forEach(c=>c.classList.remove('active'));
+}
+
+function detailHead(r){
+  return `<button class="det-back" onclick="closeDetail()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Kembali
+    </button>
+    <div class="det-name">${esc(r.nama)}</div>
+    <div class="det-meta">
+      <span class="det-chip">👤 ${esc(r.cbr||'—')}</span>
+      <span class="det-chip">📍 ${esc(r.desa||'—')}</span>
+      <span class="det-chip">🏷 ${esc(r.ragam||'—')}</span>
+    </div>`;
+}
+
+/* ── DETAIL: MASALAH → RENCANA ────────────────────────────────── */
+function detailMatch(r){
+  const m=r.match;
+  if(!r.hasPlan){
+    return `<div class="det-wrap">${detailHead(r)}
+      ${noPlanBox('Anak ini belum memiliki data Perencanaan (IRP), sehingga kesesuaian rencana terhadap masalah belum dapat dinilai.')}
+      ${m.hasProblem? problemOnlyBox(m) : ''}
+    </div>`;
+  }
+
+  const pc = pillColor(m.pct,true);
+  const gap = m.rows.filter(x=>!x.addressed);
+
+  // baris per domain bermasalah
+  const rowsHTML = m.rows.length ? m.rows.map(x=>{
+    const badge = x.addressed
+      ? `<span class="mrow-badge" style="background:#dcfce7;color:#15803d">✓ Ditangani</span>`
+      : `<span class="mrow-badge" style="background:#fee2e2;color:#b91c1c">✗ Belum di Rencana</span>`;
+    return `<div class="mrow" style="border-left:3px solid ${x.color}">
+      <div class="mrow-head">
+        <div class="mrow-dom"><span class="mrow-dot" style="background:${x.color}"></span>${x.label}</div>
+        ${badge}
+      </div>
+      <div class="mrow-body">
+        <div>
+          <div class="mcol-lbl">Indikasi Masalah (Data Awal / Observasi)</div>
+          <div class="mcol-txt">${x.problemKw.map(k=>`<span style="background:${x.color}15;color:${x.color};padding:1px 6px;border-radius:5px;font-weight:600;margin:0 3px 3px 0;display:inline-block;font-size:.7rem">${esc(k)}</span>`).join('')}</div>
+        </div>
+        <div>
+          <div class="mcol-lbl">Tercermin di Rencana?</div>
+          <div class="mcol-txt">${x.addressed
+            ? x.planKw.map(k=>`<span style="background:#16a34a15;color:#15803d;padding:1px 6px;border-radius:5px;font-weight:600;margin:0 3px 3px 0;display:inline-block;font-size:.7rem">${esc(k)}</span>`).join('')
+            : `<span class="mcol-empty">Tidak ditemukan tujuan/aksi yang menyentuh domain ini.</span>`}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('') : `<div class="empty-state"><p>Tidak terdeteksi indikasi masalah spesifik</p><span>Data Awal & Observasi tidak memuat kata kunci domain WHO CBR yang jelas. Analisis kesesuaian per-domain tidak dapat dihitung.</span></div>`;
+
+  // flags
+  const flags=[];
+  if(gap.length){
+    flags.push(`<div class="flag bad"><span class="flag-ico">⚠️</span><div class="flag-txt"><b>${gap.length} domain masalah belum masuk rencana:</b> ${gap.map(g=>g.label).join(', ')}. Pertimbangkan menambah tujuan/aksi yang menyasar domain ini.</div></div>`);
+  }
+  if(m.planOnly.length){
+    flags.push(`<div class="flag warn"><span class="flag-ico">🔍</span><div class="flag-txt"><b>Rencana tanpa dasar masalah eksplisit:</b> ${m.planOnly.map(p=>p.label).join(', ')}. Rencana menyentuh domain ini, namun tidak terdeteksi di Data Awal/Observasi — pastikan dasar asesmennya jelas.</div></div>`);
+  }
+  if(m.total>0 && gap.length===0){
+    flags.push(`<div class="flag ok"><span class="flag-ico">✅</span><div class="flag-txt"><b>Selaras.</b> Seluruh domain masalah yang terdeteksi telah tercermin dalam perencanaan.</div></div>`);
+  }
+
+  return `<div class="det-wrap">${detailHead(r)}
+    <div class="det-scoreboard">
+      <div class="sb-card">
+        <div class="sb-head">Skor Kesesuaian Masalah → Rencana</div>
+        <div class="sb-gauge"><div class="sb-pct" style="color:${pc.fg}">${m.total?m.pct+'%':'—'}</div><div style="font-size:.72rem;color:#94a3b8">${m.covered}/${m.total} domain masalah ditangani</div></div>
+        <div class="sb-track"><div class="sb-fill" style="width:${m.total?m.pct:0}%;background:${pc.fg}"></div></div>
+        <div class="sb-desc">Persentase domain masalah (dari Data Awal + Observasi) yang tercermin di dalam tujuan/aksi Perencanaan.</div>
+      </div>
+      <div class="sb-card">
+        <div class="sb-head">Ringkasan</div>
+        ${flags.length?flags.join(''):'<div class="flag ok"><span class="flag-ico">✅</span><div class="flag-txt">Tidak ada catatan.</div></div>'}
+      </div>
+    </div>
+
+    <div class="det-section">
+      <div class="det-section-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4"/><path d="M15 13h4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-4"/><path d="M9 7l3-3 3 3"/><path d="M12 4v9"/></svg> Kesesuaian per Domain Masalah</div>
+      <div class="det-section-body">${rowsHTML}</div>
+    </div>
+
+    ${planText(r.plan)?`<div class="det-section">
+      <div class="det-section-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Isi Perencanaan (rujukan)</div>
+      <div class="det-section-body">${planSummaryHTML(r.plan)}</div>
+    </div>`:''}
+  </div>`;
+}
+
+function problemOnlyBox(m){
+  const chips=m.rows.map(x=>`<span style="background:${x.color}15;color:${x.color};padding:2px 8px;border-radius:6px;font-weight:600;margin:0 4px 4px 0;display:inline-block;font-size:.72rem">${x.label}</span>`).join('');
+  return `<div class="det-section">
+    <div class="det-section-head">Domain Masalah Terdeteksi</div>
+    <div class="det-section-body"><div style="font-size:.74rem;color:#64748b;margin-bottom:8px">Terdeteksi dari Data Awal/Observasi, menunggu perencanaan:</div>${chips||'<span class="mcol-empty">Tidak terdeteksi.</span>'}</div>
+  </div>`;
+}
+
+function planSummaryHTML(p){
+  if(!p) return '<span class="mcol-empty">Tidak ada data.</span>';
+  let h='';
+  const k=[p.kesulitan_pengasuh,p.kesulitan_pekerja,p.kesulitan_kesepakatan].filter(Boolean);
+  if(k.length){
+    h+=`<div class="mcol-lbl">Kesulitan & Kesepakatan</div><div class="mcol-txt" style="margin-bottom:10px">${esc(k.join('\n'))}</div>`;
+  }
+  planGoals(p).forEach(g=>{
+    h+=`<div class="mcol-lbl">Tujuan ${g.n}</div><div class="mcol-txt" style="margin-bottom:10px">${esc(g.tujuan||'—')}${g.aksi?`\n↳ Aksi: ${esc(g.aksi)}`:''}</div>`;
+  });
+  return h||'<span class="mcol-empty">Tidak ada tujuan terisi.</span>';
+}
+
+/* ── DETAIL: RENCANA → PELAKSANAAN & HASIL ────────────────────── */
+function detailExec(r){
+  const e=r.exec;
+  if(!r.hasPlan){
+    return `<div class="det-wrap">${detailHead(r)}
+      ${noPlanBox('Anak ini belum memiliki data Perencanaan (IRP), sehingga jejak pelaksanaan & hasil terhadap rencana belum dapat dinilai.')}
+      ${(r.diaryL.length||r.evalML.length||r.evalAL.length)?`<div class="flag warn" style="max-width:960px"><span class="flag-ico">🔍</span><div class="flag-txt">Namun ditemukan data lain: ${[r.diaryL.length?r.diaryL.length+' entri Buku Harian':'',r.evalML.length?'Eval Menengah':'',r.evalAL.length?'Eval Akhir':''].filter(Boolean).join(', ')} — tanpa rencana sebagai acuan, data ini sulit dinilai keselarasannya.</div></div>`:''}
+    </div>`;
+  }
+  if(e.goalCount===0){
+    return `<div class="det-wrap">${detailHead(r)}${noPlanBox('Perencanaan ada, namun tidak ada tujuan (tujuan_1..3) yang terisi. Tidak ada yang bisa dilacak pelaksanaannya.')}</div>`;
+  }
+
+  const pc=pillColor(e.pct,true);
+
+  const goalsHTML=e.goals.map(t=>{
+    // pelaksanaan
+    const dCell = traceCell('📖 Buku Harian',
+      t.diaryHit?'Ada jejak':'Tidak ada jejak',
+      t.diaryHit?('kata kunci cocok: '+t.diaryHits.slice(0,5).join(', ')):'Tidak ditemukan aktivitas terkait tujuan ini di buku harian.',
+      t.diaryHit?'hit':'miss');
+    // eval menengah
+    let mStatus,mNote,mCls;
+    if(!t.hasMid){ mStatus='Belum ada'; mNote='Evaluasi menengah belum diisi.'; mCls=''; }
+    else if(t.midScore==null){ mStatus='Tak dinilai'; mNote='Form ada, namun skor tujuan ini kosong.'; mCls='miss'; }
+    else { mStatus='Skor '+t.midScore+'/10'; mNote=t.midNote||'—'; mCls=t.midScore>=6?'hit':(t.midScore>=4?'':'miss'); }
+    const mCell = traceCell('📊 Eval Menengah', mStatus, mNote, mCls);
+    // eval akhir
+    let eStatus,eNote,eCls;
+    if(!t.hasEnd){ eStatus='Belum ada'; eNote='Evaluasi akhir belum diisi.'; eCls=''; }
+    else if(t.endStatus==null){ eStatus='Tak dinilai'; eNote='Form ada, namun status tujuan ini kosong.'; eCls='miss'; }
+    else {
+      const yes=/ya|tercapai|selesai|berhasil/i.test(t.endStatus);
+      eStatus=t.endStatus; eNote=t.endNote||'—'; eCls=yes?'hit':'miss';
+    }
+    const eCell = traceCell('🏁 Eval Akhir', eStatus, eNote, eCls);
+
+    return `<div class="goal">
+      <div class="goal-head">Tujuan ${t.g.n}</div>
+      <div class="goal-text">${esc(t.g.tujuan||t.g.full||'—')}${t.g.aksi?`<br><span style="color:#94a3b8">↳ Aksi: ${esc(t.g.aksi)}</span>`:''}</div>
+      <div class="trace">${dCell}${mCell}${eCell}</div>
+    </div>`;
+  }).join('');
+
+  // flags
+  const flags=[];
+  const noDiary=e.goals.filter(g=>!g.diaryHit);
+  const noEval =e.goals.filter(g=>g.midScore==null&&g.endStatus==null);
+  if(!e.hasDiary){
+    flags.push(`<div class="flag warn"><span class="flag-ico">📖</span><div class="flag-txt"><b>Belum ada Buku Harian.</b> Pelaksanaan rencana tidak dapat ditelusuri.</div></div>`);
+  } else if(noDiary.length){
+    flags.push(`<div class="flag warn"><span class="flag-ico">📖</span><div class="flag-txt"><b>${noDiary.length} tujuan tanpa jejak di Buku Harian:</b> Tujuan ${noDiary.map(g=>g.g.n).join(', ')}. Kegiatan mungkin belum dijalankan atau belum dicatat.</div></div>`);
+  }
+  if(noEval.length){
+    flags.push(`<div class="flag bad"><span class="flag-ico">📊</span><div class="flag-txt"><b>${noEval.length} tujuan belum dievaluasi</b> (menengah maupun akhir): Tujuan ${noEval.map(g=>g.g.n).join(', ')}.</div></div>`);
+  }
+  if(e.hasEnd){
+    const done=e.goals.filter(g=>g.endStatus&&/ya|tercapai|selesai|berhasil/i.test(g.endStatus)).length;
+    flags.push(`<div class="flag ${done===e.goalCount?'ok':'warn'}"><span class="flag-ico">🏁</span><div class="flag-txt"><b>Hasil akhir:</b> ${done}/${e.goalCount} tujuan dinyatakan tercapai.</div></div>`);
+  }
+  if(!flags.length) flags.push(`<div class="flag ok"><span class="flag-ico">✅</span><div class="flag-txt">Tidak ada catatan.</div></div>`);
+
+  return `<div class="det-wrap">${detailHead(r)}
+    <div class="det-scoreboard">
+      <div class="sb-card">
+        <div class="sb-head">Skor Keterlaksanaan & Evaluasi</div>
+        <div class="sb-gauge"><div class="sb-pct" style="color:${pc.fg}">${e.pct}%</div><div style="font-size:.72rem;color:#94a3b8">${e.goalCount} tujuan · diary + eval menengah + eval akhir</div></div>
+        <div class="sb-track"><div class="sb-fill" style="width:${e.pct}%;background:${pc.fg}"></div></div>
+        <div class="sb-desc">Persentase langkah tindak lanjut yang terlacak: tiap tujuan dinilai atas 3 hal — jejak di Buku Harian, skor Eval Menengah, dan status Eval Akhir.</div>
+      </div>
+      <div class="sb-card">
+        <div class="sb-head">Ringkasan</div>
+        ${flags.join('')}
+      </div>
+    </div>
+
+    <div class="det-section">
+      <div class="det-section-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><polyline points="21 3 21 8 16 8"/></svg> Penelusuran per Tujuan</div>
+      <div class="det-section-body">${goalsHTML}</div>
+    </div>
+  </div>`;
+}
+
+function traceCell(lbl,status,note,cls){
+  const ico = cls==='hit'
+    ? '<svg class="trace-ico" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'
+    : cls==='miss'
+    ? '<svg class="trace-ico" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+    : '<svg class="trace-ico" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+  const col = cls==='hit'?'#15803d':cls==='miss'?'#b91c1c':'#64748b';
+  return `<div class="trace-cell ${cls}">
+    <div class="trace-lbl">${ico}${lbl}</div>
+    <div class="trace-status" style="color:${col}">${esc(status)}</div>
+    <div class="trace-note">${esc(note)}</div>
+  </div>`;
+}
+
+function noPlanBox(msg){
+  return `<div class="det-section"><div class="det-section-body">
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <p>Belum Ada Rencana</p><span>${msg}</span>
+    </div>
+  </div></div>`;
+}
+
+/* ── TAB SWITCH ───────────────────────────────────────────────── */
+function switchTab(tab){
+  ACTIVE_TAB=tab;
+  document.getElementById('tb-masalah').classList.toggle('active',tab==='masalah');
+  document.getElementById('tb-hasil').classList.toggle('active',tab==='hasil');
+  renderSummary();
+  renderLegend();
+  renderList();
+  if(CURRENT_KEY){
+    const r=ROWS.find(x=>x.key===CURRENT_KEY);
+    if(r){
+      document.getElementById('ap-detail').innerHTML =
+        ACTIVE_TAB==='masalah' ? detailMatch(r) : detailExec(r);
+    }
+  }
+}
+
+/* ── RENDER PAGE ──────────────────────────────────────────────── */
+function renderPage(d, scnId){
+  if(!d){
+    document.getElementById('page-content').innerHTML='<div class="ap-loading">Tidak ada data tersedia.</div>';
+    return;
+  }
+  D=d;
+  ROWS=buildRows(d);
+  CURRENT_KEY=null;
+
+  document.getElementById('tab-bar').style.display='flex';
+
+  const badge=document.getElementById('scn-badge');
+  if(badge && d.meta) badge.textContent=d.meta.scn||'—';
+  const dt=document.getElementById('topbar-date');
+  if(dt) dt.textContent=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+
+  if(!ROWS.length){
+    document.getElementById('ap-summary').style.display='none';
+    document.getElementById('dom-legend').style.display='none';
+    document.getElementById('page-content').innerHTML=`<div class="ap-page"><div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      <p>Belum ada data anak</p><span>Data Awal untuk SCN ini belum tersedia.</span>
+    </div></div>`;
+    return;
+  }
+
+  renderShell();
+  renderSummary();
+  renderLegend();
+}
+
+/* ── INIT ─────────────────────────────────────────────────────── */
+buildSidebar();
+const SESSION = AUTH.requireAuth('../index.html');
+if (SESSION) {
+  if (!AUTH.canAccessMel || !AUTH.canAccessMel()) {
+    window.location.href = 'mel-beranda.html';
+  } else {
+    AUTH.applySession({
+      onScnSwitch: async function(scnId){
+        const d = await API.get(scnId);
+        if (window.renderPage) renderPage(d, scnId);
+      }
+    });
+    AUTH.initSidebar('mel','m-anplan');
+    const scnId = AUTH.getScnFilter();
+    API.get(scnId).then(d=>{ if(window.renderPage) renderPage(d, scnId); });
+  }
+}
+window.renderPage = renderPage;
+</script>
+</body></html>

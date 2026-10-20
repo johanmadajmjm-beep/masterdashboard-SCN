@@ -653,7 +653,7 @@ function hitungCapData(d) {
   const namaPlan  = new Set(plan.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
   const namaDiary = new Set(diary.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
   const namaEvalM = new Set(evalM.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
-  const namaEvalA = new Set(evalAkh => evalAkh.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
+  const namaEvalA = new Set(evalA.map(r=>(r.nama_anak||r.na||'').toLowerCase().trim()));
 
   // Helper
   const pctAnakObs  = anak.filter(a=>namaObs.has((a.nama||'').toLowerCase().trim())).length;
@@ -734,8 +734,8 @@ function hitungCapData(d) {
     'O6|O3.1'  : { capaian: null,        sumber: '⏳ Butuh form monitoring livelihood' },
     'O6|IOC.2' : { capaian: null,        sumber: '⏳ Butuh survey ekonomi pengasuh' },
     // Outcome 7 — Kebijakan
-    'O7|IOF.1' : { capaian: null,        sumber: '⏳ Butuh input dari mel-advokasi' },
-    'O7|IOF.2' : { capaian: null,        sumber: '⏳ Butuh input dari mel-safeguarding' },
+    'O7|IOF.1' : { capaian: null,        sumber: '⏳ Belum ada sumber data advokasi' },
+    'O7|IOF.2' : { capaian: null,        sumber: '⏳ Belum ada sumber data safeguarding' },
   };
 }
 

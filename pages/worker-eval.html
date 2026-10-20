@@ -184,10 +184,6 @@ function renderList(){
     el.onclick=()=>showDetail(el,list[i]);
   });
 }
-// dummy to avoid old renderList tail
-function _unused_renderList_old(a){
-    const ev=EVAL_MAP[a.nama?.toLowerCase()];
-}
 
 let _lastElEv=null;
 function showDetail(el,a){

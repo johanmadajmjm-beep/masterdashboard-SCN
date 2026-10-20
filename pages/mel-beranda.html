@@ -120,19 +120,12 @@ let _charts = [];
 
 function num(v){ return parseInt(v)||0; }
 function pctColor(v){ return v>=80?'#16a34a':v>=50?'#2563eb':v>=25?'#d97706':'#dc2626'; }
+// TODO: Implementasi kalkulasi ITT yang proper (saat ini stub, selalu 0%)
 function calcITTpct(){ return {O1:0,O2:0,O3:0,O4:0,O5:0,O6:0,O7:0}; }
 
 function destroyCharts(){
   _charts.forEach(c=>{try{c.destroy();}catch(e){}});
   _charts=[];
-}
-
-function tipLP(l, p){
-  const t = l + p || 1;
-  return `<span class="kpi-tip">
-    <span class="kpi-tip-icon">L/P</span>
-    <div class="kpi-tip-box">Laki-laki: <strong>${l}</strong> (${Math.round(l/t*100)}%)<br>Perempuan: <strong>${p}</strong> (${Math.round(p/t*100)}%)</div>
-  </span>`;
 }
 
 function renderPage(d, scnId){

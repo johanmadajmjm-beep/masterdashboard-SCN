@@ -33,9 +33,6 @@ function buildSidebar() {
     rekam    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>`,
     survey   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
     jejaring : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`,
-    advokasi : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>`,
-    shield   : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-    match    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h4"/><path d="M15 13h4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-4"/><path d="M9 7l3-3 3 3"/><path d="M12 4v9"/><polyline points="8 17 10.5 19.5 15 15"/></svg>`,
   };
 
   const scnId   = AUTH.getScnFilter ? AUTH.getScnFilter() : null;
@@ -118,13 +115,10 @@ function buildSidebar() {
         <a class="nav-sub-item" data-page="m-itt"     href="${base}/pages/mel-itt.html">${ICONS.itt} ITT</a>
         <a class="nav-sub-item" data-page="m-stake"   href="${base}/pages/mel-stakeholder.html">${ICONS.stake} Data Stakeholder</a>
         <a class="nav-sub-item" data-page="m-monthly" href="${base}/pages/mel-monthly.html">${ICONS.monthly} Monthly Monitoring</a>
-        <a class="nav-sub-item" data-page="m-story"   href="${base}/pages/mel-cerita.html">${ICONS.story} Cerita Perubahan</a>
-        <a class="nav-sub-item" data-page="m-sukses"  href="${base}/pages/mel-sukses.html">${ICONS.star} Cerita Sukses</a>
+        <a class="nav-sub-item" data-page="m-story"   href="${base}/pages/mel-cerita.html">${ICONS.story} Cerita & Sukses</a>
         ${isAdmin ? `<a class="nav-sub-item" data-page="m-analisis"    href="${base}/pages/mel-analisis.html">${ICONS.trend}    Analisis & Trend</a>` : ''}
         ${isAdmin ? `<a class="nav-sub-item" data-page="m-anplan"      href="${base}/pages/mel-analisis-perencanaan.html">${ICONS.match} Analisis Perencanaan</a>` : ''}
         ${isAdmin ? `<a class="nav-sub-item" data-page="m-survey"      href="${base}/pages/mel-survey.html">${ICONS.survey}      Mid-Eval Survey</a>` : ''}
-        ${isAdmin ? `<a class="nav-sub-item" data-page="m-advokasi"    href="${base}/pages/mel-advokasi.html">${ICONS.advokasi}  Logbook Advokasi</a>` : ''}
-        ${isAdmin ? `<a class="nav-sub-item" data-page="m-safeguarding" href="${base}/pages/mel-safeguarding.html">${ICONS.shield} Safeguarding</a>` : ''}
       </div>
     </div>` : ''}
 
@@ -406,19 +400,16 @@ function buildBottomNav() {
       id    : 'mel',
       label : 'MEL',
       icon  : ICONS.chart,
-      pages : ['m-beranda','m-itt','m-stake','m-monthly','m-story','m-sukses','m-analisis','m-anplan','m-survey','m-advokasi','m-safeguarding'],
+      pages : ['m-beranda','m-itt','m-stake','m-monthly','m-story','m-analisis','m-anplan','m-survey'],
       items : [
         { page:'m-beranda', label:'Beranda',     icon:ICONS.home,    href:`${base}/pages/mel-beranda.html` },
         { page:'m-itt',     label:'ITT',         icon:ICONS.itt,     href:`${base}/pages/mel-itt.html` },
         { page:'m-stake',   label:'Stakeholder', icon:ICONS.stake,   href:`${base}/pages/mel-stakeholder.html` },
         { page:'m-monthly', label:'Monthly',     icon:ICONS.monthly, href:`${base}/pages/mel-monthly.html` },
         { page:'m-story',   label:'Cerita',      icon:ICONS.story,   href:`${base}/pages/mel-cerita.html` },
-        { page:'m-sukses',  label:'Sukses',      icon:ICONS.star,    href:`${base}/pages/mel-sukses.html` },
         ...(isAdmin ? [{ page:'m-analisis',     label:'Analisis',   icon:ICONS.trend,    href:`${base}/pages/mel-analisis.html`     }] : []),
         ...(isAdmin ? [{ page:'m-anplan',       label:'An. Rencana',icon:ICONS.match,    href:`${base}/pages/mel-analisis-perencanaan.html` }] : []),
         ...(isAdmin ? [{ page:'m-survey',       label:'Survey',     icon:ICONS.survey,   href:`${base}/pages/mel-survey.html`       }] : []),
-        ...(isAdmin ? [{ page:'m-advokasi',     label:'Advokasi',   icon:ICONS.advokasi, href:`${base}/pages/mel-advokasi.html`     }] : []),
-        ...(isAdmin ? [{ page:'m-safeguarding', label:'Safeguarding',icon:ICONS.shield,  href:`${base}/pages/mel-safeguarding.html` }] : []),
       ],
     }] : []),
     {
